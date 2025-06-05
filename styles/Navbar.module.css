@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-color);
 }
@@ -56,7 +56,7 @@
   gap: 0.25rem;
   padding: 0.5rem 0;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -82,7 +82,7 @@
   top: 100%;
   left: 0;
   min-width: 200px;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-lg);
@@ -106,7 +106,8 @@
 }
 
 .dropdownItem:hover {
-  background: var(--bg-secondary);
+  background: var(--bg-tertiary);
+  color: var(--primary-color);
 }
 
 .userSection {
@@ -129,6 +130,7 @@
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: background-color 0.2s;
+  color: var(--text-primary);
 }
 
 .userButton:hover {
@@ -140,6 +142,7 @@
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid var(--border-color);
 }
 
 .userName {
@@ -159,7 +162,7 @@
   top: 100%;
   right: 0;
   min-width: 180px;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-lg);
@@ -202,10 +205,9 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   box-shadow: var(--shadow-lg);
-  z-index: 100;
 }
 
 @media (min-width: 768px) {
@@ -215,14 +217,14 @@
 }
 
 .mobileMenuContent {
-  padding: 1rem;
+  padding: 1rem 0;
   max-width: var(--container-max-width);
   margin: 0 auto;
+  padding: 1rem var(--container-padding);
 }
 
 .mobileNavItem {
   border-bottom: 1px solid var(--border-color);
-  padding: 0.75rem 0;
 }
 
 .mobileNavItem:last-child {
@@ -234,49 +236,56 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0.5rem 0;
+  padding: 1rem 0;
+  color: var(--text-primary);
+  text-decoration: none;
   background: none;
   border: none;
-  color: var(--text-primary);
-  font-weight: 500;
-  text-decoration: none;
   cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.mobileNavLink:hover {
+  color: var(--primary-color);
 }
 
 .mobileDropdown {
+  background: var(--bg-tertiary);
+  border-radius: var(--border-radius);
   margin-top: 0.5rem;
-  padding-left: 1rem;
 }
 
 .mobileDropdownItem {
   display: block;
-  padding: 0.5rem 0;
+  padding: 0.75rem 1rem;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.875rem;
+  transition: background-color 0.2s;
 }
 
 .mobileDropdownItem:hover {
+  background: var(--bg-secondary);
   color: var(--primary-color);
 }
 
 .mobileUserSection {
   border-top: 1px solid var(--border-color);
-  margin-top: 1rem;
   padding-top: 1rem;
+  margin-top: 1rem;
 }
 
 .spinner {
-  width: 20px;
-  height: 20px;
   border: 2px solid var(--border-color);
   border-top: 2px solid var(--primary-color);
   border-radius: 50%;
+  width: 20px;
+  height: 20px;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 } 

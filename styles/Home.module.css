@@ -1,10 +1,11 @@
 .main {
   min-height: 100vh;
+  background: var(--bg-primary);
 }
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
   padding: 5rem 0;
   color: white;
   position: relative;
@@ -20,7 +21,7 @@
   bottom: 0;
   background: url('/patterns/hero-pattern.svg') no-repeat center center;
   background-size: cover;
-  opacity: 0.1;
+  opacity: 0.05;
   z-index: 1;
 }
 
@@ -72,9 +73,10 @@
   position: relative;
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .heroVideoPlayer {
@@ -115,12 +117,13 @@
 .empresas {
   padding: 4rem 0;
   background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
 }
 
 .empresasTitle {
   text-align: center;
   margin-bottom: 3rem;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-size: 1.5rem;
   font-weight: 500;
 }
@@ -141,12 +144,12 @@
   max-width: 150px;
   max-height: 80px;
   object-fit: contain;
-  filter: grayscale(100%) opacity(0.7);
+  filter: grayscale(100%) opacity(0.5) brightness(1.5);
   transition: all 0.3s ease;
 }
 
 .empresaLogo img:hover {
-  filter: grayscale(0%) opacity(1);
+  filter: grayscale(0%) opacity(0.8) brightness(1.2);
   transform: scale(1.05);
 }
 
@@ -164,6 +167,7 @@
 .sectionHeader h2 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
+  color: var(--text-primary);
 }
 
 .sectionHeader p {
@@ -178,7 +182,7 @@
 }
 
 .servicioCard {
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   padding: 2rem;
@@ -206,6 +210,7 @@
 }
 
 .servicioCard:hover {
+  transform: translateY(-5px);
   box-shadow: var(--shadow-lg);
   border-color: var(--primary-color);
 }
@@ -214,19 +219,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .serviceIcon {
-  width: 48px;
-  height: 48px;
+  margin-bottom: 1rem;
   color: var(--primary-color);
 }
 
 .servicioHeader h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
 }
 
 .servicioDescription {
@@ -239,7 +242,7 @@
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--primary-color);
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 /* Testimonios Section */
@@ -250,12 +253,13 @@
 
 .testimoniosGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
 }
 
 .testimonioCard {
-  background: var(--bg-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   padding: 2rem;
   box-shadow: var(--shadow-sm);
@@ -263,47 +267,49 @@
 }
 
 .testimonioCard:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
 }
 
 .testimonioHeader {
   display: flex;
   align-items: center;
+  margin-bottom: 1rem;
   gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
 .testimonioFoto {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid var(--primary-color);
 }
 
 .testimonioHeader h4 {
-  margin-bottom: 0.5rem;
-  font-size: 1.125rem;
+  margin-bottom: 0.25rem;
+  color: var(--text-primary);
 }
 
 .estrellas {
-  display: flex;
-  gap: 0.25rem;
   color: var(--accent-color);
+  font-size: 0.875rem;
 }
 
 .testimonioTexto {
+  color: var(--text-secondary);
   font-style: italic;
   line-height: 1.6;
-  color: var(--text-secondary);
+  margin-bottom: 0;
 }
 
 /* CTA Section */
 .cta {
   padding: 6rem 0;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  color: white;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
   text-align: center;
+  color: white;
 }
 
 .ctaContent h2 {
@@ -325,9 +331,71 @@
   flex-wrap: wrap;
 }
 
-/* Mobile Responsive */
+/* Sistema de Cobros Section */
+.sistemaCobranza {
+  padding: 6rem 0;
+  background: var(--bg-primary);
+}
+
+.cobranzaContent {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cobranzaTitle {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.cobranzaDescription {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  line-height: 1.6;
+}
+
+.paymentMethods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.paymentCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.paymentCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.paymentIcon {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.paymentCard h3 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.paymentCard p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .servicios, .testimonios {
+  .servicios, .testimonios, .sistemaCobranza {
     padding: 4rem 0;
   }
   
@@ -336,7 +404,7 @@
   }
   
   .sectionHeader p {
-    font-size: 1.125rem;
+    font-size: 1.1rem;
   }
   
   .serviciosGrid {
@@ -354,7 +422,7 @@
   }
   
   .heroTitle {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
   
   .ctaContent h2 {
@@ -364,5 +432,14 @@
   .ctaActions {
     flex-direction: column;
     align-items: center;
+  }
+  
+  .paymentMethods {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .cobranzaTitle {
+    font-size: 2rem;
   }
 } 
