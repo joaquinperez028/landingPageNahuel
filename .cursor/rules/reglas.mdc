@@ -1,0 +1,94 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+*Reglas para Cursor AI:*
+
+1. *Variables de entorno siempre en el servidor*
+   – Nunca hardcodeés claves o URLs sensibles en el código cliente.
+   – Usá process.env.NOMBRE_VARIABLE o equivalente para acceder a las variables (MongoDB, Google, MUX, Stripe/Mobbex, etc.).
+   – Para cada variable, definí un nombre claro (MONGODB_URI, GOOGLE_CLIENT_ID, MUX_TOKEN_SECRET, etc.) y documentá en un .env.example las que se necesitan.
+
+2. *Después de cada cambio importante: npm run build*
+   – Antes de mandar cualquier update a producción (Vercel), corré npm run build localmente para asegurarte de que no hay errores de compilación.
+   – Si hay warnings/crash, corregilos antes de subir: problemas de tipado, imports faltantes, errores en CSS Modules, etc.
+
+3. *Tipados estrictos con TypeScript*
+   – Definí interfaces/types para cada esquema de Mongoose y cada prop de componente React.
+   – No usar any salvo casos puntuales; cuando lo hagas, dejá un comentario explicando por qué.
+   – Habilitá en tsconfig.json opciones como "strict": true, "noImplicitAny": true y "strictNullChecks": true para evitar sorpresas.
+
+4. *Estructura de carpetas y nombres consistentes*
+   – Carpeta /models para esquemas de MongoDB, /lib para helpers (conexión a BD, configuración de MUX, Google Auth, pagos, etc.).
+   – Componentes en /components, cada archivo con nombre PascalCase (Navbar.tsx, VideoPlayerMux.tsx).
+   – Páginas en /pages siguiendo Next.js (o estructura equivalente si no usan Next).
+   – Mantené separación clara entre frontend (.tsx/.jsx, /styles) y backend (/api, helpers en /lib).
+
+5. *Control de errores y validaciones*
+   – En cada endpoint /api, envolvé la lógica en bloques try/catch y devolvé status codes claros (200, 400, 500).
+   – Validá el body de la request con schemas (por ejemplo, usando Joi o zod) antes de insertar en MongoDB.
+   – En el frontend, controlá que las respuestas de la API se manejen correctamente (mostrar mensaje de error al usuario si algo falla).
+
+6. *Autenticación y protección de rutas*
+   – Todas las páginas que requieren login deben chequear en el servidor (con getServerSideProps o middleware) que session o token de Google exista.
+   – Si no está autenticado, redirigir automáticamente a /login.
+   – Guardar en la sesión sólo lo necesario (googleId, email, rol, foto), sin exponer tokens sensibles al cliente.
+
+7. *Integración con MUX sin filtrar credenciales*
+   – El backend (función serverless o API) debe ser el único que use MUX_TOKEN_SECRET y suba el archivo.
+   – El frontend sólo recibe playbackId y lo pasa al componente VideoPlayerMux.
+   – Chequear que cada playbackId exista antes de renderizar el player (si no, mostrar placeholder o error amigable).
+
+8. *Manejo de fechas y zonas horarias*
+   – Uniformar todo a UTC en el backend.
+   – Si el usuario está en Uruguay, convertí a America/Montevideo en el frontend sólo para mostrar (no cambies el dato que se guarda).
+   – Al generar eventos en Google Calendar, envialos en UTC y especificá timezone en la API de Google.
+
+9. *Pagos: entorno de pruebas vs producción*
+   – Usar keys de prueba (STRIPE_TEST_KEY, MOBBEX_TEST_KEY) en desarrollo, y las de producción (sin “TEST”) en producción.
+   – Nunca confundas keys; al deployar, verificá que las variables en Vercel estén con prefijo correcto (STRIPE_SECRET_KEY y no la de prueba).
+   – Validá el webhook de Stripe/Mobbex en el backend antes de marcar transacción como “exitosa” en MongoDB.
+
+10. *Consistencia de estilos y Responsividad Mobile-First*
+    – Definí breakpoints clave (mobile, tablet, desktop) en tu CSS o Tailwind.
+    – Probá siempre con “Device Mode” de Chrome para simular celulares (320 px, 375 px, 425 px).
+    – No subas CSS globales desordenados: usá CSS Modules o styled-components para evitar conflictos de nombres.
+
+11. *Hooks y fetch de datos centralizado*
+    – Creá hooks personalizados (useFetchAlerts, useFetchTrainingMetrics, etc.) para que todo el frontend llame a la misma lógica y no haya duplicados.
+    – Cada hook debe exponer loading, error y data, y manejar reintentos o fallback si la API falla.
+    – Para llamadas a Google Sheets, encapsulá en una función de lib/googleSheets.ts, y consumí esa función desde los hooks.
+
+12. *Testing mínimo (sanity checks)*
+    – Aunque no pidan tests unitarios, hacé al menos validaciones manuales:
+
+    * Login/Logout.
+    * Que no puedas entrar a /admin si no sos admin.
+    * Que al suscribirte a una alerta se actualice MongoDB y cambie la vista.
+    * Que los videos de MUX se reproduzcan sin errores de CORS.
+      – Si ves algo crítico, sugerí a Cursor AI que agregue comentarios // TODO: agregar test unitario para X.
+
+13. *Documentación en el código*
+    – Comentá cada endpoint con JSDoc: descripción, parámetros, posible respuesta.
+    – En componentes React, documentá props con /** @param `{propType} propName – descripción */`.
+    – Dejá un README.md en la raíz explicando: cómo setear variables de entorno, comandos para iniciar en dev (npm run dev), cómo ejecutar build y deploy en Vercel.
+
+14. *Logs y monitoreo leve*
+    – En el backend, antes de cada operación crítica (login, pago, subida a MUX), hacé un console.log breve indicando qué está pasando.
+    – Si usás Vercel, revisá el “Functions Logs” para capturar errores 500.
+    – Si algo falla al subir un video a MUX o al guardar en MongoDB, devolvé un mensaje claro al frontend (y guardá el error en logs, no lo muestres al usuario final).
+
+15. *Control de versiones y commits claros*
+    – Aunque Cursor AI genere el código, recomendá siempre usar Git y hacer commits pequeños y descriptivos:
+
+    * “feat: agregada ruta /api/trainings para crear entrenamiento”
+    * “fix: corregido error en VideoPlayerMux cuando playbackId es undefined”
+      – Incluí un .gitignore que excluya node_modules, .env.local y .next (o dist).
+
+16. *Trabajar siempre en ramas (Git Branches)*
+    – Cada nueva feature o corrección se desarrolla en su propia rama (git branch nombre-rama y luego git checkout nombre-rama).
+    – El nombre de la rama debe ser descriptivo: por ejemplo, feature/login-google, bugfix/mux-player-error o hotfix/env-config.
+    – Antes de mergear al main (o master), comprobá localmente que la rama corre sin errores (npm run build y pruebas mínimas).
+
+    – Hacé Pull Requests (o Merges) sólo cuando la rama esté lista y revisada, evitando trabajar directamente en main.
