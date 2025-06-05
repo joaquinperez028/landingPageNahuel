@@ -1,5 +1,5 @@
 import { GetServerSideProps } from 'next';
-import { getSession } from 'next-auth/react';
+import { getSession, signIn } from 'next-auth/react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -223,10 +223,10 @@ export default function Home({ session }: HomeProps) {
                       </Link>
                     </>
                   ) : (
-                    <Link href="/api/auth/signin" className="btn btn-primary btn-lg">
+                    <button onClick={() => signIn('google')} className="btn btn-primary btn-lg">
                       Comenzá a Aprender
                       <ChevronRight size={20} />
-                    </Link>
+                    </button>
                   )}
                 </div>
               </div>
@@ -490,9 +490,9 @@ export default function Home({ session }: HomeProps) {
               
               {!session && (
                 <div className={styles.ctaActions}>
-                  <Link href="/api/auth/signin" className="btn btn-primary btn-lg">
+                  <button onClick={() => signIn('google')} className="btn btn-primary btn-lg">
                     Comenzar Ahora
-                  </Link>
+                  </button>
                   <Link href="/entrenamientos" className="btn btn-outline btn-lg">
                     Ver Entrenamientos
                   </Link>

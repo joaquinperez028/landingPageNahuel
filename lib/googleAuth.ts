@@ -16,14 +16,15 @@ function getMongoClient() {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(getMongoClient()),
+  // Comentamos el adapter por ahora para evitar problemas de conexión
+  // adapter: MongoDBAdapter(getMongoClient()),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
       authorization: {
         params: {
-          scope: 'openid email profile https://www.googleapis.com/auth/calendar',
+          scope: 'openid email profile',
         },
       },
     }),
@@ -108,10 +109,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     }
   },
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
-  },
+
   session: {
     strategy: 'jwt',
   },

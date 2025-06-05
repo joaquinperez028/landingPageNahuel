@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 import { GetServerSideProps } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -45,7 +45,7 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
 
   const handleSubscribe = () => {
     if (!session) {
-      window.location.href = '/api/auth/signin';
+              signIn('google');
     } else {
       window.location.href = '/payment/smart-money';
     }

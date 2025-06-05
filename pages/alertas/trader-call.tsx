@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 import { GetServerSideProps } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -47,7 +47,7 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
   const handleSubscribe = () => {
     if (!session) {
       // Redirigir a login
-      window.location.href = '/api/auth/signin';
+              signIn('google');
     } else {
       // Procesar suscripción
       window.location.href = '/payment/trader-call';
