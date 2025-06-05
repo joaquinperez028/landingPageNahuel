@@ -30,7 +30,13 @@ export const authOptions: NextAuthOptions = {
       console.log('🔐 Iniciando sesión:', user.email);
       
       try {
-        await dbConnect();
+        const connection = await dbConnect();
+        
+        if (!connection) {
+          console.error('❌ No se pudo conectar a MongoDB durante signIn');
+          // Permitir login aunque no se pueda guardar en BD
+          return true;
+        }
         
         // Buscar usuario existente
         let existingUser = await User.findOne({ email: user.email });
@@ -61,14 +67,21 @@ export const authOptions: NextAuthOptions = {
         return true;
       } catch (error) {
         console.error('❌ Error en signIn callback:', error);
-        return false;
+        // Permitir login aunque haya error para evitar crashes
+        return true;
       }
     },
     
     async session({ session, token }) {
       if (session.user?.email) {
         try {
-          await dbConnect();
+          const connection = await dbConnect();
+          
+          if (!connection) {
+            console.error('❌ No se pudo conectar a MongoDB durante session');
+            return session;
+          }
+          
           const user = await User.findOne({ email: session.user.email });
           
           if (user) {
@@ -78,6 +91,7 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error('❌ Error en session callback:', error);
+          // Continuar con la sesión básica aunque haya error
         }
       }
       

@@ -12,20 +12,24 @@ import VideoPlayerMux from '@/components/VideoPlayerMux';
 import styles from '@/styles/Home.module.css';
 
 interface HomeProps {
-  isLoggedIn: boolean;
-  userName?: string;
+  /** @param session - Sesión del usuario autenticado */
+  session: any;
 }
 
-const Home: React.FC<HomeProps> = ({ isLoggedIn, userName }) => {
-  // Datos mock para las empresas (en producción vendrían de la base de datos)
+/**
+ * Página principal del sitio web de Nahuel Lozano
+ */
+export default function Home({ session }: HomeProps) {
+  console.log('🏠 Renderizando página principal');
+  
   const empresasLogos = [
-    { name: 'Bull Market Brokers', logo: '/logos/bull-market.png' },
-    { name: 'TradingView', logo: '/logos/tradingview.png' },
-    { name: 'DólarHoy', logo: '/logos/dolarhoy.png' },
-    { name: 'Inviu', logo: '/logos/inviu.png' },
-    { name: 'Balanz', logo: '/logos/balanz.png' },
-    { name: 'Inversiones Andinas', logo: '/logos/inversiones-andinas.png' },
-    { name: 'Forbes Argentina', logo: '/logos/forbes.png' },
+    '/images/bull-market-brokers.png',
+    '/images/tradingview.png', 
+    '/images/dolarhoy.png',
+    '/images/inviu.png',
+    '/images/balanz.png',
+    '/images/inversiones-andinas.png',
+    '/images/forbes-argentina.png'
   ];
 
   const testimonios = [
@@ -104,24 +108,14 @@ const Home: React.FC<HomeProps> = ({ isLoggedIn, userName }) => {
                   para obtener resultados consistentes en los mercados financieros.
                 </p>
                 
-                {isLoggedIn ? (
+                {session && (
                   <div className={styles.heroActions}>
                     <p className={styles.welcomeMessage}>
-                      ¡Hola {userName}! Explora nuestros servicios
+                      ¡Hola {session.user?.name}! Explora nuestros servicios
                     </p>
                     <Link href="/alertas" className="btn btn-primary btn-lg">
                       Ver Alertas
                       <ChevronRight size={20} />
-                    </Link>
-                  </div>
-                ) : (
-                  <div className={styles.heroActions}>
-                    <Link href="/alertas" className="btn btn-primary btn-lg">
-                      Comenzar Ahora
-                      <ChevronRight size={20} />
-                    </Link>
-                    <Link href="/entrenamientos" className="btn btn-outline btn-lg">
-                      Ver Entrenamientos
                     </Link>
                   </div>
                 )}
@@ -151,13 +145,13 @@ const Home: React.FC<HomeProps> = ({ isLoggedIn, userName }) => {
               <h2 className={styles.empresasTitle}>Empresas que confiaron en mí</h2>
               <Carousel 
                 items={empresasLogos.map(empresa => (
-                  <div key={empresa.name} className={styles.empresaLogo}>
+                  <div key={empresa} className={styles.empresaLogo}>
                     <img 
-                      src={empresa.logo} 
-                      alt={empresa.name}
+                      src={empresa} 
+                      alt={empresa}
                       onError={(e) => {
                         // Fallback si la imagen no carga
-                        (e.target as HTMLImageElement).src = `https://via.placeholder.com/150x80/e2e8f0/64748b?text=${empresa.name}`;
+                        (e.target as HTMLImageElement).src = `https://via.placeholder.com/150x80/e2e8f0/64748b?text=${empresa}`;
                       }}
                     />
                   </div>
@@ -275,7 +269,7 @@ const Home: React.FC<HomeProps> = ({ isLoggedIn, userName }) => {
               <h2>¿Listo para llevar tus inversiones al siguiente nivel?</h2>
               <p>Únete a nuestra comunidad de inversores exitosos y comienza a ver resultados desde el primer día.</p>
               
-              {!isLoggedIn && (
+              {!session && (
                 <div className={styles.ctaActions}>
                   <Link href="/alertas" className="btn btn-primary btn-lg">
                     Comenzar Ahora
@@ -293,17 +287,27 @@ const Home: React.FC<HomeProps> = ({ isLoggedIn, userName }) => {
       <Footer />
     </>
   );
-};
+}
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
-
-  return {
-    props: {
-      isLoggedIn: !!session,
-      userName: session?.user?.name || null,
-    },
-  };
-};
-
-export default Home; 
+  console.log('🔄 Ejecutando getServerSideProps en página principal');
+  
+  try {
+    const session = await getSession(context);
+    console.log('✅ Sesión obtenida:', session ? 'Usuario autenticado' : 'Usuario no autenticado');
+    
+    return {
+      props: {
+        session: session || null,
+      },
+    };
+  } catch (error) {
+    console.error('❌ Error in getServerSideProps:', error);
+    // En lugar de crashear, devolvemos props vacías
+    return {
+      props: {
+        session: null,
+      },
+    };
+  }
+}; 

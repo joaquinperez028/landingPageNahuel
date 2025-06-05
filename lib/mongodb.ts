@@ -29,11 +29,18 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
       console.log('✅ Conectado exitosamente a MongoDB');
       return mongoose;
+    }).catch((error) => {
+      console.error('❌ Error en la promesa de conexión a MongoDB:', error);
+      cached.promise = null;
+      throw error;
     });
   }
 
@@ -42,7 +49,8 @@ async function dbConnect() {
   } catch (e) {
     cached.promise = null;
     console.error('❌ Error conectando a MongoDB:', e);
-    throw e;
+    // En lugar de hacer throw, devolvemos null para evitar crashes
+    return null;
   }
 
   return cached.conn;
