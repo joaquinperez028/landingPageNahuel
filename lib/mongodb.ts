@@ -4,11 +4,11 @@ declare global {
   var mongoose: any; // This must be a `var` and not a `let / const`
 }
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nahuel-lozano-dev';
+const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI && process.env.NODE_ENV === 'production') {
+if (!MONGODB_URI) {
   throw new Error(
-    'Por favor define la variable de entorno MONGODB_URI en producción'
+    'Por favor define la variable de entorno MONGODB_URI'
   );
 }
 
@@ -31,7 +31,7 @@ async function dbConnect() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
       console.log('✅ Conectado exitosamente a MongoDB');
       return mongoose;
     });
