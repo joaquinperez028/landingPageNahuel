@@ -5,15 +5,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, 
-  Mail, 
-  Calendar, 
   CreditCard, 
   ShoppingBag, 
   Settings, 
-  Bell,
-  Download,
-  Eye,
-  EyeOff
+  Bell
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -24,9 +19,8 @@ interface PerfilPageProps {
   userDetails: any;
 }
 
-export default function PerfilPage({ session, userDetails }: PerfilPageProps) {
+export default function PerfilPage({ session }: PerfilPageProps) {
   const [activeTab, setActiveTab] = useState('perfil');
-  const [showSensitiveData, setShowSensitiveData] = useState(false);
 
   const tabs = [
     { id: 'perfil', label: 'Mi Perfil', icon: <User size={20} /> },
@@ -153,18 +147,18 @@ export default function PerfilPage({ session, userDetails }: PerfilPageProps) {
                           <span className={styles.value}>{session?.user?.email}</span>
                         </div>
                         <div className={styles.infoRow}>
-                          <span className={styles.label}>Teléfono:</span>
-                          <span className={styles.value}>{userDetails?.phone || 'No configurado'}</span>
-                        </div>
-                        <div className={styles.infoRow}>
-                          <span className={styles.label}>Dirección:</span>
-                          <span className={styles.value}>{userDetails?.address || 'No configurado'}</span>
-                        </div>
-                        <div className={styles.infoRow}>
-                          <span className={styles.label}>Miembro desde:</span>
+                          <span className={styles.label}>Foto de Perfil:</span>
                           <span className={styles.value}>
-                            {userDetails?.createdAt ? formatDate(userDetails.createdAt) : 'No disponible'}
+                            {session?.user?.image ? 'Configurada desde Google' : 'No disponible'}
                           </span>
+                        </div>
+                        <div className={styles.infoRow}>
+                          <span className={styles.label}>Proveedor de Autenticación:</span>
+                          <span className={styles.value}>Google</span>
+                        </div>
+                        <div className={styles.infoRow}>
+                          <span className={styles.label}>Rol:</span>
+                          <span className={styles.value}>{getRoleText(session?.user?.role || 'normal')}</span>
                         </div>
                       </div>
                     </div>
@@ -182,8 +176,8 @@ export default function PerfilPage({ session, userDetails }: PerfilPageProps) {
                 >
                   <h2>Mis Suscripciones</h2>
                   <div className={styles.subscriptionsGrid}>
-                    {userDetails?.suscripciones?.length > 0 ? (
-                      userDetails.suscripciones.map((suscripcion: any, index: number) => (
+                    {session?.user?.suscripciones?.length > 0 ? (
+                      session.user.suscripciones.map((suscripcion: any, index: number) => (
                         <div key={index} className={styles.subscriptionCard}>
                           <div className={styles.subscriptionHeader}>
                             <h3>{suscripcion.servicio}</h3>
@@ -224,42 +218,12 @@ export default function PerfilPage({ session, userDetails }: PerfilPageProps) {
                   transition={{ duration: 0.3 }}
                 >
                   <h2>Historial de Compras</h2>
-                  <div className={styles.purchasesTable}>
-                    {userDetails?.compras?.length > 0 ? (
-                      <>
-                        <div className={styles.tableHeader}>
-                          <span>Fecha</span>
-                          <span>Producto</span>
-                          <span>Tipo</span>
-                          <span>Monto</span>
-                          <span>Estado</span>
-                          <span>Acciones</span>
-                        </div>
-                        {userDetails.compras.map((compra: any, index: number) => (
-                          <div key={index} className={styles.tableRow}>
-                            <span>{formatDate(compra.fecha)}</span>
-                            <span>{compra.itemId}</span>
-                            <span className={styles.purchaseType}>{compra.tipo}</span>
-                            <span>{formatCurrency(compra.monto)}</span>
-                            <span className={`${styles.status} ${styles[compra.estado]}`}>
-                              {getStatusText(compra.estado)}
-                            </span>
-                            <span>
-                              <button className={styles.actionButton} title="Descargar">
-                                <Download size={16} />
-                              </button>
-                            </span>
-                          </div>
-                        ))}
-                      </>
-                    ) : (
-                      <div className={styles.emptyState}>
-                        <ShoppingBag size={48} />
-                        <h3>No tienes compras registradas</h3>
-                        <p>Cuando realices compras, aparecerán aquí</p>
-                        <a href="/entrenamientos" className="btn btn-primary">Ver Entrenamientos</a>
-                      </div>
-                    )}
+                  <div className={styles.emptyState}>
+                    <ShoppingBag size={48} />
+                    <h3>Historial de Compras</h3>
+                    <p>Esta sección estará disponible próximamente</p>
+                    <p>Por ahora, todas las compras se procesan directamente a través de nuestros sistemas de pago</p>
+                    <a href="/entrenamientos" className="btn btn-primary">Ver Entrenamientos</a>
                   </div>
                 </motion.div>
               )}
@@ -273,42 +237,15 @@ export default function PerfilPage({ session, userDetails }: PerfilPageProps) {
                   transition={{ duration: 0.3 }}
                 >
                   <h2>Información de Facturación</h2>
-                  <div className={styles.billingGrid}>
-                    <div className={styles.billingCard}>
-                      <div className={styles.cardHeader}>
-                        <CreditCard size={24} />
-                        <h3>Métodos de Pago</h3>
-                        <button
-                          className={styles.toggleButton}
-                          onClick={() => setShowSensitiveData(!showSensitiveData)}
-                          title={showSensitiveData ? 'Ocultar datos' : 'Mostrar datos'}
-                        >
-                          {showSensitiveData ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                      </div>
-                      {userDetails?.tarjetas?.length > 0 ? (
-                        <div className={styles.cardsContainer}>
-                          {userDetails.tarjetas.map((tarjeta: any, index: number) => (
-                            <div key={index} className={styles.cardItem}>
-                              <div className={styles.cardInfo}>
-                                <span className={styles.cardNumber}>
-                                  **** **** **** {showSensitiveData ? tarjeta.numeroEnmascarado : '****'}
-                                </span>
-                                <span className={styles.cardType}>{tarjeta.tipo}</span>
-                                <span className={styles.cardExpiry}>
-                                  Expira: {showSensitiveData ? formatDate(tarjeta.expiracion) : '**/**'}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className={styles.emptyCards}>
-                          <p>No hay métodos de pago guardados</p>
-                          <button className="btn btn-outline">Agregar Tarjeta</button>
-                        </div>
-                      )}
+                  <div className={styles.emptyState}>
+                    <CreditCard size={48} />
+                    <h3>Información de Facturación</h3>
+                    <p>Los pagos se procesan de forma segura a través de:</p>
+                    <div style={{ margin: '1rem 0' }}>
+                      <p>💳 <strong>Stripe</strong> - Tarjetas internacionales</p>
+                      <p>💰 <strong>Mobbex</strong> - Pagos locales (Argentina/Uruguay)</p>
                     </div>
+                    <p>No almacenamos información de tarjetas por seguridad</p>
                   </div>
                 </motion.div>
               )}
@@ -399,27 +336,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  // Conectar a MongoDB para obtener detalles del usuario
-  let userDetails = null;
-  try {
-    const { default: dbConnect } = await import('@/lib/mongodb');
-    const { default: User } = await import('@/models/User');
-    
-    await dbConnect();
-    userDetails = await User.findOne({ email: session.user?.email }).lean();
-    
-    // Convertir ObjectId y fechas a strings para evitar problemas de serialización
-    if (userDetails) {
-      userDetails = JSON.parse(JSON.stringify(userDetails));
-    }
-  } catch (error) {
-    console.error('❌ Error obteniendo detalles del usuario:', error);
-  }
-
+  // Solo devolvemos la sesión, toda la información viene de Google OAuth
   return {
     props: {
       session,
-      userDetails,
+      userDetails: null, // No necesitamos datos adicionales
     },
   };
 };
