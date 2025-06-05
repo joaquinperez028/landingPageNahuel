@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { ChevronDown, Menu, X, User, LogOut } from 'lucide-react';
+import { ChevronDown, Menu, X, User, LogOut, Settings } from 'lucide-react';
 import styles from '@/styles/Navbar.module.css';
 
 interface NavbarProps {
@@ -163,8 +163,8 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                     Mi Cuenta
                   </Link>
                   {session.user.role === 'admin' && (
-                    <Link href="/admin" className={styles.dropdownItem}>
-                      <User size={16} />
+                    <Link href="/admin/dashboard" className={styles.dropdownItem}>
+                      <Settings size={16} />
                       Dashboard Admin
                     </Link>
                   )}
@@ -209,20 +209,28 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                   </a>
                 ) : (
                   <>
-                    <button
+                    <Link
+                      href={item.href}
                       className={styles.mobileNavLink}
-                      onClick={() => handleDropdownToggle(item.label)}
+                      onClick={() => {
+                        if (!item.dropdown) {
+                          setIsMenuOpen(false);
+                        } else {
+                          handleDropdownToggle(`mobile-${item.label}`);
+                        }
+                      }}
                     >
                       {item.label}
                       {item.dropdown && (
                         <ChevronDown 
                           size={16} 
-                          className={`${styles.chevron} ${openDropdown === item.label ? styles.chevronOpen : ''}`}
+                          className={`${styles.chevron} ${openDropdown === `mobile-${item.label}` ? styles.chevronOpen : ''}`}
                         />
                       )}
-                    </button>
+                    </Link>
                     
-                    {item.dropdown && openDropdown === item.label && (
+                    {/* Mobile Dropdown */}
+                    {item.dropdown && openDropdown === `mobile-${item.label}` && (
                       <div className={styles.mobileDropdown}>
                         {item.dropdown.map((dropdownItem) => (
                           <Link
@@ -240,33 +248,28 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                 )}
               </div>
             ))}
-
+            
             {/* Mobile User Section */}
             <div className={styles.mobileUserSection}>
               {session ? (
                 <>
-                  <Link
-                    href="/account"
-                    className={styles.mobileNavLink}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
+                  <Link href="/account" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
+                    <User size={16} />
                     Mi Cuenta
                   </Link>
                   {session.user.role === 'admin' && (
-                    <Link
-                      href="/admin"
-                      className={styles.mobileNavLink}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
+                    <Link href="/admin/dashboard" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
+                      <Settings size={16} />
                       Dashboard Admin
                     </Link>
                   )}
-                  <button onClick={handleLogout} className={styles.mobileNavLink}>
+                  <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className={styles.mobileNavLink}>
+                    <LogOut size={16} />
                     Cerrar Sesión
                   </button>
                 </>
               ) : (
-                <button onClick={handleLogin} className={styles.loginButton}>
+                <button onClick={() => { handleLogin(); setIsMenuOpen(false); }} className={styles.mobileNavLink}>
                   Iniciar Sesión
                 </button>
               )}

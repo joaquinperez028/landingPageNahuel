@@ -1,0 +1,164 @@
+/* Importar estilos base desde TraderCall y modificar solo lo específico */
+@import './TraderCall.module.css';
+
+/* Hero Section con gradiente específico de Smart Money */
+.hero {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  padding: 6rem 0 4rem;
+  text-align: center;
+  color: white;
+}
+
+/* Video Section con descripción adicional */
+.videoDescription {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* Estilos específicos para flujos */
+.flowIn {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.flowOut {
+  color: var(--error-color);
+  font-weight: 600;
+}
+
+.confirmed {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.pending {
+  color: var(--warning-color);
+  font-weight: 600;
+}
+
+/* Features Section */
+.featuresSection {
+  padding: 6rem 0;
+  background: var(--light-bg);
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.featureCard {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.featureCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+.featureIcon {
+  width: 60px;
+  height: 60px;
+  color: #f5576c;
+  margin: 0 auto 1.5rem;
+}
+
+.featureCard h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.featureCard p {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Flows específicos para suscriptores */
+.flowsList {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.flowCard {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #f5576c;
+}
+
+.flowCard h4 {
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.flowCard p {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.flowStatus {
+  display: inline-block;
+  background: var(--success-color);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* CTA con gradiente específico */
+.subscriptionCta {
+  padding: 6rem 0;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  text-align: center;
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .featuresGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .featureCard {
+    padding: 2rem;
+  }
+  
+  .videoDescription {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .featureCard {
+    padding: 1.5rem;
+  }
+  
+  .featureIcon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .featureCard h3 {
+    font-size: 1.3rem;
+  }
+} 
