@@ -1,0 +1,121 @@
+import { NextAuthOptions } from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
+import { MongoClient } from 'mongodb';
+import dbConnect from './mongodb';
+import User from '@/models/User';
+
+const client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017/nahuel-lozano-dev');
+const clientPromise = client.connect();
+
+export const authOptions: NextAuthOptions = {
+  adapter: MongoDBAdapter(clientPromise),
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || 'development_client_id',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'development_client_secret',
+      authorization: {
+        params: {
+          scope: 'openid email profile https://www.googleapis.com/auth/calendar',
+        },
+      },
+    }),
+  ],
+  callbacks: {
+    async signIn({ user, account, profile }) {
+      console.log('🔐 Iniciando sesión:', user.email);
+      
+      try {
+        await dbConnect();
+        
+        // Buscar usuario existente
+        let existingUser = await User.findOne({ email: user.email });
+        
+        if (!existingUser) {
+          // Crear nuevo usuario
+          console.log('👤 Creando nuevo usuario:', user.email);
+          existingUser = await User.create({
+            googleId: account?.providerAccountId,
+            name: user.name,
+            email: user.email,
+            picture: user.image,
+            role: 'normal',
+            tarjetas: [],
+            compras: [],
+            suscripciones: []
+          });
+        } else {
+          // Actualizar información del usuario
+          console.log('👤 Actualizando usuario existente:', user.email);
+          await User.findByIdAndUpdate(existingUser._id, {
+            name: user.name,
+            picture: user.image,
+            googleId: account?.providerAccountId
+          });
+        }
+        
+        return true;
+      } catch (error) {
+        console.error('❌ Error en signIn callback:', error);
+        return false;
+      }
+    },
+    
+    async session({ session, token }) {
+      if (session.user?.email) {
+        try {
+          await dbConnect();
+          const user = await User.findOne({ email: session.user.email });
+          
+          if (user) {
+            session.user.id = user._id.toString();
+            session.user.role = user.role;
+            session.user.suscripciones = user.suscripciones;
+          }
+        } catch (error) {
+          console.error('❌ Error en session callback:', error);
+        }
+      }
+      
+      return session;
+    },
+    
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    }
+  },
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
+  },
+  session: {
+    strategy: 'jwt',
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+};
+
+// Extender el tipo de session para incluir nuestros campos personalizados
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      image?: string;
+      role: 'normal' | 'suscriptor' | 'admin';
+      suscripciones: Array<{
+        servicio: 'TraderCall' | 'SmartMoney' | 'CashFlow';
+        fechaInicio: Date;
+        fechaVencimiento: Date;
+        activa: boolean;
+      }>;
+    };
+  }
+  
+  interface User {
+    role: 'normal' | 'suscriptor' | 'admin';
+  }
+} 
