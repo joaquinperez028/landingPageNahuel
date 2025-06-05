@@ -1,5 +1,5 @@
 import { GetServerSideProps } from 'next';
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -14,13 +14,43 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import styles from '@/styles/Perfil.module.css';
 
-interface PerfilPageProps {
-  session: any;
-  userDetails: any;
-}
+// Eliminamos la interfaz ya que no la necesitamos
 
-export default function PerfilPage({ session }: PerfilPageProps) {
+export default function PerfilPage() {
+  const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState('perfil');
+
+  // Debug - verificar qué datos están llegando
+  console.log('Session status:', status);
+  console.log('Session data:', session);
+
+  // Mostrar loading mientras se carga la sesión
+  if (status === 'loading') {
+    return (
+      <>
+        <Head>
+          <title>Mi Perfil - Nahuel Lozano</title>
+        </Head>
+        <Navbar />
+        <main className={styles.main}>
+          <div className="container">
+            <div className={styles.perfilContent}>
+              <div style={{ textAlign: 'center', padding: '3rem' }}>
+                <div className={styles.spinner} />
+                <p>Cargando perfil...</p>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  // Si no hay sesión, redirigir (esto no debería pasar por el getServerSideProps)
+  if (!session) {
+    return null;
+  }
 
   const tabs = [
     { id: 'perfil', label: 'Mi Perfil', icon: <User size={20} /> },
@@ -138,13 +168,24 @@ export default function PerfilPage({ session }: PerfilPageProps) {
                         <h3>Datos Básicos</h3>
                       </div>
                       <div className={styles.profileInfo}>
+                        {/* Debug temporario */}
+                        <div style={{ marginBottom: '1rem', padding: '1rem', background: '#f0f0f0', fontSize: '12px' }}>
+                          <strong>Debug Info:</strong><br/>
+                          Status: {status}<br/>
+                          User Name: {session?.user?.name || 'undefined'}<br/>
+                          User Email: {session?.user?.email || 'undefined'}<br/>
+                          User Image: {session?.user?.image || 'undefined'}<br/>
+                          User Role: {session?.user?.role || 'undefined'}<br/>
+                          Full Session: {JSON.stringify(session, null, 2)}
+                        </div>
+                        
                         <div className={styles.infoRow}>
                           <span className={styles.label}>Nombre:</span>
-                          <span className={styles.value}>{session?.user?.name}</span>
+                          <span className={styles.value}>{session?.user?.name || 'No disponible'}</span>
                         </div>
                         <div className={styles.infoRow}>
                           <span className={styles.label}>Correo Electrónico:</span>
-                          <span className={styles.value}>{session?.user?.email}</span>
+                          <span className={styles.value}>{session?.user?.email || 'No disponible'}</span>
                         </div>
                         <div className={styles.infoRow}>
                           <span className={styles.label}>Foto de Perfil:</span>
@@ -336,11 +377,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  // Solo devolvemos la sesión, toda la información viene de Google OAuth
+  // Solo verificamos que hay sesión en el servidor, 
+  // los datos los obtenemos en el cliente con useSession
   return {
-    props: {
-      session,
-      userDetails: null, // No necesitamos datos adicionales
-    },
+    props: {},
   };
 };
