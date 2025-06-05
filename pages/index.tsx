@@ -2,9 +2,9 @@ import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronRight, TrendingUp, Users, Shield, Star } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronRight, TrendingUp, Users, Shield, Star, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
@@ -21,6 +21,48 @@ interface HomeProps {
  */
 export default function Home({ session }: HomeProps) {
   console.log('🏠 Renderizando página principal');
+  
+  const [showPopup, setShowPopup] = useState(false);
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  // Mostrar popup después de 3 segundos si no está logueado
+  useEffect(() => {
+    if (!session) {
+      const timer = setTimeout(() => {
+        setShowPopup(true);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [session]);
+
+  const handlePopupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setSubmitMessage('¡Perfecto! Revisa tu email para confirmar tu suscripción y recibir tu curso gratuito.');
+        setEmail('');
+        setTimeout(() => setShowPopup(false), 3000);
+      } else {
+        setSubmitMessage('Error al suscribirse. Por favor intenta nuevamente.');
+      }
+    } catch (error) {
+      setSubmitMessage('Error al suscribirse. Por favor intenta nuevamente.');
+    }
+
+    setIsSubmitting(false);
+  };
   
   const empresasLogos = [
     '/images/bull-market-brokers.png',
@@ -88,6 +130,67 @@ export default function Home({ session }: HomeProps) {
 
       <Navbar />
 
+      {/* Popup de Descuentos y Alertas */}
+      <AnimatePresence>
+        {showPopup && (
+          <motion.div
+            className={styles.popupOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowPopup(false)}
+          >
+            <motion.div
+              className={styles.popupContent}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className={styles.popupClose}
+                onClick={() => setShowPopup(false)}
+              >
+                <X size={24} />
+              </button>
+              
+              <div className={styles.popupHeader}>
+                <h2>🎁 ¡Oferta Especial!</h2>
+                <p>Recibí Códigos de Descuento y Alertas de Lanzamiento</p>
+              </div>
+
+              <form onSubmit={handlePopupSubmit} className={styles.popupForm}>
+                <input
+                  type="email"
+                  placeholder="Ingresa tu email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className={styles.popupInput}
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={styles.popupButton}
+                >
+                  {isSubmitting ? 'Enviando...' : 'Quiero mi curso gratuito'}
+                </button>
+              </form>
+
+              {submitMessage && (
+                <p className={styles.popupMessage}>{submitMessage}</p>
+              )}
+
+              <div className={styles.popupBenefits}>
+                <p>✅ Curso gratuito de introducción al trading</p>
+                <p>✅ Descuentos exclusivos en todos nuestros servicios</p>
+                <p>✅ Alertas de lanzamiento de nuevos productos</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <main className={styles.main}>
         {/* Hero Section */}
         <section className={styles.hero}>
@@ -104,26 +207,34 @@ export default function Home({ session }: HomeProps) {
                   <span className="gradient-text"> estrategias probadas</span>
                 </h1>
                 <p className={styles.heroDescription}>
-                  Únete a más de 1,300 inversores que confían en nuestras alertas y entrenamientos 
+                  Únete a más de 1,500 inversores que confían en nuestras alertas y entrenamientos 
                   para obtener resultados consistentes en los mercados financieros.
                 </p>
                 
-                {session && (
-                  <div className={styles.heroActions}>
-                    <p className={styles.welcomeMessage}>
-                      ¡Hola {session.user?.name}! Explora nuestros servicios
-                    </p>
-                    <Link href="/alertas" className="btn btn-primary btn-lg">
-                      Ver Alertas
+                <div className={styles.heroActions}>
+                  {session ? (
+                    <>
+                      <p className={styles.welcomeMessage}>
+                        ¡Hola {session.user?.name}! Explora nuestros servicios
+                      </p>
+                      <Link href="/alertas" className="btn btn-primary btn-lg">
+                        Ver Alertas
+                        <ChevronRight size={20} />
+                      </Link>
+                    </>
+                  ) : (
+                    <Link href="/api/auth/signin" className="btn btn-primary btn-lg">
+                      Comenzá a Aprender
                       <ChevronRight size={20} />
                     </Link>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
+              {/* Video de Presentación, Explicación y Finalidad */}
               <div className={styles.heroVideo}>
                 <VideoPlayerMux
-                  playbackId="ejemplo-playback-id" // En producción vendría de la base de datos
+                  playbackId="presentacion-nahuel-lozano" // Video pantalla completa y reproducción automática
                   autoplay={true}
                   muted={true}
                   className={styles.heroVideoPlayer}
@@ -133,7 +244,7 @@ export default function Home({ session }: HomeProps) {
           </div>
         </section>
 
-        {/* Empresas Section */}
+        {/* Empresas que confiaron en mí */}
         <section className={styles.empresas}>
           <div className="container">
             <motion.div
@@ -144,22 +255,61 @@ export default function Home({ session }: HomeProps) {
             >
               <h2 className={styles.empresasTitle}>Empresas que confiaron en mí</h2>
               <Carousel 
-                items={empresasLogos.map(empresa => (
-                  <div key={empresa} className={styles.empresaLogo}>
-                    <img 
-                      src={empresa} 
-                      alt={empresa}
-                      onError={(e) => {
-                        // Fallback si la imagen no carga
-                        (e.target as HTMLImageElement).src = `https://via.placeholder.com/150x80/e2e8f0/64748b?text=${empresa}`;
-                      }}
-                    />
-                  </div>
-                ))}
+                items={empresasLogos.map((empresa, index) => {
+                  const empresaNombres = [
+                    'Bull Market Brokers',
+                    'TradingView', 
+                    'DólarHoy',
+                    'Inviu',
+                    'Balanz',
+                    'Inversiones Andinas',
+                    'Forbes Argentina'
+                  ];
+                  
+                  return (
+                    <div key={empresa} className={styles.empresaLogo}>
+                      <img 
+                        src={empresa} 
+                        alt={empresaNombres[index]}
+                        onError={(e) => {
+                          // Fallback si la imagen no carga
+                          (e.target as HTMLImageElement).src = `https://via.placeholder.com/150x80/e2e8f0/64748b?text=${empresaNombres[index]}`;
+                        }}
+                      />
+                    </div>
+                  );
+                })}
                 autoplay={true}
                 showDots={false}
                 className={styles.empresasCarousel}
               />
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Números con datos actualizables - Exactos del spreadsheet */}
+        <section className={styles.stats}>
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className={styles.statsGrid}>
+                <div className={styles.statItem}>
+                  <h3 className={styles.statNumber}>7</h3>
+                  <p className={styles.statLabel}>Años trabajando con el mercado</p>
+                </div>
+                <div className={styles.statItem}>
+                  <h3 className={styles.statNumber}>+1,500</h3>
+                  <p className={styles.statLabel}>Alumnos</p>
+                </div>
+                <div className={styles.statItem}>
+                  <h3 className={styles.statNumber}>+300</h3>
+                  <p className={styles.statLabel}>Horas de formación</p>
+                </div>
+              </div>
             </motion.div>
           </div>
         </section>
@@ -256,6 +406,75 @@ export default function Home({ session }: HomeProps) {
           </div>
         </section>
 
+        {/* Sistema de cobros personalizado */}
+        <section className={styles.sistemaCobranza}>
+          <div className="container">
+            <motion.div
+              className={styles.cobranzaContent}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <h2 className={styles.cobranzaTitle}>Sistema de Cobros Personalizado</h2>
+              <p className={styles.cobranzaDescription}>
+                Ofrecemos múltiples opciones de pago para adaptarnos a tu ubicación y preferencias. 
+                Pagos seguros y procesados por las plataformas más confiables del mercado.
+              </p>
+
+              <div className={styles.paymentMethods}>
+                <motion.div
+                  className={styles.paymentCard}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <div className={styles.paymentIcon}>💳</div>
+                  <h3>Stripe</h3>
+                  <p>Tarjetas de crédito y débito internacionales. Pagos en USD con máxima seguridad.</p>
+                </motion.div>
+
+                <motion.div
+                  className={styles.paymentCard}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true }}
+                >
+                  <div className={styles.paymentIcon}>💰</div>
+                  <h3>Mobbex</h3>
+                  <p>Pagos locales en ARS. Mercado Pago, Rapipago, PagoFácil y transferencias bancarias.</p>
+                </motion.div>
+
+                <motion.div
+                  className={styles.paymentCard}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  viewport={{ once: true }}
+                >
+                  <div className={styles.paymentIcon}>🏦</div>
+                  <h3>Transferencias</h3>
+                  <p>Transferencias bancarias directas para montos mayores. Soporte personalizado.</p>
+                </motion.div>
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                viewport={{ once: true }}
+              >
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '2rem' }}>
+                  🔒 Todos los pagos están protegidos con encriptación SSL de 256 bits. 
+                  No almacenamos información de tarjetas de crédito.
+                </p>
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* CTA Final */}
         <section className={styles.cta}>
           <div className="container">
@@ -271,7 +490,7 @@ export default function Home({ session }: HomeProps) {
               
               {!session && (
                 <div className={styles.ctaActions}>
-                  <Link href="/alertas" className="btn btn-primary btn-lg">
+                  <Link href="/api/auth/signin" className="btn btn-primary btn-lg">
                     Comenzar Ahora
                   </Link>
                   <Link href="/entrenamientos" className="btn btn-outline btn-lg">

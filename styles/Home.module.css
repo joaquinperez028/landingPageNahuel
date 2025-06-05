@@ -442,4 +442,209 @@
   .cobranzaTitle {
     font-size: 2rem;
   }
+}
+
+/* Popup Styles */
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.popupContent {
+  background: white;
+  border-radius: 1rem;
+  max-width: 500px;
+  width: 100%;
+  padding: 2rem;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.popupClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.popupClose:hover {
+  background: var(--light-bg);
+  color: var(--text-primary);
+}
+
+.popupHeader h2 {
+  color: var(--primary-color);
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.popupHeader p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.popupForm {
+  margin-bottom: 1.5rem;
+}
+
+.popupInput {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.popupInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.popupButton {
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.popupButton:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.popupButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.popupMessage {
+  background: var(--success-light);
+  color: var(--success-color);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--success-color);
+}
+
+.popupBenefits {
+  text-align: left;
+  background: var(--light-bg);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.popupBenefits p {
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Stats Section */
+.stats {
+  padding: 6rem 0;
+  background: var(--primary-color);
+  color: white;
+  text-align: center;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statNumber {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #fbbf24;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin: 0;
+  text-align: center;
+}
+
+/* Responsive Design for Popup and Stats */
+@media (max-width: 768px) {
+  .popupContent {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .popupHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .statNumber {
+    font-size: 2.5rem;
+  }
+
+  .statLabel {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .popupOverlay {
+    padding: 0.5rem;
+  }
+
+  .popupContent {
+    padding: 1rem;
+  }
+
+  .popupHeader h2 {
+    font-size: 1.25rem;
+  }
+
+  .popupHeader p {
+    font-size: 1rem;
+  }
+
+  .statNumber {
+    font-size: 2rem;
+  }
 } 
