@@ -1,0 +1,520 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+En la sección de “Cursos”, en lugar de generar un módulo interno, se mostrará un enlace que redirige a la plataforma existente:
+
+
+https://plataformacursos.lozanonahuel.com/
+
+
+Tomá en cuenta estas secciones y funcionalidades:
+
+---
+
+## 1. Home (Página Principal)
+
+1.1 *Menú y Submenú Desplegable*
+
+* Ítems principales en el header:
+
+  * *Alertas* (submenú: Trader Call – Smart Money – CashFlow)
+  * *Entrenamientos*
+  * *Cursos* (https://plataformacursos.lozanonahuel.com/)
+  * *Asesorías* (submenú: Consultorio Financiero – Cuenta Asesorada)
+  * *Recursos*
+
+1.2 *Sección “Empresas que confiaron en mí”*
+
+* Carrusel de logos (imágenes) de:
+
+  * Bull Market Brokers
+  * TradingView
+  * DólarHoy
+  * Inviu
+  * Balanz
+  * Inversiones Andinas
+  * Forbes Argentina
+* Optimizar cada logo para que tenga fondo transparente o uniforme, manteniendo consistencia de tamaño.
+
+1.3 *Sección “Sistema de cobros personalizado”*
+
+* Debe haber una pasarela de pagos (Stripe, Crypto u otra).
+
+  * Si se elige *Stripe*, recordar que requiere una LLC en Estados Unidos para emitir facturas.
+  * Si se opta por una pasarela en pesos (Uruguay/Argentina), usar *Mobbex* o *MercadoPago*.
+* Diseñar el frontend para que, al completar el pago, el usuario reciba confirmación y se registre la transacción en MongoDB.
+
+---
+
+## 2. Alertas
+
+Para cada tipo de alerta (Trader Call, Smart Money y CashFlow), hay dos vistas: “No Suscripto” y “Suscripto”.
+
+### 2.1 Estructura general (idéntica para cada servicio)
+
+* *Menú y Submenú Desplegable* (idéntico al Home).
+
+* *Vista “No Suscripto”*:
+
+  1. *Video: Explicación del servicio*
+
+     * Video a pantalla completa con autoplay (incrustado mediante MUX).
+  2. *Sección “Números con datos actualizables”*
+
+     * Métricas como % de rendimiento, cantidad de usuarios activos, +1300 alertas enviadas.
+     * Datos extraídos desde Google Sheets (o un endpoint propio) y refrescados dinámicamente.
+  3. *“Alertas Históricas”*
+
+     * Tabla o lista basada en Google Sheets.
+     * Botón para exportar a PDF y/o CSV.
+  4. *“Imágenes con Ejemplo de Alertas”*
+
+     * Carrusel de capturas reales de informes y ejemplos de alertas.
+  5. *Botón “Suscribirme”*
+
+     * Si no está logueado, redirige a Google Sign-In.
+     * Al suscribirse, guarda en MongoDB el estado de “suscripto” y redirige a la vista “Suscripto”.
+
+* *Vista “Suscripto”*:
+
+  1. *Menú y Submenú* con estos subítems:
+
+     * *Dashboard de Trabajo*
+     * *Seguimiento de Alertas*
+     * *Alertas Vigentes*
+     * *Informes*
+     * *Comunidad*
+  2. *Dashboard de Trabajo*
+
+     * Panel con gráficos sencillos (Chart.js o similar) que extraen datos de Google Sheets o MongoDB para mostrar la evolución de indicadores.
+  3. *Seguimiento de Alertas*
+
+     * Listado de alertas actuales (datos dinámicos).
+     * Filtros por fecha, tipo de alerta, estado, etc.
+  4. *Alertas Vigentes*
+
+     * Mismo formato que Seguimiento, pero sólo las que aún están activas.
+  5. *Informes*
+
+     * Artículos con texto, imágenes y videos explicativos.
+     * Todo el contenido guardado en MongoDB (URL de MUX para video, URL de CDN para imágenes).
+  6. *Comunidad*
+
+     * Chat en tiempo real o foro sencillo implementado con WebSockets (o polling a un endpoint) y mensajes guardados en MongoDB.
+
+Repetir esta estructura para **Trader Call, **Smart Money* y *CashFlow, modificando etiquetas y métricas según cada servicio.
+
+---
+
+## 3. Entrenamientos
+
+3.1 *Menú y Submenú* (idéntico al Home).
+
+3.2 *Sección “Trading”*
+
+* *Video: Explicación del Entrenamiento* (MUX con autoplay).
+* *Sección “Números con datos actualizables”*
+
+  * Métricas como % de acierto, +500 alumnos, calificación promedio.
+  * Origen de datos: Google Sheets o endpoint propio.
+* *Testimonios*
+
+  * Carrusel de tarjetas con texto y foto de alumnos.
+* *Programa*
+
+  * Roadmap con módulos y lecciones (lista desplegable o acordeón).
+* *Próximos Entrenamientos*
+
+  * Calendario interactivo (selección de fecha).
+  * Sólo hay 1 entrenamiento disponible por mes.
+* *Botón “Inscribirme”*
+
+  * Verifica que esté logueado con Google; si no, pide login.
+  * Al elegir fecha, genera evento en Google Meet y guarda detalles en MongoDB (ID de usuario, fecha, enlace a Meet).
+
+3.3 *Sección “Crypto”*
+
+* Mismos bloques que “Trading”, pero con métricas de cripto (por ejemplo: ROI promedio, número de señales).
+* Carrusel de testimonios y calendario de próximos entrenamientos.
+
+3.4 *Sección “Forex”*
+
+* Igual formato que anteriores: video, métricas, testimonios, programa, calendario e inscripción.
+
+---
+
+## 4. Cursos (ENLACE EXTERNO)
+
+* En el *Menú* y en cualquier botón de “Cursos” dentro de la página, no generar sección interna.
+* Simplemente mostrar un botón o enlace que abra en nueva pestaña:
+
+  
+  https://plataformacursos.lozanonahuel.com/
+  
+* No es necesario crear rutas ni componentes para cursos internos: el frontend solo debe redirigir al usuario a la URL externa.
+
+---
+
+## 5. Asesorías (Consultorio Financiero y Cuenta Asesorada)
+
+5.1 *Menú y Submenú Desplegable* (idéntico al Home).
+
+5.2 *Consultorio Financiero*
+
+* *Video Explicativo* (MUX con autoplay).
+* *Descripción de Servicio* (bloque de texto con beneficios).
+* *Formulario de Solicitud*:
+
+  * Campos: Nombre completo (prellenado desde Google), correo (Google), breve descripción de la consulta.
+  * Al enviar, guardar en MongoDB y notificar al administrador (puede ser un correo o webhook).
+* *Calendario*
+
+  * Mostrar disponibilidad usando integración con Google Calendar (solo fechas/hours definidas por el admin).
+  * Al confirmar cita, guardar evento en Google Calendar del asesor y en MongoDB.
+
+5.3 *Cuenta Asesorada*
+
+* *Video Explicativo* (MUX).
+* *Datos dinámicos*: Métricas generales de rentabilidad (extraídas de Google Sheets).
+* *Formulario de Contratación*:
+
+  * Campos: Nombre, correo (obtenidos de Google), tipo de cuenta (Básica/Premium), monto mínimo a invertir.
+  * Llevar al pago con Stripe o Mobbex.
+  * Al confirmar pago, guardar en MongoDB el contrato (userId, monto, tipo de cuenta, fecha) y enviar correo de bienvenida automáticamente.
+
+---
+
+## 6. Recursos
+
+6.1 *Menú y Submenú Desplegable* (idéntico al Home).
+
+6.2 *Listado de Recursos*
+
+* *Artículos*:
+
+  * Mostrar tarjeta con título, resumen y botón “Leer más”.
+  * Al hacer clic, desplegar el artículo completo (texto + imágenes).
+* *Videos*:
+
+  * Catálogo de videos cortos (mini-tutoriales) incrustados con MUX.
+  * Cada video tiene título, descripción corta y player de MUX.
+* *Descargables*:
+
+  * Plantillas en Excel y guías en PDF.
+  * Botón “Descargar” que enlace directamente al archivo (hosting en CDN o bucket).
+* *Filtrado* por categoría:
+
+  * Toggle o dropdown con categorías: “Tutoriales”, “Plantillas”, “Noticias”.
+* Cada recurso se almacena en MongoDB con esquema:
+
+  js
+  Resource: {
+    título: String,
+    tipo: String (“artículo”|“video”|“pdf”),
+    url: String,
+    categoría: String,
+    fechaSubida: Date
+  }
+  
+
+---
+
+## 7. Mi Cuenta
+
+7.1 *Menú y Submenú Desplegable* (idéntico al Home).
+
+7.2 *Datos del Usuario*
+
+* Mostrar:
+
+  * Nombre, correo y foto de perfil (obtenidos de Google Sign-In).
+  * Campos editables: teléfono, dirección u otros datos adicionales.
+* No permitir editar nombre/email.
+
+7.3 *Tarjetas de Pago*
+
+* Listar tarjetas asociadas (número enmascarado, tipo, fecha de expiración).
+* Botones para “Agregar tarjeta”, “Eliminar” o “Editar”.
+* Si no está implementado, mostrar “Funcionalidad próximamente disponible”.
+
+7.4 *Mis Compras*
+
+* Secciones:
+
+  * Suscripciones vigentes (por ejemplo: Trader Call, Smart Money, CashFlow).
+  * Entrenamientos comprados (Trading, Crypto, Forex).
+  * Asesorías contratadas (Consultorio Financiero, Cuenta Asesorada).
+* Para cada ítem, mostrar estado (Activo/Caducado), fecha de compra y un botón “Renovar” o “Ver detalles”.
+* Los datos vienen desde la colección User en MongoDB (+ referencia a la colección correspondiente).
+
+---
+
+## 8. Dashboard Administrador
+
+8.1 *Menú y Submenú Desplegable*
+
+* Mismos ítems que Home, pero con vistas adicionales de administración:
+
+  * Alertas (subítems: Trader Call – Smart Money – CashFlow)
+  * Entrenamientos (Trading, Crypto, Forex)
+  * Asesorías (Consultorio Financiero – Cuenta Asesorada)
+  * Recursos
+
+8.2 *Sala de Control*
+
+* Panel con métricas clave (extraídas de MongoDB):
+
+  * Número total de usuarios registrados.
+  * Actividad diaria y semanal (nuevos registros, logins).
+  * Ingresos mensuales (resumen de pagos por Stripe/Mobbex).
+  * Mensajes en la comunidad (cantidad total y nuevos en la última semana).
+  * Número de artículos/subidos y videos cargados.
+* Mostrar gráficos sencillos (Chart.js, Recharts o similar).
+
+8.3 *Gestión de Usuarios*
+
+* Tabla con todos los usuarios y sus roles (normal | suscriptor | admin).
+* Botones:
+
+  * “Agregar Usuario” (editar manualmente o invitar por correo).
+  * “Modificar Usuario” (cambiar rol, activar/desactivar).
+  * “Eliminar Usuario” (si aplica).
+
+8.4 *Base de Datos (Contactos)*
+
+* Listado de contactos con columnas: nombre, email, teléfono, fecha de registro.
+* Botón para “Enviar e-mail masivo” (puede abrir modal con editor de texto).
+* Opción para exportar todos los contactos a CSV/Excel.
+
+8.5 *Facturación*
+
+* Generar planilla (CSV o Excel) que incluya para cada factura:
+
+  * Nombre, Apellido, CUIT/CUIL, Monto abonado y Fecha de pago.
+* Botón “Generar Facturación” que consulte MongoDB y construya el archivo.
+* Mostrar historial de facturas ya generadas (fecha de emisión y rango de fechas).
+
+---
+
+## 9. Detalles Técnicos Adicionales
+
+* *Autenticación (Google Sign-In)*:
+
+  * Implementar OAuth2 con Google.
+  * Almacenar en MongoDB (colección users):
+
+    js
+    User: {
+      googleId: String,
+      name: String,
+      email: String,
+      picture: String,
+      role: String, // “normal” | “suscriptor” | “admin”
+      tarjetas: [
+        { númeroEnmascarado: String, tipo: String, expiración: Date }
+      ],
+      compras: [
+        { itemId: ObjectId, tipo: String, fecha: Date, estado: String }
+      ]
+    }
+    
+  * Proteger rutas sensibles: si no está logueado, redirigir a /login.
+
+* *Modelos en MongoDB (Mongoose)*:
+
+  * User (ver arriba).
+  * Alert:
+
+    js
+    Alert: {
+      tipo: String, // “TraderCall” | “SmartMoney” | “CashFlow”
+      usuarioId: ObjectId,
+      fecha: Date,
+      datos: Mixed // subdocumento con métricas
+    }
+    
+  * Training:
+
+    js
+    Training: {
+      nombre: String,
+      descripción: String,
+      videoIdMux: String,
+      métricas: Mixed,
+      precio: Number,
+      suscriptores: [ ObjectId ],
+      calendario: [ Date ]
+    }
+    
+  * Advisory:
+
+    js
+    Advisory: {
+      tipo: String, // “ConsultorioFinanciero” | “CuentaAsesorada”
+      descripción: String,
+      videoMux: String,
+      solicitudes: [
+        { userId: ObjectId, fecha: Date, detalles: String }
+      ]
+    }
+    
+  * Resource:
+
+    js
+    Resource: {
+      título: String,
+      tipo: String, // “artículo” | “video” | “pdf”
+      url: String,
+      categoría: String,
+      fechaSubida: Date
+    }
+    
+  * Billing:
+
+    js
+    Billing: {
+      userId: ObjectId,
+      nombre: String,
+      apellido: String,
+      cuitCuil: String,
+      monto: Number,
+      fechaPago: Date
+    }
+    
+
+* *Integración con MUX*:
+
+  * Backend:
+
+    1. Admin sube archivo de video (Dashboard).
+    2. Servidor hace request a MUX para crear asset y obtiene playbackId.
+    3. Guardar playbackId en el documento correspondiente en MongoDB.
+  * Frontend:
+
+    * Componente VideoPlayerMux que reciba playbackId y use el player oficial de MUX (por ejemplo, importándolo desde @mux/mux-player-react).
+    * Asegurar que la reproducción sea responsiva y con autoplay donde se indique.
+
+* *Despliegue en Vercel*:
+
+  * Variables de entorno configuradas:
+
+    
+    MONGODB_URI
+    GOOGLE_CLIENT_ID
+    GOOGLE_CLIENT_SECRET
+    MUX_TOKEN_ID
+    MUX_TOKEN_SECRET
+    STRIPE_SECRET_KEY  (si usan Stripe)
+    
+  * Scripts en package.json:
+
+    json
+    {
+      "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start"
+      }
+    }
+    
+  * Usar funciones serverless para endpoints de:
+
+    * /api/auth (login/logout con Google).
+    * /api/alerts (CRUD de alertas).
+    * /api/trainings (CRUD de trainings + generación de eventos Google Meet).
+    * /api/advisories (CRUD de consultas y contratos).
+    * /api/resources (CRUD de recursos).
+    * /api/billing (generar facturas y exportar CSV).
+
+* *Estilos y Responsividad*:
+
+  * Emplear CSS moderno (CSS Modules o styled-components).
+  * Layout común con Header (Navbar.tsx) y Footer (Footer.tsx).
+  * Todos los diseños deben ser Mobile-First y 100 % responsivos.
+
+* *Manejo de Estado en Frontend*:
+
+  * Usar React (preferiblemente Next.js) y Context API (o Zustand) para:
+
+    * Estado de autenticación (usuario logueado, token).
+    * Carrito o estado de suscripción (temporario antes de pago).
+
+---
+
+## 10. Estructura de Carpetas y Archivos
+
+
+/pages
+  /api
+    auth.ts
+    alerts.ts
+    trainings.ts
+    advisories.ts
+    resources.ts
+    billing.ts
+  index.tsx
+  /alerts
+    [tipo].tsx
+  /trainings
+    [tipo].tsx
+  /advisories
+    [tipo].tsx
+  /resources
+    index.tsx
+  /account.tsx
+  /admin
+    dashboard.tsx
+    users.tsx
+    database.tsx
+    billing.tsx
+
+/components
+  Navbar.tsx
+  Footer.tsx
+  Carousel.tsx
+  VideoPlayerMux.tsx
+  MetricCard.tsx
+  TestimonialCard.tsx
+  CalendarSelector.tsx
+  SubscriptionButton.tsx
+  ResourceItem.tsx
+
+/contexts
+  AuthContext.tsx
+  GlobalState.tsx
+
+/lib
+  mongodb.ts
+  mux.ts
+  googleAuth.ts
+  payments.ts
+
+/models
+  User.ts
+  Alert.ts
+  Training.ts
+  Advisory.ts
+  Resource.ts
+  Billing.ts
+
+/styles
+  globals.css
+  Home.module.css
+  Alerts.module.css
+  Entrenamientos.module.css
+  Advisories.module.css
+  Resources.module.css
+  Account.module.css
+  Admin.module.css
+
+next.config.js
+tsconfig.json
+package.json
+
+
+* En cada ruta de /api implementá la lógica de conexión a MongoDB y llamadas a MUX o Stripe/Mobbex según corresponda.
+* En cada página .tsx, usá *getServerSideProps* o *getStaticProps* para traer datos de MongoDB o Google Sheets.
+
+* Cada componente reutilizable debe estar bien tipado (TypeScript) y documentado.

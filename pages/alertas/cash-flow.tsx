@@ -256,8 +256,8 @@ export default function CashFlowPage({ isSubscribed, user }: CashFlowPageProps) 
   return (
     <>
       <Head>
-        <title>Cash Flow Dashboard | Nahuel Lozano</title>
-        <meta name="description" content="Dashboard de suscriptor para alertas de cash flow y generación de ingresos pasivos." />
+        <title>Panel Cash Flow | Nahuel Lozano</title>
+        <meta name="description" content="Panel de suscriptor para alertas de cash flow y generación de ingresos pasivos." />
       </Head>
       <Navbar />
       
@@ -265,8 +265,8 @@ export default function CashFlowPage({ isSubscribed, user }: CashFlowPageProps) 
         {/* Header */}
         <section className={styles.content}>
           <div className="container">
-            <h1>Cash Flow Dashboard</h1>
-            <p>Bienvenido a tu dashboard de alertas de cash flow, {user?.name}</p>
+            <h1>Panel Cash Flow</h1>
+            <p>Bienvenido a tu panel de alertas de cash flow, {user?.name}</p>
           </div>
         </section>
 
@@ -278,7 +278,7 @@ export default function CashFlowPage({ isSubscribed, user }: CashFlowPageProps) 
                 className={`${styles.tab} ${activeTab === 'dashboard' ? styles.active : ''}`}
                 onClick={() => setActiveTab('dashboard')}
               >
-                Dashboard
+                Panel
               </button>
               <button 
                 className={`${styles.tab} ${activeTab === 'alerts' ? styles.active : ''}`}
@@ -290,7 +290,7 @@ export default function CashFlowPage({ isSubscribed, user }: CashFlowPageProps) 
                 className={`${styles.tab} ${activeTab === 'portfolio' ? styles.active : ''}`}
                 onClick={() => setActiveTab('portfolio')}
               >
-                Portfolio
+                Cartera
               </button>
               <button 
                 className={`${styles.tab} ${activeTab === 'reports' ? styles.active : ''}`}
@@ -324,11 +324,11 @@ export default function CashFlowPage({ isSubscribed, user }: CashFlowPageProps) 
                   <div className={styles.chartCard}>
                     <h3 className={styles.chartTitle}>Yield Histórico</h3>
                     <div className={styles.chartPlaceholder}>
-                      Evolución del yield del portfolio
+                      Evolución del rendimiento de la cartera
                     </div>
                   </div>
                   <div className={styles.chartCard}>
-                    <h3 className={styles.chartTitle}>Performance vs S&P 500</h3>
+                    <h3 className={styles.chartTitle}>Rendimiento vs S&P 500</h3>
                     <div className={styles.chartPlaceholder}>
                       Comparación de rendimiento
                     </div>
@@ -345,7 +345,7 @@ export default function CashFlowPage({ isSubscribed, user }: CashFlowPageProps) 
               
               {activeTab === 'portfolio' && (
                 <div>
-                  <h3>Mi Portfolio de Cash Flow</h3>
+                  <h3>Mi Cartera de Cash Flow</h3>
                   <p>Seguimiento de tus inversiones en activos generadores de ingresos pasivos.</p>
                 </div>
               )}
@@ -353,7 +353,7 @@ export default function CashFlowPage({ isSubscribed, user }: CashFlowPageProps) 
               {activeTab === 'reports' && (
                 <div>
                   <h3>Reportes de Cash Flow</h3>
-                  <p>Reportes detallados de performance y generación de ingresos.</p>
+                                      <p>Reportes detallados de rendimiento y generación de ingresos.</p>
                 </div>
               )}
               

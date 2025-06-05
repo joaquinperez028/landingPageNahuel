@@ -251,7 +251,7 @@ const SubscriberView: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard de Trabajo', icon: BarChart3 },
+    { id: 'dashboard', label: 'Panel de Trabajo', icon: BarChart3 },
     { id: 'tracking', label: 'Seguimiento de Alertas', icon: Activity },
     { id: 'active', label: 'Alertas Vigentes', icon: TrendingUp },
     { id: 'reports', label: 'Informes', icon: FileText },
@@ -283,7 +283,7 @@ const SubscriberView: React.FC = () => {
         <div className={styles.container}>
           {activeTab === 'dashboard' && (
             <div className={styles.dashboard}>
-              <h2 className={styles.contentTitle}>Dashboard de Trabajo</h2>
+                              <h2 className={styles.contentTitle}>Panel de Trabajo</h2>
               <div className={styles.dashboardGrid}>
                 <div className={styles.chartCard}>
                   <h3>Rendimiento Semanal</h3>

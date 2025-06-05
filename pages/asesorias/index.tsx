@@ -46,7 +46,7 @@ export default function AsesoriasPage({ session }: AsesoriasPageProps) {
       incluye: [
         'Gestión profesional de tu portafolio',
         'Rebalanceo automático mensual',
-        'Reportes detallados de performance',
+        'Reportes detallados de rendimiento',
         'Acceso a estrategias institucionales',
         'Soporte prioritario 24/7'
       ],

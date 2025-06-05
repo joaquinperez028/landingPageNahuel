@@ -77,7 +77,7 @@ export default function Home({ session }: HomeProps) {
   const testimonios = [
     {
       nombre: 'Carlos Mendoza',
-      texto: 'Las alertas de Nahuel me han ayudado a incrementar mi portfolio un 45% en los últimos 6 meses.',
+      texto: 'Las alertas de Nahuel me han ayudado a incrementar mi cartera un 45% en los últimos 6 meses.',
       calificacion: 5,
       foto: '/testimonios/carlos.jpg'
     },

@@ -158,14 +158,14 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
 
               {openDropdown === 'user' && (
                 <div className={styles.userDropdown}>
-                  <Link href="/account" className={styles.dropdownItem}>
+                  <Link href="/perfil" className={styles.dropdownItem}>
                     <User size={16} />
-                    Mi Cuenta
+                    Mi Perfil
                   </Link>
                   {session.user.role === 'admin' && (
                     <Link href="/admin/dashboard" className={styles.dropdownItem}>
                       <Settings size={16} />
-                      Dashboard Admin
+                      Panel de Administración
                     </Link>
                   )}
                   <button onClick={handleLogout} className={styles.dropdownItem}>
@@ -253,14 +253,14 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
             <div className={styles.mobileUserSection}>
               {session ? (
                 <>
-                  <Link href="/account" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/perfil" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
                     <User size={16} />
-                    Mi Cuenta
+                    Mi Perfil
                   </Link>
                   {session.user.role === 'admin' && (
                     <Link href="/admin/dashboard" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
                       <Settings size={16} />
-                      Dashboard Admin
+                      Panel de Administración
                     </Link>
                   )}
                   <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className={styles.mobileNavLink}>
