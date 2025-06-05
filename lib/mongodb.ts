@@ -4,14 +4,6 @@ declare global {
   var mongoose: any; // This must be a `var` and not a `let / const`
 }
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error(
-    'Por favor define la variable de entorno MONGODB_URI'
-  );
-}
-
 let cached = global.mongoose;
 
 if (!cached) {
@@ -20,6 +12,13 @@ if (!cached) {
 
 async function dbConnect() {
   console.log('🔄 Intentando conectar a MongoDB...');
+  
+  // Validar MONGODB_URI solo en runtime
+  const MONGODB_URI = process.env.MONGODB_URI;
+  if (!MONGODB_URI) {
+    console.error('❌ Variable de entorno MONGODB_URI no encontrada');
+    throw new Error('Por favor define la variable de entorno MONGODB_URI');
+  }
   
   if (cached.conn) {
     console.log('✅ Usando conexión existente a MongoDB');
@@ -34,7 +33,7 @@ async function dbConnect() {
       socketTimeoutMS: 45000,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       console.log('✅ Conectado exitosamente a MongoDB');
       return mongoose;
     }).catch((error) => {

@@ -5,19 +5,22 @@ import { MongoClient } from 'mongodb';
 import dbConnect from './mongodb';
 import User from '@/models/User';
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+// Mover validaciones a funciones para evitar problemas en build time
+function getMongoClient() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  }
+  const client = new MongoClient(uri);
+  return client.connect();
 }
 
-const client = new MongoClient(process.env.MONGODB_URI);
-const clientPromise = client.connect();
-
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(getMongoClient()),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
       authorization: {
         params: {
           scope: 'openid email profile https://www.googleapis.com/auth/calendar',

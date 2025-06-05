@@ -1,6 +1,6 @@
 import type { AppProps } from 'next/app';
 import { SessionProvider } from 'next-auth/react';
-import { Toaster } from 'react-hot-toast';
+import ToasterProvider from '@/components/ToasterProvider';
 import '@/styles/globals.css';
 
 export default function App({
@@ -9,17 +9,9 @@ export default function App({
 }: AppProps) {
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} />
-      <Toaster 
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#363636',
-            color: '#fff',
-          },
-        }}
-      />
+      <ToasterProvider>
+        <Component {...pageProps} />
+      </ToasterProvider>
     </SessionProvider>
   );
 } 
