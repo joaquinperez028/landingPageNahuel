@@ -78,7 +78,11 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
       <div className={styles.container}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
-          <span className={styles.logoText}>Nahuel Lozano</span>
+          <img 
+            src="/logos/logo-nahuel.png" 
+            alt="Nahuel Lozano" 
+            className={styles.logoImage}
+          />
         </Link>
 
         {/* Desktop Navigation */}

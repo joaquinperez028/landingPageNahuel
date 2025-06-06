@@ -29,6 +29,17 @@
   color: var(--primary-color);
 }
 
+.logoImage {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  transition: opacity 0.2s ease;
+}
+
+.logoImage:hover {
+  opacity: 0.8;
+}
+
 .desktopNav {
   display: none;
 }
