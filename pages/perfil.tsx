@@ -26,6 +26,7 @@ export default function PerfilPage() {
   const { data: session, status } = useSession();
   const [activeSection, setActiveSection] = useState(1);
   const [showIncompleteNotification, setShowIncompleteNotification] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Verificar información incompleta del perfil
   const profileIncomplete = useMemo(() => {
@@ -219,7 +220,10 @@ export default function PerfilPage() {
                 >
                   <div className={styles.sectionHeader}>
                     <h2>Información Personal</h2>
-                    <button className={styles.editButton}>
+                    <button 
+                      className={styles.editButton}
+                      onClick={() => setShowEditModal(true)}
+                    >
                       <Edit3 size={16} />
                       Carga y Modificación
                     </button>
@@ -476,6 +480,125 @@ export default function PerfilPage() {
             </div>
           </motion.div>
         </div>
+
+        {/* Modal de Edición del Perfil */}
+        {showEditModal && (
+          <div className={styles.modalOverlay} onClick={() => setShowEditModal(false)}>
+            <motion.div
+              className={styles.modal}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.modalHeader}>
+                <h2>Editar Información Personal</h2>
+                <button 
+                  className={styles.closeButton}
+                  onClick={() => setShowEditModal(false)}
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className={styles.modalContent}>
+                <form className={styles.editForm}>
+                  <div className={styles.formGrid}>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="fullName">Nombre y Apellido</label>
+                      <input
+                        type="text"
+                        id="fullName"
+                        defaultValue={session?.user?.name || ''}
+                        className={styles.formInput}
+                      />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="cuitCuil">CUIT/CUIL</label>
+                      <input
+                        type="text"
+                        id="cuitCuil"
+                        placeholder="Ej: 20-12345678-9"
+                        className={styles.formInput}
+                      />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="email">Correo Electrónico</label>
+                      <input
+                        type="email"
+                        id="email"
+                        defaultValue={session?.user?.email || ''}
+                        className={styles.formInput}
+                        disabled
+                      />
+                      <small className={styles.formNote}>
+                        El email no se puede modificar por seguridad
+                      </small>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="educacionFinanciera">Educación Financiera</label>
+                      <select id="educacionFinanciera" className={styles.formSelect}>
+                        <option value="">Seleccionar nivel</option>
+                        <option value="principiante">Principiante</option>
+                        <option value="intermedio">Intermedio</option>
+                        <option value="avanzado">Avanzado</option>
+                        <option value="experto">Experto</option>
+                      </select>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="brokerPreferencia">Broker de Preferencia</label>
+                      <select id="brokerPreferencia" className={styles.formSelect}>
+                        <option value="">Seleccionar broker</option>
+                        <option value="bull-market">Bull Market</option>
+                        <option value="iol">IOL</option>
+                        <option value="portfolio-personal">Portfolio Personal</option>
+                        <option value="cocos-capital">Cocos Capital</option>
+                        <option value="eco-valores">Eco Valores</option>
+                        <option value="otros">Otros</option>
+                      </select>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="avatarUrl">URL del Avatar (opcional)</label>
+                      <input
+                        type="url"
+                        id="avatarUrl"
+                        placeholder="https://ejemplo.com/mi-avatar.jpg"
+                        className={styles.formInput}
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.modalActions}>
+                    <button 
+                      type="button"
+                      className={styles.cancelButton}
+                      onClick={() => setShowEditModal(false)}
+                    >
+                      Cancelar
+                    </button>
+                    <button 
+                      type="submit"
+                      className={styles.saveButton}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Aquí iría la lógica para guardar los datos
+                        alert('Funcionalidad de guardado pendiente de implementar');
+                        setShowEditModal(false);
+                      }}
+                    >
+                      Guardar Cambios
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </main>
 
       <Footer />
