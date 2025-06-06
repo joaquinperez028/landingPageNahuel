@@ -7,38 +7,38 @@ import {
   User, 
   CreditCard, 
   ShoppingBag, 
-  Settings, 
-  Bell
+  Bell,
+  Mail,
+  Building,
+  GraduationCap,
+  TrendingUp,
+  Plus,
+  Edit3,
+  Trash2,
+  Download,
+  Calendar,
+  DollarSign
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import styles from '@/styles/Perfil.module.css';
 
-// Eliminamos la interfaz ya que no la necesitamos
-
 export default function PerfilPage() {
   const { data: session, status } = useSession();
-  const [activeTab, setActiveTab] = useState('perfil');
+  const [activeSection, setActiveSection] = useState(1);
 
-  // Debug - verificar qué datos están llegando
-  console.log('Session status:', status);
-  console.log('Session data:', session);
-
-  // Mostrar loading mientras se carga la sesión
   if (status === 'loading') {
     return (
       <>
         <Head>
-          <title>Mi Perfil - Nahuel Lozano</title>
+          <title>Mi Cuenta - Nahuel Lozano</title>
         </Head>
         <Navbar />
         <main className={styles.main}>
-          <div className="container">
-            <div className={styles.perfilContent}>
-              <div style={{ textAlign: 'center', padding: '3rem' }}>
-                <div className={styles.spinner} />
-                <p>Cargando perfil...</p>
-              </div>
+          <div className={styles.container}>
+            <div className={styles.loadingSpinner}>
+              <div className={styles.spinner} />
+              <p>Cargando tu cuenta...</p>
             </div>
           </div>
         </main>
@@ -47,159 +47,167 @@ export default function PerfilPage() {
     );
   }
 
-  // Si no hay sesión, redirigir (esto no debería pasar por el getServerSideProps)
   if (!session) {
     return null;
   }
 
-  const tabs = [
-    { id: 'perfil', label: 'Mi Perfil', icon: <User size={20} /> },
-    { id: 'suscripciones', label: 'Suscripciones', icon: <Bell size={20} /> },
-    { id: 'compras', label: 'Mis Compras', icon: <ShoppingBag size={20} /> },
-    { id: 'facturacion', label: 'Facturación', icon: <CreditCard size={20} /> },
-    { id: 'configuracion', label: 'Configuración', icon: <Settings size={20} /> },
+  const sections = [
+    {
+      id: 1,
+      title: 'Información Personal',
+      description: 'Nombre y Apellido, Avatar, CUIT/CUIL, Correo Electrónico, Educación Financiera, Broker de Preferencia',
+      icon: <User size={20} />
+    },
+    {
+      id: 2,
+      title: 'Métodos de Pago',
+      description: 'Tarjetas de Crédito o Débito Asociadas (posibilidad de modificarlas)',
+      icon: <CreditCard size={20} />
+    },
+    {
+      id: 3,
+      title: 'Mis Compras',
+      description: 'Suscripciones, Compras Entrenamientos, Compras Cursos, etc',
+      icon: <ShoppingBag size={20} />
+    },
+    {
+      id: 4,
+      title: 'Notificaciones',
+      description: 'Central de Notificaciones del usuario respecto al pago y novedades',
+      icon: <Bell size={20} />
+    }
   ];
-
-  const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  const formatCurrency = (amount: number, currency: string = 'USD') => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: currency,
-    }).format(amount);
-  };
-
-  const getStatusText = (status: string) => {
-    const statusMap: { [key: string]: string } = {
-      'active': 'Activa',
-      'inactive': 'Inactiva',
-      'pending': 'Pendiente',
-      'completed': 'Completado',
-      'failed': 'Fallido',
-      'cancelled': 'Cancelado',
-      'confirmed': 'Confirmado'
-    };
-    return statusMap[status] || status;
-  };
-
-  const getRoleText = (role: string) => {
-    const roleMap: { [key: string]: string } = {
-      'admin': 'Administrador',
-      'suscriptor': 'Suscriptor',
-      'normal': 'Usuario'
-    };
-    return roleMap[role] || 'Usuario';
-  };
 
   return (
     <>
       <Head>
-        <title>Mi Perfil - Nahuel Lozano</title>
-        <meta name="description" content="Gestiona tu perfil, suscripciones y configuración" />
+        <title>Mi Cuenta - Nahuel Lozano</title>
+        <meta name="description" content="Gestiona tu cuenta, información personal, métodos de pago y compras" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <Navbar />
 
       <main className={styles.main}>
-        <div className="container">
+        <div className={styles.container}>
           <motion.div
-            className={styles.perfilContent}
-            initial={{ opacity: 0, y: 20 }}
+            className={styles.profileContent}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
           >
-            {/* Encabezado */}
-            <div className={styles.perfilHeader}>
-              <div className={styles.userInfo}>
-                <img 
-                  src={session?.user?.image || `https://via.placeholder.com/80x80/2563eb/ffffff?text=${session?.user?.name?.charAt(0) || 'U'}`}
-                  alt={session?.user?.name || 'Usuario'}
-                  className={styles.userAvatar}
-                />
-                <div>
-                  <h1 className={styles.userName}>{session?.user?.name}</h1>
-                  <p className={styles.userEmail}>{session?.user?.email}</p>
-                  <span className={`${styles.userRole} ${styles[session?.user?.role || 'normal']}`}>
-                    {getRoleText(session?.user?.role || 'normal')}
-                  </span>
+            {/* Header */}
+            <div className={styles.profileHeader}>
+              <h1 className={styles.mainTitle}>Mi Cuenta</h1>
+              <p className={styles.mainSubtitle}>
+                Gestiona tu información personal, métodos de pago y consulta tu historial de compras
+              </p>
+            </div>
+
+            {/* Navigation Table */}
+            <div className={styles.navigationTable}>
+              <div className={styles.tableHeader}>
+                <div className={styles.headerColumn}>Menú y Submenú Desplegable</div>
+                <div className={styles.headerColumn}>
+                  Alertas (Trader Call - Smart Money - CashFlow) - Entrenamientos - Cursos - Asesorías (Consultorio Financiero - Cuenta Asesorada) - Recursos
                 </div>
               </div>
-            </div>
-
-            {/* Pestañas */}
-            <div className={styles.tabsContainer}>
-              <div className={styles.tabs}>
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`}
-                    onClick={() => setActiveTab(tab.id)}
-                  >
-                    {tab.icon}
-                    <span>{tab.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Contenido de Pestañas */}
-            <div className={styles.tabContent}>
-              {/* Pestaña Perfil */}
-              {activeTab === 'perfil' && (
+              
+              {sections.map((section, index) => (
                 <motion.div
-                  className={styles.tabPanel}
-                  initial={{ opacity: 0, x: 20 }}
+                  key={section.id}
+                  className={`${styles.tableRow} ${activeSection === section.id ? styles.active : ''}`}
+                  onClick={() => setActiveSection(section.id)}
+                  initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ delay: index * 0.1 }}
                 >
-                  <h2>Información Personal</h2>
-                  <div className={styles.profileGrid}>
-                    <div className={styles.profileCard}>
-                      <div className={styles.cardHeader}>
+                  <div className={styles.sectionNumber}>{section.id}</div>
+                  <div className={styles.sectionInfo}>
+                    <div className={styles.sectionTitle}>
+                      {section.icon}
+                      <span>{section.title}</span>
+                    </div>
+                  </div>
+                  <div className={styles.sectionDescription}>
+                    {section.description}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Content Sections */}
+            <div className={styles.contentContainer}>
+              {/* Información Personal */}
+              {activeSection === 1 && (
+                <motion.div
+                  className={styles.sectionContent}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className={styles.sectionHeader}>
+                    <h2>Información Personal</h2>
+                    <button className={styles.editButton}>
+                      <Edit3 size={16} />
+                      Carga y Modificación
+                    </button>
+                  </div>
+                  
+                  <div className={styles.infoGrid}>
+                    <div className={styles.infoCard}>
+                      <div className={styles.cardIcon}>
                         <User size={24} />
-                        <h3>Datos Básicos</h3>
                       </div>
-                      <div className={styles.profileInfo}>
-                        {/* Debug temporario */}
-                        <div style={{ marginBottom: '1rem', padding: '1rem', background: '#f0f0f0', fontSize: '12px' }}>
-                          <strong>Debug Info:</strong><br/>
-                          Status: {status}<br/>
-                          User Name: {session?.user?.name || 'undefined'}<br/>
-                          User Email: {session?.user?.email || 'undefined'}<br/>
-                          User Image: {session?.user?.image || 'undefined'}<br/>
-                          User Role: {session?.user?.role || 'undefined'}<br/>
-                          Full Session: {JSON.stringify(session, null, 2)}
+                      <h3>Datos Personales</h3>
+                      <div className={styles.infoList}>
+                        <div className={styles.infoItem}>
+                          <span className={styles.label}>Nombre y Apellido:</span>
+                          <span className={styles.value}>{session?.user?.name || 'No especificado'}</span>
                         </div>
-                        
-                        <div className={styles.infoRow}>
-                          <span className={styles.label}>Nombre:</span>
-                          <span className={styles.value}>{session?.user?.name || 'No disponible'}</span>
+                        <div className={styles.infoItem}>
+                          <span className={styles.label}>CUIT/CUIL:</span>
+                          <span className={styles.value}>No especificado</span>
                         </div>
-                        <div className={styles.infoRow}>
+                      </div>
+                    </div>
+
+                    <div className={styles.infoCard}>
+                      <div className={styles.cardIcon}>
+                        <Mail size={24} />
+                      </div>
+                      <h3>Contacto</h3>
+                      <div className={styles.infoList}>
+                        <div className={styles.infoItem}>
                           <span className={styles.label}>Correo Electrónico:</span>
-                          <span className={styles.value}>{session?.user?.email || 'No disponible'}</span>
+                          <span className={styles.value}>{session?.user?.email}</span>
                         </div>
-                        <div className={styles.infoRow}>
-                          <span className={styles.label}>Foto de Perfil:</span>
+                        <div className={styles.infoItem}>
+                          <span className={styles.label}>Avatar:</span>
                           <span className={styles.value}>
-                            {session?.user?.image ? 'Configurada desde Google' : 'No disponible'}
+                            <img 
+                              src={session?.user?.image || `https://via.placeholder.com/40x40/3b82f6/ffffff?text=${session?.user?.name?.charAt(0) || 'U'}`}
+                              alt="Avatar"
+                              className={styles.avatarSmall}
+                            />
                           </span>
                         </div>
-                        <div className={styles.infoRow}>
-                          <span className={styles.label}>Proveedor de Autenticación:</span>
-                          <span className={styles.value}>Google</span>
+                      </div>
+                    </div>
+
+                    <div className={styles.infoCard}>
+                      <div className={styles.cardIcon}>
+                        <GraduationCap size={24} />
+                      </div>
+                      <h3>Preferencias</h3>
+                      <div className={styles.infoList}>
+                        <div className={styles.infoItem}>
+                          <span className={styles.label}>Educación Financiera:</span>
+                          <span className={styles.value}>Intermedio</span>
                         </div>
-                        <div className={styles.infoRow}>
-                          <span className={styles.label}>Rol:</span>
-                          <span className={styles.value}>{getRoleText(session?.user?.role || 'normal')}</span>
+                        <div className={styles.infoItem}>
+                          <span className={styles.label}>Broker de Preferencia:</span>
+                          <span className={styles.value}>Bull Market</span>
                         </div>
                       </div>
                     </div>
@@ -207,149 +215,224 @@ export default function PerfilPage() {
                 </motion.div>
               )}
 
-              {/* Pestaña Suscripciones */}
-              {activeTab === 'suscripciones' && (
+              {/* Métodos de Pago */}
+              {activeSection === 2 && (
                 <motion.div
-                  className={styles.tabPanel}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
+                  className={styles.sectionContent}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
                 >
-                  <h2>Mis Suscripciones</h2>
-                  <div className={styles.subscriptionsGrid}>
-                    {session?.user?.suscripciones?.length > 0 ? (
-                      session.user.suscripciones.map((suscripcion: any, index: number) => (
-                        <div key={index} className={styles.subscriptionCard}>
-                          <div className={styles.subscriptionHeader}>
-                            <h3>{suscripcion.servicio}</h3>
-                            <span className={`${styles.status} ${suscripcion.activa ? styles.active : styles.inactive}`}>
-                              {suscripcion.activa ? 'Activa' : 'Inactiva'}
-                            </span>
-                          </div>
-                          <div className={styles.subscriptionInfo}>
-                            <div className={styles.infoRow}>
-                              <span className={styles.label}>Fecha de Inicio:</span>
-                              <span className={styles.value}>{formatDate(suscripcion.fechaInicio)}</span>
-                            </div>
-                            <div className={styles.infoRow}>
-                              <span className={styles.label}>Fecha de Vencimiento:</span>
-                              <span className={styles.value}>{formatDate(suscripcion.fechaVencimiento)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className={styles.emptyState}>
-                        <Bell size={48} />
-                        <h3>No tienes suscripciones activas</h3>
-                        <p>Explora nuestros servicios de alertas y entrenamientos</p>
-                        <a href="/alertas" className="btn btn-primary">Ver Servicios</a>
-                      </div>
-                    )}
+                  <div className={styles.sectionHeader}>
+                    <h2>Métodos de Pago</h2>
+                    <button className={styles.addButton}>
+                      <Plus size={16} />
+                      Agregar Tarjeta
+                    </button>
                   </div>
-                </motion.div>
-              )}
-
-              {/* Pestaña Compras */}
-              {activeTab === 'compras' && (
-                <motion.div
-                  className={styles.tabPanel}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h2>Historial de Compras</h2>
-                  <div className={styles.emptyState}>
-                    <ShoppingBag size={48} />
-                    <h3>Historial de Compras</h3>
-                    <p>Esta sección estará disponible próximamente</p>
-                    <p>Por ahora, todas las compras se procesan directamente a través de nuestros sistemas de pago</p>
-                    <a href="/entrenamientos" className="btn btn-primary">Ver Entrenamientos</a>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Pestaña Facturación */}
-              {activeTab === 'facturacion' && (
-                <motion.div
-                  className={styles.tabPanel}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h2>Información de Facturación</h2>
-                  <div className={styles.emptyState}>
-                    <CreditCard size={48} />
-                    <h3>Información de Facturación</h3>
-                    <p>Los pagos se procesan de forma segura a través de:</p>
-                    <div style={{ margin: '1rem 0' }}>
-                      <p>💳 <strong>Stripe</strong> - Tarjetas internacionales</p>
-                      <p>💰 <strong>Mobbex</strong> - Pagos locales (Argentina/Uruguay)</p>
-                    </div>
-                    <p>No almacenamos información de tarjetas por seguridad</p>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Pestaña Configuración */}
-              {activeTab === 'configuracion' && (
-                <motion.div
-                  className={styles.tabPanel}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h2>Configuración de Cuenta</h2>
-                  <div className={styles.settingsGrid}>
-                    <div className={styles.settingsCard}>
+                  
+                  <div className={styles.paymentMethods}>
+                    <div className={styles.paymentCard}>
                       <div className={styles.cardHeader}>
-                        <Settings size={24} />
-                        <h3>Preferencias</h3>
+                        <CreditCard size={24} />
+                        <h3>Tarjetas Guardadas</h3>
                       </div>
-                      <div className={styles.settingsContent}>
-                        <div className={styles.settingItem}>
-                          <div>
-                            <h4>Notificaciones por Correo</h4>
-                            <p>Recibir alertas y actualizaciones por correo electrónico</p>
+                      <div className={styles.cardsList}>
+                        <div className={styles.savedCard}>
+                          <div className={styles.cardInfo}>
+                            <div className={styles.cardType}>VISA</div>
+                            <div className={styles.cardNumber}>**** **** **** 4532</div>
+                            <div className={styles.cardExpiry}>Exp: 12/25</div>
                           </div>
-                          <label className={styles.switch}>
-                            <input type="checkbox" defaultChecked />
-                            <span className={styles.slider}></span>
-                          </label>
+                          <div className={styles.cardActions}>
+                            <button className={styles.actionBtn}>
+                              <Edit3 size={16} />
+                            </button>
+                            <button className={styles.actionBtn}>
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </div>
-                        <div className={styles.settingItem}>
-                          <div>
-                            <h4>Alertas Push</h4>
-                            <p>Notificaciones en tiempo real</p>
+                        <div className={styles.savedCard}>
+                          <div className={styles.cardInfo}>
+                            <div className={styles.cardType}>MASTERCARD</div>
+                            <div className={styles.cardNumber}>**** **** **** 8901</div>
+                            <div className={styles.cardExpiry}>Exp: 08/24</div>
                           </div>
-                          <label className={styles.switch}>
-                            <input type="checkbox" defaultChecked />
-                            <span className={styles.slider}></span>
-                          </label>
+                          <div className={styles.cardActions}>
+                            <button className={styles.actionBtn}>
+                              <Edit3 size={16} />
+                            </button>
+                            <button className={styles.actionBtn}>
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </div>
-                        <div className={styles.settingItem}>
-                          <div>
-                            <h4>Reportes Semanales</h4>
-                            <p>Resumen semanal de rendimiento</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Mis Compras */}
+              {activeSection === 3 && (
+                <motion.div
+                  className={styles.sectionContent}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className={styles.sectionHeader}>
+                    <h2>Mis Compras</h2>
+                    <button className={styles.downloadButton}>
+                      <Download size={16} />
+                      Descargar Historial
+                    </button>
+                  </div>
+                  
+                  <div className={styles.purchasesGrid}>
+                    <div className={styles.purchaseCard}>
+                      <div className={styles.cardHeader}>
+                        <TrendingUp size={24} />
+                        <h3>Suscripciones Activas</h3>
+                      </div>
+                      <div className={styles.subscriptionsList}>
+                        <div className={styles.subscriptionItem}>
+                          <div className={styles.subInfo}>
+                            <h4>Smart Money Premium</h4>
+                            <p>Suscripción mensual</p>
                           </div>
-                          <label className={styles.switch}>
-                            <input type="checkbox" />
-                            <span className={styles.slider}></span>
-                          </label>
+                          <div className={styles.subPrice}>$99 USD</div>
+                          <div className={styles.subStatus}>Activa</div>
+                        </div>
+                        <div className={styles.subscriptionItem}>
+                          <div className={styles.subInfo}>
+                            <h4>Trader Call</h4>
+                            <p>Suscripción mensual</p>
+                          </div>
+                          <div className={styles.subPrice}>$49 USD</div>
+                          <div className={styles.subStatus}>Activa</div>
                         </div>
                       </div>
                     </div>
 
-                    <div className={styles.settingsCard}>
+                    <div className={styles.purchaseCard}>
                       <div className={styles.cardHeader}>
-                        <User size={24} />
-                        <h3>Seguridad</h3>
+                        <GraduationCap size={24} />
+                        <h3>Entrenamientos</h3>
                       </div>
-                      <div className={styles.settingsContent}>
-                        <button className="btn btn-outline">Cambiar Contraseña</button>
-                        <button className="btn btn-outline">Configurar 2FA</button>
-                        <button className="btn btn-outline">Descargar Mis Datos</button>
-                        <button className="btn btn-danger">Eliminar Cuenta</button>
+                      <div className={styles.purchasesList}>
+                        <div className={styles.purchaseItem}>
+                          <div className={styles.purchaseInfo}>
+                            <h4>Trading Fundamentals</h4>
+                            <p>Comprado el 15 de Enero, 2024</p>
+                          </div>
+                          <div className={styles.purchaseAmount}>$299 USD</div>
+                        </div>
+                        <div className={styles.purchaseItem}>
+                          <div className={styles.purchaseInfo}>
+                            <h4>Advanced Trading</h4>
+                            <p>Comprado el 10 de Marzo, 2024</p>
+                          </div>
+                          <div className={styles.purchaseAmount}>$499 USD</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.purchaseCard}>
+                      <div className={styles.cardHeader}>
+                        <Building size={24} />
+                        <h3>Asesorías</h3>
+                      </div>
+                      <div className={styles.purchasesList}>
+                        <div className={styles.purchaseItem}>
+                          <div className={styles.purchaseInfo}>
+                            <h4>Consultorio Financiero</h4>
+                            <p>Sesión del 20 de Abril, 2024</p>
+                          </div>
+                          <div className={styles.purchaseAmount}>$150 USD</div>
+                        </div>
+                        <div className={styles.purchaseItem}>
+                          <div className={styles.purchaseInfo}>
+                            <h4>Cuenta Asesorada</h4>
+                            <p>Abril 2024</p>
+                          </div>
+                          <div className={styles.purchaseAmount}>$999 USD</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Notificaciones */}
+              {activeSection === 4 && (
+                <motion.div
+                  className={styles.sectionContent}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className={styles.sectionHeader}>
+                    <h2>Central de Notificaciones</h2>
+                  </div>
+                  
+                  <div className={styles.notificationsContainer}>
+                    <div className={styles.notificationCard}>
+                      <div className={styles.cardHeader}>
+                        <Bell size={24} />
+                        <h3>Notificaciones de Pago</h3>
+                      </div>
+                      <div className={styles.notificationsList}>
+                        <div className={styles.notificationItem}>
+                          <div className={styles.notificationIcon}>
+                            <DollarSign size={16} />
+                          </div>
+                          <div className={styles.notificationContent}>
+                            <h4>Pago procesado exitosamente</h4>
+                            <p>Tu suscripción a Smart Money ha sido renovada</p>
+                            <span className={styles.notificationTime}>Hace 2 días</span>
+                          </div>
+                        </div>
+                        <div className={styles.notificationItem}>
+                          <div className={styles.notificationIcon}>
+                            <Calendar size={16} />
+                          </div>
+                          <div className={styles.notificationContent}>
+                            <h4>Próximo cobro programado</h4>
+                            <p>Tu suscripción se renovará el 15 de mayo</p>
+                            <span className={styles.notificationTime}>Hace 1 semana</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.notificationCard}>
+                      <div className={styles.cardHeader}>
+                        <TrendingUp size={24} />
+                        <h3>Novedades y Actualizaciones</h3>
+                      </div>
+                      <div className={styles.notificationsList}>
+                        <div className={styles.notificationItem}>
+                          <div className={styles.notificationIcon}>
+                            <Bell size={16} />
+                          </div>
+                          <div className={styles.notificationContent}>
+                            <h4>Nuevo contenido disponible</h4>
+                            <p>Se ha publicado un nuevo análisis en Smart Money</p>
+                            <span className={styles.notificationTime}>Hace 3 horas</span>
+                          </div>
+                        </div>
+                        <div className={styles.notificationItem}>
+                          <div className={styles.notificationIcon}>
+                            <GraduationCap size={16} />
+                          </div>
+                          <div className={styles.notificationContent}>
+                            <h4>Nuevo entrenamiento disponible</h4>
+                            <p>Advanced Trading: Módulo 5 ya está disponible</p>
+                            <span className={styles.notificationTime}>Hace 1 día</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -371,15 +454,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   if (!session) {
     return {
       redirect: {
-        destination: '/',
+        destination: '/api/auth/signin',
         permanent: false,
       },
     };
   }
 
-  // Solo verificamos que hay sesión en el servidor, 
-  // los datos los obtenemos en el cliente con useSession
   return {
-    props: {},
+    props: {
+      session,
+    },
   };
 };
