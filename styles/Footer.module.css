@@ -1,7 +1,20 @@
 .footer {
-  background: var(--text-primary);
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
   color: white;
   padding: 3rem 0 1rem;
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  opacity: 0.05;
+  z-index: 1;
 }
 
 .footerContent {
@@ -9,6 +22,8 @@
   grid-template-columns: 1fr 2fr 1fr;
   gap: 3rem;
   margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
 }
 
 .footerBrand {
@@ -25,6 +40,10 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: white;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .brandDescription {
@@ -45,6 +64,10 @@
   gap: 0.5rem;
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.875rem;
+}
+
+.contactItem svg {
+  color: #06b6d4;
 }
 
 .footerLinks {
@@ -75,7 +98,7 @@
 }
 
 .linkColumn ul li a:hover {
-  color: white;
+  color: #06b6d4;
 }
 
 .newsletter {
@@ -107,7 +130,7 @@
   flex: 1;
   padding: 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: var(--border-radius);
+  border-radius: 0.5rem;
   background: rgba(255, 255, 255, 0.1);
   color: white;
   font-size: 0.875rem;
@@ -119,30 +142,34 @@
 
 .newsletterInput:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: #3b82f6;
   background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .newsletterButton {
   padding: 0.75rem 1rem;
-  background: var(--primary-color);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
   white-space: nowrap;
 }
 
 .newsletterButton:hover {
-  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .footerBottom {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   padding-top: 1.5rem;
+  position: relative;
+  z-index: 2;
 }
 
 .footerBottomContent {
@@ -172,13 +199,16 @@
   background: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .socialLink:hover {
-  background: var(--primary-color);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 /* Mobile Responsive */
@@ -200,6 +230,7 @@
   
   .newsletterForm {
     flex-direction: column;
+    gap: 0.75rem;
   }
   
   .footerBottomContent {
