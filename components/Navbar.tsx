@@ -32,9 +32,8 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
       label: 'Entrenamientos',
       href: '/entrenamientos',
       dropdown: [
-        { label: 'Trading', href: '/entrenamientos/trading' },
-        { label: 'Crypto', href: '/entrenamientos/crypto' },
-        { label: 'Forex', href: '/entrenamientos/forex' },
+        { label: 'Trading Fundamentals', href: '/entrenamientos/trading' },
+        { label: 'Dow Jones', href: '/entrenamientos/advanced' },
       ],
     },
     {
