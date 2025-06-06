@@ -430,20 +430,8 @@ export default function Home({ session }: HomeProps) {
                   transition={{ duration: 0.6, delay: 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <div className={styles.paymentIcon}>💳</div>
-                  <h3>Stripe</h3>
-                  <p>Tarjetas de crédito y débito internacionales. Pagos en USD con máxima seguridad.</p>
-                </motion.div>
-
-                <motion.div
-                  className={styles.paymentCard}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  viewport={{ once: true }}
-                >
                   <div className={styles.paymentIcon}>💰</div>
-                  <h3>Mobbex</h3>
+                  <h3>Mercado Pago</h3>
                   <p>Pagos locales en ARS. Mercado Pago, Rapipago, PagoFácil y transferencias bancarias.</p>
                 </motion.div>
 
@@ -451,7 +439,7 @@ export default function Home({ session }: HomeProps) {
                   className={styles.paymentCard}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.3 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
                   viewport={{ once: true }}
                 >
                   <div className={styles.paymentIcon}>🏦</div>
