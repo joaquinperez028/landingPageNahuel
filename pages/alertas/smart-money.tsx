@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useSession, signIn } from 'next-auth/react';
 import { GetServerSideProps } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import VideoPlayerMux from '@/components/VideoPlayerMux';
+import Carousel from '@/components/Carousel';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -12,10 +14,11 @@ import {
   Activity, 
   Download, 
   BarChart3,
-  MessageSquare,
-  FileText,
+  CheckCircle,
+  Star,
   Eye,
-  DollarSign
+  DollarSign,
+  Target
 } from 'lucide-react';
 import styles from '@/styles/SmartMoney.module.css';
 
@@ -33,6 +36,7 @@ interface SmartMoneyPageProps {
     flow: string;
     volume: string;
     result: string;
+    movement: string;
   }>;
 }
 
@@ -45,39 +49,86 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
 
   const handleSubscribe = () => {
     if (!session) {
-              signIn('google');
+      signIn('google');
     } else {
       window.location.href = '/payment/smart-money';
     }
   };
 
+  const handleExportPDF = () => {
+    console.log('Exportando PDF Smart Money...');
+  };
+
+  const exampleImages = [
+    {
+      src: '/alerts/smart-money-example-1.jpg',
+      alt: 'Ejemplo de flujo Smart Money - Análisis SPY',
+      title: 'Flujo Institucional SPY - Entrada Masiva',
+      description: 'Detección de $2.3B en flujos institucionales hacia SPY'
+    },
+    {
+      src: '/alerts/smart-money-example-2.jpg',
+      alt: 'Ejemplo de flujo Smart Money - Análisis QQQ',
+      title: 'Smart Money QQQ - Salida Coordinada',
+      description: 'Identificación de salida institucional antes de corrección'
+    },
+    {
+      src: '/alerts/smart-money-example-3.jpg',
+      alt: 'Ejemplo de flujo Smart Money - Análisis Sectorial',
+      title: 'Rotación Sectorial - Tech a Energy',
+      description: 'Flujos institucionales mostrando rotación de sectores'
+    }
+  ];
+
   return (
     <div className={styles.nonSubscriberView}>
-      {/* Video Explicativo */}
-      <section className={styles.videoSection}>
+      {/* Hero Section con Video */}
+      <section className={styles.heroSection}>
         <div className={styles.container}>
           <motion.div 
-            className={styles.videoContainer}
-            initial={{ opacity: 0, y: 30 }}
+            className={styles.heroContent}
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className={styles.videoTitle}>Sigue el Dinero Institucional</h2>
-            <p className={styles.videoDescription}>
-              Descubre cómo los grandes fondos mueven el mercado y cómo puedes aprovechar esa información
-            </p>
-            <div className={styles.videoWrapper}>
-              <VideoPlayerMux 
-                playbackId="sample-smart-money-video" 
-                autoplay={true}
-                className={styles.video}
-              />
+            <div className={styles.heroText}>
+              <h1 className={styles.heroTitle}>
+                Smart Money
+                <span className={styles.heroSubtitle}>Sigue los Movimientos Institucionales</span>
+              </h1>
+              <p className={styles.heroDescription}>
+                Descubre hacia dónde se dirige el dinero institucional antes que el resto del mercado. 
+                Nuestro análisis de flujos te permite seguir a los grandes fondos y aprovechar sus movimientos.
+              </p>
+              <div className={styles.heroFeatures}>
+                <div className={styles.heroFeature}>
+                  <CheckCircle size={20} />
+                  <span>Detección de flujos institucionales en tiempo real</span>
+                </div>
+                <div className={styles.heroFeature}>
+                  <CheckCircle size={20} />
+                  <span>Análisis de volumen y liquidez profesional</span>
+                </div>
+                <div className={styles.heroFeature}>
+                  <CheckCircle size={20} />
+                  <span>Identificación de manipulación del mercado</span>
+                </div>
+              </div>
+            </div>
+            <div className={styles.heroVideo}>
+              <div className={styles.videoContainer}>
+                <VideoPlayerMux 
+                  playbackId="sample-smart-money-video" 
+                  autoplay={true}
+                  className={styles.video}
+                />
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Métricas */}
+      {/* Sección de Métricas */}
       <section className={styles.metricsSection}>
         <div className={styles.container}>
           <motion.h2 
@@ -86,7 +137,7 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            Análisis del Dinero Institucional
+            Números con Datos Actualizables
           </motion.h2>
           
           <div className={styles.metricsGrid}>
@@ -97,9 +148,11 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <DollarSign className={styles.metricIcon} />
+              <div className={styles.metricIcon}>
+                <DollarSign size={40} />
+              </div>
               <h3 className={styles.metricNumber}>{metrics.performance}</h3>
-              <p className={styles.metricLabel}>Flujo Promedio Detectado</p>
+              <p className={styles.metricLabel}>% de Rendimiento del Último Año</p>
             </motion.div>
 
             <motion.div 
@@ -109,9 +162,11 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <Eye className={styles.metricIcon} />
+              <div className={styles.metricIcon}>
+                <Users size={40} />
+              </div>
               <h3 className={styles.metricNumber}>{metrics.activeUsers}</h3>
-              <p className={styles.metricLabel}>Analistas Siguiendo</p>
+              <p className={styles.metricLabel}>Usuarios Activos</p>
             </motion.div>
 
             <motion.div 
@@ -121,9 +176,11 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              <Activity className={styles.metricIcon} />
+              <div className={styles.metricIcon}>
+                <Activity size={40} />
+              </div>
               <h3 className={styles.metricNumber}>{metrics.alertsSent}</h3>
-              <p className={styles.metricLabel}>Flujos Detectados</p>
+              <p className={styles.metricLabel}>Alertas Enviadas</p>
             </motion.div>
 
             <motion.div 
@@ -133,7 +190,9 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
             >
-              <BarChart3 className={styles.metricIcon} />
+              <div className={styles.metricIcon}>
+                <Target size={40} />
+              </div>
               <h3 className={styles.metricNumber}>{metrics.accuracy}</h3>
               <p className={styles.metricLabel}>Precisión de Detección</p>
             </motion.div>
@@ -150,19 +209,33 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            Flujos Institucionales Detectados
+            Alertas Históricas (Google Sheets)
           </motion.h2>
+          <motion.p 
+            className={styles.sectionDescription}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            Visualización de algunas alertas y botón de descarga de PDF
+          </motion.p>
           
-          <div className={styles.historyTable}>
+          <motion.div 
+            className={styles.historyTable}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
             <div className={styles.tableHeader}>
               <span>Fecha</span>
               <span>Símbolo</span>
               <span>Flujo</span>
               <span>Volumen</span>
               <span>Resultado</span>
+              <span>Movimiento</span>
             </div>
             
-            {historicalAlerts.slice(0, 10).map((alert, index) => (
+            {historicalAlerts.slice(0, 8).map((alert, index) => (
               <motion.div 
                 key={index}
                 className={styles.tableRow}
@@ -171,34 +244,38 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <span>{alert.date}</span>
-                <span>{alert.symbol}</span>
-                <span className={alert.flow === 'IN' ? styles.flowIn : styles.flowOut}>
-                  {alert.flow === 'IN' ? 'ENTRADA' : 'SALIDA'}
+                <span className={styles.tableCell}>{alert.date}</span>
+                <span className={styles.tableCell}>{alert.symbol}</span>
+                <span className={`${styles.tableCell} ${alert.flow === 'ENTRADA' ? styles.flowIn : styles.flowOut}`}>
+                  {alert.flow}
                 </span>
-                <span>{alert.volume}</span>
-                <span className={alert.result === 'CONFIRMED' ? styles.confirmed : styles.pending}>
+                <span className={styles.tableCell}>{alert.volume}</span>
+                <span className={`${styles.tableCell} ${alert.result === 'CONFIRMADO' ? styles.confirmedResult : styles.pendingResult}`}>
                   {alert.result}
+                </span>
+                <span className={`${styles.tableCell} ${alert.movement.startsWith('+') ? styles.positiveMovement : styles.negativeMovement}`}>
+                  {alert.movement}
                 </span>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
           
-          <div className={styles.exportButtons}>
-            <button className={styles.exportButton}>
+          <motion.div 
+            className={styles.exportActions}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <button className={styles.exportButton} onClick={handleExportPDF}>
               <Download size={20} />
-              Exportar PDF
+              Descargar Reporte PDF
             </button>
-            <button className={styles.exportButton}>
-              <Download size={20} />
-              Exportar CSV
-            </button>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Características del Servicio */}
-      <section className={styles.featuresSection}>
+      {/* Imágenes con Ejemplo de Alertas */}
+      <section className={styles.examplesSection}>
         <div className={styles.container}>
           <motion.h2 
             className={styles.sectionTitle}
@@ -206,65 +283,87 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            ¿Qué hace único a Smart Money?
+            Imágenes con Ejemplo de Alertas
           </motion.h2>
+          <motion.p 
+            className={styles.sectionDescription}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            Carrusel de imágenes con informes y alertas de flujos institucionales
+          </motion.p>
           
-          <div className={styles.featuresGrid}>
-            <motion.div 
-              className={styles.featureCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
-              <Eye className={styles.featureIcon} />
-              <h3>Detección de Manipulación</h3>
-              <p>Identificamos cuando el precio es manipulado por grandes instituciones</p>
-            </motion.div>
-
-            <motion.div 
-              className={styles.featureCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              <BarChart3 className={styles.featureIcon} />
-              <h3>Análisis de Volumen</h3>
-              <p>Análisis profesional del volumen para detectar movimientos institucionales</p>
-            </motion.div>
-
-            <motion.div 
-              className={styles.featureCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
-              <Activity className={styles.featureIcon} />
-              <h3>Niveles Clave</h3>
-              <p>Identificación de niveles donde el dinero institucional toma posiciones</p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Suscripción */}
-      <section className={styles.subscriptionCta}>
-        <div className={styles.container}>
           <motion.div 
-            className={styles.ctaContent}
+            className={styles.carouselContainer}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className={styles.ctaTitle}>Únete a Smart Money</h2>
-            <p className={styles.ctaDescription}>
-              Sigue los movimientos del dinero institucional y aprovecha la información privilegiada del mercado
-            </p>
-            <button onClick={handleSubscribe} className={styles.subscribeButton}>
-              Suscribirme Ahora
-            </button>
+            <Carousel 
+              items={exampleImages.map((image, index) => (
+                <div key={index} className={styles.exampleCard}>
+                  <img src={image.src} alt={image.alt} className={styles.exampleImage} />
+                  <div className={styles.exampleContent}>
+                    <h3 className={styles.exampleTitle}>{image.title}</h3>
+                    <p className={styles.exampleDescription}>{image.description}</p>
+                  </div>
+                </div>
+              ))}
+              autoplay={true}
+              interval={4500}
+              showDots={true}
+              showArrows={true}
+              itemsPerView={1}
+            />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA de Suscripción */}
+      <section className={styles.subscriptionSection}>
+        <div className={styles.container}>
+          <motion.div 
+            className={styles.subscriptionCard}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className={styles.subscriptionContent}>
+              <h2 className={styles.subscriptionTitle}>
+                ¿Listo para Seguir el Smart Money?
+              </h2>
+              <p className={styles.subscriptionDescription}>
+                Únete a {metrics.activeUsers} analistas que ya están siguiendo los movimientos institucionales para maximizar sus ganancias
+              </p>
+              <div className={styles.subscriptionFeatures}>
+                <div className={styles.subscriptionFeature}>
+                  <Star size={16} />
+                  <span>Detección de flujos en tiempo real vía email</span>
+                </div>
+                <div className={styles.subscriptionFeature}>
+                  <Star size={16} />
+                  <span>Análisis de volumen institucional detallado</span>
+                </div>
+                <div className={styles.subscriptionFeature}>
+                  <Star size={16} />
+                  <span>Identificación de manipulación del mercado</span>
+                </div>
+                <div className={styles.subscriptionFeature}>
+                  <Star size={16} />
+                  <span>Reportes semanales de flujos principales</span>
+                </div>
+              </div>
+              <button 
+                className={styles.subscribeButton}
+                onClick={handleSubscribe}
+              >
+                {session ? 'Suscribirme Ahora' : 'Iniciar Sesión y Suscribirme'}
+              </button>
+              <p className={styles.subscriptionNote}>
+                {!session && 'Si no tienes cuenta activa, la tenés que hacer primero antes de continuar'}
+              </p>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -272,101 +371,18 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
   );
 };
 
-// Vista Suscripto
+// Vista de suscriptor simplificada
 const SubscriberView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-
-  const menuItems = [
-    { id: 'dashboard', label: 'Panel de Trabajo', icon: BarChart3 },
-    { id: 'tracking', label: 'Seguimiento de Flujos', icon: Activity },
-    { id: 'active', label: 'Flujos Vigentes', icon: TrendingUp },
-    { id: 'reports', label: 'Informes', icon: FileText },
-    { id: 'community', label: 'Comunidad', icon: MessageSquare },
-  ];
-
   return (
     <div className={styles.subscriberView}>
-      {/* Submenu */}
-      <section className={styles.submenuSection}>
-        <div className={styles.container}>
-          <nav className={styles.submenu}>
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`${styles.submenuItem} ${activeTab === item.id ? styles.active : ''}`}
-              >
-                <item.icon size={20} />
-                {item.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </section>
-
-      {/* Contenido dinámico */}
-      <section className={styles.contentSection}>
-        <div className={styles.container}>
-          {activeTab === 'dashboard' && (
-            <div className={styles.dashboard}>
-                              <h2 className={styles.contentTitle}>Panel Smart Money</h2>
-              <div className={styles.dashboardGrid}>
-                <div className={styles.chartCard}>
-                  <h3>Flujos Institucionales</h3>
-                  <div className={styles.placeholder}>
-                    [Gráfico de flujos institucionales]
-                  </div>
-                </div>
-                <div className={styles.chartCard}>
-                  <h3>Volumen vs Precio</h3>
-                  <div className={styles.placeholder}>
-                    [Análisis de volumen]
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'tracking' && (
-            <div className={styles.tracking}>
-              <h2 className={styles.contentTitle}>Seguimiento de Flujos</h2>
-              <div className={styles.flowsList}>
-                <div className={styles.flowCard}>
-                  <h4>SPY - Flujo Institucional</h4>
-                  <p>Entrada masiva detectada | Volumen: 2.5M | Nivel: $445.20</p>
-                  <span className={styles.flowStatus}>Confirmado</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'active' && (
-            <div className={styles.activeFlows}>
-              <h2 className={styles.contentTitle}>Flujos Vigentes</h2>
-              <p>Flujos institucionales actualmente monitoreados...</p>
-            </div>
-          )}
-
-          {activeTab === 'reports' && (
-            <div className={styles.reports}>
-              <h2 className={styles.contentTitle}>Informes Semanales</h2>
-              <p>Análisis detallados del comportamiento institucional...</p>
-            </div>
-          )}
-
-          {activeTab === 'community' && (
-            <div className={styles.community}>
-              <h2 className={styles.contentTitle}>Comunidad Smart Money</h2>
-              <p>Intercambia ideas sobre flujos institucionales...</p>
-            </div>
-          )}
-        </div>
-      </section>
+      <div className={styles.container}>
+        <h1>Dashboard de Smart Money</h1>
+        <p>Contenido para usuarios suscritos...</p>
+      </div>
     </div>
   );
 };
 
-// Componente principal
 const SmartMoneyPage: React.FC<SmartMoneyPageProps> = ({ 
   isSubscribed, 
   metrics, 
@@ -375,35 +391,21 @@ const SmartMoneyPage: React.FC<SmartMoneyPageProps> = ({
   return (
     <>
       <Head>
-        <title>Smart Money - Análisis Institucional | Nahuel Lozano</title>
-        <meta name="description" content="Sigue los movimientos del dinero institucional en el mercado. Análisis de volumen profesional y detección de manipulación." />
+        <title>Smart Money - Sigue los Movimientos Institucionales | Nahuel Lozano</title>
+        <meta name="description" content="Descubre hacia dónde se dirige el dinero institucional antes que el resto del mercado. Análisis de flujos profesional para maximizar tus ganancias." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <Navbar />
       
       <main className={styles.main}>
-        {/* Hero Section */}
-        <section className={styles.hero}>
-          <div className={styles.container}>
-            <motion.div 
-              className={styles.heroContent}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <h1 className={styles.heroTitle}>Smart Money</h1>
-              <p className={styles.heroSubtitle}>
-                Análisis del dinero institucional y detección de flujos masivos
-              </p>
-            </motion.div>
-          </div>
-        </section>
-
         {isSubscribed ? (
           <SubscriberView />
         ) : (
-          <NonSubscriberView metrics={metrics} historicalAlerts={historicalAlerts} />
+          <NonSubscriberView 
+            metrics={metrics} 
+            historicalAlerts={historicalAlerts} 
+          />
         )}
       </main>
 
@@ -413,35 +415,83 @@ const SmartMoneyPage: React.FC<SmartMoneyPageProps> = ({
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const isSubscribed = false;
-  
   const metrics = {
-    performance: '$2.3B',
-    activeUsers: '1,847',
-    alertsSent: '+892',
-    accuracy: '91.2%'
+    performance: '+94.2%',
+    activeUsers: '+500',
+    alertsSent: '+1,300',
+    accuracy: '89.7%'
   };
 
   const historicalAlerts = [
     {
       date: '2024-01-15',
       symbol: 'SPY',
-      flow: 'IN',
-      volume: '2.5M',
-      result: 'CONFIRMED'
+      flow: 'ENTRADA',
+      volume: '$2.3B',
+      result: 'CONFIRMADO',
+      movement: '+8.4%'
     },
     {
       date: '2024-01-14',
       symbol: 'QQQ',
-      flow: 'OUT',
-      volume: '1.8M',
-      result: 'PENDING'
+      flow: 'SALIDA',
+      volume: '$1.8B',
+      result: 'CONFIRMADO',
+      movement: '-5.2%'
     },
+    {
+      date: '2024-01-12',
+      symbol: 'IWM',
+      flow: 'ENTRADA',
+      volume: '$950M',
+      result: 'CONFIRMADO',
+      movement: '+12.1%'
+    },
+    {
+      date: '2024-01-11',
+      symbol: 'XLF',
+      flow: 'ENTRADA',
+      volume: '$1.2B',
+      result: 'CONFIRMADO',
+      movement: '+6.8%'
+    },
+    {
+      date: '2024-01-10',
+      symbol: 'XLK',
+      flow: 'SALIDA',
+      volume: '$2.1B',
+      result: 'PENDIENTE',
+      movement: '-2.3%'
+    },
+    {
+      date: '2024-01-09',
+      symbol: 'VTI',
+      flow: 'ENTRADA',
+      volume: '$3.4B',
+      result: 'CONFIRMADO',
+      movement: '+9.7%'
+    },
+    {
+      date: '2024-01-08',
+      symbol: 'EFA',
+      flow: 'ENTRADA',
+      volume: '$780M',
+      result: 'CONFIRMADO',
+      movement: '+4.5%'
+    },
+    {
+      date: '2024-01-05',
+      symbol: 'XLE',
+      flow: 'SALIDA',
+      volume: '$560M',
+      result: 'CONFIRMADO',
+      movement: '-7.8%'
+    }
   ];
 
   return {
     props: {
-      isSubscribed,
+      isSubscribed: false,
       metrics,
       historicalAlerts
     }
