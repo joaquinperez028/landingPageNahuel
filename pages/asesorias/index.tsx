@@ -1,59 +1,55 @@
+import React from 'react';
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Calendar, DollarSign, TrendingUp, Users, CheckCircle, Clock } from 'lucide-react';
+import { 
+  CheckCircle,
+  ArrowRight,
+  Calendar,
+  Clock,
+  TrendingUp,
+  Shield,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import VideoPlayerMux from '@/components/VideoPlayerMux';
-import styles from '@/styles/Asesorias.module.css';
+import styles from '@/styles/AsesoriasIndex.module.css';
 
 interface AsesoriasPageProps {
   session: any;
+  asesorias: Array<{
+    id: string;
+    title: string;
+    subtitle: string;
+    description: string;
+    duration: string;
+    modality: string;
+    price: string;
+    features: string[];
+    href: string;
+    icon: string;
+    badge?: string;
+  }>;
+  faqs: Array<{
+    question: string;
+    answer: string;
+  }>;
 }
 
 /**
  * Página principal de Asesorías
  * Muestra los dos tipos: Consultorio Financiero y Cuenta Asesorada
  */
-export default function AsesoriasPage({ session }: AsesoriasPageProps) {
-  const servicios = [
-    {
-      id: 'consultorio-financiero',
-      titulo: 'Consultorio Financiero',
-      precio: '$199',
-      descripcion: 'Sesiones individuales de consultoría personalizada para optimizar tu estrategia de inversión',
-      duracion: '60 minutos',
-      modalidad: 'Videollamada',
-      incluye: [
-        'Análisis completo de tu portafolio actual',
-        'Estrategia personalizada según tu perfil de riesgo',
-        'Recomendaciones de activos específicos',
-        'Plan de acción con objetivos claros',
-        'Seguimiento por email durante 30 días'
-      ],
-      videoId: 'consultorio-financiero-intro',
-      href: '/asesorias/consultorio-financiero'
-    },
-    {
-      id: 'cuenta-asesorada',
-      titulo: 'Cuenta Asesorada',
-      precio: 'Desde $999',
-      descripcion: 'Gestión profesional de tu portafolio con reportes mensuales y estrategias avanzadas',
-      duracion: 'Servicio mensual',
-      modalidad: 'Gestión remota',
-      incluye: [
-        'Gestión profesional de tu portafolio',
-        'Rebalanceo automático mensual',
-        'Reportes detallados de rendimiento',
-        'Acceso a estrategias institucionales',
-        'Soporte prioritario 24/7'
-      ],
-      videoId: 'cuenta-asesorada-intro',
-      href: '/asesorias/cuenta-asesorada'
-    }
-  ];
+const AsesoriasPage: React.FC<AsesoriasPageProps> = ({ session, asesorias, faqs }) => {
+  const [openFaq, setOpenFaq] = React.useState<number | null>(null);
+
+  const toggleFaq = (index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
 
   const testimonios = [
     {
@@ -79,41 +75,62 @@ export default function AsesoriasPage({ session }: AsesoriasPageProps) {
   return (
     <>
       <Head>
-        <title>Asesorías Financieras | Nahuel Lozano</title>
-        <meta name="description" content="Consultoría financiera personalizada y gestión profesional de portafolios. Optimiza tus inversiones con estrategias probadas." />
+        <title>Asesorías - Consultoría Financiera Personalizada | Nahuel Lozano</title>
+        <meta name="description" content="Asesorías financieras personalizadas. Consultorio Financiero y Cuenta Asesorada para optimizar tus inversiones con estrategias profesionales." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
       <Navbar />
 
       <main className={styles.main}>
-        {/* Hero Section */}
-        <section className={styles.hero}>
-          <div className="container">
-            <motion.div
+        {/* Hero Section con Video Explicativo */}
+        <section className={styles.heroSection}>
+          <div className={styles.container}>
+            <motion.div 
               className={styles.heroContent}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
               <div className={styles.heroText}>
-                <h1 className={styles.heroTitle}>Asesoría Financiera Personalizada</h1>
-                <p className={styles.heroSubtitle}>
-                  Optimiza tu estrategia de inversión con consultoría profesional. 
-                  Desde sesiones individuales hasta gestión completa de portafolio.
+                <h1 className={styles.heroTitle}>
+                  Asesorías
+                  <span className={styles.heroSubtitle}>Consultoría Financiera Personalizada</span>
+                </h1>
+                <p className={styles.heroDescription}>
+                  Optimiza tu estrategia de inversión con asesoría profesional personalizada. 
+                  Desde consultas individuales hasta gestión completa de portafolio, 
+                  te acompañamos en cada paso hacia tus objetivos financieros.
                 </p>
-                <div className={styles.heroStats}>
-                  <div className={styles.stat}>
-                    <span className={styles.statNumber}>+120%</span>
-                    <span className={styles.statLabel}>Rentabilidad promedio</span>
+                <div className={styles.heroFeatures}>
+                  <div className={styles.heroFeature}>
+                    <CheckCircle size={20} />
+                    <span>Estrategias personalizadas según tu perfil</span>
                   </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statNumber}>200+</span>
-                    <span className={styles.statLabel}>Clientes asesorados</span>
+                  <div className={styles.heroFeature}>
+                    <CheckCircle size={20} />
+                    <span>Análisis profesional de mercados y oportunidades</span>
                   </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statNumber}>5+</span>
-                    <span className={styles.statLabel}>Años de experiencia</span>
+                  <div className={styles.heroFeature}>
+                    <CheckCircle size={20} />
+                    <span>Seguimiento continuo y ajustes estratégicos</span>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.heroVideo}>
+                <div className={styles.videoContainer}>
+                  {/* Placeholder de video explicativo */}
+                  <div className={styles.videoPlaceholder}>
+                    <div className={styles.placeholderIcon}>💼</div>
+                    <h3 className={styles.placeholderTitle}>Video: Explicación de las Asesorías</h3>
+                    <p className={styles.placeholderText}>
+                      Descubre cómo nuestras asesorías pueden transformar tu estrategia de inversión
+                    </p>
+                    <div className={styles.placeholderFeatures}>
+                      <span>📊 Consultorio Financiero</span>
+                      <span>💰 Cuenta Asesorada</span>
+                      <span>🎯 Estrategias Personalizadas</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -121,178 +138,175 @@ export default function AsesoriasPage({ session }: AsesoriasPageProps) {
           </div>
         </section>
 
-        {/* Servicios */}
-        <section className={styles.servicios}>
-          <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+        {/* 2 Tarjetas de Asesorías */}
+        <section className={styles.asesoriasSection}>
+          <div className={styles.container}>
+            <motion.h2 
+              className={styles.sectionTitle}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              <div className={styles.sectionHeader}>
-                <h2>Nuestros Servicios de Asesoría</h2>
-                <p>Elige la modalidad que mejor se adapte a tus objetivos y necesidades</p>
-              </div>
-
-              <div className={styles.serviciosGrid}>
-                {servicios.map((servicio, index) => (
-                  <motion.div
-                    key={servicio.id}
-                    className={styles.servicioCard}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.2 }}
-                    viewport={{ once: true }}
-                  >
-                    <div className={styles.servicioHeader}>
-                      <h3>{servicio.titulo}</h3>
-                      <div className={styles.precio}>{servicio.precio}</div>
+              Nuestros Servicios de Asesoría
+            </motion.h2>
+            <motion.p 
+              className={styles.sectionDescription}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              Elige la modalidad que mejor se adapte a tus objetivos financieros
+            </motion.p>
+            
+            <div className={styles.asesoriasGrid}>
+              {asesorias.map((asesoria, index) => (
+                <motion.div 
+                  key={asesoria.id}
+                  className={styles.asesoriaCard}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.2 }}
+                >
+                  {asesoria.badge && (
+                    <div className={styles.asesoriaBadge}>
+                      {asesoria.badge}
                     </div>
-
-                    <div className={styles.servicioVideo}>
-                      <VideoPlayerMux 
-                        playbackId={servicio.videoId}
-                        className={styles.video}
-                      />
+                  )}
+                  
+                  <div className={styles.asesoriaIcon}>
+                    <span>{asesoria.icon}</span>
+                  </div>
+                  
+                  <div className={styles.asesoriaContent}>
+                    <div className={styles.asesoriaHeader}>
+                      <h3 className={styles.asesoriaTitle}>{asesoria.title}</h3>
+                      <span className={styles.asesoriaSubtitle}>{asesoria.subtitle}</span>
                     </div>
-
-                    <p className={styles.servicioDescription}>{servicio.descripcion}</p>
-
-                    <div className={styles.servicioDetalles}>
-                      <div className={styles.detalle}>
+                    
+                    <p className={styles.asesoriaDescription}>{asesoria.description}</p>
+                    
+                    <div className={styles.asesoriaMeta}>
+                      <div className={styles.metaItem}>
                         <Clock size={16} />
-                        <span>{servicio.duracion}</span>
+                        <span>{asesoria.duration}</span>
                       </div>
-                      <div className={styles.detalle}>
+                      <div className={styles.metaItem}>
                         <Calendar size={16} />
-                        <span>{servicio.modalidad}</span>
+                        <span>{asesoria.modality}</span>
                       </div>
                     </div>
-
-                    <div className={styles.servicioIncluye}>
-                      <h4>¿Qué incluye?</h4>
-                      <ul>
-                        {servicio.incluye.map((item, i) => (
-                          <li key={i}>
-                            <CheckCircle size={14} />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    
+                    <div className={styles.asesoriaFeatures}>
+                      <h4>Incluye:</h4>
+                      {asesoria.features.map((feature, idx) => (
+                        <div key={idx} className={styles.feature}>
+                          <CheckCircle size={16} />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
                     </div>
-
-                    <Link href={servicio.href} className="btn btn-primary w-full">
-                      Solicitar Asesoría
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+                    
+                    <div className={styles.asesoriaFooter}>
+                      <div className={styles.asesoriaPrice}>
+                        <span className={styles.priceLabel}>Desde</span>
+                        <span className={styles.price}>{asesoria.price}</span>
+                      </div>
+                      <Link href={asesoria.href} className={styles.asesoriaButton}>
+                        Solicitar Asesoría
+                        <ArrowRight size={18} />
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Proceso */}
-        <section className={styles.proceso}>
-          <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+        {/* Preguntas Frecuentes */}
+        <section className={styles.faqSection}>
+          <div className={styles.container}>
+            <motion.h2 
+              className={styles.sectionTitle}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              <div className={styles.sectionHeader}>
-                <h2>¿Cómo funciona?</h2>
-                <p>Un proceso simple y transparente para comenzar</p>
-              </div>
-
-              <div className={styles.procesoSteps}>
-                <div className={styles.step}>
-                  <div className={styles.stepNumber}>1</div>
-                  <h3>Solicita tu cita</h3>
-                  <p>Completa el formulario con tu información básica y objetivos de inversión</p>
-                </div>
-
-                <div className={styles.step}>
-                  <div className={styles.stepNumber}>2</div>
-                  <h3>Análisis inicial</h3>
-                  <p>Revisamos tu situación financiera actual y definimos una estrategia personalizada</p>
-                </div>
-
-                <div className={styles.step}>
-                  <div className={styles.stepNumber}>3</div>
-                  <h3>Sesión de asesoría</h3>
-                  <p>Videollamada de 60 minutos donde discutimos recomendaciones específicas</p>
-                </div>
-
-                <div className={styles.step}>
-                  <div className={styles.stepNumber}>4</div>
-                  <h3>Plan de acción</h3>
-                  <p>Recibes un documento detallado con tu plan de inversión y seguimiento</p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Testimonios */}
-        <section className={styles.testimonios}>
-          <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              Preguntas Frecuentes
+            </motion.h2>
+            <motion.p 
+              className={styles.sectionDescription}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              <div className={styles.sectionHeader}>
-                <h2>Resultados de nuestros clientes</h2>
-                <p>Casos reales de éxito con asesoría personalizada</p>
-              </div>
-
-              <div className={styles.testimoniosGrid}>
-                {testimonios.map((testimonio, index) => (
-                  <motion.div
-                    key={testimonio.nombre}
-                    className={styles.testimonioCard}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                    viewport={{ once: true }}
+              Resolvemos las dudas más comunes sobre nuestros servicios de asesoría
+            </motion.p>
+            
+            <div className={styles.faqContainer}>
+              {faqs.map((faq, index) => (
+                <motion.div 
+                  key={index}
+                  className={styles.faqItem}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <button 
+                    className={styles.faqQuestion}
+                    onClick={() => toggleFaq(index)}
                   >
-                    <div className={styles.testimonioResultado}>
-                      <TrendingUp className={styles.resultadoIcon} />
-                      <span className={styles.resultado}>{testimonio.resultado}</span>
-                    </div>
-                    <h4>{testimonio.nombre}</h4>
-                    <p className={styles.testimonioTexto}>"{testimonio.comentario}"</p>
-                    <span className={styles.testimonioServicio}>{testimonio.servicio}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+                    <span>{faq.question}</span>
+                    {openFaq === index ? 
+                      <ChevronUp size={20} /> : 
+                      <ChevronDown size={20} />
+                    }
+                  </button>
+                  
+                  {openFaq === index && (
+                    <motion.div 
+                      className={styles.faqAnswer}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <p>{faq.answer}</p>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className={styles.cta}>
-          <div className="container">
-            <motion.div
-              className={styles.ctaContent}
-              initial={{ opacity: 0, y: 20 }}
+        {/* CTA Section */}
+        <section className={styles.ctaSection}>
+          <div className={styles.container}>
+            <motion.div 
+              className={styles.ctaCard}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2>¿Listo para optimizar tus inversiones?</h2>
-              <p>Agenda una consulta gratuita de 15 minutos para conocer cómo podemos ayudarte</p>
-              
-              <div className={styles.ctaActions}>
-                <Link href="/asesorias/consultorio-financiero" className="btn btn-primary btn-lg">
-                  Agendar Consulta Gratuita
-                </Link>
-                <Link href="/asesorias/cuenta-asesorada" className="btn btn-outline btn-lg">
-                  Conocer Gestión de Portafolio
-                </Link>
+              <div className={styles.ctaContent}>
+                <h2 className={styles.ctaTitle}>
+                  ¿Listo para Optimizar tus Inversiones?
+                </h2>
+                <p className={styles.ctaDescription}>
+                  Agenda tu primera consulta y descubre cómo maximizar el potencial de tu portafolio
+                </p>
+                <div className={styles.ctaActions}>
+                  <Link href="/asesorias/consultorio-financiero" className={styles.ctaButton}>
+                    Agendar Consulta
+                    <ArrowRight size={20} />
+                  </Link>
+                  <Link href="/asesorias/cuenta-asesorada" className={styles.ctaButtonSecondary}>
+                    Gestión de Portafolio
+                  </Link>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -302,15 +316,95 @@ export default function AsesoriasPage({ session }: AsesoriasPageProps) {
       <Footer />
     </>
   );
-}
+};
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     const session = await getSession(context);
     
+    const asesorias = [
+      {
+        id: 'consultorio-financiero',
+        title: 'Consultorio Financiero',
+        subtitle: 'Consulta Individual Personalizada',
+        description: 'Sesión one-on-one para analizar tu situación financiera actual y diseñar una estrategia de inversión personalizada según tu perfil de riesgo y objetivos.',
+        duration: '60 minutos',
+        modality: 'Videollamada',
+        price: '$199 USD',
+        features: [
+          'Análisis completo de tu portafolio actual',
+          'Estrategia personalizada según tu perfil',
+          'Recomendaciones de activos específicos',
+          'Plan de acción con objetivos claros',
+          'Material educativo personalizado',
+          'Seguimiento por email (30 días)'
+        ],
+        href: '/asesorias/consultorio-financiero',
+        icon: '🩺',
+        badge: 'Más Solicitado'
+      },
+      {
+        id: 'cuenta-asesorada',
+        title: 'Cuenta Asesorada',
+        subtitle: 'Gestión Profesional de Portafolio',
+        description: 'Servicio integral de gestión profesional donde manejamos tu portafolio con estrategias avanzadas y reportes mensuales detallados.',
+        duration: 'Servicio Mensual',
+        modality: 'Gestión Remota',
+        price: '$999 USD',
+        features: [
+          'Gestión profesional completa',
+          'Rebalanceo automático mensual',
+          'Reportes detallados de performance',
+          'Acceso a estrategias institucionales',
+          'Soporte prioritario 24/7',
+          'Reunión mensual de seguimiento'
+        ],
+        href: '/asesorias/cuenta-asesorada',
+        icon: '💼',
+        badge: 'Premium'
+      }
+    ];
+
+    const faqs = [
+      {
+        question: '¿Cuál es la diferencia entre Consultorio Financiero y Cuenta Asesorada?',
+        answer: 'El Consultorio Financiero es una consulta puntual donde analizamos tu situación y te damos recomendaciones para que ejecutes por tu cuenta. La Cuenta Asesorada es un servicio continuo donde gestionamos directamente tu portafolio.'
+      },
+      {
+        question: '¿Qué experiencia tienen en gestión de portafolios?',
+        answer: 'Contamos con más de 7 años de experiencia en mercados financieros, habiendo gestionado más de $2M USD en portafolios de clientes privados con rentabilidades promedio del 120% anual.'
+      },
+      {
+        question: '¿Cómo funciona el proceso de asesoría?',
+        answer: 'Primero realizamos una evaluación completa de tu perfil de inversor, objetivos y situación actual. Luego diseñamos una estrategia personalizada y te acompañamos en la implementación con seguimiento continuo.'
+      },
+      {
+        question: '¿Qué monto mínimo se requiere para la Cuenta Asesorada?',
+        answer: 'El monto mínimo para el servicio de Cuenta Asesorada es de $10,000 USD. Para montos menores recomendamos comenzar con el Consultorio Financiero.'
+      },
+      {
+        question: '¿En qué mercados invierten?',
+        answer: 'Trabajamos principalmente en mercados de Estados Unidos (acciones, ETFs, opciones), criptomonedas principales, y selectivamente en mercados emergentes según las oportunidades y perfil del cliente.'
+      },
+      {
+        question: '¿Cómo se realiza el seguimiento y reporting?',
+        answer: 'Enviamos reportes mensuales detallados con performance, análisis de mercado y próximos movimientos. Además, tienes acceso 24/7 a una plataforma donde puedes ver el estado de tu portafolio en tiempo real.'
+      },
+      {
+        question: '¿Puedo cancelar el servicio en cualquier momento?',
+        answer: 'Sí, puedes cancelar el servicio con 30 días de anticipación. Para la Cuenta Asesorada, te ayudamos con la transición y transferencia de activos sin costos adicionales.'
+      },
+      {
+        question: '¿Ofrecen garantías de rentabilidad?',
+        answer: 'No ofrecemos garantías de rentabilidad ya que toda inversión conlleva riesgos. Sin embargo, trabajamos con estrategias probadas y gestión de riesgo profesional para maximizar las probabilidades de éxito.'
+      }
+    ];
+    
     return {
       props: {
         session: session || null,
+        asesorias,
+        faqs
       },
     };
   } catch (error) {
@@ -318,7 +412,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         session: null,
+        asesorias: [],
+        faqs: []
       },
     };
   }
-}; 
+};
+
+export default AsesoriasPage; 
