@@ -55,6 +55,7 @@
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
   margin: 0 auto;
+  align-items: stretch;
 }
 
 .serviceCard {
@@ -68,6 +69,10 @@
   overflow: hidden;
   transition: all 0.3s ease;
   border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 480px;
 }
 
 .serviceCard::before {
@@ -109,6 +114,10 @@
   padding: 0;
   margin: 2rem 0;
   text-align: left;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .featureItem {
@@ -141,11 +150,15 @@
   font-weight: 600;
   transition: all 0.3s ease;
   border: 2px solid rgba(255, 255, 255, 0.3);
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .serviceButton:hover {
   background: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
+  text-decoration: none;
+  color: white;
 }
 
 /* Stats Section */
@@ -260,6 +273,7 @@
   
   .serviceCard {
     padding: 2rem;
+    min-height: 420px;
   }
   
   .statsGrid {
@@ -306,5 +320,6 @@
   
   .serviceCard {
     padding: 1.5rem;
+    min-height: 380px;
   }
 } 
