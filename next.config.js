@@ -10,6 +10,32 @@ const nextConfig = {
   experimental: {
     esmExternals: false, // Deshabilitar ES modules externos para compatibilidad
   },
+  // Deshabilitar cache para evitar problemas en producción
+  generateBuildId: () => {
+    return Math.random().toString(36).substring(2, 15);
+  },
+  // Headers para deshabilitar cache
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+        ],
+      },
+    ];
+  },
   // Configuración adicional para manejar ES modules
   webpack: (config, { isServer }) => {
     if (!isServer) {

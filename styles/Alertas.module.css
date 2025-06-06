@@ -152,6 +152,12 @@
   border: 2px solid rgba(255, 255, 255, 0.3);
   margin-top: auto;
   flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
 }
 
 .serviceButton:hover {
@@ -159,6 +165,18 @@
   transform: translateY(-2px);
   text-decoration: none;
   color: white;
+}
+
+.serviceButton:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.buttonContainer {
+  margin-top: auto;
+  padding-top: 1rem;
+  position: relative;
+  z-index: 5;
 }
 
 /* Stats Section */

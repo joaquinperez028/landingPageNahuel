@@ -1,6 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { motion } from 'framer-motion';
@@ -20,30 +21,51 @@ const AlertService: React.FC<AlertServiceProps> = ({
   features, 
   href, 
   gradient 
-}) => (
-  <motion.div 
-    className={styles.serviceCard}
-    style={{ background: gradient }}
-    whileHover={{ scale: 1.02, y: -5 }}
-    transition={{ duration: 0.3 }}
-  >
-    <h3 className={styles.serviceTitle}>{title}</h3>
-    <p className={styles.serviceDescription}>{description}</p>
+}) => {
+  const router = useRouter();
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     
-    <ul className={styles.featureList}>
-      {features.map((feature, index) => (
-        <li key={index} className={styles.featureItem}>
-          <span className={styles.checkmark}>✓</span>
-          {feature}
-        </li>
-      ))}
-    </ul>
-    
-    <Link href={href} className={styles.serviceButton}>
-      Ver Detalles
-    </Link>
-  </motion.div>
-);
+    // Usar router.push como método principal
+    router.push(href).catch(() => {
+      // Fallback a window.location si router.push falla
+      window.location.href = href;
+    });
+  };
+
+  return (
+    <motion.div 
+      className={styles.serviceCard}
+      style={{ background: gradient }}
+      whileHover={{ scale: 1.02, y: -5 }}
+      transition={{ duration: 0.3 }}
+    >
+      <h3 className={styles.serviceTitle}>{title}</h3>
+      <p className={styles.serviceDescription}>{description}</p>
+      
+      <ul className={styles.featureList}>
+        {features.map((feature, index) => (
+          <li key={index} className={styles.featureItem}>
+            <span className={styles.checkmark}>✓</span>
+            {feature}
+          </li>
+        ))}
+      </ul>
+      
+      <div className={styles.buttonContainer}>
+        <button 
+          className={styles.serviceButton}
+          onClick={handleButtonClick}
+          type="button"
+        >
+          Ver Detalles
+        </button>
+      </div>
+    </motion.div>
+  );
+};
 
 const AlertasPage: React.FC = () => {
   const alertServices = [
