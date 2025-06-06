@@ -370,7 +370,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     },
     {
       id: 'advanced-strategies',
-      title: 'Advanced Trading Strategies',
+      title: 'Dow Jones',
       subtitle: 'Estrategias Avanzadas de Trading',
       description: 'Programa especializado para traders con experiencia. Estrategias avanzadas, algoritmos, trading cuantitativo y técnicas institucionales para maximizar rendimientos.',
       level: 'Avanzado - Experto',

@@ -86,7 +86,7 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
   return (
     <>
       <Head>
-        <title>Advanced Trading Strategies - Entrenamiento Profesional | Nahuel Lozano</title>
+        <title>Dow Jones - Entrenamiento Profesional | Nahuel Lozano</title>
         <meta name="description" content="Programa avanzado de trading para expertos. Trading algorítmico, análisis cuantitativo, estrategias institucionales y técnicas de alto nivel profesional." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
@@ -105,7 +105,7 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
             >
               <div className={styles.heroText}>
                 <h1 className={styles.heroTitle}>
-                  Advanced Trading Strategies
+                  Dow Jones
                   <span className={styles.heroSubtitle}>Técnicas Institucionales de Alto Nivel</span>
                 </h1>
                 <p className={styles.heroDescription}>
