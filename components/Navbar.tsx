@@ -237,10 +237,16 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                       Mi Perfil
                     </Link>
                     {session.user.role === 'admin' && (
-                      <Link href="/admin/dashboard" className={styles.dropdownItem}>
-                        <Settings size={16} />
-                        Panel de Administración
-                      </Link>
+                      <>
+                        <Link href="/admin/dashboard" className={styles.dropdownItem}>
+                          <Settings size={16} />
+                          Panel de Administración
+                        </Link>
+                        <Link href="/admin/notifications" className={styles.dropdownItem}>
+                          <Bell size={16} />
+                          Gestión de Notificaciones
+                        </Link>
+                      </>
                     )}
                     <button onClick={handleLogout} className={styles.dropdownItem}>
                       <LogOut size={16} />
@@ -334,10 +340,16 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                     Mi Perfil
                   </Link>
                   {session.user.role === 'admin' && (
-                    <Link href="/admin/dashboard" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
-                      <Settings size={16} />
-                      Panel de Administración
-                    </Link>
+                    <>
+                      <Link href="/admin/dashboard" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
+                        <Settings size={16} />
+                        Panel de Administración
+                      </Link>
+                      <Link href="/admin/notifications" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
+                        <Bell size={16} />
+                        Gestión de Notificaciones
+                      </Link>
+                    </>
                   )}
                   <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className={styles.mobileNavLink}>
                     <LogOut size={16} />

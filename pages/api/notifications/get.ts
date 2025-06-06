@@ -24,18 +24,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const user = await User.findOne({ email: session.user.email });
     const userRole = user?.role || 'normal';
 
-    const { limit = '5', page = '1' } = req.query;
+    const { limit = '5', page = '1', search } = req.query;
     const limitNum = parseInt(limit as string);
     const skip = (parseInt(page as string) - 1) * limitNum;
 
     // Construir query basado en el rol del usuario
     let query: any = {
-      isActive: true,
-      $or: [
-        { expiresAt: null },
-        { expiresAt: { $gt: new Date() } }
-      ]
+      isActive: true
     };
+
+    // Para usuarios normales: filtrar por fecha de creación (7 días) y expiración
+    if (userRole !== 'admin') {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      query = {
+        ...query,
+        // Solo notificaciones de los últimos 7 días o que aún no han expirado
+        $and: [
+          {
+            $or: [
+              { createdAt: { $gte: sevenDaysAgo } }, // Creadas en los últimos 7 días
+              { expiresAt: { $exists: false } }, // Sin fecha de expiración
+              { expiresAt: null }, // Sin fecha de expiración
+              { expiresAt: { $gt: new Date() } } // No expiradas
+            ]
+          },
+          {
+            $or: [
+              { expiresAt: null },
+              { expiresAt: { $gt: new Date() } }
+            ]
+          }
+        ]
+      };
+    } else {
+      // Para administradores: mostrar todas las notificaciones sin restricción de fecha
+      query = {
+        ...query,
+        $or: [
+          { expiresAt: null },
+          { expiresAt: { $gt: new Date() } }
+        ]
+      };
+    }
 
     // Filtrar por tipo de usuario
     if (userRole === 'admin') {
@@ -44,6 +76,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       query.targetUsers = { $in: ['todos', 'suscriptores'] };
     } else {
       query.targetUsers = 'todos';
+    }
+
+    // Agregar búsqueda si se proporciona
+    if (search && typeof search === 'string') {
+      query = {
+        ...query,
+        $and: [
+          ...(query.$and || []),
+          {
+            $or: [
+              { title: { $regex: search, $options: 'i' } },
+              { message: { $regex: search, $options: 'i' } }
+            ]
+          }
+        ]
+      };
     }
 
     // Obtener notificaciones
@@ -67,8 +115,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       actionUrl: notification.actionUrl,
       actionText: notification.actionText,
       createdAt: notification.createdAt,
+      expiresAt: notification.expiresAt,
       // Calcular tiempo relativo
-      timeAgo: getTimeAgo(notification.createdAt)
+      timeAgo: getTimeAgo(notification.createdAt),
+      // Información adicional para administradores
+      ...(userRole === 'admin' && {
+        targetUsers: notification.targetUsers,
+        isActive: notification.isActive,
+        createdBy: notification.createdBy
+      })
     }));
 
     return res.status(200).json({
@@ -76,9 +131,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       pagination: {
         current: parseInt(page as string),
         total: Math.ceil(total / limitNum),
-        hasMore: skip + limitNum < total
+        hasMore: skip + limitNum < total,
+        totalItems: total
       },
-      unreadCount: formattedNotifications.length // Por ahora todas son "no leídas"
+      unreadCount: formattedNotifications.length, // Por ahora todas son "no leídas"
+      userRole // Devolver el rol para que el frontend sepa si es admin
     });
 
   } catch (error) {
