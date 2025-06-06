@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/googleAuth';
 import formidable from 'formidable';
 import fs from 'fs';
-import path from 'path';
 
 export const config = {
   api: {
@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const session = await getSession({ req });
+    const session = await getServerSession(req, res, authOptions);
     
     if (!session?.user?.email) {
       return res.status(401).json({ message: 'No autorizado' });
@@ -36,28 +36,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'No se subió ningún archivo' });
     }
 
-    // Crear directorio de uploads si no existe
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'avatars');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
+    // Leer el archivo y convertirlo a base64
+    const fileBuffer = fs.readFileSync(file.filepath);
+    const mimeType = file.mimetype || 'image/jpeg';
+    const base64Data = fileBuffer.toString('base64');
+    const dataUrl = `data:${mimeType};base64,${base64Data}`;
 
-    // Generar nombre único para el archivo
-    const timestamp = Date.now();
-    const originalName = file.originalFilename || 'avatar';
-    const extension = path.extname(originalName);
-    const fileName = `${session.user.email.replace('@', '_at_')}_${timestamp}${extension}`;
-    const filePath = path.join(uploadsDir, fileName);
-
-    // Mover archivo
-    fs.copyFileSync(file.filepath, filePath);
-    fs.unlinkSync(file.filepath); // Limpiar archivo temporal
-
-    const avatarUrl = `/uploads/avatars/${fileName}`;
+    // Limpiar archivo temporal
+    fs.unlinkSync(file.filepath);
 
     return res.status(200).json({
       message: 'Avatar subido exitosamente',
-      avatarUrl
+      avatarUrl: dataUrl
     });
 
   } catch (error) {

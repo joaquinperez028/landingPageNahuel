@@ -16,7 +16,9 @@ import {
   Calendar,
   DollarSign,
   AlertTriangle,
-  X
+  X,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -28,6 +30,11 @@ export default function PerfilPage() {
   const [showIncompleteNotification, setShowIncompleteNotification] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    type: 'success' | 'error';
+    message: string;
+  }>({ show: false, type: 'success', message: '' });
   const [formData, setFormData] = useState({
     fullName: '',
     cuitCuil: '',
@@ -88,6 +95,14 @@ export default function PerfilPage() {
     };
   }, [session]);
 
+  // Función para mostrar notificaciones
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ show: true, type, message });
+    setTimeout(() => {
+      setNotification({ show: false, type: 'success', message: '' });
+    }, 5000);
+  };
+
   // Función para manejar upload de avatar
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -95,13 +110,13 @@ export default function PerfilPage() {
 
     // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
-      alert('Por favor selecciona una imagen válida');
+      showNotification('error', 'Por favor selecciona una imagen válida');
       return;
     }
 
     // Validar tamaño (5MB máximo)
     if (file.size > 5 * 1024 * 1024) {
-      alert('La imagen no puede superar los 5MB');
+      showNotification('error', 'La imagen no puede superar los 5MB');
       return;
     }
 
@@ -122,12 +137,13 @@ export default function PerfilPage() {
         const newAvatarUrl = result.avatarUrl;
         setFormData({ ...formData, avatarUrl: newAvatarUrl });
         setPreviewAvatar(newAvatarUrl);
+        showNotification('success', 'Avatar subido exitosamente');
       } else {
-        alert(result.message || 'Error al subir la imagen');
+        showNotification('error', result.message || 'Error al subir la imagen');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error al subir la imagen');
+      showNotification('error', 'Error al subir la imagen');
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +154,7 @@ export default function PerfilPage() {
     e.preventDefault();
     
     if (!formData.fullName.trim()) {
-      alert('El nombre completo es obligatorio');
+      showNotification('error', 'El nombre completo es obligatorio');
       return;
     }
 
@@ -162,17 +178,19 @@ export default function PerfilPage() {
       const result = await response.json();
 
       if (response.ok) {
-        alert('Perfil actualizado exitosamente');
+        showNotification('success', 'Perfil actualizado exitosamente');
         setShowEditModal(false);
         setShowIncompleteNotification(false);
-        // Aquí podrías actualizar la sesión o recargar los datos
-        window.location.reload(); // Por simplicidad, recargar la página
+        // Actualizar la sesión sin recargar la página
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } else {
-        alert(result.message || 'Error al actualizar el perfil');
+        showNotification('error', result.message || 'Error al actualizar el perfil');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error al actualizar el perfil');
+      showNotification('error', 'Error al actualizar el perfil');
     } finally {
       setIsLoading(false);
     }
@@ -740,6 +758,32 @@ export default function PerfilPage() {
           </div>
         )}
       </main>
+
+      {/* Toast Notification */}
+      {notification.show && (
+        <motion.div
+          className={`${styles.toast} ${styles[notification.type]}`}
+          initial={{ opacity: 0, y: 50, x: '50%' }}
+          animate={{ opacity: 1, y: 0, x: '50%' }}
+          exit={{ opacity: 0, y: 50, x: '50%' }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className={styles.toastIcon}>
+            {notification.type === 'success' ? (
+              <CheckCircle size={20} />
+            ) : (
+              <AlertCircle size={20} />
+            )}
+          </div>
+          <span className={styles.toastMessage}>{notification.message}</span>
+          <button 
+            className={styles.toastClose}
+            onClick={() => setNotification({ show: false, type: 'success', message: '' })}
+          >
+            <X size={16} />
+          </button>
+        </motion.div>
+      )}
 
       <Footer />
     </>
