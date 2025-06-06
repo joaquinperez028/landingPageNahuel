@@ -16,39 +16,16 @@ import {
   DollarSign,
   BarChart3,
   Activity,
-  Play
+  Play,
+  Download
 } from 'lucide-react';
 import styles from '@/styles/Recursos.module.css';
 
 interface RecursosPageProps {
-  afiliados: Array<{
+  formulasTradingView: Array<{
     nombre: string;
     descripcion: string;
-    url: string;
-    icon: string;
-  }>;
-  indicadores: Array<{
-    nombre: string;
-    descripcion: string;
-    descarga: string;
-    icon: string;
-  }>;
-  planillas: Array<{
-    nombre: string;
-    descripcion: string;
-    url: string;
-    icon: string;
-  }>;
-  libros: Array<{
-    nombre: string;
-    descripcion: string;
-    autor: string;
-    url: string;
-  }>;
-  materialComplementario: Array<{
-    nombre: string;
-    descripcion: string;
-    descarga: string;
+    formula: string;
     icon: string;
   }>;
   linksImportantes: Array<{
@@ -57,28 +34,38 @@ interface RecursosPageProps {
     url: string;
     icon: string;
   }>;
-  formulasTradingView: Array<{
+  materialComplementario: Array<{
     nombre: string;
     descripcion: string;
-    formula: string;
+    descarga: string;
+    icon: string;
+  }>;
+  librosRecomendados: Array<{
+    nombre: string;
+    autor: string;
+    descripcion: string;
+    descarga: string;
+  }>;
+  listasActivos: Array<{
+    nombre: string;
+    descripcion: string;
+    url: string;
     icon: string;
   }>;
 }
 
 const RecursosPage: React.FC<RecursosPageProps> = ({ 
-  afiliados, 
-  indicadores, 
-  planillas, 
-  libros, 
-  materialComplementario, 
-  linksImportantes, 
-  formulasTradingView 
+  formulasTradingView,
+  linksImportantes,
+  materialComplementario,
+  librosRecomendados,
+  listasActivos
 }) => {
   return (
     <>
       <Head>
-        <title>Recursos - Centro de Herramientas y Material Educativo | Nahuel Lozano</title>
-        <meta name="description" content="Accede a nuestra biblioteca completa de recursos: indicadores, planillas, libros recomendados, links de afiliados y fórmulas de TradingView." />
+        <title>Herramientas - Centro de Recursos para Trading | Nahuel Lozano</title>
+        <meta name="description" content="Herramientas útiles para hacer análisis técnico: fórmulas de TradingView, links importantes, material complementario y libros recomendados." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
@@ -96,17 +83,17 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
             >
               <div className={styles.heroText}>
                 <h1 className={styles.heroTitle}>
-                  Centro de Recursos
-                  <span className={styles.heroSubtitle}>Herramientas y Material Educativo</span>
+                  Herramientas Útiles
+                  <span className={styles.heroSubtitle}>Para hacer Análisis Técnico</span>
                 </h1>
                 <p className={styles.heroDescription}>
-                  Accede a nuestra biblioteca completa de recursos para maximizar tu potencial en los mercados financieros. 
-                  Desde indicadores técnicos hasta planillas especializadas y libros fundamentales.
+                  El aliado que necesitas. Accede a fórmulas personalizadas de TradingView, links esenciales, 
+                  material complementario y los mejores libros para perfeccionar tu análisis técnico.
                 </p>
                 <div className={styles.heroStats}>
                   <div className={styles.stat}>
-                    <span className={styles.statNumber}>50+</span>
-                    <span className={styles.statLabel}>Recursos Disponibles</span>
+                    <span className={styles.statNumber}>15+</span>
+                    <span className={styles.statLabel}>Fórmulas TradingView</span>
                   </div>
                   <div className={styles.stat}>
                     <span className={styles.statNumber}>100%</span>
@@ -123,13 +110,13 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
                   {/* Placeholder de video explicativo */}
                   <div className={styles.videoPlaceholder}>
                     <div className={styles.placeholderIcon}>🎯</div>
-                    <h3 className={styles.placeholderTitle}>Video: Explicación de los Recursos</h3>
+                    <h3 className={styles.placeholderTitle}>Video: Explicación de las Herramientas</h3>
                     <p className={styles.placeholderText}>
-                      Descubre cómo aprovechar al máximo todas las herramientas y recursos disponibles
+                      Descubre cómo utilizar todas las herramientas disponibles para optimizar tu análisis técnico
                     </p>
                     <div className={styles.placeholderFeatures}>
-                      <span>📊 Indicadores Técnicos</span>
-                      <span>📋 Planillas Google Sheets</span>
+                      <span>📈 Fórmulas TradingView</span>
+                      <span>🔗 Links Importantes</span>
                       <span>📚 Material Educativo</span>
                     </div>
                   </div>
@@ -139,7 +126,96 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
           </div>
         </section>
 
-        {/* Links de Afiliados */}
+        {/* TradingView Section */}
+        <section className={styles.section}>
+          <div className={styles.container}>
+            <motion.div 
+              className={styles.tradingViewSection}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className={styles.tradingViewCard}>
+                <div className={styles.tradingViewContent}>
+                  <div className={styles.tradingViewIcon}>📈</div>
+                  <h2 className={styles.tradingViewTitle}>TradingView</h2>
+                  <p className={styles.tradingViewSubtitle}>El aliado que necesitas</p>
+                  <p className={styles.tradingViewDescription}>
+                    Plataforma amigable, rápida y portable en la cual los gráficos se guardan en una nube que no consume memoria de nuestra computadora.
+                    <br /><br />
+                    Personalización de muchos aspectos, tanto de la interfaz como de los gráficos, instrumentos e indicadores. Su versión gratuita es realmente buena.
+                    <br /><br />
+                    Ofrece la posibilidad de analizar una gran cantidad de activos y compartirlos rápidamente con la comunidad inversora para discutir puntos de vista.
+                  </p>
+                  <div className={styles.tradingViewCTA}>
+                    <h3 className={styles.discountTitle}>¡Comienza a utilizar TradingView con 15 U$D de descuento!</h3>
+                    <a 
+                      href="https://tradingview.com" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={styles.discountButton}
+                    >
+                      Quiero el descuento
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Fórmulas TradingView */}
+        <section className={styles.sectionAlt}>
+          <div className={styles.container}>
+            <motion.h2 
+              className={styles.sectionTitle}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              Fórmulas para TradingView
+            </motion.h2>
+            <motion.p 
+              className={styles.sectionDescription}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              Para utilizarlas debe copiarlas y pegarlas al momento de añadir un nuevo símbolo en la plataforma de TradingView
+            </motion.p>
+            
+            <div className={styles.cardsGridLarge}>
+              {formulasTradingView.map((item, index) => (
+                <motion.div 
+                  key={index}
+                  className={`${styles.card} ${styles.formulaCard}`}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <div className={styles.cardIcon}>
+                    <span className={styles.iconEmoji}>{item.icon}</span>
+                  </div>
+                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
+                  <p className={styles.cardDescription}>{item.descripcion}</p>
+                  <div className={styles.formulaCode}>
+                    <code>{item.formula}</code>
+                  </div>
+                  <button 
+                    className={styles.cardButton}
+                    onClick={() => navigator.clipboard.writeText(item.formula)}
+                  >
+                    <BarChart3 size={20} />
+                    <span>Copiar Fórmula</span>
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Lista de Seguimiento */}
         <section className={styles.section}>
           <div className={styles.container}>
             <motion.h2 
@@ -148,7 +224,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              Links de Afiliados
+              Lista de Seguimiento
             </motion.h2>
             <motion.p 
               className={styles.sectionDescription}
@@ -156,11 +232,59 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              Plataformas recomendadas para trading e inversión
+              Contiene todos los activos que utilizo para realizar mis análisis
             </motion.p>
             
             <div className={styles.cardsGrid}>
-              {afiliados.map((item, index) => (
+              {listasActivos.map((item, index) => (
+                <motion.a 
+                  key={index}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.card}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <div className={styles.cardIcon}>
+                    <span className={styles.iconEmoji}>{item.icon}</span>
+                  </div>
+                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
+                  <p className={styles.cardDescription}>{item.descripcion}</p>
+                  <div className={styles.cardAction}>
+                    <ExternalLink size={20} />
+                    <span>Ver Lista</span>
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Links que Todo Trader Necesita */}
+        <section className={styles.sectionAlt}>
+          <div className={styles.container}>
+            <motion.h2 
+              className={styles.sectionTitle}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              Links que Todo Trader Necesita
+            </motion.h2>
+            <motion.p 
+              className={styles.sectionDescription}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              Recursos esenciales para estar al día con los mercados financieros
+            </motion.p>
+            
+            <div className={styles.cardsGridLarge}>
+              {linksImportantes.map((item, index) => (
                 <motion.a 
                   key={index}
                   href={item.url}
@@ -180,148 +304,6 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
                   <div className={styles.cardAction}>
                     <ExternalLink size={20} />
                     <span>Acceder</span>
-                  </div>
-                </motion.a>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Indicadores */}
-        <section className={styles.sectionAlt}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Indicadores Técnicos
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Indicadores personalizados para TradingView y otras plataformas
-            </motion.p>
-            
-            <div className={styles.cardsGrid}>
-              {indicadores.map((item, index) => (
-                <motion.div 
-                  key={index}
-                  className={styles.card}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <span className={styles.iconEmoji}>{item.icon}</span>
-                  </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <button className={styles.cardButton}>
-                    <TrendingUp size={20} />
-                    <span>Descargar</span>
-                  </button>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Planillas Google Sheets */}
-        <section className={styles.section}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Planillas Google Sheets
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Herramientas de análisis y cálculo para optimizar tus inversiones
-            </motion.p>
-            
-            <div className={styles.cardsGrid}>
-              {planillas.map((item, index) => (
-                <motion.a 
-                  key={index}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.card}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <span className={styles.iconEmoji}>{item.icon}</span>
-                  </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <div className={styles.cardAction}>
-                    <FileText size={20} />
-                    <span>Abrir Planilla</span>
-                  </div>
-                </motion.a>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Libros Recomendados */}
-        <section className={styles.sectionAlt}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Libros Recomendados
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Biblioteca esencial para formar tu educación financiera
-            </motion.p>
-            
-            <div className={styles.cardsGrid}>
-              {libros.map((item, index) => (
-                <motion.a 
-                  key={index}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.card}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <BookOpen size={40} />
-                  </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardAuthor}>Por {item.autor}</p>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <div className={styles.cardAction}>
-                    <ExternalLink size={20} />
-                    <span>Ver Libro</span>
                   </div>
                 </motion.a>
               ))}
@@ -365,7 +347,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
                   <h3 className={styles.cardTitle}>{item.nombre}</h3>
                   <p className={styles.cardDescription}>{item.descripcion}</p>
                   <button className={styles.cardButton}>
-                    <FileText size={20} />
+                    <Download size={20} />
                     <span>Descargar</span>
                   </button>
                 </motion.div>
@@ -374,7 +356,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
           </div>
         </section>
 
-        {/* Links Importantes */}
+        {/* Libros Recomendados */}
         <section className={styles.sectionAlt}>
           <div className={styles.container}>
             <motion.h2 
@@ -383,7 +365,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              Links Importantes
+              Libros Recomendados
             </motion.h2>
             <motion.p 
               className={styles.sectionDescription}
@@ -391,16 +373,13 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              Recursos esenciales para estar al día con los mercados
+              Biblioteca esencial para formar tu educación financiera
             </motion.p>
             
-            <div className={styles.cardsGridLarge}>
-              {linksImportantes.map((item, index) => (
-                <motion.a 
+            <div className={styles.cardsGrid}>
+              {librosRecomendados.map((item, index) => (
+                <motion.div 
                   key={index}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className={styles.card}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -408,61 +387,14 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
                   transition={{ delay: index * 0.1 }}
                 >
                   <div className={styles.cardIcon}>
-                    <span className={styles.iconEmoji}>{item.icon}</span>
+                    <BookOpen size={40} />
                   </div>
                   <h3 className={styles.cardTitle}>{item.nombre}</h3>
+                  <p className={styles.cardAuthor}>Por {item.autor}</p>
                   <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <div className={styles.cardAction}>
-                    <ExternalLink size={20} />
-                    <span>Acceder</span>
-                  </div>
-                </motion.a>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Fórmulas TradingView */}
-        <section className={styles.section}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Fórmulas de TradingView
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Fórmulas personalizadas para análisis avanzado en TradingView
-            </motion.p>
-            
-            <div className={styles.cardsGridLarge}>
-              {formulasTradingView.map((item, index) => (
-                <motion.div 
-                  key={index}
-                  className={`${styles.card} ${styles.formulaCard}`}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <span className={styles.iconEmoji}>{item.icon}</span>
-                  </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <div className={styles.formulaCode}>
-                    <code>{item.formula}</code>
-                  </div>
                   <button className={styles.cardButton}>
-                    <BarChart3 size={20} />
-                    <span>Copiar Fórmula</span>
+                    <Download size={20} />
+                    <span>Descargar</span>
                   </button>
                 </motion.div>
               ))}
@@ -479,204 +411,160 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
   
-  const afiliados = [
+  const formulasTradingView = [
     {
-      nombre: 'TradingView',
-      descripcion: 'Plataforma líder mundial para análisis técnico con gráficos profesionales y herramientas avanzadas.',
-      url: 'https://tradingview.com',
-      icon: '📈'
+      nombre: 'Dólar CCL',
+      descripcion: 'Dólar con el CEDEAR más utilizado para esta operatoria',
+      formula: 'BCBA:KO*5/NYSE:KO',
+      icon: '💱'
     },
     {
-      nombre: 'Binance',
-      descripcion: 'Exchange de criptomonedas más grande del mundo con las mejores comisiones y liquidez.',
-      url: 'https://binance.com',
-      icon: '₿'
-    },
-    {
-      nombre: 'Interactive Brokers',
-      descripcion: 'Broker global con acceso a más de 150 mercados y las mejores herramientas institucionales.',
-      url: 'https://interactivebrokers.com',
+      nombre: 'Acciones Argentinas en Dólar CCL',
+      descripcion: 'Reemplazar ALUA por el ticker del activo local que quieras',
+      formula: 'BCBA:ALUA/(BCBA:KO*5/NYSE:KO)',
       icon: '🏛️'
-    }
-  ];
-
-  const indicadores = [
+    },
     {
-      nombre: 'Medias Móviles Automáticas',
-      descripcion: 'Indicador que calcula automáticamente las mejores medias móviles para cada timeframe.',
-      descarga: '/downloads/medias-moviles-automaticas.pine',
+      nombre: 'Índice MERVAL en Dólar CCL',
+      descripcion: 'El índice MERVAL ajustado por Dólar CCL, para evitar contaminar el análisis de la devaluación del peso',
+      formula: 'BCBA:IMV/(BCBA:KO*5/NYSE:KO)',
       icon: '📊'
     },
     {
-      nombre: 'Cuadro de Información',
-      descripcion: 'Panel informativo que muestra datos clave del activo: volumen, volatilidad y niveles importantes.',
-      descarga: '/downloads/cuadro-informacion.pine',
-      icon: '📋'
+      nombre: 'Comparación entre S&P500 y MERVAL',
+      descripcion: 'Cuando el gráfico está alcista, conviene estar invertido en activos del S&P500. Cuando está bajista, en activos del MERVAL',
+      formula: 'BCBA:IMV/(BCBA:KO*5/NYSE:KO)/SP:SPX',
+      icon: '⚖️'
     },
     {
-      nombre: 'Semáforo de Trading',
-      descripcion: 'Sistema visual que indica señales de compra, venta o lateralización basado en múltiples factores.',
-      descarga: '/downloads/semaforo-trading.pine',
-      icon: '🚦'
-    }
-  ];
-
-  const planillas = [
-    {
-      nombre: 'Portfolio Analyzer',
-      descripcion: 'Analiza tu portafolio completo: diversificación, riesgo, retorno y optimización de activos.',
-      url: 'https://docs.google.com/spreadsheets/d/portfolio-analyzer',
-      icon: '📊'
-    },
-    {
-      nombre: 'RSI Screener',
-      descripcion: 'Screener automático que identifica activos con RSI en niveles de sobrecompra o sobreventa.',
-      url: 'https://docs.google.com/spreadsheets/d/rsi-screener',
-      icon: '🔍'
-    },
-    {
-      nombre: 'Calculadora de CEDEARs',
-      descripcion: 'Calcula automáticamente el precio justo de CEDEARs versus sus activos subyacentes.',
-      url: 'https://docs.google.com/spreadsheets/d/cedears-calculator',
-      icon: '💰'
-    }
-  ];
-
-  const libros = [
-    {
-      nombre: 'Análisis Técnico de los Mercados Financieros',
-      autor: 'John J. Murphy',
-      descripcion: 'El manual definitivo sobre análisis técnico. Cubre todos los conceptos fundamentales y técnicas avanzadas.',
-      url: 'https://amazon.com/analisis-tecnico-mercados-financieros'
-    },
-    {
-      nombre: 'Trading en la Zona',
-      autor: 'Mark Douglas',
-      descripcion: 'Libro fundamental sobre psicología del trading. Aprende a dominar tus emociones y mantener disciplina.',
-      url: 'https://amazon.com/trading-en-la-zona'
-    },
-    {
-      nombre: 'El Inversor Inteligente',
-      autor: 'Benjamin Graham',
-      descripcion: 'Clásico sobre inversión a largo plazo y análisis fundamental. La biblia del value investing.',
-      url: 'https://amazon.com/el-inversor-inteligente'
-    },
-    {
-      nombre: 'Psicología del Trading',
-      autor: 'Brett N. Steenbarger',
-      descripcion: 'Estrategias para desarrollar la mentalidad correcta y superar los obstáculos psicológicos del trading.',
-      url: 'https://amazon.com/psicologia-del-trading'
-    }
-  ];
-
-  const materialComplementario = [
-    {
-      nombre: 'Ratios de Conversión',
-      descripcion: 'Guía completa con todos los ratios de conversión de CEDEARs y activos internacionales.',
-      descarga: '/downloads/ratios-conversion.pdf',
+      nombre: 'Comparación entre NASDAQ 100 y DOW JONES 30',
+      descripcion: 'Cuando el gráfico está alcista, conviene estar invertido en activos del NASDAQ 100. Cuando está bajista, en activos del DOW JONES 30',
+      formula: 'NASDAQ:NDX/TVC:DJI',
       icon: '🔄'
+    }
+  ];
+
+  const listasActivos = [
+    {
+      nombre: 'Lista de Activos de USA',
+      descripcion: 'Watchlist completa con los principales activos del mercado estadounidense que analizo regularmente',
+      url: '#',
+      icon: '🇺🇸'
     },
     {
-      nombre: 'Cómo Medir la Cartera',
-      descripcion: 'Manual para evaluar correctamente el performance de tu portafolio y compararlo con benchmarks.',
-      descarga: '/downloads/como-medir-cartera.pdf',
-      icon: '📏'
-    },
-    {
-      nombre: 'Cálculo CCL',
-      descripcion: 'Explicación detallada del funcionamiento del dólar CCL y cómo aprovecharlo para inversiones.',
-      descarga: '/downloads/calculo-ccl.pdf',
-      icon: '💵'
+      nombre: 'Lista de Activos de ARG',
+      descripcion: 'Activos del mercado argentino: acciones locales, CEDEARs y bonos más relevantes para análisis',
+      url: '#',
+      icon: '🇦🇷'
     }
   ];
 
   const linksImportantes = [
     {
-      nombre: 'Calendario de Balances',
-      descripcion: 'Fechas de presentación de resultados trimestrales de empresas argentinas e internacionales.',
+      nombre: 'Calendario Dato Inflación USA',
+      descripcion: 'Información oficial del Bureau of Labor Statistics sobre inflación y datos económicos estadounidenses',
+      url: 'https://www.bls.gov/cpi/',
+      icon: '📈'
+    },
+    {
+      nombre: 'Calendario FED Tasa de Interés USA',
+      descripcion: 'Calendario oficial de reuniones de la Reserva Federal y decisiones de política monetaria',
+      url: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
+      icon: '🏦'
+    },
+    {
+      nombre: 'Balances Próximos',
+      descripcion: 'Fechas de presentación de resultados trimestrales de empresas argentinas e internacionales',
       url: 'https://finance.yahoo.com/calendar/earnings',
       icon: '📅'
     },
     {
-      nombre: 'Datos de Inflación USA',
-      descripcion: 'Información oficial del Bureau of Labor Statistics sobre inflación y datos económicos estadounidenses.',
-      url: 'https://bls.gov/cpi',
-      icon: '📈'
-    },
-    {
-      nombre: 'Decisión Tasa de Interés de la FED',
-      descripcion: 'Calendario oficial de reuniones de la Reserva Federal y decisiones de política monetaria.',
-      url: 'https://federalreserve.gov/monetarypolicy/fomccalendars.htm',
-      icon: '🏦'
-    },
-    {
-      nombre: 'Avisos de Eventos Corporativos',
-      descripcion: 'Información sobre dividendos, splits, fusiones y otros eventos corporativos relevantes.',
-      url: 'https://sec.gov/edgar/searchedgar/companysearch.html',
-      icon: '🏢'
-    },
-    {
-      nombre: 'Datos de Inflación ARG',
-      descripcion: 'Estadísticas oficiales del INDEC sobre inflación y variables económicas argentinas.',
-      url: 'https://indec.gob.ar/indec/web/Nivel3-Tema-3-5',
-      icon: '🇦🇷'
-    },
-    {
-      nombre: 'Indicador Fear and Greed CNN',
-      descripcion: 'Medidor de sentimiento del mercado que combina 7 indicadores diferentes de volatilidad y momentum.',
-      url: 'https://cnn.com/markets/fear-and-greed',
-      icon: '😰'
-    }
-  ];
-
-  const formulasTradingView = [
-    {
-      nombre: 'Dólar CCL',
-      descripcion: 'Fórmula para calcular en tiempo real el tipo de cambio CCL usando GD30 y GD30C.',
-      formula: 'GD30 / GD30C',
-      icon: '💱'
-    },
-    {
-      nombre: 'Acciones Argentinas en Dólar CCL',
-      descripcion: 'Convierte automáticamente el precio de acciones argentinas a dólares usando CCL.',
-      formula: 'close / (GD30 / GD30C)',
-      icon: '🏛️'
-    },
-    {
-      nombre: 'Índice MERVAL en Dólar CCL',
-      descripcion: 'Visualiza el MERVAL expresado en dólares CCL para análisis comparativo internacional.',
-      formula: 'BCBA:IMV / (BCBA:GD30 / NASDAQ:GD30C)',
+      nombre: 'Calendario Económico',
+      descripcion: 'Eventos económicos importantes que pueden afectar los mercados financieros globales',
+      url: 'https://es.investing.com/economic-calendar/',
       icon: '📊'
     },
     {
-      nombre: 'Comparación S&P500 vs MERVAL',
-      descripcion: 'Compara el performance relativo entre el S&P500 y el MERVAL en la misma moneda.',
-      formula: 'SPX / (BCBA:IMV / (BCBA:GD30 / NASDAQ:GD30C))',
-      icon: '⚖️'
+      nombre: 'Calculadora de CEDEARs',
+      descripcion: 'Herramienta para calcular el precio justo de CEDEARs versus sus activos subyacentes',
+      url: '#',
+      icon: '💰'
     },
     {
-      nombre: 'Comparación NASDAQ vs DOW JONES',
-      descripcion: 'Ratio que muestra el performance relativo entre tecnológicas (NASDAQ) y blue chips (DOW).',
-      formula: 'NASDAQ:NDX / NASDAQ:DJI',
+      nombre: 'Indicador Fear and Greed',
+      descripcion: 'Medidor de sentimiento del mercado que combina 7 indicadores diferentes de volatilidad y momentum',
+      url: 'https://cnn.com/markets/fear-and-greed',
+      icon: '😰'
+    },
+    {
+      nombre: 'Mercap Abbaco - Renta Fija',
+      descripcion: 'Información detallada sobre bonos y instrumentos de renta fija del mercado argentino',
+      url: '#',
+      icon: '📋'
+    }
+  ];
+
+  const materialComplementario = [
+    {
+      nombre: 'Ratios de Conversión COMAFI',
+      descripcion: 'Guía completa con todos los ratios de conversión de CEDEARs proporcionada por COMAFI',
+      descarga: '/downloads/ratios-conversion-comafi.pdf',
       icon: '🔄'
     },
     {
-      nombre: 'Inflación Interanual Argentina',
-      descripcion: 'Cálculo de la inflación acumulada en los últimos 12 meses usando datos oficiales.',
-      formula: '((close / close[252]) - 1) * 100',
-      icon: '📈'
+      nombre: 'Ratios de Conversión BYMA',
+      descripcion: 'Ratios oficiales de conversión de CEDEARs según BYMA (Bolsas y Mercados Argentinos)',
+      descarga: '/downloads/ratios-conversion-byma.pdf',
+      icon: '📊'
+    },
+    {
+      nombre: 'Cálculo para Comprar y Vender CEDEARs',
+      descripcion: 'Manual práctico con ejemplos para calcular correctamente operaciones con CEDEARs',
+      descarga: '/downloads/calculo-cedears.pdf',
+      icon: '💵'
+    },
+    {
+      nombre: '¿Cómo Medir la Cartera?',
+      descripcion: 'Manual para evaluar correctamente el performance de tu portafolio y compararlo con benchmarks',
+      descarga: '/downloads/como-medir-cartera.pdf',
+      icon: '📏'
+    }
+  ];
+
+  const librosRecomendados = [
+    {
+      nombre: 'Análisis Técnico de los Mercados Financieros',
+      autor: 'John J. Murphy',
+      descripcion: 'El manual definitivo sobre análisis técnico. Cubre todos los conceptos fundamentales y técnicas avanzadas.',
+      descarga: '/downloads/analisis-tecnico-murphy.pdf'
+    },
+    {
+      nombre: 'Guía para Invertir',
+      autor: 'Robert T. Kiyosaki',
+      descripcion: 'Estrategias de inversión y educación financiera para construir riqueza a largo plazo.',
+      descarga: '/downloads/guia-para-invertir-kiyosaki.pdf'
+    },
+    {
+      nombre: 'El Método Wyckoff',
+      autor: 'Enrique Díaz Valdecantos',
+      descripcion: 'Análisis profundo del método Wyckoff para entender la estructura del mercado y el volumen.',
+      descarga: '/downloads/metodo-wyckoff.pdf'
+    },
+    {
+      nombre: 'Padre Rico, Padre Pobre',
+      autor: 'Robert T. Kiyosaki',
+      descripcion: 'Fundamentos de educación financiera y mentalidad para alcanzar la libertad financiera.',
+      descarga: '/downloads/padre-rico-padre-pobre.pdf'
     }
   ];
 
   return {
     props: {
-      afiliados,
-      indicadores,
-      planillas,
-      libros,
-      materialComplementario,
+      formulasTradingView,
       linksImportantes,
-      formulasTradingView
+      materialComplementario,
+      librosRecomendados,
+      listasActivos
     }
   };
 };
