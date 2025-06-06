@@ -362,7 +362,7 @@ export default function PerfilPage() {
               <div className={styles.tableHeader}>
                 <div className={styles.headerColumn}>Menú y Submenú Desplegable</div>
                 <div className={styles.headerColumn}>
-                  Alertas (Trader Call - Smart Money - CashFlow) - Entrenamientos - Cursos - Asesorías (Consultorio Financiero - Cuenta Asesorada) - Recursos
+                  Servicios y Funcionalidades
                 </div>
               </div>
               
