@@ -60,6 +60,12 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
     setOpenDropdown(openDropdown === label ? null : label);
   };
 
+  const handleChevronClick = (e: React.MouseEvent, label: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleDropdownToggle(label);
+  };
+
   const handleLogin = () => {
     signIn('google');
   };
@@ -96,19 +102,25 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                     {item.label}
                   </a>
                 ) : (
-                  <Link
-                    href={item.href}
-                    className={`${styles.navLink} ${item.dropdown ? styles.hasDropdown : ''}`}
-                    onClick={(e) => item.dropdown && e.preventDefault()}
-                  >
-                    {item.label}
+                  <div className={`${styles.navLink} ${item.dropdown ? styles.hasDropdown : ''}`}>
+                    <Link
+                      href={item.href}
+                      className={styles.mainLink}
+                    >
+                      {item.label}
+                    </Link>
                     {item.dropdown && (
-                      <ChevronDown 
-                        size={16} 
-                        className={`${styles.chevron} ${openDropdown === item.label ? styles.chevronOpen : ''}`}
-                      />
+                      <button
+                        className={styles.chevronButton}
+                        onClick={(e) => handleChevronClick(e, item.label)}
+                      >
+                        <ChevronDown 
+                          size={16} 
+                          className={`${styles.chevron} ${openDropdown === item.label ? styles.chevronOpen : ''}`}
+                        />
+                      </button>
                     )}
-                  </Link>
+                  </div>
                 )}
 
                 {/* Dropdown Menu */}
@@ -209,25 +221,26 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                   </a>
                 ) : (
                   <>
-                    <Link
-                      href={item.href}
-                      className={styles.mobileNavLink}
-                      onClick={() => {
-                        if (!item.dropdown) {
-                          setIsMenuOpen(false);
-                        } else {
-                          handleDropdownToggle(`mobile-${item.label}`);
-                        }
-                      }}
-                    >
-                      {item.label}
+                    <div className={styles.mobileNavLinkContainer}>
+                      <Link
+                        href={item.href}
+                        className={styles.mobileNavLink}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
                       {item.dropdown && (
-                        <ChevronDown 
-                          size={16} 
-                          className={`${styles.chevron} ${openDropdown === `mobile-${item.label}` ? styles.chevronOpen : ''}`}
-                        />
+                        <button
+                          className={styles.mobileChevronButton}
+                          onClick={() => handleDropdownToggle(`mobile-${item.label}`)}
+                        >
+                          <ChevronDown 
+                            size={16} 
+                            className={`${styles.chevron} ${openDropdown === `mobile-${item.label}` ? styles.chevronOpen : ''}`}
+                          />
+                        </button>
                       )}
-                    </Link>
+                    </div>
                     
                     {/* Mobile Dropdown */}
                     {item.dropdown && openDropdown === `mobile-${item.label}` && (
