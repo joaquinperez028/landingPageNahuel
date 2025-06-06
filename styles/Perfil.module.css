@@ -717,6 +717,82 @@
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
 }
 
+/* Avatar Preview */
+.avatarPreview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.avatarImage {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(59, 130, 246, 0.3);
+  flex-shrink: 0;
+}
+
+.avatarActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+}
+
+.uploadButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.uploadButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.uploadNote {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.formInput:disabled,
+.formSelect:disabled {
+  background: rgba(30, 41, 59, 0.3);
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.saveButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .main {
@@ -812,6 +888,15 @@
   .cancelButton,
   .saveButton {
     width: 100%;
+  }
+
+  .avatarPreview {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .avatarActions {
+    align-items: center;
   }
 }
 

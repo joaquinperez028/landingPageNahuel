@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next';
 import { getSession, useSession } from 'next-auth/react';
 import Head from 'next/head';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, 
@@ -27,6 +27,29 @@ export default function PerfilPage() {
   const [activeSection, setActiveSection] = useState(1);
   const [showIncompleteNotification, setShowIncompleteNotification] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    cuitCuil: '',
+    educacionFinanciera: '',
+    brokerPreferencia: '',
+    avatarUrl: ''
+  });
+  const [previewAvatar, setPreviewAvatar] = useState('');
+
+  // Inicializar formulario con datos del usuario
+  useEffect(() => {
+    if (session?.user) {
+      setFormData({
+        fullName: session.user.name || '',
+        cuitCuil: '',
+        educacionFinanciera: '',
+        brokerPreferencia: '',
+        avatarUrl: session.user.image || ''
+      });
+      setPreviewAvatar(session.user.image || '');
+    }
+  }, [session]);
 
   // Verificar información incompleta del perfil
   const profileIncomplete = useMemo(() => {
@@ -64,6 +87,96 @@ export default function PerfilPage() {
       missingFields
     };
   }, [session]);
+
+  // Función para manejar upload de avatar
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona una imagen válida');
+      return;
+    }
+
+    // Validar tamaño (5MB máximo)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('La imagen no puede superar los 5MB');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('avatar', file);
+
+      const response = await fetch('/api/profile/upload-avatar', {
+        method: 'POST',
+        body: formDataUpload,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        const newAvatarUrl = result.avatarUrl;
+        setFormData({ ...formData, avatarUrl: newAvatarUrl });
+        setPreviewAvatar(newAvatarUrl);
+      } else {
+        alert(result.message || 'Error al subir la imagen');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al subir la imagen');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Función para guardar el perfil
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.fullName.trim()) {
+      alert('El nombre completo es obligatorio');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          cuitCuil: formData.cuitCuil,
+          educacionFinanciera: formData.educacionFinanciera,
+          brokerPreferencia: formData.brokerPreferencia,
+          avatarUrl: formData.avatarUrl
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert('Perfil actualizado exitosamente');
+        setShowEditModal(false);
+        setShowIncompleteNotification(false);
+        // Aquí podrías actualizar la sesión o recargar los datos
+        window.location.reload(); // Por simplicidad, recargar la página
+      } else {
+        alert(result.message || 'Error al actualizar el perfil');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al actualizar el perfil');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (status === 'loading') {
     return (
@@ -502,15 +615,45 @@ export default function PerfilPage() {
               </div>
 
               <div className={styles.modalContent}>
-                <form className={styles.editForm}>
+                <form className={styles.editForm} onSubmit={handleSaveProfile}>
                   <div className={styles.formGrid}>
+                    {/* Preview del Avatar */}
+                    <div className={styles.formGroup}>
+                      <label>Avatar Actual</label>
+                      <div className={styles.avatarPreview}>
+                        <img 
+                          src={previewAvatar || session?.user?.image || `https://via.placeholder.com/80x80/3b82f6/ffffff?text=${session?.user?.name?.charAt(0) || 'U'}`}
+                          alt="Avatar preview"
+                          className={styles.avatarImage}
+                        />
+                        <div className={styles.avatarActions}>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarUpload}
+                            className={styles.fileInput}
+                            id="avatarUpload"
+                            disabled={isLoading}
+                          />
+                          <label htmlFor="avatarUpload" className={styles.uploadButton}>
+                            {isLoading ? 'Subiendo...' : 'Cambiar Foto'}
+                          </label>
+                          <small className={styles.uploadNote}>
+                            JPG, PNG o GIF. Máximo 5MB.
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className={styles.formGroup}>
                       <label htmlFor="fullName">Nombre y Apellido</label>
                       <input
                         type="text"
                         id="fullName"
-                        defaultValue={session?.user?.name || ''}
+                        value={formData.fullName}
                         className={styles.formInput}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        required
                       />
                     </div>
 
@@ -519,8 +662,10 @@ export default function PerfilPage() {
                       <input
                         type="text"
                         id="cuitCuil"
+                        value={formData.cuitCuil}
                         placeholder="Ej: 20-12345678-9"
                         className={styles.formInput}
+                        onChange={(e) => setFormData({ ...formData, cuitCuil: e.target.value })}
                       />
                     </div>
 
@@ -529,7 +674,7 @@ export default function PerfilPage() {
                       <input
                         type="email"
                         id="email"
-                        defaultValue={session?.user?.email || ''}
+                        value={session?.user?.email || ''}
                         className={styles.formInput}
                         disabled
                       />
@@ -540,7 +685,12 @@ export default function PerfilPage() {
 
                     <div className={styles.formGroup}>
                       <label htmlFor="educacionFinanciera">Educación Financiera</label>
-                      <select id="educacionFinanciera" className={styles.formSelect}>
+                      <select 
+                        id="educacionFinanciera" 
+                        className={styles.formSelect} 
+                        value={formData.educacionFinanciera}
+                        onChange={(e) => setFormData({ ...formData, educacionFinanciera: e.target.value })}
+                      >
                         <option value="">Seleccionar nivel</option>
                         <option value="principiante">Principiante</option>
                         <option value="intermedio">Intermedio</option>
@@ -551,7 +701,12 @@ export default function PerfilPage() {
 
                     <div className={styles.formGroup}>
                       <label htmlFor="brokerPreferencia">Broker de Preferencia</label>
-                      <select id="brokerPreferencia" className={styles.formSelect}>
+                      <select 
+                        id="brokerPreferencia" 
+                        className={styles.formSelect}
+                        value={formData.brokerPreferencia}
+                        onChange={(e) => setFormData({ ...formData, brokerPreferencia: e.target.value })}
+                      >
                         <option value="">Seleccionar broker</option>
                         <option value="bull-market">Bull Market</option>
                         <option value="iol">IOL</option>
@@ -560,16 +715,6 @@ export default function PerfilPage() {
                         <option value="eco-valores">Eco Valores</option>
                         <option value="otros">Otros</option>
                       </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="avatarUrl">URL del Avatar (opcional)</label>
-                      <input
-                        type="url"
-                        id="avatarUrl"
-                        placeholder="https://ejemplo.com/mi-avatar.jpg"
-                        className={styles.formInput}
-                      />
                     </div>
                   </div>
 
@@ -584,14 +729,9 @@ export default function PerfilPage() {
                     <button 
                       type="submit"
                       className={styles.saveButton}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        // Aquí iría la lógica para guardar los datos
-                        alert('Funcionalidad de guardado pendiente de implementar');
-                        setShowEditModal(false);
-                      }}
+                      disabled={isLoading}
                     >
-                      Guardar Cambios
+                      {isLoading ? 'Guardando...' : 'Guardar Cambios'}
                     </button>
                   </div>
                 </form>
