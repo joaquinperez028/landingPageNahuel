@@ -493,7 +493,7 @@ export default function PerfilPage() {
                       <p>
                         Por tu seguridad, no almacenamos información de tarjetas de crédito. 
                         Todos los pagos se procesan de forma segura a través de <strong>Mercado Pago</strong> y <strong>transferencia bancaria</strong> 
-                        al momento de realizar cada compra.
+                         al momento de realizar cada compra.
                       </p>
                     </div>
                   </div>

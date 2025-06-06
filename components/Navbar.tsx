@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { ChevronDown, Menu, X, User, LogOut, Settings } from 'lucide-react';
+import { ChevronDown, Menu, X, User, LogOut, Settings, Bell } from 'lucide-react';
+import NotificationDropdown from '@/components/NotificationDropdown';
 import styles from '@/styles/Navbar.module.css';
 
 interface NavbarProps {
@@ -17,6 +18,30 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
   const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  // Obtener conteo de notificaciones
+  const fetchNotificationCount = async () => {
+    if (!session?.user?.email) return;
+    
+    try {
+      const response = await fetch('/api/notifications/get?limit=1');
+      if (response.ok) {
+        const data = await response.json();
+        setNotificationCount(data.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error('Error al obtener conteo de notificaciones:', error);
+    }
+  };
+
+  // Cargar conteo al iniciar sesión
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetchNotificationCount();
+    }
+  }, [session]);
 
   const navItems = [
     {
@@ -57,12 +82,22 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
 
   const handleDropdownToggle = (label: string) => {
     setOpenDropdown(openDropdown === label ? null : label);
+    // Cerrar notificaciones si se abre otro dropdown
+    if (label !== 'notifications') {
+      setShowNotifications(false);
+    }
   };
 
   const handleChevronClick = (e: React.MouseEvent, label: string) => {
     e.preventDefault();
     e.stopPropagation();
     handleDropdownToggle(label);
+  };
+
+  const handleNotificationToggle = () => {
+    setShowNotifications(!showNotifications);
+    // Cerrar otros dropdowns
+    setOpenDropdown(null);
   };
 
   const handleLogin = () => {
@@ -150,45 +185,70 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
           {status === 'loading' ? (
             <div className={styles.spinner} />
           ) : session ? (
-            <div className={styles.userMenu}>
-              <button
-                className={styles.userButton}
-                onClick={() => handleDropdownToggle('user')}
-              >
-                {session.user.image ? (
-                  <img
-                    src={session.user.image}
-                    alt={session.user.name}
-                    className={styles.userAvatar}
-                  />
-                ) : (
-                  <User size={20} />
-                )}
-                <span className={styles.userName}>{session.user.name}</span>
-                <ChevronDown 
-                  size={16} 
-                  className={`${styles.chevron} ${openDropdown === 'user' ? styles.chevronOpen : ''}`}
-                />
-              </button>
-
-              {openDropdown === 'user' && (
-                <div className={styles.userDropdown}>
-                  <Link href="/perfil" className={styles.dropdownItem}>
-                    <User size={16} />
-                    Mi Perfil
-                  </Link>
-                  {session.user.role === 'admin' && (
-                    <Link href="/admin/dashboard" className={styles.dropdownItem}>
-                      <Settings size={16} />
-                      Panel de Administración
-                    </Link>
+            <div className={styles.userActions}>
+              {/* Notifications Button */}
+              <div className={styles.notificationContainer}>
+                <button
+                  className={`${styles.notificationButton} ${showNotifications ? styles.active : ''}`}
+                  onClick={handleNotificationToggle}
+                  title="Notificaciones"
+                >
+                  <Bell size={20} />
+                  {notificationCount > 0 && (
+                    <span className={styles.notificationBadge}>
+                      {notificationCount > 9 ? '9+' : notificationCount}
+                    </span>
                   )}
-                  <button onClick={handleLogout} className={styles.dropdownItem}>
-                    <LogOut size={16} />
-                    Cerrar Sesión
-                  </button>
-                </div>
-              )}
+                </button>
+                
+                <NotificationDropdown 
+                  isOpen={showNotifications}
+                  onClose={() => setShowNotifications(false)}
+                  onUpdate={fetchNotificationCount}
+                />
+              </div>
+
+              {/* User Menu */}
+              <div className={styles.userMenu}>
+                <button
+                  className={styles.userButton}
+                  onClick={() => handleDropdownToggle('user')}
+                >
+                  {session.user.image ? (
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name}
+                      className={styles.userAvatar}
+                    />
+                  ) : (
+                    <User size={20} />
+                  )}
+                  <span className={styles.userName}>{session.user.name}</span>
+                  <ChevronDown 
+                    size={16} 
+                    className={`${styles.chevron} ${openDropdown === 'user' ? styles.chevronOpen : ''}`}
+                  />
+                </button>
+
+                {openDropdown === 'user' && (
+                  <div className={styles.userDropdown}>
+                    <Link href="/perfil" className={styles.dropdownItem}>
+                      <User size={16} />
+                      Mi Perfil
+                    </Link>
+                    {session.user.role === 'admin' && (
+                      <Link href="/admin/dashboard" className={styles.dropdownItem}>
+                        <Settings size={16} />
+                        Panel de Administración
+                      </Link>
+                    )}
+                    <button onClick={handleLogout} className={styles.dropdownItem}>
+                      <LogOut size={16} />
+                      Cerrar Sesión
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <button onClick={handleLogin} className={styles.loginButton}>
