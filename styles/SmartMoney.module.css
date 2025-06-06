@@ -58,7 +58,7 @@
 
 .heroSubtitle {
   display: block;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: #06b6d4;
   margin-top: 0.5rem;
 }
@@ -109,6 +109,64 @@
   width: 100%;
   height: 100%;
   border-radius: 1rem;
+}
+
+/* Video Placeholder */
+.videoPlaceholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border-radius: 1rem;
+  text-align: center;
+  padding: 2rem;
+  color: white;
+}
+
+.placeholderIcon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.placeholderTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.placeholderText {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2rem;
+  max-width: 400px;
+}
+
+.placeholderFeatures {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.placeholderFeatures span {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 /* Metrics Section */
@@ -483,6 +541,22 @@
     font-size: 1.25rem;
   }
   
+  .placeholderIcon {
+    font-size: 3rem;
+  }
+  
+  .placeholderTitle {
+    font-size: 1.25rem;
+  }
+  
+  .placeholderText {
+    font-size: 0.875rem;
+  }
+  
+  .placeholderFeatures {
+    gap: 0.5rem;
+  }
+  
   .metricsGrid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -534,6 +608,27 @@
   
   .heroSubtitle {
     font-size: 1.125rem;
+  }
+  
+  .placeholderIcon {
+    font-size: 2.5rem;
+  }
+  
+  .placeholderTitle {
+    font-size: 1.125rem;
+  }
+  
+  .placeholderText {
+    font-size: 0.8rem;
+  }
+  
+  .placeholderFeatures {
+    gap: 0.4rem;
+  }
+  
+  .placeholderFeatures span {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
   }
   
   .subscriptionCard {

@@ -117,11 +117,19 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
             </div>
             <div className={styles.heroVideo}>
               <div className={styles.videoContainer}>
-                <VideoPlayerMux 
-                  playbackId="sample-smart-money-video" 
-                  autoplay={true}
-                  className={styles.video}
-                />
+                {/* Placeholder de video mientras no tenemos uno real configurado */}
+                <div className={styles.videoPlaceholder}>
+                  <div className={styles.placeholderIcon}>🎥</div>
+                  <h3 className={styles.placeholderTitle}>Video Explicativo Smart Money</h3>
+                  <p className={styles.placeholderText}>
+                    Aquí irá el video explicativo sobre cómo funciona nuestro análisis de flujos institucionales
+                  </p>
+                  <div className={styles.placeholderFeatures}>
+                    <span>📊 Análisis de flujos</span>
+                    <span>📈 Movimientos institucionales</span>
+                    <span>🎯 Detección de manipulación</span>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
