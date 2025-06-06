@@ -24,12 +24,41 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import styles from '@/styles/Perfil.module.css';
 
+// Interfaz para los datos del perfil
+interface UserProfile {
+  email: string;
+  name: string;
+  image: string;
+  fullName?: string;
+  cuitCuil?: string;
+  educacionFinanciera?: string;
+  brokerPreferencia?: string;
+  avatarUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Función para mostrar el nombre del broker de forma legible
+const getBrokerDisplayName = (brokerValue: string) => {
+  const brokerNames: { [key: string]: string } = {
+    'bull-market': 'Bull Market',
+    'iol': 'IOL',
+    'portfolio-personal': 'Portfolio Personal',
+    'cocos-capital': 'Cocos Capital',
+    'eco-valores': 'Eco Valores',
+    'otros': 'Otros'
+  };
+  return brokerNames[brokerValue] || brokerValue;
+};
+
 export default function PerfilPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const [activeSection, setActiveSection] = useState(1);
   const [showIncompleteNotification, setShowIncompleteNotification] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [notification, setNotification] = useState<{
     show: boolean;
     type: 'success' | 'error';
@@ -44,48 +73,67 @@ export default function PerfilPage() {
   });
   const [previewAvatar, setPreviewAvatar] = useState('');
 
-  // Inicializar formulario con datos del usuario
-  useEffect(() => {
-    if (session?.user) {
-      setFormData({
-        fullName: session.user.name || '',
-        cuitCuil: '',
-        educacionFinanciera: '',
-        brokerPreferencia: '',
-        avatarUrl: session.user.image || ''
+  // Función para obtener el perfil del usuario
+  const fetchUserProfile = async () => {
+    try {
+      setProfileLoading(true);
+      const response = await fetch('/api/profile/get', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-      setPreviewAvatar(session.user.image || '');
+
+      if (response.ok) {
+        const result = await response.json();
+        setUserProfile(result.profile);
+        
+        // Inicializar formulario con datos reales
+        setFormData({
+          fullName: result.profile.fullName || result.profile.name || '',
+          cuitCuil: result.profile.cuitCuil || '',
+          educacionFinanciera: result.profile.educacionFinanciera || '',
+          brokerPreferencia: result.profile.brokerPreferencia || '',
+          avatarUrl: result.profile.avatarUrl || result.profile.image || ''
+        });
+        setPreviewAvatar(result.profile.avatarUrl || result.profile.image || '');
+      } else {
+        console.error('Error al obtener perfil:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error al obtener perfil:', error);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  // Obtener perfil al cargar y cuando la sesión esté lista
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetchUserProfile();
     }
   }, [session]);
 
-  // Verificar información incompleta del perfil
+  // Verificar información incompleta del perfil usando datos reales
   const profileIncomplete = useMemo(() => {
-    if (!session?.user) return { incomplete: false, missingFields: [] };
+    if (!userProfile) return { incomplete: false, missingFields: [] };
     
     const missingFields = [];
     
     // Verificar campos obligatorios
-    if (!session.user.name || session.user.name.trim() === '') {
+    if (!userProfile.fullName || userProfile.fullName.trim() === '') {
       missingFields.push('Nombre completo');
     }
     
-    // Simular otros campos que podrían faltar
-    // En una implementación real, estos vendrían de la base de datos
-    const mockUserData = {
-      cuitCuil: null, // Este vendría de la BD
-      educacionFinanciera: null, // Este vendría de la BD  
-      brokerPreferencia: null, // Este vendría de la BD
-    };
-    
-    if (!mockUserData.cuitCuil) {
+    if (!userProfile.cuitCuil) {
       missingFields.push('CUIT/CUIL');
     }
     
-    if (!mockUserData.educacionFinanciera) {
+    if (!userProfile.educacionFinanciera) {
       missingFields.push('Educación Financiera');
     }
     
-    if (!mockUserData.brokerPreferencia) {
+    if (!userProfile.brokerPreferencia) {
       missingFields.push('Broker de Preferencia');
     }
     
@@ -93,7 +141,7 @@ export default function PerfilPage() {
       incomplete: missingFields.length > 0,
       missingFields
     };
-  }, [session]);
+  }, [userProfile]);
 
   // Función para mostrar notificaciones
   const showNotification = (type: 'success' | 'error', message: string) => {
@@ -181,10 +229,12 @@ export default function PerfilPage() {
         showNotification('success', 'Perfil actualizado exitosamente');
         setShowEditModal(false);
         setShowIncompleteNotification(false);
-        // Actualizar la sesión sin recargar la página
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        
+        // Actualizar los datos del perfil inmediatamente
+        await fetchUserProfile();
+        
+        // También actualizar la sesión de NextAuth si es necesario
+        await update();
       } else {
         showNotification('error', result.message || 'Error al actualizar el perfil');
       }
@@ -196,7 +246,7 @@ export default function PerfilPage() {
     }
   };
 
-  if (status === 'loading') {
+  if (status === 'loading' || profileLoading) {
     return (
       <>
         <Head>
@@ -216,7 +266,7 @@ export default function PerfilPage() {
     );
   }
 
-  if (!session) {
+  if (!session || !userProfile) {
     return null;
   }
 
@@ -369,14 +419,14 @@ export default function PerfilPage() {
                       <div className={styles.infoList}>
                         <div className={styles.infoItem}>
                           <span className={styles.label}>Nombre y Apellido:</span>
-                          <span className={`${styles.value} ${!session?.user?.name ? styles.missing : ''}`}>
-                            {session?.user?.name || 'No especificado'}
+                          <span className={`${styles.value} ${!userProfile?.fullName ? styles.missing : ''}`}>
+                            {userProfile?.fullName || 'No especificado'}
                           </span>
                         </div>
                         <div className={styles.infoItem}>
                           <span className={styles.label}>CUIT/CUIL:</span>
-                          <span className={`${styles.value} ${styles.missing}`}>
-                            No especificado
+                          <span className={`${styles.value} ${!userProfile?.cuitCuil ? styles.missing : ''}`}>
+                            {userProfile?.cuitCuil || 'No especificado'}
                           </span>
                         </div>
                       </div>
@@ -390,13 +440,13 @@ export default function PerfilPage() {
                       <div className={styles.infoList}>
                         <div className={styles.infoItem}>
                           <span className={styles.label}>Correo Electrónico:</span>
-                          <span className={styles.value}>{session?.user?.email}</span>
+                          <span className={styles.value}>{userProfile?.email}</span>
                         </div>
                         <div className={styles.infoItem}>
                           <span className={styles.label}>Avatar:</span>
                           <span className={styles.value}>
                             <img 
-                              src={session?.user?.image || `https://via.placeholder.com/40x40/3b82f6/ffffff?text=${session?.user?.name?.charAt(0) || 'U'}`}
+                              src={userProfile?.avatarUrl || userProfile?.image || `https://via.placeholder.com/40x40/3b82f6/ffffff?text=${userProfile?.name?.charAt(0) || 'U'}`}
                               alt="Avatar"
                               className={styles.avatarSmall}
                             />
@@ -413,14 +463,20 @@ export default function PerfilPage() {
                       <div className={styles.infoList}>
                         <div className={styles.infoItem}>
                           <span className={styles.label}>Educación Financiera:</span>
-                          <span className={`${styles.value} ${styles.missing}`}>
-                            No especificado
+                          <span className={`${styles.value} ${!userProfile?.educacionFinanciera ? styles.missing : ''}`}>
+                            {userProfile?.educacionFinanciera ? 
+                              userProfile.educacionFinanciera.charAt(0).toUpperCase() + userProfile.educacionFinanciera.slice(1) : 
+                              'No especificado'
+                            }
                           </span>
                         </div>
                         <div className={styles.infoItem}>
                           <span className={styles.label}>Broker de Preferencia:</span>
-                          <span className={`${styles.value} ${styles.missing}`}>
-                            No especificado
+                          <span className={`${styles.value} ${!userProfile?.brokerPreferencia ? styles.missing : ''}`}>
+                            {userProfile?.brokerPreferencia ? 
+                              getBrokerDisplayName(userProfile.brokerPreferencia) : 
+                              'No especificado'
+                            }
                           </span>
                         </div>
                       </div>
@@ -640,7 +696,7 @@ export default function PerfilPage() {
                       <label>Avatar Actual</label>
                       <div className={styles.avatarPreview}>
                         <img 
-                          src={previewAvatar || session?.user?.image || `https://via.placeholder.com/80x80/3b82f6/ffffff?text=${session?.user?.name?.charAt(0) || 'U'}`}
+                          src={previewAvatar || userProfile?.avatarUrl || userProfile?.image || `https://via.placeholder.com/80x80/3b82f6/ffffff?text=${userProfile?.name?.charAt(0) || 'U'}`}
                           alt="Avatar preview"
                           className={styles.avatarImage}
                         />
@@ -692,7 +748,7 @@ export default function PerfilPage() {
                       <input
                         type="email"
                         id="email"
-                        value={session?.user?.email || ''}
+                        value={userProfile?.email || ''}
                         className={styles.formInput}
                         disabled
                       />
