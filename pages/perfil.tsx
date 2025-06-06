@@ -1,23 +1,22 @@
 import { GetServerSideProps } from 'next';
 import { getSession, useSession } from 'next-auth/react';
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, 
-  CreditCard, 
   ShoppingBag, 
   Bell,
   Mail,
   Building,
   GraduationCap,
   TrendingUp,
-  Plus,
   Edit3,
-  Trash2,
   Download,
   Calendar,
-  DollarSign
+  DollarSign,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -26,6 +25,44 @@ import styles from '@/styles/Perfil.module.css';
 export default function PerfilPage() {
   const { data: session, status } = useSession();
   const [activeSection, setActiveSection] = useState(1);
+  const [showIncompleteNotification, setShowIncompleteNotification] = useState(true);
+
+  // Verificar información incompleta del perfil
+  const profileIncomplete = useMemo(() => {
+    if (!session?.user) return { incomplete: false, missingFields: [] };
+    
+    const missingFields = [];
+    
+    // Verificar campos obligatorios
+    if (!session.user.name || session.user.name.trim() === '') {
+      missingFields.push('Nombre completo');
+    }
+    
+    // Simular otros campos que podrían faltar
+    // En una implementación real, estos vendrían de la base de datos
+    const mockUserData = {
+      cuitCuil: null, // Este vendría de la BD
+      educacionFinanciera: null, // Este vendría de la BD  
+      brokerPreferencia: null, // Este vendría de la BD
+    };
+    
+    if (!mockUserData.cuitCuil) {
+      missingFields.push('CUIT/CUIL');
+    }
+    
+    if (!mockUserData.educacionFinanciera) {
+      missingFields.push('Educación Financiera');
+    }
+    
+    if (!mockUserData.brokerPreferencia) {
+      missingFields.push('Broker de Preferencia');
+    }
+    
+    return {
+      incomplete: missingFields.length > 0,
+      missingFields
+    };
+  }, [session]);
 
   if (status === 'loading') {
     return (
@@ -60,18 +97,12 @@ export default function PerfilPage() {
     },
     {
       id: 2,
-      title: 'Métodos de Pago',
-      description: 'Tarjetas de Crédito o Débito Asociadas (posibilidad de modificarlas)',
-      icon: <CreditCard size={20} />
-    },
-    {
-      id: 3,
       title: 'Mis Compras',
       description: 'Suscripciones, Compras Entrenamientos, Compras Cursos, etc',
       icon: <ShoppingBag size={20} />
     },
     {
-      id: 4,
+      id: 3,
       title: 'Notificaciones',
       description: 'Central de Notificaciones del usuario respecto al pago y novedades',
       icon: <Bell size={20} />
@@ -82,7 +113,7 @@ export default function PerfilPage() {
     <>
       <Head>
         <title>Mi Cuenta - Nahuel Lozano</title>
-        <meta name="description" content="Gestiona tu cuenta, información personal, métodos de pago y compras" />
+        <meta name="description" content="Gestiona tu cuenta, información personal y consulta tu historial de compras" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
@@ -100,9 +131,46 @@ export default function PerfilPage() {
             <div className={styles.profileHeader}>
               <h1 className={styles.mainTitle}>Mi Cuenta</h1>
               <p className={styles.mainSubtitle}>
-                Gestiona tu información personal, métodos de pago y consulta tu historial de compras
+                Gestiona tu información personal y consulta tu historial de compras
               </p>
             </div>
+
+            {/* Notificación de perfil incompleto */}
+            {profileIncomplete.incomplete && showIncompleteNotification && (
+              <motion.div
+                className={styles.incompleteNotification}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className={styles.notificationContent}>
+                  <div className={styles.notificationIcon}>
+                    <AlertTriangle size={24} />
+                  </div>
+                  <div className={styles.notificationText}>
+                    <h3>Completa tu perfil</h3>
+                    <p>
+                      Te faltan algunos datos importantes: {profileIncomplete.missingFields.join(', ')}. 
+                      Completar tu perfil te ayudará a tener una mejor experiencia.
+                    </p>
+                  </div>
+                  <div className={styles.notificationActions}>
+                    <button 
+                      className={styles.completeButton}
+                      onClick={() => setActiveSection(1)}
+                    >
+                      Completar Ahora
+                    </button>
+                    <button 
+                      className={styles.dismissButton}
+                      onClick={() => setShowIncompleteNotification(false)}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
             {/* Navigation Table */}
             <div className={styles.navigationTable}>
@@ -163,11 +231,15 @@ export default function PerfilPage() {
                       <div className={styles.infoList}>
                         <div className={styles.infoItem}>
                           <span className={styles.label}>Nombre y Apellido:</span>
-                          <span className={styles.value}>{session?.user?.name || 'No especificado'}</span>
+                          <span className={`${styles.value} ${!session?.user?.name ? styles.missing : ''}`}>
+                            {session?.user?.name || 'No especificado'}
+                          </span>
                         </div>
                         <div className={styles.infoItem}>
                           <span className={styles.label}>CUIT/CUIL:</span>
-                          <span className={styles.value}>No especificado</span>
+                          <span className={`${styles.value} ${styles.missing}`}>
+                            No especificado
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -203,79 +275,39 @@ export default function PerfilPage() {
                       <div className={styles.infoList}>
                         <div className={styles.infoItem}>
                           <span className={styles.label}>Educación Financiera:</span>
-                          <span className={styles.value}>Intermedio</span>
+                          <span className={`${styles.value} ${styles.missing}`}>
+                            No especificado
+                          </span>
                         </div>
                         <div className={styles.infoItem}>
                           <span className={styles.label}>Broker de Preferencia:</span>
-                          <span className={styles.value}>Bull Market</span>
+                          <span className={`${styles.value} ${styles.missing}`}>
+                            No especificado
+                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
-                </motion.div>
-              )}
 
-              {/* Métodos de Pago */}
-              {activeSection === 2 && (
-                <motion.div
-                  className={styles.sectionContent}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <div className={styles.sectionHeader}>
-                    <h2>Métodos de Pago</h2>
-                    <button className={styles.addButton}>
-                      <Plus size={16} />
-                      Agregar Tarjeta
-                    </button>
-                  </div>
-                  
-                  <div className={styles.paymentMethods}>
-                    <div className={styles.paymentCard}>
-                      <div className={styles.cardHeader}>
-                        <CreditCard size={24} />
-                        <h3>Tarjetas Guardadas</h3>
-                      </div>
-                      <div className={styles.cardsList}>
-                        <div className={styles.savedCard}>
-                          <div className={styles.cardInfo}>
-                            <div className={styles.cardType}>VISA</div>
-                            <div className={styles.cardNumber}>**** **** **** 4532</div>
-                            <div className={styles.cardExpiry}>Exp: 12/25</div>
-                          </div>
-                          <div className={styles.cardActions}>
-                            <button className={styles.actionBtn}>
-                              <Edit3 size={16} />
-                            </button>
-                            <button className={styles.actionBtn}>
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </div>
-                        <div className={styles.savedCard}>
-                          <div className={styles.cardInfo}>
-                            <div className={styles.cardType}>MASTERCARD</div>
-                            <div className={styles.cardNumber}>**** **** **** 8901</div>
-                            <div className={styles.cardExpiry}>Exp: 08/24</div>
-                          </div>
-                          <div className={styles.cardActions}>
-                            <button className={styles.actionBtn}>
-                              <Edit3 size={16} />
-                            </button>
-                            <button className={styles.actionBtn}>
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                  {/* Información sobre seguridad de pagos */}
+                  <div className={styles.securityNotice}>
+                    <div className={styles.securityIcon}>
+                      🔒
+                    </div>
+                    <div className={styles.securityText}>
+                      <h4>Seguridad en Pagos</h4>
+                      <p>
+                        Por tu seguridad, no almacenamos información de tarjetas de crédito. 
+                        Todos los pagos se procesan de forma segura a través de <strong>Stripe</strong> y <strong>Mobbex</strong> 
+                        al momento de realizar cada compra.
+                      </p>
                     </div>
                   </div>
                 </motion.div>
               )}
 
               {/* Mis Compras */}
-              {activeSection === 3 && (
+              {activeSection === 2 && (
                 <motion.div
                   className={styles.sectionContent}
                   initial={{ opacity: 0, y: 20 }}
@@ -366,7 +398,7 @@ export default function PerfilPage() {
               )}
 
               {/* Notificaciones */}
-              {activeSection === 4 && (
+              {activeSection === 3 && (
                 <motion.div
                   className={styles.sectionContent}
                   initial={{ opacity: 0, y: 20 }}
