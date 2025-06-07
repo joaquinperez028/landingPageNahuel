@@ -71,10 +71,6 @@ const UserSchema = new mongoose.Schema({
     enum: ['bull-market', 'iol', 'portfolio-personal', 'cocos-capital', 'eco-valores', 'otros'],
     default: null,
   },
-  avatarUrl: {
-    type: String,
-    default: null,
-  },
 }, {
   timestamps: true
 });

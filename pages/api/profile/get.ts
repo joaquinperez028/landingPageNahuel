@@ -36,23 +36,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Crear objeto de respuesta con los datos del perfil
-    const profileData = {
-      email: user.email,
-      name: user.name,
-      image: user.picture || session.user.image,
-      fullName: user.fullName,
-      cuitCuil: user.cuitCuil,
-      educacionFinanciera: user.educacionFinanciera,
-      brokerPreferencia: user.brokerPreferencia,
-      avatarUrl: user.avatarUrl || user.picture,
-      role: user.role || 'normal',
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    };
-
     return res.status(200).json({
-      user: profileData,
-      profile: profileData
+      success: true,
+      profile: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        image: user.picture, // Solo imagen de Google
+        phone: user.phone,
+        address: user.address,
+        role: user.role,
+        fullName: user.fullName,
+        cuitCuil: user.cuitCuil,
+        educacionFinanciera: user.educacionFinanciera,
+        brokerPreferencia: user.brokerPreferencia,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin,
+        compras: user.compras || [],
+        suscripciones: user.suscripciones || [],
+        subscriptions: user.subscriptions || []
+      }
     });
 
   } catch (error) {

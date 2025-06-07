@@ -33,7 +33,6 @@ interface UserProfile {
   cuitCuil?: string;
   educacionFinanciera?: string;
   brokerPreferencia?: string;
-  avatarUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -68,10 +67,8 @@ export default function PerfilPage() {
     fullName: '',
     cuitCuil: '',
     educacionFinanciera: '',
-    brokerPreferencia: '',
-    avatarUrl: ''
+    brokerPreferencia: ''
   });
-  const [previewAvatar, setPreviewAvatar] = useState('');
 
   // Función para obtener el perfil del usuario
   const fetchUserProfile = async () => {
@@ -93,10 +90,8 @@ export default function PerfilPage() {
           fullName: result.profile.fullName || result.profile.name || '',
           cuitCuil: result.profile.cuitCuil || '',
           educacionFinanciera: result.profile.educacionFinanciera || '',
-          brokerPreferencia: result.profile.brokerPreferencia || '',
-          avatarUrl: result.profile.avatarUrl || result.profile.image || ''
+          brokerPreferencia: result.profile.brokerPreferencia || ''
         });
-        setPreviewAvatar(result.profile.avatarUrl || result.profile.image || '');
       } else {
         console.error('Error al obtener perfil:', response.statusText);
       }
@@ -151,52 +146,6 @@ export default function PerfilPage() {
     }, 5000);
   };
 
-  // Función para manejar upload de avatar
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validar tipo de archivo
-    if (!file.type.startsWith('image/')) {
-      showNotification('error', 'Por favor selecciona una imagen válida');
-      return;
-    }
-
-    // Validar tamaño (5MB máximo)
-    if (file.size > 5 * 1024 * 1024) {
-      showNotification('error', 'La imagen no puede superar los 5MB');
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const formDataUpload = new FormData();
-      formDataUpload.append('avatar', file);
-
-      const response = await fetch('/api/profile/upload-avatar', {
-        method: 'POST',
-        body: formDataUpload,
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        const newAvatarUrl = result.avatarUrl;
-        setFormData({ ...formData, avatarUrl: newAvatarUrl });
-        setPreviewAvatar(newAvatarUrl);
-        showNotification('success', 'Avatar subido exitosamente');
-      } else {
-        showNotification('error', result.message || 'Error al subir la imagen');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showNotification('error', 'Error al subir la imagen');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Función para guardar el perfil
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,7 +168,6 @@ export default function PerfilPage() {
           cuitCuil: formData.cuitCuil,
           educacionFinanciera: formData.educacionFinanciera,
           brokerPreferencia: formData.brokerPreferencia,
-          avatarUrl: formData.avatarUrl
         }),
       });
 
@@ -446,7 +394,7 @@ export default function PerfilPage() {
                           <span className={styles.label}>Avatar:</span>
                           <span className={styles.value}>
                             <img 
-                              src={userProfile?.avatarUrl || userProfile?.image || `https://via.placeholder.com/40x40/3b82f6/ffffff?text=${userProfile?.name?.charAt(0) || 'U'}`}
+                              src={userProfile?.image || `https://via.placeholder.com/40x40/3b82f6/ffffff?text=${userProfile?.name?.charAt(0) || 'U'}`}
                               alt="Avatar"
                               className={styles.avatarSmall}
                             />
@@ -691,34 +639,6 @@ export default function PerfilPage() {
               <div className={styles.modalContent}>
                 <form className={styles.editForm} onSubmit={handleSaveProfile}>
                   <div className={styles.formGrid}>
-                    {/* Preview del Avatar */}
-                    <div className={styles.formGroup}>
-                      <label>Avatar Actual</label>
-                      <div className={styles.avatarPreview}>
-                        <img 
-                          src={previewAvatar || userProfile?.avatarUrl || userProfile?.image || `https://via.placeholder.com/80x80/3b82f6/ffffff?text=${userProfile?.name?.charAt(0) || 'U'}`}
-                          alt="Avatar preview"
-                          className={styles.avatarImage}
-                        />
-                        <div className={styles.avatarActions}>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleAvatarUpload}
-                            className={styles.fileInput}
-                            id="avatarUpload"
-                            disabled={isLoading}
-                          />
-                          <label htmlFor="avatarUpload" className={styles.uploadButton}>
-                            {isLoading ? 'Subiendo...' : 'Cambiar Foto'}
-                          </label>
-                          <small className={styles.uploadNote}>
-                            JPG, PNG o GIF. Máximo 5MB.
-                          </small>
-                        </div>
-                      </div>
-                    </div>
-
                     <div className={styles.formGroup}>
                       <label htmlFor="fullName">Nombre y Apellido</label>
                       <input

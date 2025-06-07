@@ -71,10 +71,6 @@ const UserSchema = new mongoose.Schema({
     enum: ['bull-market', 'iol', 'portfolio-personal', 'cocos-capital', 'eco-valores', 'otros'],
     default: null,
   },
-  avatarUrl: {
-    type: String,
-    default: null,
-  },
 }, {
   timestamps: true
 });
@@ -106,11 +102,16 @@ async function makeAdmin() {
       return;
     }
     
-    console.log('Usuario encontrado:', {
-      name: user.name,
-      email: user.email,
-      role: user.role
-    });
+    console.log('📊 Usuario encontrado:');
+    console.log('  📧 Email:', user.email);
+    console.log('  👤 Nombre:', user.name);
+    console.log('  🔑 Rol actual:', user.role);
+    console.log('  📅 Registrado:', user.createdAt);
+    
+    if (user.role === 'admin') {
+      console.log('✅ El usuario ya es administrador.');
+      process.exit(0);
+    }
     
     // Actualizar el rol a admin
     user.role = 'admin';

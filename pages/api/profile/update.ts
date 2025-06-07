@@ -21,10 +21,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const {
       fullName,
+      phone,
+      address,
       cuitCuil,
       educacionFinanciera,
-      brokerPreferencia,
-      avatarUrl
+      brokerPreferencia
     } = req.body;
 
     // Validación básica
@@ -36,54 +37,72 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let user = await User.findOne({ email: session.user.email });
     
     if (!user) {
-      // Si el usuario no existe, lo creamos con la información de la sesión
-      user = new User({
-        googleId: (session.user as any).id || session.user.email, // Fallback si no hay ID
-        name: session.user.name || fullName.trim(),
+      // Crear nuevo usuario si no existe
+      const newUser = await User.create({
+        googleId: session.user.id,
+        name: session.user.name,
         email: session.user.email,
         picture: session.user.image,
         fullName: fullName.trim(),
+        phone: phone || null,
+        address: address || null,
         cuitCuil: cuitCuil || null,
         educacionFinanciera: educacionFinanciera || null,
         brokerPreferencia: brokerPreferencia || null,
-        avatarUrl: avatarUrl || session.user.image,
       });
 
-      await user.save();
-      console.log('✅ Usuario creado:', user.email);
-    } else {
-      // Si el usuario existe, lo actualizamos
-      user.fullName = fullName.trim();
-      user.cuitCuil = cuitCuil || null;
-      user.educacionFinanciera = educacionFinanciera || null;
-      user.brokerPreferencia = brokerPreferencia || null;
-      user.avatarUrl = avatarUrl || user.picture; // Usar avatar personalizado o el de Google
-      
-      // Actualizar también campos básicos si han cambiado
-      if (session.user.name && user.name !== session.user.name) {
-        user.name = session.user.name;
-      }
-      if (session.user.image && user.picture !== session.user.image) {
-        user.picture = session.user.image;
-      }
+      console.log('✅ Usuario creado:', newUser.email);
 
-      await user.save();
-      console.log('✅ Usuario actualizado:', user.email);
+      return res.status(200).json({
+        success: true,
+        message: 'Perfil creado exitosamente',
+        profile: {
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          image: newUser.picture,
+          fullName: newUser.fullName,
+          phone: newUser.phone,
+          address: newUser.address,
+          cuitCuil: newUser.cuitCuil,
+          educacionFinanciera: newUser.educacionFinanciera,
+          brokerPreferencia: newUser.brokerPreferencia,
+        }
+      });
     }
+
+    // Actualizar usuario existente
+    user.fullName = fullName.trim();
+    user.phone = phone || null;
+    user.address = address || null;
+    user.cuitCuil = cuitCuil || null;
+    user.educacionFinanciera = educacionFinanciera || null;
+    user.brokerPreferencia = brokerPreferencia || null;
+    
+    // Actualizar también campos básicos si han cambiado
+    user.name = session.user.name || user.name;
+    user.picture = session.user.image || user.picture;
+
+    await user.save();
+    console.log('✅ Usuario actualizado:', user.email);
 
     // Crear objeto de respuesta con los datos actualizados
     const updatedProfile = {
-      email: user.email,
+      id: user._id,
       name: user.name,
+      email: user.email,
+      image: user.picture, // Solo imagen de Google
       fullName: user.fullName,
+      phone: user.phone,
+      address: user.address,
       cuitCuil: user.cuitCuil,
       educacionFinanciera: user.educacionFinanciera,
       brokerPreferencia: user.brokerPreferencia,
-      avatarUrl: user.avatarUrl || user.picture,
       updatedAt: user.updatedAt
     };
 
     return res.status(200).json({
+      success: true,
       message: 'Perfil actualizado exitosamente',
       profile: updatedProfile
     });

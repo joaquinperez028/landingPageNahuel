@@ -41,7 +41,6 @@ export interface IUser extends Document {
   cuitCuil?: string;
   educacionFinanciera?: string;
   brokerPreferencia?: string;
-  avatarUrl?: string;
 }
 
 const UserSchema: Schema = new Schema({
@@ -140,10 +139,6 @@ const UserSchema: Schema = new Schema({
   brokerPreferencia: {
     type: String,
     enum: ['bull-market', 'iol', 'portfolio-personal', 'cocos-capital', 'eco-valores', 'otros'],
-    default: null,
-  },
-  avatarUrl: {
-    type: String,
     default: null,
   },
 }, {
