@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getSession } from 'next-auth/react';
+import { verifyAdminAPI } from '@/lib/adminAuth';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 
@@ -10,20 +10,17 @@ import User from '@/models/User';
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
-  console.log(`👤 API usuario ${id} - método:`, req.method);
+  console.log(`👤 [API] Usuario ${id} - método:`, req.method);
   
   await connectDB();
 
   // Verificar autenticación y permisos de admin
-  const session = await getSession({ req });
-  if (!session) {
-    return res.status(401).json({ error: 'No autorizado' });
+  const adminCheck = await verifyAdminAPI(req, res);
+  if (!adminCheck.isAdmin) {
+    return res.status(401).json({ error: adminCheck.error || 'No autorizado' });
   }
 
-  const currentUser = await User.findOne({ email: session.user?.email });
-  if (!currentUser || currentUser.role !== 'admin') {
-    return res.status(403).json({ error: 'Permisos insuficientes' });
-  }
+  console.log(`✅ [API] Admin verificado: ${adminCheck.user?.email}`);
 
   switch (req.method) {
     case 'PATCH':
@@ -59,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           { new: true, runValidators: true }
         ).select('name email role createdAt lastLogin isActive');
 
-        console.log(`✅ Usuario ${user.email} actualizado - rol: ${role || 'sin cambio'}`);
+        console.log(`✅ [API] Usuario ${user.email} actualizado - rol: ${role || 'sin cambio'}`);
 
         return res.status(200).json({
           success: true,
@@ -67,7 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           user: updatedUser
         });
       } catch (error) {
-        console.error('Error al actualizar usuario:', error);
+        console.error('💥 [API] Error al actualizar usuario:', error);
         return res.status(500).json({ error: 'Error interno del servidor' });
       }
 
@@ -94,14 +91,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         await User.findByIdAndDelete(id);
 
-        console.log(`🗑️ Usuario ${user.email} eliminado`);
+        console.log(`🗑️ [API] Usuario ${user.email} eliminado`);
 
         return res.status(200).json({
           success: true,
           message: 'Usuario eliminado correctamente'
         });
       } catch (error) {
-        console.error('Error al eliminar usuario:', error);
+        console.error('💥 [API] Error al eliminar usuario:', error);
         return res.status(500).json({ error: 'Error interno del servidor' });
       }
 

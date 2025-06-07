@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getSession } from 'next-auth/react';
+import { verifyAdminAPI } from '@/lib/adminAuth';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import Alert from '@/models/Alert';
@@ -9,20 +9,17 @@ import Alert from '@/models/Alert';
  * GET: Obtener usuarios suscritos por tipo de alerta
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log('🔔 API suscripciones - método:', req.method);
+  console.log(`📊 [API] Suscripciones - método: ${req.method}`);
   
   await connectDB();
 
   // Verificar autenticación y permisos de admin
-  const session = await getSession({ req });
-  if (!session) {
-    return res.status(401).json({ error: 'No autorizado' });
+  const adminCheck = await verifyAdminAPI(req, res);
+  if (!adminCheck.isAdmin) {
+    return res.status(401).json({ error: adminCheck.error || 'No autorizado' });
   }
 
-  const currentUser = await User.findOne({ email: session.user?.email });
-  if (!currentUser || currentUser.role !== 'admin') {
-    return res.status(403).json({ error: 'Permisos insuficientes' });
-  }
+  console.log(`✅ [API] Admin verificado para suscripciones: ${adminCheck.user?.email}`);
 
   switch (req.method) {
     case 'GET':
