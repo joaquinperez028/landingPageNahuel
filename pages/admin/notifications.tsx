@@ -6,21 +6,20 @@ import { motion } from 'framer-motion';
 import { 
   Bell, 
   Plus, 
-  Edit, 
+  Edit3, 
   Trash2, 
-  Save, 
-  X, 
-  Calendar,
-  Users,
-  AlertTriangle,
+  Eye, 
+  EyeOff,
+  Save,
+  X,
+  AlertCircle,
   CheckCircle,
-  Megaphone,
-  Gift,
-  Search,
-  Filter
+  Info,
+  Gift
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import Link from 'next/link';
 import User from '@/models/User';
 import styles from '@/styles/AdminNotifications.module.css';
 
@@ -33,62 +32,41 @@ interface Notification {
   targetUsers: 'todos' | 'suscriptores' | 'admin';
   isActive: boolean;
   createdBy: string;
-  createdAt: string;
-  expiresAt?: string;
-  icon: string;
+  createdAt: Date;
+  expiresAt?: Date;
+  icon?: string;
   actionUrl?: string;
   actionText?: string;
-}
-
-interface NotificationFormData {
-  title: string;
-  message: string;
-  type: 'novedad' | 'actualizacion' | 'sistema' | 'promocion';
-  priority: 'alta' | 'media' | 'baja';
-  targetUsers: 'todos' | 'suscriptores' | 'admin';
-  icon: string;
-  actionUrl: string;
-  actionText: string;
-  expiresAt: string;
 }
 
 export default function AdminNotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingNotification, setEditingNotification] = useState<Notification | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<string>('todos');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [notification, setNotification] = useState<{
-    show: boolean;
-    type: 'success' | 'error';
-    message: string;
-  }>({ show: false, type: 'success', message: '' });
-
-  const [formData, setFormData] = useState<NotificationFormData>({
+  const [newNotification, setNewNotification] = useState({
     title: '',
     message: '',
-    type: 'novedad',
-    priority: 'media',
-    targetUsers: 'todos',
+    type: 'novedad' as Notification['type'],
+    priority: 'media' as Notification['priority'],
+    targetUsers: 'todos' as Notification['targetUsers'],
     icon: '📢',
     actionUrl: '',
     actionText: '',
     expiresAt: ''
   });
 
-  // Obtener todas las notificaciones
+  // Cargar notificaciones
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/notifications/list');
+      const response = await fetch('/api/admin/notifications');
       if (response.ok) {
         const data = await response.json();
-        setNotifications(data.notifications);
+        setNotifications(data.notifications || []);
       }
     } catch (error) {
-      console.error('Error al obtener notificaciones:', error);
+      console.error('Error al cargar notificaciones:', error);
     } finally {
       setLoading(false);
     }
@@ -98,193 +76,96 @@ export default function AdminNotificationsPage() {
     fetchNotifications();
   }, []);
 
-  // Mostrar notificaciones toast
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({ show: true, type, message });
-    setTimeout(() => {
-      setNotification({ show: false, type: 'success', message: '' });
-    }, 5000);
-  };
-
-  // Resetear formulario
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      message: '',
-      type: 'novedad',
-      priority: 'media',
-      targetUsers: 'todos',
-      icon: '📢',
-      actionUrl: '',
-      actionText: '',
-      expiresAt: ''
-    });
-  };
-
-  // Abrir modal de creación
-  const handleCreateNew = () => {
-    resetForm();
-    setEditingNotification(null);
-    setShowCreateModal(true);
-  };
-
-  // Abrir modal de edición
-  const handleEdit = (notif: Notification) => {
-    setFormData({
-      title: notif.title,
-      message: notif.message,
-      type: notif.type,
-      priority: notif.priority,
-      targetUsers: notif.targetUsers,
-      icon: notif.icon,
-      actionUrl: notif.actionUrl || '',
-      actionText: notif.actionText || '',
-      expiresAt: notif.expiresAt ? new Date(notif.expiresAt).toISOString().slice(0, 16) : ''
-    });
-    setEditingNotification(notif);
-    setShowCreateModal(true);
-  };
-
-  // Crear o editar notificación
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.title.trim() || !formData.message.trim()) {
-      showNotification('error', 'El título y mensaje son obligatorios');
-      return;
-    }
-
-    setIsSubmitting(true);
-
+  // Crear nueva notificación
+  const handleCreateNotification = async () => {
     try {
-      const url = editingNotification 
-        ? `/api/admin/notifications/update/${editingNotification._id}`
-        : '/api/admin/notifications/create';
-      
-      const method = editingNotification ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          expiresAt: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : null
-        })
+      const response = await fetch('/api/admin/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newNotification),
       });
 
-      const result = await response.json();
-
       if (response.ok) {
-        showNotification('success', 
-          editingNotification 
-            ? 'Notificación actualizada exitosamente'
-            : 'Notificación creada exitosamente'
-        );
-        setShowCreateModal(false);
-        resetForm();
-        setEditingNotification(null);
-        fetchNotifications();
-      } else {
-        showNotification('error', result.message || 'Error al procesar la solicitud');
+        await fetchNotifications();
+        setShowCreateForm(false);
+        setNewNotification({
+          title: '',
+          message: '',
+          type: 'novedad',
+          priority: 'media',
+          targetUsers: 'todos',
+          icon: '📢',
+          actionUrl: '',
+          actionText: '',
+          expiresAt: ''
+        });
       }
     } catch (error) {
-      console.error('Error:', error);
-      showNotification('error', 'Error al procesar la solicitud');
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error al crear notificación:', error);
+    }
+  };
+
+  // Alternar estado activo
+  const toggleNotificationStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/notifications/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isActive: !currentStatus }),
+      });
+
+      if (response.ok) {
+        await fetchNotifications();
+      }
+    } catch (error) {
+      console.error('Error al actualizar notificación:', error);
     }
   };
 
   // Eliminar notificación
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
-      return;
-    }
+  const deleteNotification = async (id: string) => {
+    if (confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
+      try {
+        const response = await fetch(`/api/admin/notifications/${id}`, {
+          method: 'DELETE',
+        });
 
-    try {
-      const response = await fetch(`/api/admin/notifications/delete/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        showNotification('success', 'Notificación eliminada exitosamente');
-        fetchNotifications();
-      } else {
-        const result = await response.json();
-        showNotification('error', result.message || 'Error al eliminar la notificación');
+        if (response.ok) {
+          await fetchNotifications();
+        }
+      } catch (error) {
+        console.error('Error al eliminar notificación:', error);
       }
-    } catch (error) {
-      console.error('Error:', error);
-      showNotification('error', 'Error al eliminar la notificación');
     }
   };
 
-  // Cambiar estado activo/inactivo
-  const handleToggleActive = async (id: string, isActive: boolean) => {
-    try {
-      const response = await fetch(`/api/admin/notifications/toggle/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !isActive })
-      });
-
-      if (response.ok) {
-        showNotification('success', 
-          `Notificación ${!isActive ? 'activada' : 'desactivada'} exitosamente`
-        );
-        fetchNotifications();
-      } else {
-        const result = await response.json();
-        showNotification('error', result.message || 'Error al actualizar la notificación');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showNotification('error', 'Error al actualizar la notificación');
-    }
-  };
-
-  // Filtrar notificaciones
-  const filteredNotifications = notifications.filter(notification => {
-    const matchesSearch = notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         notification.message.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterType === 'todos' || notification.type === filterType;
-    return matchesSearch && matchesFilter;
-  });
-
-  // Obtener ícono del tipo
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'promocion': return <Gift size={20} />;
-      case 'actualizacion': return <CheckCircle size={20} />;
-      case 'sistema': return <AlertTriangle size={20} />;
-      default: return <Megaphone size={20} />;
+      case 'sistema': return <AlertCircle size={16} />;
+      case 'actualizacion': return <CheckCircle size={16} />;
+      case 'promocion': return <Gift size={16} />;
+      default: return <Info size={16} />;
     }
   };
 
-  // Obtener color del tipo
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'promocion': return '#f59e0b';
-      case 'actualizacion': return '#3b82f6';
-      case 'sistema': return '#ef4444';
-      default: return '#10b981';
-    }
-  };
-
-  // Obtener color de la prioridad
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'alta': return '#ef4444';
-      case 'media': return '#f59e0b';
-      default: return '#6b7280';
+      case 'alta': return styles.highPriority;
+      case 'media': return styles.mediumPriority;
+      case 'baja': return styles.lowPriority;
+      default: return styles.mediumPriority;
     }
   };
 
   return (
     <>
       <Head>
-        <title>Gestión de Notificaciones - Admin</title>
-        <meta name="description" content="Panel de administración para gestionar notificaciones" />
+        <title>Gestión de Notificaciones - Administrador</title>
+        <meta name="description" content="Gestión de notificaciones del sistema" />
       </Head>
 
       <Navbar />
@@ -301,29 +182,34 @@ export default function AdminNotificationsPage() {
             <div className={styles.header}>
               <div className={styles.headerLeft}>
                 <div className={styles.headerIcon}>
-                  <Bell size={32} />
+                  <Bell size={40} />
                 </div>
                 <div>
                   <h1 className={styles.title}>Gestión de Notificaciones</h1>
                   <p className={styles.subtitle}>
-                    Administra las notificaciones que reciben todos los usuarios
+                    Crear y gestionar notificaciones del sistema
                   </p>
                 </div>
               </div>
-              <button 
-                className={styles.createButton}
-                onClick={handleCreateNew}
-              >
-                <Plus size={20} />
-                Nueva Notificación
-              </button>
+              <div className={styles.headerActions}>
+                <Link href="/admin/dashboard" className={styles.backButton}>
+                  ← Volver al Dashboard
+                </Link>
+                <button
+                  onClick={() => setShowCreateForm(true)}
+                  className={`${styles.actionButton} ${styles.primary}`}
+                >
+                  <Plus size={20} />
+                  Nueva Notificación
+                </button>
+              </div>
             </div>
 
             {/* Stats */}
-            <div className={styles.stats}>
+            <div className={styles.statsGrid}>
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>
-                  <Bell size={24} />
+                  <Bell size={24} className={styles.iconBlue} />
                 </div>
                 <div className={styles.statInfo}>
                   <h3>{notifications.length}</h3>
@@ -332,7 +218,7 @@ export default function AdminNotificationsPage() {
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>
-                  <CheckCircle size={24} />
+                  <Eye size={24} className={styles.iconGreen} />
                 </div>
                 <div className={styles.statInfo}>
                   <h3>{notifications.filter(n => n.isActive).length}</h3>
@@ -341,236 +227,86 @@ export default function AdminNotificationsPage() {
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>
-                  <Users size={24} />
+                  <EyeOff size={24} className={styles.iconRed} />
                 </div>
                 <div className={styles.statInfo}>
-                  <h3>{notifications.filter(n => n.targetUsers === 'todos').length}</h3>
-                  <p>Para Todos</p>
+                  <h3>{notifications.filter(n => !n.isActive).length}</h3>
+                  <p>Inactivas</p>
                 </div>
               </div>
             </div>
 
-            {/* Controls */}
-            <div className={styles.controls}>
-              <div className={styles.searchContainer}>
-                <Search size={20} className={styles.searchIcon} />
-                <input
-                  type="text"
-                  placeholder="Buscar notificaciones..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={styles.searchInput}
-                />
-              </div>
-              <div className={styles.filterContainer}>
-                <Filter size={20} className={styles.filterIcon} />
-                <select
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value)}
-                  className={styles.filterSelect}
-                >
-                  <option value="todos">Todos los tipos</option>
-                  <option value="novedad">Novedades</option>
-                  <option value="actualizacion">Actualizaciones</option>
-                  <option value="sistema">Sistema</option>
-                  <option value="promocion">Promociones</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Notifications List */}
-            <div className={styles.notificationsList}>
-              {loading ? (
-                <div className={styles.loading}>
-                  <div className={styles.spinner} />
-                  <p>Cargando notificaciones...</p>
-                </div>
-              ) : filteredNotifications.length === 0 ? (
-                <div className={styles.empty}>
-                  <Bell size={64} className={styles.emptyIcon} />
-                  <h3>Sin notificaciones</h3>
-                  <p>No hay notificaciones que coincidan con tu búsqueda.</p>
-                </div>
-              ) : (
-                filteredNotifications.map((notif, index) => (
-                  <motion.div
-                    key={notif._id}
-                    className={`${styles.notificationCard} ${!notif.isActive ? styles.inactive : ''}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <div 
-                      className={styles.priorityIndicator}
-                      style={{ backgroundColor: getPriorityColor(notif.priority) }}
-                    />
-
-                    <div className={styles.cardContent}>
-                      <div className={styles.cardHeader}>
-                        <div className={styles.cardHeaderLeft}>
-                          <div 
-                            className={styles.typeIcon}
-                            style={{ color: getTypeColor(notif.type) }}
-                          >
-                            {getTypeIcon(notif.type)}
-                          </div>
-                          <div className={styles.notificationIcon}>
-                            <span className={styles.emoji}>{notif.icon}</span>
-                          </div>
-                          <div>
-                            <h3 className={styles.notificationTitle}>{notif.title}</h3>
-                            <div className={styles.notificationMeta}>
-                              <span 
-                                className={styles.notificationType}
-                                style={{ color: getTypeColor(notif.type) }}
-                              >
-                                {notif.type.charAt(0).toUpperCase() + notif.type.slice(1)}
-                              </span>
-                              <span className={styles.priority}>
-                                Prioridad: {notif.priority}
-                              </span>
-                              <span className={styles.target}>
-                                Para: {notif.targetUsers}
-                              </span>
-                              <span className={styles.status}>
-                                {notif.isActive ? 'Activa' : 'Inactiva'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className={styles.cardActions}>
-                          <button
-                            className={styles.toggleButton}
-                            onClick={() => handleToggleActive(notif._id, notif.isActive)}
-                            title={notif.isActive ? 'Desactivar' : 'Activar'}
-                          >
-                            {notif.isActive ? '🔴' : '🟢'}
-                          </button>
-                          <button
-                            className={styles.editButton}
-                            onClick={() => handleEdit(notif)}
-                            title="Editar"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            className={styles.deleteButton}
-                            onClick={() => handleDelete(notif._id)}
-                            title="Eliminar"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className={styles.cardBody}>
-                        <p className={styles.notificationMessage}>{notif.message}</p>
-                      </div>
-
-                      <div className={styles.cardFooter}>
-                        <div className={styles.cardInfo}>
-                          <Calendar size={16} />
-                          <span>Creada: {new Date(notif.createdAt).toLocaleDateString()}</span>
-                          {notif.expiresAt && (
-                            <>
-                              <span className={styles.separator}>•</span>
-                              <span>Expira: {new Date(notif.expiresAt).toLocaleDateString()}</span>
-                            </>
-                          )}
-                        </div>
-                        {notif.actionUrl && notif.actionText && (
-                          <a 
-                            href={notif.actionUrl}
-                            className={styles.actionLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {notif.actionText}
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Modal de Creación/Edición */}
-        {showCreateModal && (
-          <div className={styles.modalOverlay} onClick={() => setShowCreateModal(false)}>
-            <motion.div
-              className={styles.modal}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className={styles.modalHeader}>
-                <h2>
-                  {editingNotification ? 'Editar Notificación' : 'Nueva Notificación'}
-                </h2>
-                <button 
-                  className={styles.closeButton}
-                  onClick={() => setShowCreateModal(false)}
-                >
-                  <X size={24} />
-                </button>
-              </div>
-
-              <div className={styles.modalContent}>
-                <form className={styles.form} onSubmit={handleSubmit}>
-                  <div className={styles.formGrid}>
+            {/* Create/Edit Form */}
+            {showCreateForm && (
+              <motion.div
+                className={styles.formOverlay}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className={styles.formModal}>
+                  <div className={styles.formHeader}>
+                    <h3>Nueva Notificación</h3>
+                    <button
+                      onClick={() => setShowCreateForm(false)}
+                      className={styles.closeButton}
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                  
+                  <div className={styles.formContent}>
                     <div className={styles.formGroup}>
-                      <label htmlFor="title">Título *</label>
+                      <label>Título</label>
                       <input
                         type="text"
-                        id="title"
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        className={styles.formInput}
-                        required
-                        maxLength={100}
+                        value={newNotification.title}
+                        onChange={(e) => setNewNotification({...newNotification, title: e.target.value})}
+                        placeholder="Título de la notificación"
                       />
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label htmlFor="type">Tipo</label>
-                      <select
-                        id="type"
-                        value={formData.type}
-                        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                        className={styles.formSelect}
-                      >
-                        <option value="novedad">Novedad</option>
-                        <option value="actualizacion">Actualización</option>
-                        <option value="sistema">Sistema</option>
-                        <option value="promocion">Promoción</option>
-                      </select>
+                      <label>Mensaje</label>
+                      <textarea
+                        value={newNotification.message}
+                        onChange={(e) => setNewNotification({...newNotification, message: e.target.value})}
+                        placeholder="Mensaje de la notificación"
+                        rows={4}
+                      />
+                    </div>
+
+                    <div className={styles.formRow}>
+                      <div className={styles.formGroup}>
+                        <label>Tipo</label>
+                        <select
+                          value={newNotification.type}
+                          onChange={(e) => setNewNotification({...newNotification, type: e.target.value as Notification['type']})}
+                        >
+                          <option value="novedad">Novedad</option>
+                          <option value="actualizacion">Actualización</option>
+                          <option value="sistema">Sistema</option>
+                          <option value="promocion">Promoción</option>
+                        </select>
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label>Prioridad</label>
+                        <select
+                          value={newNotification.priority}
+                          onChange={(e) => setNewNotification({...newNotification, priority: e.target.value as Notification['priority']})}
+                        >
+                          <option value="baja">Baja</option>
+                          <option value="media">Media</option>
+                          <option value="alta">Alta</option>
+                        </select>
+                      </div>
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label htmlFor="priority">Prioridad</label>
+                      <label>Dirigido a</label>
                       <select
-                        id="priority"
-                        value={formData.priority}
-                        onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-                        className={styles.formSelect}
-                      >
-                        <option value="baja">Baja</option>
-                        <option value="media">Media</option>
-                        <option value="alta">Alta</option>
-                      </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="targetUsers">Destinatarios</label>
-                      <select
-                        id="targetUsers"
-                        value={formData.targetUsers}
-                        onChange={(e) => setFormData({ ...formData, targetUsers: e.target.value as any })}
-                        className={styles.formSelect}
+                        value={newNotification.targetUsers}
+                        onChange={(e) => setNewNotification({...newNotification, targetUsers: e.target.value as Notification['targetUsers']})}
                       >
                         <option value="todos">Todos los usuarios</option>
                         <option value="suscriptores">Solo suscriptores</option>
@@ -578,120 +314,123 @@ export default function AdminNotificationsPage() {
                       </select>
                     </div>
 
-                    <div className={styles.formGroup}>
-                      <label htmlFor="icon">Ícono (Emoji)</label>
-                      <input
-                        type="text"
-                        id="icon"
-                        value={formData.icon}
-                        onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                        className={styles.formInput}
-                        placeholder="📢"
-                        maxLength={5}
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="expiresAt">Fecha de expiración (opcional)</label>
-                      <input
-                        type="datetime-local"
-                        id="expiresAt"
-                        value={formData.expiresAt}
-                        onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
-                        className={styles.formInput}
-                      />
+                    <div className={styles.formActions}>
+                      <button
+                        onClick={() => setShowCreateForm(false)}
+                        className={styles.cancelButton}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={handleCreateNotification}
+                        className={styles.submitButton}
+                        disabled={!newNotification.title || !newNotification.message}
+                      >
+                        <Save size={20} />
+                        Crear Notificación
+                      </button>
                     </div>
                   </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="message">Mensaje *</label>
-                    <textarea
-                      id="message"
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className={styles.formTextarea}
-                      required
-                      maxLength={500}
-                      rows={4}
-                    />
-                  </div>
-
-                  <div className={styles.formGrid}>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="actionUrl">URL de acción (opcional)</label>
-                      <input
-                        type="url"
-                        id="actionUrl"
-                        value={formData.actionUrl}
-                        onChange={(e) => setFormData({ ...formData, actionUrl: e.target.value })}
-                        className={styles.formInput}
-                        placeholder="https://ejemplo.com"
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="actionText">Texto del botón (opcional)</label>
-                      <input
-                        type="text"
-                        id="actionText"
-                        value={formData.actionText}
-                        onChange={(e) => setFormData({ ...formData, actionText: e.target.value })}
-                        className={styles.formInput}
-                        placeholder="Ver más"
-                        maxLength={50}
-                      />
-                    </div>
-                  </div>
-
-                  <div className={styles.modalActions}>
-                    <button 
-                      type="button"
-                      className={styles.cancelButton}
-                      onClick={() => setShowCreateModal(false)}
-                    >
-                      Cancelar
-                    </button>
-                    <button 
-                      type="submit"
-                      className={styles.saveButton}
-                      disabled={isSubmitting}
-                    >
-                      <Save size={16} />
-                      {isSubmitting ? 'Guardando...' : 'Guardar'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </main>
-
-      {/* Toast Notification */}
-      {notification.show && (
-        <motion.div
-          className={`${styles.toast} ${styles[notification.type]}`}
-          initial={{ opacity: 0, y: 50, x: '50%' }}
-          animate={{ opacity: 1, y: 0, x: '50%' }}
-          exit={{ opacity: 0, y: 50, x: '50%' }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className={styles.toastIcon}>
-            {notification.type === 'success' ? (
-              <CheckCircle size={20} />
-            ) : (
-              <AlertTriangle size={20} />
+                </div>
+              </motion.div>
             )}
-          </div>
-          <span className={styles.toastMessage}>{notification.message}</span>
-          <button 
-            className={styles.toastClose}
-            onClick={() => setNotification({ show: false, type: 'success', message: '' })}
-          >
-            <X size={16} />
-          </button>
-        </motion.div>
-      )}
+
+            {/* Notifications List */}
+            <div className={styles.notificationsList}>
+              <h2>Notificaciones Activas</h2>
+              
+              {loading ? (
+                <div className={styles.loading}>
+                  <div className={styles.spinner} />
+                  <p>Cargando notificaciones...</p>
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className={styles.empty}>
+                  <Bell size={48} className={styles.emptyIcon} />
+                  <h3>No hay notificaciones</h3>
+                  <p>Crea tu primera notificación para comenzar</p>
+                  <button
+                    onClick={() => setShowCreateForm(true)}
+                    className={styles.emptyButton}
+                  >
+                    <Plus size={20} />
+                    Crear Notificación
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.notificationsGrid}>
+                  {notifications.map((notification) => (
+                    <div
+                      key={notification._id}
+                      className={`${styles.notificationCard} ${!notification.isActive ? styles.inactive : ''}`}
+                    >
+                      <div className={styles.notificationHeader}>
+                        <div className={styles.notificationMeta}>
+                          <span className={styles.notificationIcon}>
+                            {notification.icon}
+                          </span>
+                          <div className={styles.notificationInfo}>
+                            <h4>{notification.title}</h4>
+                            <div className={styles.notificationTags}>
+                              <span className={`${styles.typeTag} ${styles[notification.type]}`}>
+                                {getTypeIcon(notification.type)}
+                                {notification.type}
+                              </span>
+                              <span className={`${styles.priorityTag} ${getPriorityColor(notification.priority)}`}>
+                                {notification.priority}
+                              </span>
+                              <span className={styles.targetTag}>
+                                {notification.targetUsers}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className={styles.notificationActions}>
+                          <button
+                            onClick={() => toggleNotificationStatus(notification._id, notification.isActive)}
+                            className={`${styles.actionButton} ${notification.isActive ? styles.deactivate : styles.activate}`}
+                            title={notification.isActive ? 'Desactivar' : 'Activar'}
+                          >
+                            {notification.isActive ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                          <button
+                            onClick={() => deleteNotification(notification._id)}
+                            className={`${styles.actionButton} ${styles.danger}`}
+                            title="Eliminar"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.notificationContent}>
+                        <p>{notification.message}</p>
+                        
+                        {notification.actionUrl && (
+                          <div className={styles.notificationAction}>
+                            <a href={notification.actionUrl} className={styles.actionLink}>
+                              {notification.actionText || 'Ver más'}
+                            </a>
+                          </div>
+                        )}
+                        
+                        <div className={styles.notificationFooter}>
+                          <span className={styles.createdBy}>
+                            Por: {notification.createdBy}
+                          </span>
+                          <span className={styles.createdAt}>
+                            {new Date(notification.createdAt).toLocaleDateString('es-ES')}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      </main>
 
       <Footer />
     </>
