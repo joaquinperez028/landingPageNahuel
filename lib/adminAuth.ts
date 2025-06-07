@@ -32,17 +32,11 @@ export async function verifyAdminAccess(context: GetServerSidePropsContext): Pro
     }
 
     console.log('✅ Sesión encontrada para:', session.user.email);
+    console.log('👤 Rol en sesión:', session.user.role);
 
-    // Conectar a base de datos con timeout
-    await connectDB();
-    
-    // Buscar usuario en base de datos con timeout
-    const user: any = await User.findOne({ email: session.user.email })
-      .maxTimeMS(5000)
-      .lean(); // usar lean() para mejor performance
-    
-    if (!user) {
-      console.log('❌ Usuario no encontrado en base de datos:', session.user.email);
+    // Ahora confiamos en el rol de la sesión ya que el JWT siempre consulta la BD
+    if (session.user.role !== 'admin') {
+      console.log('❌ Usuario no es admin según sesión');
       return {
         isValid: true,
         isAdmin: false,
@@ -50,26 +44,15 @@ export async function verifyAdminAccess(context: GetServerSidePropsContext): Pro
       };
     }
 
-    console.log('👤 Usuario encontrado, rol:', user.role);
-
-    if (user.role !== 'admin') {
-      console.log('❌ Usuario no es admin');
-      return {
-        isValid: true,
-        isAdmin: false,
-        redirectTo: '/'
-      };
-    }
-
-    console.log('✅ Usuario es admin, acceso permitido');
+    console.log('✅ Usuario es admin según sesión, acceso permitido');
     return {
       isValid: true,
       isAdmin: true,
       user: {
-        _id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        role: user.role
+        _id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+        role: session.user.role
       }
     };
 
@@ -98,23 +81,20 @@ export async function verifyAdminAPI(req: any, res: any): Promise<{ isAdmin: boo
       return { isAdmin: false, error: 'No autorizado' };
     }
 
-    await connectDB();
-    
-    const user: any = await User.findOne({ email: session.user.email })
-      .maxTimeMS(5000)
-      .lean();
-    
-    if (!user || user.role !== 'admin') {
+    console.log('👤 API: Usuario:', session.user.email, 'Rol:', session.user.role);
+
+    // Confiar en el rol de la sesión ya que JWT siempre consulta BD
+    if (session.user.role !== 'admin') {
       return { isAdmin: false, error: 'Permisos insuficientes' };
     }
 
     return { 
       isAdmin: true, 
       user: {
-        _id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        role: user.role
+        _id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+        role: session.user.role
       }
     };
 
