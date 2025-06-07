@@ -91,8 +91,8 @@ export const authOptions: NextAuthOptions = {
     },
     
     async jwt({ token, user, account, trigger }) {
-      // En el primer login o cuando se actualiza, obtener datos frescos de BD
-      if (user || trigger === 'update') {
+      // SIEMPRE verificar el rol más actualizado desde la BD para asegurar que los cambios de rol se reflejen
+      if (token.email) {
         try {
           const connection = await dbConnect();
           if (connection) {
@@ -103,14 +103,16 @@ export const authOptions: NextAuthOptions = {
             
             if (dbUser) {
               token.userId = dbUser._id.toString();
-              token.role = dbUser.role;
+              token.role = dbUser.role; // SIEMPRE actualizar el rol desde BD
               token.picture = dbUser.picture;
               token.suscripciones = dbUser.suscripciones;
+              
+              console.log(`🔄 JWT actualizado para ${token.email} - Rol: ${dbUser.role}`);
             }
           }
         } catch (error) {
           console.error('❌ Error en JWT callback:', error);
-          // Usar valores por defecto si hay error
+          // Usar valores existentes si hay error
           token.role = token.role || 'normal';
         }
       }
