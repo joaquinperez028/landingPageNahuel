@@ -1,100 +1,5 @@
-import nodemailer from 'nodemailer';
-
-// Configuración del transportador SMTP
-export const createSMTPTransporter = () => {
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com', // Para Gmail
-    port: 587,
-    secure: false, // true para 465, false para otros puertos
-    auth: {
-      user: process.env.SMTP_USER, // Tu email de Gmail
-      pass: process.env.SMTP_PASSWORD, // Tu password de aplicación de Gmail
-    },
-  });
-};
-
-// Función para enviar email individual
-export async function sendEmail({
-  to,
-  subject,
-  html,
-  from
-}: {
-  to: string;
-  subject: string;
-  html: string;
-  from?: string;
-}) {
-  const transporter = createSMTPTransporter();
-  
-  const mailOptions = {
-    from: from || process.env.ADMIN_EMAIL || process.env.SMTP_USER,
-    to,
-    subject,
-    html,
-  };
-
-  try {
-    const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email enviado exitosamente a:', to);
-    return { success: true, messageId: result.messageId };
-  } catch (error) {
-    console.error('❌ Error al enviar email a:', to, error);
-    return { success: false, error: error instanceof Error ? error.message : String(error) };
-  }
-}
-
-// Función para envío masivo de emails
-export async function sendBulkEmails({
-  recipients,
-  subject,
-  html,
-  from
-}: {
-  recipients: string[];
-  subject: string;
-  html: string;
-  from?: string;
-}) {
-  const results = {
-    sent: 0,
-    failed: 0,
-    errors: [] as string[]
-  };
-
-  console.log(`📧 Iniciando envío masivo a ${recipients.length} destinatarios...`);
-
-  // Enviar emails en lotes para evitar sobrecargar el servidor SMTP
-  const batchSize = 5;
-  for (let i = 0; i < recipients.length; i += batchSize) {
-    const batch = recipients.slice(i, i + batchSize);
-    
-    const batchPromises = batch.map(async (email) => {
-      const result = await sendEmail({ to: email, subject, html, from });
-      
-      if (result.success) {
-        results.sent++;
-      } else {
-        results.failed++;
-        results.errors.push(`${email}: ${result.error || 'Error desconocido'}`);
-      }
-      
-      return result;
-    });
-
-    // Esperar que se complete el lote actual
-    await Promise.all(batchPromises);
-    
-    // Pausa pequeña entre lotes para no sobrecargar el servidor SMTP
-    if (i + batchSize < recipients.length) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-  }
-
-  console.log(`📊 Envío masivo completado: ${results.sent} enviados, ${results.failed} fallidos`);
-  
-  return results;
-}
+// Plantillas de email sin dependencias de servidor para preview
+// Estas son versiones separadas para evitar problemas de compilación en el cliente
 
 // Plantilla HTML mejorada para emails
 export function createEmailTemplate({
@@ -466,7 +371,7 @@ export function createEmailTemplate({
                         <a href="https://lozanonahuel.vercel.app" class="contact-item">
                             🌐 Plataforma
                         </a>
-                        <a href="mailto:${process.env.ADMIN_EMAIL || 'info@lozanonahuel.com'}" class="contact-item">
+                        <a href="mailto:info@lozanonahuel.com" class="contact-item">
                             📧 Email Directo
                         </a>
                         <a href="https://lozanonahuel.vercel.app/asesorias" class="contact-item">
@@ -477,13 +382,13 @@ export function createEmailTemplate({
                 
                 <div class="social-links">
                     <a href="https://lozanonahuel.vercel.app" class="social-link" title="Sitio Web">🌐</a>
-                    <a href="mailto:${process.env.ADMIN_EMAIL || 'info@lozanonahuel.com'}" class="social-link" title="Email">📧</a>
+                    <a href="mailto:info@lozanonahuel.com" class="social-link" title="Email">📧</a>
                     <a href="https://lozanonahuel.vercel.app/alertas" class="social-link" title="Alertas">📊</a>
                     <a href="https://lozanonahuel.vercel.app/recursos" class="social-link" title="Recursos">📚</a>
                 </div>
                 
                 <div class="disclaimer">
-                    <p>Si tienes preguntas, contáctanos en: <a href="mailto:${process.env.ADMIN_EMAIL || 'info@lozanonahuel.com'}">${process.env.ADMIN_EMAIL || 'info@lozanonahuel.com'}</a></p>
+                    <p>Si tienes preguntas, contáctanos en: <a href="mailto:info@lozanonahuel.com">info@lozanonahuel.com</a></p>
                     <p>© ${new Date().getFullYear()} Nahuel Lozano Trading Platform. Todos los derechos reservados.</p>
                     <p>Este email fue enviado porque eres parte de nuestra comunidad de trading. Si no deseas recibir más emails, <a href="https://lozanonahuel.vercel.app/perfil">puedes gestionar tus preferencias aquí</a>.</p>
                 </div>
