@@ -1,6 +1,7 @@
 import { GetServerSideProps } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
+import { verifyAdminAccess } from '@/lib/adminAuth';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -49,57 +50,23 @@ export default function AdminDashboardPage() {
     recentActivity: []
   });
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [checking, setChecking] = useState(true);
   const [fixingLogins, setFixingLogins] = useState(false);
-
-  // Verificar si es admin en el lado del cliente
-  const checkAdminStatus = async () => {
-    try {
-      setChecking(true);
-      console.log('🔍 Dashboard - Iniciando verificación de admin...');
-      
-      const response = await fetch('/api/profile/get');
-      console.log('📡 Dashboard - Respuesta de API:', response.status);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('📋 Dashboard - Datos recibidos:', data);
-        
-        if (data.user?.role === 'admin') {
-          console.log('✅ Dashboard - Usuario es admin, permitiendo acceso');
-          setIsAdmin(true);
-        } else {
-          console.log('❌ Dashboard - Usuario no es admin, rol:', data.user?.role);
-          console.log('🔄 Dashboard - Redirigiendo al home...');
-          window.location.href = '/';
-          return;
-        }
-      } else {
-        console.log('❌ Dashboard - Error en API, status:', response.status);
-        window.location.href = '/api/auth/signin';
-        return;
-      }
-    } catch (error) {
-      console.error('💥 Dashboard - Error en verificación:', error);
-      window.location.href = '/';
-      return;
-    } finally {
-      setChecking(false);
-    }
-  };
 
   // Cargar estadísticas del dashboard
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
+      console.log('📊 Dashboard - Cargando estadísticas...');
       const response = await fetch('/api/admin/dashboard/stats');
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Dashboard - Estadísticas cargadas:', data);
         setStats(data);
+      } else {
+        console.error('❌ Dashboard - Error al cargar estadísticas:', response.status);
       }
     } catch (error) {
-      console.error('Error al cargar estadísticas:', error);
+      console.error('💥 Dashboard - Error al cargar estadísticas:', error);
     } finally {
       setLoading(false);
     }
@@ -143,49 +110,8 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    checkAdminStatus();
+    fetchDashboardStats();
   }, []);
-
-  useEffect(() => {
-    if (isAdmin) {
-      fetchDashboardStats();
-    }
-  }, [isAdmin]);
-
-  // Mostrar loading mientras verifica permisos
-  if (checking) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        flexDirection: 'column',
-        gap: '20px'
-      }}>
-        <div style={{ 
-          width: '40px', 
-          height: '40px', 
-          border: '4px solid #f3f3f3', 
-          borderTop: '4px solid #667eea', 
-          borderRadius: '50%', 
-          animation: 'spin 1s linear infinite' 
-        }} />
-        <p>Verificando permisos de administrador...</p>
-        <style jsx>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
-      </div>
-    );
-  }
-
-  // No mostrar nada si no es admin (ya se redirigió)
-  if (!isAdmin) {
-    return null;
-  }
 
   const dashboardSections = [
     {
@@ -435,50 +361,34 @@ export default function AdminDashboardPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  console.log('🔍 Dashboard - Verificando sesión...');
+  console.log('🔍 [DASHBOARD] Iniciando verificación de acceso...');
   
   try {
-    // Usar getServerSession que es más confiable
-    const session = await getServerSession(context.req, context.res, authOptions);
+    // Usar la función de verificación que ya sabemos que funciona
+    const verification = await verifyAdminAccess(context);
     
-    if (!session || !session.user?.email) {
-      console.log('❌ Dashboard - No hay sesión, redirigiendo a login');
+    console.log('🔍 [DASHBOARD] Resultado de verificación:', verification);
+    
+    if (!verification.isAdmin) {
+      console.log('❌ [DASHBOARD] Acceso denegado - redirigiendo a:', verification.redirectTo);
       return {
         redirect: {
-          destination: '/api/auth/signin',
+          destination: verification.redirectTo || '/',
           permanent: false,
         },
       };
     }
 
-    console.log('✅ Dashboard - Sesión válida encontrada para:', session.user.email);
-    
-    // Conectar a base de datos
-    await dbConnect();
-    
-    // Verificar que el usuario es admin
-    const user = await User.findOne({ email: session.user.email });
-    
-    if (!user || user.role !== 'admin') {
-      console.log('❌ Dashboard - Usuario no es admin, redirigiendo a home');
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      };
-    }
-
-    console.log('✅ Dashboard - Usuario es admin, acceso permitido');
+    console.log('✅ [DASHBOARD] Acceso de admin confirmado para:', verification.user?.email);
     
     return {
       props: {
-        session,
+        user: verification.user,
       },
     };
 
   } catch (error) {
-    console.error('❌ Dashboard - Error en getServerSideProps:', error);
+    console.error('💥 [DASHBOARD] Error en getServerSideProps:', error);
     
     return {
       redirect: {
