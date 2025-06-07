@@ -56,15 +56,17 @@ export const authOptions: NextAuthOptions = {
             role: 'normal',
             tarjetas: [],
             compras: [],
-            suscripciones: []
+            suscripciones: [],
+            lastLogin: new Date() // Registrar primer login
           });
         } else {
-          // Actualizar información del usuario
-          console.log('👤 Actualizando usuario existente:', user.email);
+          // Actualizar información del usuario Y el último login
+          console.log('👤 Actualizando usuario existente y último login:', user.email);
           await User.findByIdAndUpdate(existingUser._id, {
             name: user.name,
             picture: user.image,
-            googleId: account?.providerAccountId
+            googleId: account?.providerAccountId,
+            lastLogin: new Date() // Actualizar último login
           });
         }
         
@@ -92,6 +94,9 @@ export const authOptions: NextAuthOptions = {
             session.user.id = user._id.toString();
             session.user.role = user.role;
             session.user.suscripciones = user.suscripciones;
+            
+            // No actualizar lastLogin aquí para evitar demasiadas escrituras a BD
+            // Solo lo hacemos en signIn para tener el registro real de login
           }
         } catch (error) {
           console.error('❌ Error en session callback:', error);

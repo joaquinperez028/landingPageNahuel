@@ -2,6 +2,7 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { SessionProvider } from 'next-auth/react';
 import ToasterProvider from '@/components/ToasterProvider';
+import LoginTracker from '@/components/LoginTracker';
 import '@/styles/globals.css';
 
 export default function App({
@@ -19,6 +20,7 @@ export default function App({
         <meta name="theme-color" content="#3b82f6" />
       </Head>
       <ToasterProvider>
+        <LoginTracker />
         <Component {...pageProps} />
       </ToasterProvider>
     </SessionProvider>

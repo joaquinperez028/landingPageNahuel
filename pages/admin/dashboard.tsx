@@ -51,6 +51,7 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [fixingLogins, setFixingLogins] = useState(false);
 
   // Verificar si es admin en el lado del cliente
   const checkAdminStatus = async () => {
@@ -101,6 +102,43 @@ export default function AdminDashboardPage() {
       console.error('Error al cargar estadísticas:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Función para corregir fechas de último login
+  const fixLoginDates = async () => {
+    try {
+      setFixingLogins(true);
+      console.log('🔧 Iniciando corrección de fechas de login...');
+      
+      const response = await fetch('/api/admin/users/fix-login-dates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Corrección completada:', data);
+        
+        // Mostrar resultado
+        if (data.updated > 0) {
+          alert(`✅ Se actualizaron ${data.updated} usuarios con fechas de último login`);
+          // Recargar estadísticas
+          fetchDashboardStats();
+        } else {
+          alert('ℹ️ Todos los usuarios ya tienen fecha de último login configurada');
+        }
+      } else {
+        console.error('❌ Error en corrección:', response.status);
+        alert('❌ Error al corregir fechas de login');
+      }
+    } catch (error) {
+      console.error('💥 Error al corregir fechas:', error);
+      alert('💥 Error al corregir fechas de login');
+    } finally {
+      setFixingLogins(false);
     }
   };
 
@@ -337,6 +375,19 @@ export default function AdminDashboardPage() {
                   <Mail size={24} />
                   <span>Envío Masivo</span>
                 </Link>
+                <button
+                  onClick={fixLoginDates}
+                  disabled={fixingLogins}
+                  className={`${styles.quickActionCard} ${styles.users}`}
+                  style={{ 
+                    border: 'none', 
+                    cursor: fixingLogins ? 'not-allowed' : 'pointer',
+                    opacity: fixingLogins ? 0.6 : 1
+                  }}
+                >
+                  <Activity size={24} />
+                  <span>{fixingLogins ? 'Corrigiendo...' : 'Corregir Login Dates'}</span>
+                </button>
               </div>
             </div>
 
