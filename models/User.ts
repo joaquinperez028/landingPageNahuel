@@ -26,8 +26,17 @@ export interface IUser extends Document {
     fechaVencimiento: Date;
     activa: boolean;
   }>;
+  subscriptions: Array<{
+    tipo: 'TraderCall' | 'SmartMoney' | 'CashFlow';
+    precio: number;
+    fechaInicio: Date;
+    fechaFin?: Date;
+    activa: boolean;
+  }>;
   createdAt: Date;
   updatedAt: Date;
+  lastLogin?: Date;
+  isActive?: boolean;
   fullName?: string;
   cuitCuil?: string;
   educacionFinanciera?: string;
@@ -84,6 +93,37 @@ const UserSchema: Schema = new Schema({
       default: true
     }
   }],
+  subscriptions: [{
+    tipo: {
+      type: String,
+      enum: ['TraderCall', 'SmartMoney', 'CashFlow'],
+      required: true
+    },
+    precio: {
+      type: Number,
+      required: true,
+      default: 99
+    },
+    fechaInicio: {
+      type: Date,
+      required: true,
+      default: Date.now
+    },
+    fechaFin: {
+      type: Date
+    },
+    activa: {
+      type: Boolean,
+      default: true
+    }
+  }],
+  lastLogin: {
+    type: Date
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
   fullName: {
     type: String,
     default: null,
@@ -120,5 +160,11 @@ UserSchema.pre('findOneAndUpdate', function(next) {
   this.set({ updatedAt: new Date() });
   next();
 });
+
+// Índices para optimizar búsquedas
+UserSchema.index({ email: 1 });
+UserSchema.index({ role: 1 });
+UserSchema.index({ 'subscriptions.tipo': 1, 'subscriptions.activa': 1 });
+UserSchema.index({ createdAt: -1 });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema); 

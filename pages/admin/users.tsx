@@ -2,7 +2,7 @@ import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, 
   UserCheck, 
@@ -15,7 +15,14 @@ import {
   Trash2,
   Plus,
   Download,
-  RefreshCw
+  RefreshCw,
+  AlertCircle,
+  Crown,
+  DollarSign,
+  Calendar,
+  Eye,
+  X,
+  Check
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -32,6 +39,28 @@ interface UserData {
   createdAt: string;
   lastLogin?: string;
   isActive: boolean;
+  subscriptions?: Array<{
+    tipo: string;
+    precio: number;
+    fechaInicio: string;
+    fechaFin?: string;
+    activa: boolean;
+  }>;
+  ingresoMensual?: number;
+}
+
+interface SubscriptionStats {
+  tipo: string;
+  suscriptores: number;
+  ingresosMensuales: number;
+}
+
+interface PaginationData {
+  currentPage: number;
+  totalPages: number;
+  totalUsers: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
 
 export default function AdminUsersPage() {
@@ -40,15 +69,48 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [subscriptionFilter, setSubscriptionFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationData | null>(null);
+  const [subscriptionStats, setSubscriptionStats] = useState<SubscriptionStats[]>([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
+
+  // Datos para crear usuario
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    role: 'normal'
+  });
+
+  // Datos para agregar suscripción
+  const [newSubscription, setNewSubscription] = useState({
+    tipo: 'TraderCall',
+    precio: 99
+  });
 
   // Cargar usuarios
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1, filters = {}) => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/users');
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '20',
+        search: searchTerm,
+        role: roleFilter,
+        status: statusFilter,
+        subscription: subscriptionFilter,
+        ...filters
+      });
+
+      const response = await fetch(`/api/admin/users?${params}`);
       if (response.ok) {
         const data = await response.json();
         setUsers(data.users);
+        setPagination(data.pagination);
       } else {
         toast.error('Error al cargar usuarios');
       }
@@ -57,6 +119,20 @@ export default function AdminUsersPage() {
       toast.error('Error al cargar usuarios');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Cargar estadísticas de suscripciones
+  const fetchSubscriptionStats = async () => {
+    try {
+      const response = await fetch('/api/admin/users/subscriptions');
+      if (response.ok) {
+        const data = await response.json();
+        setSubscriptionStats(data.estadisticas.alertStats);
+        setTotalRevenue(data.estadisticas.ingresosTotales);
+      }
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
     }
   };
 
@@ -73,13 +149,97 @@ export default function AdminUsersPage() {
 
       if (response.ok) {
         toast.success('Rol actualizado correctamente');
-        fetchUsers(); // Recargar lista
+        fetchUsers(currentPage);
       } else {
-        toast.error('Error al actualizar rol');
+        const error = await response.json();
+        toast.error(error.error || 'Error al actualizar rol');
       }
     } catch (error) {
       console.error('Error al actualizar rol:', error);
       toast.error('Error al actualizar rol');
+    }
+  };
+
+  // Crear nuevo usuario
+  const createUser = async () => {
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+      });
+
+      if (response.ok) {
+        toast.success('Usuario creado correctamente');
+        setShowCreateModal(false);
+        setNewUser({ name: '', email: '', role: 'normal' });
+        fetchUsers(currentPage);
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Error al crear usuario');
+      }
+    } catch (error) {
+      console.error('Error al crear usuario:', error);
+      toast.error('Error al crear usuario');
+    }
+  };
+
+  // Agregar suscripción
+  const addSubscription = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const response = await fetch('/api/admin/users/subscriptions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: selectedUser._id,
+          ...newSubscription
+        }),
+      });
+
+      if (response.ok) {
+        toast.success('Suscripción agregada correctamente');
+        setShowSubscriptionModal(false);
+        setNewSubscription({ tipo: 'TraderCall', precio: 99 });
+        fetchUsers(currentPage);
+        fetchSubscriptionStats();
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Error al agregar suscripción');
+      }
+    } catch (error) {
+      console.error('Error al agregar suscripción:', error);
+      toast.error('Error al agregar suscripción');
+    }
+  };
+
+  // Remover suscripción
+  const removeSubscription = async (userId: string, tipo: string) => {
+    try {
+      const response = await fetch('/api/admin/users/subscriptions', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, tipo }),
+      });
+
+      if (response.ok) {
+        toast.success('Suscripción removida correctamente');
+        fetchUsers(currentPage);
+        fetchSubscriptionStats();
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Error al remover suscripción');
+      }
+    } catch (error) {
+      console.error('Error al remover suscripción:', error);
+      toast.error('Error al remover suscripción');
     }
   };
 
@@ -96,9 +256,10 @@ export default function AdminUsersPage() {
 
       if (response.ok) {
         toast.success('Usuario eliminado correctamente');
-        fetchUsers(); // Recargar lista
+        fetchUsers(currentPage);
       } else {
-        toast.error('Error al eliminar usuario');
+        const error = await response.json();
+        toast.error(error.error || 'Error al eliminar usuario');
       }
     } catch (error) {
       console.error('Error al eliminar usuario:', error);
@@ -106,20 +267,44 @@ export default function AdminUsersPage() {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  // Exportar usuarios a CSV
+  const exportUsers = async () => {
+    try {
+      const response = await fetch('/api/admin/users/export');
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `usuarios-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        toast.error('Error al exportar usuarios');
+      }
+    } catch (error) {
+      console.error('Error al exportar:', error);
+      toast.error('Error al exportar usuarios');
+    }
+  };
 
-  // Filtrar usuarios
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'active' ? user.isActive : !user.isActive);
-    
-    return matchesSearch && matchesRole && matchesStatus;
-  });
+  useEffect(() => {
+    fetchUsers(currentPage);
+    fetchSubscriptionStats();
+  }, [currentPage, roleFilter, statusFilter, subscriptionFilter]);
+
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      if (searchTerm !== '') {
+        setCurrentPage(1);
+        fetchUsers(1);
+      } else if (searchTerm === '') {
+        fetchUsers(currentPage);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayedSearch);
+  }, [searchTerm]);
 
   const getRoleBadgeClass = (role: string) => {
     switch (role) {
@@ -129,11 +314,20 @@ export default function AdminUsersPage() {
     }
   };
 
+  const getSubscriptionColor = (tipo: string) => {
+    switch (tipo) {
+      case 'TraderCall': return '#3b82f6';
+      case 'SmartMoney': return '#10b981';
+      case 'CashFlow': return '#f59e0b';
+      default: return '#64748b';
+    }
+  };
+
   return (
     <>
       <Head>
         <title>Gestión de Usuarios - Admin Dashboard</title>
-        <meta name="description" content="Gestión de usuarios del sistema" />
+        <meta name="description" content="Gestión avanzada de usuarios y suscripciones del sistema" />
       </Head>
 
       <Navbar />
@@ -155,7 +349,7 @@ export default function AdminUsersPage() {
                 <div>
                   <h1 className={styles.title}>Gestión de Usuarios</h1>
                   <p className={styles.subtitle}>
-                    Administra usuarios, roles y permisos del sistema
+                    Administra usuarios, roles, suscripciones y permisos del sistema
                   </p>
                 </div>
               </div>
@@ -167,12 +361,18 @@ export default function AdminUsersPage() {
                   Volver al Dashboard
                 </Link>
                 <button 
-                  onClick={fetchUsers}
-                  className={`${styles.actionButton} ${styles.primary}`}
-                  disabled={loading}
+                  onClick={exportUsers}
+                  className={`${styles.actionButton} ${styles.outline}`}
                 >
-                  <RefreshCw size={20} />
-                  Actualizar
+                  <Download size={20} />
+                  Exportar CSV
+                </button>
+                <button 
+                  onClick={() => setShowCreateModal(true)}
+                  className={`${styles.actionButton} ${styles.primary}`}
+                >
+                  <Plus size={20} />
+                  Crear Usuario
                 </button>
               </div>
             </div>
@@ -184,13 +384,13 @@ export default function AdminUsersPage() {
                   <Users size={24} className={styles.iconBlue} />
                 </div>
                 <div className={styles.statInfo}>
-                  <h3>{users.length}</h3>
+                  <h3>{pagination?.totalUsers || 0}</h3>
                   <p>Total Usuarios</p>
                 </div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>
-                  <UserCheck size={24} className={styles.iconGreen} />
+                  <Crown size={24} className={styles.iconGold} />
                 </div>
                 <div className={styles.statInfo}>
                   <h3>{users.filter(u => u.role === 'admin').length}</h3>
@@ -199,7 +399,7 @@ export default function AdminUsersPage() {
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>
-                  <UserCheck size={24} className={styles.iconPurple} />
+                  <UserCheck size={24} className={styles.iconGreen} />
                 </div>
                 <div className={styles.statInfo}>
                   <h3>{users.filter(u => u.role === 'suscriptor').length}</h3>
@@ -208,162 +408,518 @@ export default function AdminUsersPage() {
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>
-                  <Users size={24} className={styles.iconAmber} />
+                  <DollarSign size={24} className={styles.iconGreen} />
                 </div>
                 <div className={styles.statInfo}>
-                  <h3>{users.filter(u => u.role === 'normal').length}</h3>
-                  <p>Usuarios Normales</p>
+                  <h3>${totalRevenue.toLocaleString()}</h3>
+                  <p>Ingresos Mensuales</p>
                 </div>
               </div>
             </div>
 
-            {/* Filters */}
-            <div className={styles.filtersCard}>
-              <div className={styles.filtersGrid}>
-                <div className={styles.searchGroup}>
-                  <div className={styles.searchInputWrapper}>
-                    <Search size={20} className={styles.searchIcon} />
-                    <input
-                      type="text"
-                      placeholder="Buscar por nombre o email..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className={styles.searchInput}
-                    />
-                  </div>
+            {/* Subscription Stats */}
+            {subscriptionStats.length > 0 && (
+              <div className={styles.subscriptionStats}>
+                <h3>Estadísticas de Suscripciones</h3>
+                <div className={styles.subscriptionGrid}>
+                  {subscriptionStats.map((stat) => (
+                    <div key={stat.tipo} className={styles.subscriptionCard}>
+                      <div 
+                        className={styles.subscriptionIcon}
+                        style={{ backgroundColor: getSubscriptionColor(stat.tipo) }}
+                      >
+                        <AlertCircle size={20} />
+                      </div>
+                      <div className={styles.subscriptionInfo}>
+                        <h4>{stat.tipo}</h4>
+                        <p>{stat.suscriptores} suscriptores</p>
+                        <span>${stat.ingresosMensuales.toLocaleString()}/mes</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+              </div>
+            )}
 
-                <div className={styles.filterGroup}>
-                  <label className={styles.filterLabel}>Rol:</label>
-                  <select
-                    value={roleFilter}
-                    onChange={(e) => setRoleFilter(e.target.value)}
-                    className={styles.filterSelect}
-                  >
-                    <option value="all">Todos</option>
-                    <option value="admin">Admin</option>
-                    <option value="suscriptor">Suscriptor</option>
-                    <option value="normal">Normal</option>
-                  </select>
-                </div>
+            {/* Filters and Search */}
+            <div className={styles.filtersSection}>
+              <div className={styles.searchBox}>
+                <Search size={20} className={styles.searchIcon} />
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre o email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
+              
+              <div className={styles.filters}>
+                <select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">Todos los roles</option>
+                  <option value="admin">Administradores</option>
+                  <option value="suscriptor">Suscriptores</option>
+                  <option value="normal">Usuarios normales</option>
+                </select>
 
-                <div className={styles.filterGroup}>
-                  <label className={styles.filterLabel}>Estado:</label>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className={styles.filterSelect}
-                  >
-                    <option value="all">Todos</option>
-                    <option value="active">Activos</option>
-                    <option value="inactive">Inactivos</option>
-                  </select>
-                </div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">Todos los estados</option>
+                  <option value="active">Activos</option>
+                  <option value="inactive">Inactivos</option>
+                </select>
+
+                <select
+                  value={subscriptionFilter}
+                  onChange={(e) => setSubscriptionFilter(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">Todas las suscripciones</option>
+                  <option value="TraderCall">Trader Call</option>
+                  <option value="SmartMoney">Smart Money</option>
+                  <option value="CashFlow">Cash Flow</option>
+                </select>
+
+                <button 
+                  onClick={() => fetchUsers(currentPage)}
+                  className={`${styles.actionButton} ${styles.outline}`}
+                  disabled={loading}
+                >
+                  <RefreshCw size={20} />
+                  Actualizar
+                </button>
               </div>
             </div>
 
             {/* Users Table */}
-            <div className={styles.tableCard}>
-              <div className={styles.tableHeader}>
-                <h2 className={styles.tableTitle}>
-                  Lista de Usuarios ({filteredUsers.length})
-                </h2>
-                <button className={`${styles.actionButton} ${styles.success}`}>
-                  <Download size={20} />
-                  Exportar CSV
-                </button>
-              </div>
-
+            <div className={styles.tableContainer}>
               {loading ? (
-                <div className={styles.loading}>
-                  <div className={styles.spinner} />
+                <div className={styles.loadingState}>
+                  <RefreshCw size={40} className={styles.loadingSpinner} />
                   <p>Cargando usuarios...</p>
                 </div>
+              ) : users.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <UserX size={48} />
+                  <h3>No se encontraron usuarios</h3>
+                  <p>Intenta ajustar los filtros o crear un nuevo usuario</p>
+                </div>
               ) : (
-                <div className={styles.tableWrapper}>
-                  <table className={styles.table}>
-                    <thead>
-                      <tr>
-                        <th>Usuario</th>
-                        <th>Email</th>
-                        <th>Rol</th>
-                        <th>Estado</th>
-                        <th>Registro</th>
-                        <th>Último Acceso</th>
-                        <th>Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredUsers.map((user) => (
-                        <tr key={user._id}>
-                          <td>
-                            <div className={styles.userInfo}>
-                              <div className={styles.userAvatar}>
-                                {user.name.charAt(0).toUpperCase()}
-                              </div>
-                              <span className={styles.userName}>{user.name}</span>
-                            </div>
-                          </td>
-                          <td>{user.email}</td>
-                          <td>
-                            <select
-                              value={user.role}
-                              onChange={(e) => updateUserRole(user._id, e.target.value)}
-                              className={`${styles.roleSelect} ${getRoleBadgeClass(user.role)}`}
-                            >
-                              <option value="normal">Normal</option>
-                              <option value="suscriptor">Suscriptor</option>
-                              <option value="admin">Admin</option>
-                            </select>
-                          </td>
-                          <td>
-                            <span className={`${styles.statusBadge} ${user.isActive ? styles.active : styles.inactive}`}>
-                              {user.isActive ? 'Activo' : 'Inactivo'}
-                            </span>
-                          </td>
-                          <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                          <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Nunca'}</td>
-                          <td>
-                            <div className={styles.actionButtons}>
-                              <button
-                                className={`${styles.actionBtn} ${styles.edit}`}
-                                title="Editar usuario"
-                              >
-                                <Edit3 size={16} />
-                              </button>
-                              <button
-                                className={`${styles.actionBtn} ${styles.mail}`}
-                                title="Enviar email"
-                              >
-                                <Mail size={16} />
-                              </button>
-                              <button
-                                onClick={() => deleteUser(user._id)}
-                                className={`${styles.actionBtn} ${styles.delete}`}
-                                title="Eliminar usuario"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-
-                  {filteredUsers.length === 0 && !loading && (
-                    <div className={styles.emptyState}>
-                      <Users size={48} className={styles.emptyIcon} />
-                      <h3>No se encontraron usuarios</h3>
-                      <p>Intenta ajustar los filtros de búsqueda</p>
-                    </div>
-                  )}
+                <div className={styles.table}>
+                  <div className={styles.tableHeader}>
+                    <div className={styles.tableCell}>Usuario</div>
+                    <div className={styles.tableCell}>Rol</div>
+                    <div className={styles.tableCell}>Suscripciones</div>
+                    <div className={styles.tableCell}>Ingresos</div>
+                    <div className={styles.tableCell}>Último Login</div>
+                    <div className={styles.tableCell}>Acciones</div>
+                  </div>
+                  
+                  {users.map((user) => (
+                    <motion.div
+                      key={user._id}
+                      className={styles.tableRow}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className={styles.tableCell}>
+                        <div className={styles.userInfo}>
+                          <div className={styles.userAvatar}>
+                            {user.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className={styles.userName}>{user.name}</p>
+                            <p className={styles.userEmail}>{user.email}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.tableCell}>
+                        <select
+                          value={user.role}
+                          onChange={(e) => updateUserRole(user._id, e.target.value)}
+                          className={`${styles.roleSelect} ${getRoleBadgeClass(user.role)}`}
+                        >
+                          <option value="normal">Normal</option>
+                          <option value="suscriptor">Suscriptor</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+                      
+                      <div className={styles.tableCell}>
+                        <div className={styles.subscriptions}>
+                          {user.subscriptions && user.subscriptions.length > 0 ? (
+                            user.subscriptions
+                              .filter(sub => sub.activa)
+                              .map((sub) => (
+                                <span
+                                  key={sub.tipo}
+                                  className={styles.subscriptionBadge}
+                                  style={{ backgroundColor: getSubscriptionColor(sub.tipo) }}
+                                >
+                                  {sub.tipo}
+                                  <button
+                                    onClick={() => removeSubscription(user._id, sub.tipo)}
+                                    className={styles.removeSub}
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </span>
+                              ))
+                          ) : (
+                            <span className={styles.noSubscriptions}>Sin suscripciones</span>
+                          )}
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowSubscriptionModal(true);
+                            }}
+                            className={styles.addSubButton}
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.tableCell}>
+                        <span className={styles.revenue}>
+                          ${(user.ingresoMensual || 0).toLocaleString()}/mes
+                        </span>
+                      </div>
+                      
+                      <div className={styles.tableCell}>
+                        <span className={styles.lastLogin}>
+                          {user.lastLogin 
+                            ? new Date(user.lastLogin).toLocaleDateString('es-ES')
+                            : 'Nunca'
+                          }
+                        </span>
+                      </div>
+                      
+                      <div className={styles.tableCell}>
+                        <div className={styles.actions}>
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowUserDetails(true);
+                            }}
+                            className={styles.actionBtn}
+                            title="Ver detalles"
+                          >
+                            <Eye size={16} />
+                          </button>
+                          <button
+                            onClick={() => deleteUser(user._id)}
+                            className={`${styles.actionBtn} ${styles.danger}`}
+                            title="Eliminar usuario"
+                            disabled={user.role === 'admin'}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               )}
             </div>
+
+            {/* Pagination */}
+            {pagination && pagination.totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={!pagination.hasPrev}
+                  className={styles.paginationBtn}
+                >
+                  Anterior
+                </button>
+                
+                <span className={styles.paginationInfo}>
+                  Página {pagination.currentPage} de {pagination.totalPages}
+                </span>
+                
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={!pagination.hasNext}
+                  className={styles.paginationBtn}
+                >
+                  Siguiente
+                </button>
+              </div>
+            )}
           </motion.div>
         </div>
       </main>
+
+      {/* Modal Crear Usuario */}
+      <AnimatePresence>
+        {showCreateModal && (
+          <motion.div
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowCreateModal(false)}
+          >
+            <motion.div
+              className={styles.modalContent}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.modalHeader}>
+                <h2>Crear Nuevo Usuario</h2>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className={styles.modalClose}
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className={styles.modalBody}>
+                <div className={styles.formGroup}>
+                  <label>Nombre completo</label>
+                  <input
+                    type="text"
+                    value={newUser.name}
+                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                    placeholder="Ingresa el nombre del usuario"
+                    className={styles.formInput}
+                  />
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    placeholder="Ingresa el email del usuario"
+                    className={styles.formInput}
+                  />
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label>Rol</label>
+                  <select
+                    value={newUser.role}
+                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                    className={styles.formSelect}
+                  >
+                    <option value="normal">Usuario Normal</option>
+                    <option value="suscriptor">Suscriptor</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className={styles.modalFooter}>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className={`${styles.actionButton} ${styles.secondary}`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={createUser}
+                  className={`${styles.actionButton} ${styles.primary}`}
+                  disabled={!newUser.name || !newUser.email}
+                >
+                  Crear Usuario
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal Agregar Suscripción */}
+      <AnimatePresence>
+        {showSubscriptionModal && selectedUser && (
+          <motion.div
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowSubscriptionModal(false)}
+          >
+            <motion.div
+              className={styles.modalContent}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.modalHeader}>
+                <h2>Agregar Suscripción</h2>
+                <p>Usuario: {selectedUser.name}</p>
+                <button
+                  onClick={() => setShowSubscriptionModal(false)}
+                  className={styles.modalClose}
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className={styles.modalBody}>
+                <div className={styles.formGroup}>
+                  <label>Tipo de Alerta</label>
+                  <select
+                    value={newSubscription.tipo}
+                    onChange={(e) => setNewSubscription({ ...newSubscription, tipo: e.target.value })}
+                    className={styles.formSelect}
+                  >
+                    <option value="TraderCall">Trader Call</option>
+                    <option value="SmartMoney">Smart Money</option>
+                    <option value="CashFlow">Cash Flow</option>
+                  </select>
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label>Precio Mensual ($)</label>
+                  <input
+                    type="number"
+                    value={newSubscription.precio}
+                    onChange={(e) => setNewSubscription({ ...newSubscription, precio: Number(e.target.value) })}
+                    placeholder="99"
+                    className={styles.formInput}
+                  />
+                </div>
+              </div>
+              
+              <div className={styles.modalFooter}>
+                <button
+                  onClick={() => setShowSubscriptionModal(false)}
+                  className={`${styles.actionButton} ${styles.secondary}`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={addSubscription}
+                  className={`${styles.actionButton} ${styles.primary}`}
+                >
+                  Agregar Suscripción
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal Detalles de Usuario */}
+      <AnimatePresence>
+        {showUserDetails && selectedUser && (
+          <motion.div
+            className={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowUserDetails(false)}
+          >
+            <motion.div
+              className={styles.modalContent}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.modalHeader}>
+                <h2>Detalles del Usuario</h2>
+                <button
+                  onClick={() => setShowUserDetails(false)}
+                  className={styles.modalClose}
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className={styles.modalBody}>
+                <div className={styles.userDetails}>
+                  <div className={styles.detailGroup}>
+                    <strong>Nombre:</strong> {selectedUser.name}
+                  </div>
+                  <div className={styles.detailGroup}>
+                    <strong>Email:</strong> {selectedUser.email}
+                  </div>
+                  <div className={styles.detailGroup}>
+                    <strong>Rol:</strong> 
+                    <span className={getRoleBadgeClass(selectedUser.role)}>
+                      {selectedUser.role}
+                    </span>
+                  </div>
+                  <div className={styles.detailGroup}>
+                    <strong>Fecha de registro:</strong> 
+                    {new Date(selectedUser.createdAt).toLocaleDateString('es-ES')}
+                  </div>
+                  <div className={styles.detailGroup}>
+                    <strong>Último login:</strong> 
+                    {selectedUser.lastLogin 
+                      ? new Date(selectedUser.lastLogin).toLocaleDateString('es-ES')
+                      : 'Nunca'
+                    }
+                  </div>
+                  <div className={styles.detailGroup}>
+                    <strong>Estado:</strong> 
+                    <span className={selectedUser.isActive ? styles.statusActive : styles.statusInactive}>
+                      {selectedUser.isActive ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </div>
+                  
+                  {selectedUser.subscriptions && selectedUser.subscriptions.length > 0 && (
+                    <div className={styles.detailGroup}>
+                      <strong>Suscripciones activas:</strong>
+                      <div className={styles.subscriptionList}>
+                        {selectedUser.subscriptions
+                          .filter(sub => sub.activa)
+                          .map((sub) => (
+                            <div key={sub.tipo} className={styles.subscriptionDetail}>
+                              <span
+                                className={styles.subscriptionBadge}
+                                style={{ backgroundColor: getSubscriptionColor(sub.tipo) }}
+                              >
+                                {sub.tipo}
+                              </span>
+                              <span>${sub.precio}/mes</span>
+                              <span>Desde: {new Date(sub.fechaInicio).toLocaleDateString('es-ES')}</span>
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className={styles.detailGroup}>
+                    <strong>Ingresos mensuales:</strong> 
+                    <span className={styles.revenue}>
+                      ${(selectedUser.ingresoMensual || 0).toLocaleString()}/mes
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className={styles.modalFooter}>
+                <button
+                  onClick={() => setShowUserDetails(false)}
+                  className={`${styles.actionButton} ${styles.primary}`}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </>
@@ -382,9 +938,19 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  // Verificar que el usuario sea administrador
-  const user = await User.findOne({ email: session.user?.email });
-  if (!user || user.role !== 'admin') {
+  // Verificar que el usuario es admin
+  try {
+    const user = await User.findOne({ email: session.user?.email });
+    if (!user || user.role !== 'admin') {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
+  } catch (error) {
+    console.error('Error al verificar usuario admin:', error);
     return {
       redirect: {
         destination: '/',
@@ -394,8 +960,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   return {
-    props: {
-      session,
-    },
+    props: {},
   };
-}; 
+};
