@@ -17,13 +17,20 @@ export interface AdminVerificationResult {
  */
 export async function verifyAdminAccess(context: GetServerSidePropsContext): Promise<AdminVerificationResult> {
   try {
-    console.log('🔍 Verificando acceso de admin...');
+    console.log('🔍 [ADMIN AUTH] Iniciando verificación...');
     
     // Obtener sesión usando getServerSession (más confiable que getSession)
     const session = await getServerSession(context.req, context.res, authOptions);
     
+    console.log('🔍 [ADMIN AUTH] Sesión obtenida:', {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      email: session?.user?.email,
+      role: session?.user?.role
+    });
+    
     if (!session || !session.user?.email) {
-      console.log('❌ No hay sesión válida');
+      console.log('❌ [ADMIN AUTH] No hay sesión válida - redirigiendo a login');
       return {
         isValid: false,
         isAdmin: false,
@@ -31,12 +38,14 @@ export async function verifyAdminAccess(context: GetServerSidePropsContext): Pro
       };
     }
 
-    console.log('✅ Sesión encontrada para:', session.user.email);
-    console.log('👤 Rol en sesión:', session.user.role);
+    console.log('✅ [ADMIN AUTH] Sesión encontrada para:', session.user.email);
+    console.log('👤 [ADMIN AUTH] Rol en sesión:', session.user.role);
 
-    // Ahora confiamos en el rol de la sesión ya que el JWT siempre consulta la BD
-    if (session.user.role !== 'admin') {
-      console.log('❌ Usuario no es admin según sesión');
+    // Verificar rol directamente de la sesión
+    const isAdmin = session.user.role === 'admin';
+    
+    if (!isAdmin) {
+      console.log('❌ [ADMIN AUTH] Usuario no es admin según sesión - redirigiendo a home');
       return {
         isValid: true,
         isAdmin: false,
@@ -44,7 +53,7 @@ export async function verifyAdminAccess(context: GetServerSidePropsContext): Pro
       };
     }
 
-    console.log('✅ Usuario es admin según sesión, acceso permitido');
+    console.log('✅ [ADMIN AUTH] Usuario ES admin - acceso permitido');
     return {
       isValid: true,
       isAdmin: true,
@@ -57,7 +66,7 @@ export async function verifyAdminAccess(context: GetServerSidePropsContext): Pro
     };
 
   } catch (error) {
-    console.error('💥 Error en verificación de admin:', error);
+    console.error('💥 [ADMIN AUTH] Error en verificación:', error);
     
     // En caso de error, redirigir a home por seguridad
     return {
