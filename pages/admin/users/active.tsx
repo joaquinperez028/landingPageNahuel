@@ -1,6 +1,7 @@
 import { GetServerSideProps } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
+import { verifyAdminAccess } from '@/lib/adminAuth';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -441,9 +442,35 @@ export default function AdminActiveUsersPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
+  console.log('🔍 [ACTIVE USERS] Iniciando verificación de acceso...');
+  
+  try {
+    // Usar la función de verificación que ya sabemos que funciona
+    const verification = await verifyAdminAccess(context);
+    
+    console.log('🔍 [ACTIVE USERS] Resultado de verificación:', verification);
+    
+    if (!verification.isAdmin) {
+      console.log('❌ [ACTIVE USERS] Acceso denegado - redirigiendo a:', verification.redirectTo);
+      return {
+        redirect: {
+          destination: verification.redirectTo || '/',
+          permanent: false,
+        },
+      };
+    }
 
-  if (!session) {
+    console.log('✅ [ACTIVE USERS] Acceso de admin confirmado para:', verification.user?.email);
+    
+    return {
+      props: {
+        user: verification.user,
+      },
+    };
+
+  } catch (error) {
+    console.error('💥 [ACTIVE USERS] Error en getServerSideProps:', error);
+    
     return {
       redirect: {
         destination: '/api/auth/signin',
@@ -451,30 +478,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     };
   }
-
-  // Verificar que el usuario es admin
-  try {
-    await connectDB();
-    const user = await User.findOne({ email: session.user?.email });
-    if (!user || user.role !== 'admin') {
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      };
-    }
-  } catch (error) {
-    console.error('Error al verificar usuario admin:', error);
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {},
-  };
 }; 

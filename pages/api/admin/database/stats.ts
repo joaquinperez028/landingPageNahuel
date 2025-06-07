@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getSession } from 'next-auth/react';
+import { verifyAdminAPI } from '@/lib/adminAuth';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 
@@ -7,14 +7,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   await connectDB();
 
   // Verificar autenticación y permisos de admin
-  const session = await getSession({ req });
-  if (!session) {
-    return res.status(401).json({ error: 'No autorizado' });
-  }
-
-  const currentUser = await User.findOne({ email: session.user?.email });
-  if (!currentUser || currentUser.role !== 'admin') {
-    return res.status(403).json({ error: 'Permisos insuficientes' });
+  const adminCheck = await verifyAdminAPI(req, res);
+  if (!adminCheck.isAdmin) {
+    return res.status(401).json({ error: adminCheck.error || 'No autorizado' });
   }
 
   if (req.method !== 'GET') {

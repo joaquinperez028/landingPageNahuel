@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
+import { verifyAdminAccess } from '@/lib/adminAuth';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -387,9 +388,35 @@ export default function AdminDatabasePage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
+  console.log('🔍 [DATABASE] Iniciando verificación de acceso...');
+  
+  try {
+    // Usar la función de verificación que ya sabemos que funciona
+    const verification = await verifyAdminAccess(context);
+    
+    console.log('🔍 [DATABASE] Resultado de verificación:', verification);
+    
+    if (!verification.isAdmin) {
+      console.log('❌ [DATABASE] Acceso denegado - redirigiendo a:', verification.redirectTo);
+      return {
+        redirect: {
+          destination: verification.redirectTo || '/',
+          permanent: false,
+        },
+      };
+    }
 
-  if (!session) {
+    console.log('✅ [DATABASE] Acceso de admin confirmado para:', verification.user?.email);
+    
+    return {
+      props: {
+        user: verification.user,
+      },
+    };
+
+  } catch (error) {
+    console.error('💥 [DATABASE] Error en getServerSideProps:', error);
+    
     return {
       redirect: {
         destination: '/api/auth/signin',
@@ -397,21 +424,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     };
   }
-
-  // Verificar que el usuario sea administrador
-  const user = await User.findOne({ email: session.user?.email });
-  if (!user || user.role !== 'admin') {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {
-      session,
-    },
-  };
 }; 
