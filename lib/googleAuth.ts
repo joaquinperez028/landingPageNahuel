@@ -79,18 +79,25 @@ export const authOptions: NextAuthOptions = {
     },
     
     async session({ session, token }) {
+      console.log(`🔍 SESSION callback - Email: ${session.user?.email}`);
+      console.log(`🔍 TOKEN data - Role: ${token.role}, UserId: ${token.userId}`);
+      
       // Usar principalmente datos del token para evitar consultas excesivas a BD
       if (session.user?.email && token) {
         session.user.id = token.userId as string || session.user.id;
         session.user.role = token.role as any || 'normal';
         session.user.image = token.picture as string || session.user.image;
         session.user.suscripciones = token.suscripciones as any || [];
+        
+        console.log(`✅ SESSION actualizada - Rol asignado: ${session.user.role}`);
       }
       
       return session;
     },
     
     async jwt({ token, user, account, trigger }) {
+      console.log(`🔍 JWT callback - Email: ${token.email}, Trigger: ${trigger}`);
+      
       // SIEMPRE verificar el rol más actualizado desde la BD para asegurar que los cambios de rol se reflejen
       if (token.email) {
         try {
@@ -107,8 +114,12 @@ export const authOptions: NextAuthOptions = {
               token.picture = dbUser.picture;
               token.suscripciones = dbUser.suscripciones;
               
-              console.log(`🔄 JWT actualizado para ${token.email} - Rol: ${dbUser.role}`);
+              console.log(`🔄 JWT actualizado para ${token.email} - Rol BD: ${dbUser.role} → Token: ${token.role}`);
+            } else {
+              console.log(`❌ No se encontró usuario en BD para: ${token.email}`);
             }
+          } else {
+            console.log(`❌ No hay conexión a BD en JWT callback`);
           }
         } catch (error) {
           console.error('❌ Error en JWT callback:', error);
@@ -117,6 +128,7 @@ export const authOptions: NextAuthOptions = {
         }
       }
       
+      console.log(`🏁 JWT final - Role: ${token.role}, UserId: ${token.userId}`);
       return token;
     }
   },
