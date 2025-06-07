@@ -55,24 +55,31 @@ export default function AdminDashboardPage() {
   const checkAdminStatus = async () => {
     try {
       setChecking(true);
+      console.log('🔍 Dashboard - Iniciando verificación de admin...');
+      
       const response = await fetch('/api/profile/get');
+      console.log('📡 Dashboard - Respuesta de API:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('📋 Dashboard - Datos recibidos:', data);
+        
         if (data.user?.role === 'admin') {
+          console.log('✅ Dashboard - Usuario es admin, permitiendo acceso');
           setIsAdmin(true);
         } else {
-          // No es admin, redirigir
+          console.log('❌ Dashboard - Usuario no es admin, rol:', data.user?.role);
+          console.log('🔄 Dashboard - Redirigiendo al home...');
           window.location.href = '/';
           return;
         }
       } else {
-        // Error al verificar, redirigir a login
+        console.log('❌ Dashboard - Error en API, status:', response.status);
         window.location.href = '/api/auth/signin';
         return;
       }
     } catch (error) {
-      console.error('Error verificando rol de admin:', error);
-      // En caso de error, redirigir al home
+      console.error('💥 Dashboard - Error en verificación:', error);
       window.location.href = '/';
       return;
     } finally {

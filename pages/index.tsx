@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
 import VideoPlayerMux from '@/components/VideoPlayerMux';
 import styles from '@/styles/Home.module.css';
+import MuxPlayer from '@mux/mux-player-react';
 
 interface HomeProps {
   /** @param session - Sesión del usuario autenticado */
@@ -26,6 +27,7 @@ export default function Home({ session }: HomeProps) {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
+  const [muxPlayerLoaded, setMuxPlayerLoaded] = useState(true);
 
   // Mostrar popup después de 3 segundos si no está logueado
   useEffect(() => {
@@ -233,12 +235,38 @@ export default function Home({ session }: HomeProps) {
 
               {/* Video de Presentación, Explicación y Finalidad */}
               <div className={styles.heroVideo}>
-                <VideoPlayerMux
-                  playbackId="presentacion-nahuel-lozano" // Video pantalla completa y reproducción automática
-                  autoplay={true}
-                  muted={true}
-                  className={styles.heroVideoPlayer}
-                />
+                {muxPlayerLoaded ? (
+                  <MuxPlayer
+                    streamType="on-demand"
+                    playbackId="presentacion-nahuel-lozano" // Video pantalla completa y reproducción automática
+                    metadataVideoTitle="Presentación Nahuel Lozano"
+                    metadataViewerUserId="anonymous"
+                    primaryColor="#667eea"
+                    secondaryColor="#764ba2"
+                    autoPlay="muted"
+                    loop
+                    muted
+                    onError={(error) => {
+                      console.log('Error en video MUX:', error);
+                      // En caso de error, ocultar el video player
+                      setMuxPlayerLoaded(false);
+                    }}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  // Fallback: gradiente animado
+                  <div className={styles.videoFallback}>
+                    <div className={styles.gradientBackground}></div>
+                    <div className={styles.fallbackText}>
+                      <h3>Bienvenido al Trading Profesional</h3>
+                      <p>Video de presentación no disponible</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
@@ -272,8 +300,20 @@ export default function Home({ session }: HomeProps) {
                         src={empresa} 
                         alt={empresaNombres[index]}
                         onError={(e) => {
-                          // Fallback si la imagen no carga
-                          (e.target as HTMLImageElement).src = `https://via.placeholder.com/150x80/e2e8f0/64748b?text=${empresaNombres[index]}`;
+                          // En lugar de via.placeholder.com usar un data URL inline
+                          const canvas = document.createElement('canvas');
+                          canvas.width = 150;
+                          canvas.height = 80;
+                          const ctx = canvas.getContext('2d');
+                          if (ctx) {
+                            ctx.fillStyle = '#e2e8f0';
+                            ctx.fillRect(0, 0, 150, 80);
+                            ctx.fillStyle = '#64748b';
+                            ctx.font = '12px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(empresaNombres[index], 75, 45);
+                            (e.target as HTMLImageElement).src = canvas.toDataURL();
+                          }
                         }}
                       />
                     </div>
@@ -386,7 +426,20 @@ export default function Home({ session }: HomeProps) {
                         alt={testimonio.nombre}
                         className={styles.testimonioFoto}
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://via.placeholder.com/60x60/2563eb/ffffff?text=${testimonio.nombre.charAt(0)}`;
+                          // Fallback para avatares con data URL inline
+                          const canvas = document.createElement('canvas');
+                          canvas.width = 60;
+                          canvas.height = 60;
+                          const ctx = canvas.getContext('2d');
+                          if (ctx) {
+                            ctx.fillStyle = '#2563eb';
+                            ctx.fillRect(0, 0, 60, 60);
+                            ctx.fillStyle = '#ffffff';
+                            ctx.font = '24px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(testimonio.nombre.charAt(0), 30, 38);
+                            (e.target as HTMLImageElement).src = canvas.toDataURL();
+                          }
                         }}
                       />
                       <div>

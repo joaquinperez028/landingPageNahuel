@@ -647,4 +647,53 @@
   .statNumber {
     font-size: 2rem;
   }
+}
+
+/* Fallback del video */
+.videoFallback {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gradientBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  animation: gradientShift 8s ease-in-out infinite;
+}
+
+.fallbackText {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  padding: 20px;
+}
+
+.fallbackText h3 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.fallbackText p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  }
+  50% {
+    background: linear-gradient(45deg, #764ba2 0%, #667eea 100%);
+  }
 } 

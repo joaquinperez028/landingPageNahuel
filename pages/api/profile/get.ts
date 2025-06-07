@@ -45,11 +45,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       educacionFinanciera: user.educacionFinanciera,
       brokerPreferencia: user.brokerPreferencia,
       avatarUrl: user.avatarUrl || user.picture,
+      role: user.role || 'normal',
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
     };
 
     return res.status(200).json({
+      user: profileData,
       profile: profileData
     });
 
