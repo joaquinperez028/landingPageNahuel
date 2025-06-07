@@ -79,40 +79,42 @@ export const authOptions: NextAuthOptions = {
     },
     
     async session({ session, token }) {
-      if (session.user?.email) {
-        try {
-          const connection = await dbConnect();
-          
-          if (!connection) {
-            console.error('❌ No se pudo conectar a MongoDB durante session');
-            return session;
-          }
-          
-          const user = await User.findOne({ email: session.user.email });
-          
-          if (user) {
-            session.user.id = user._id.toString();
-            session.user.role = user.role;
-            session.user.suscripciones = user.suscripciones;
-            // Asegurar que la imagen esté actualizada desde la BD
-            session.user.image = user.picture || session.user.image;
-            
-            // No actualizar lastLogin aquí para evitar demasiadas escrituras a BD
-            // Solo lo hacemos en signIn para tener el registro real de login
-          }
-        } catch (error) {
-          console.error('❌ Error en session callback:', error);
-          // Continuar con la sesión básica aunque haya error
-        }
+      // Usar principalmente datos del token para evitar consultas excesivas a BD
+      if (session.user?.email && token) {
+        session.user.id = token.userId as string || session.user.id;
+        session.user.role = token.role as any || 'normal';
+        session.user.image = token.picture as string || session.user.image;
+        session.user.suscripciones = token.suscripciones as any || [];
       }
       
       return session;
     },
     
-    async jwt({ token, user, account }) {
-      if (user) {
-        token.role = user.role;
+    async jwt({ token, user, account, trigger }) {
+      // En el primer login o cuando se actualiza, obtener datos frescos de BD
+      if (user || trigger === 'update') {
+        try {
+          const connection = await dbConnect();
+          if (connection) {
+            const dbUser = await User.findOne({ email: token.email })
+              .select('_id role picture suscripciones')
+              .lean()
+              .maxTimeMS(2000) as any;
+            
+            if (dbUser) {
+              token.userId = dbUser._id.toString();
+              token.role = dbUser.role;
+              token.picture = dbUser.picture;
+              token.suscripciones = dbUser.suscripciones;
+            }
+          }
+        } catch (error) {
+          console.error('❌ Error en JWT callback:', error);
+          // Usar valores por defecto si hay error
+          token.role = token.role || 'normal';
+        }
       }
+      
       return token;
     }
   },
