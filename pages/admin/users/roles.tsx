@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/googleAuth';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -21,6 +22,7 @@ import Link from 'next/link';
 import User from '@/models/User';
 import styles from '@/styles/AdminUsers.module.css';
 import { toast } from 'react-hot-toast';
+import connectDB from '@/lib/mongodb';
 
 interface RoleStats {
   admin: number;
@@ -394,7 +396,7 @@ export default function AdminRolesPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
+  const session = await getServerSession(context.req, context.res, authOptions);
 
   if (!session) {
     return {
@@ -407,6 +409,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   // Verificar que el usuario es admin
   try {
+    await connectDB();
     const user = await User.findOne({ email: session.user?.email });
     if (!user || user.role !== 'admin') {
       return {

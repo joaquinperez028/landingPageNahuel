@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/googleAuth';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 
@@ -29,9 +30,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Verificar autenticación
-    const session = await getSession({ req });
-    if (!session) {
+    // Verificar autenticación usando getServerSession
+    const session = await getServerSession(req, res, authOptions);
+    if (!session || !session.user?.email) {
+      console.log('❌ No hay sesión válida');
       return res.status(401).json({ error: 'No autorizado' });
     }
 
@@ -40,9 +42,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Verificar permisos de admin con timeout personalizado
     console.log('👤 Verificando permisos de administrador...');
-    const currentUser = await User.findOne({ email: session.user?.email }).maxTimeMS(5000);
+    const currentUser = await User.findOne({ email: session.user.email }).maxTimeMS(5000);
     
     if (!currentUser || currentUser.role !== 'admin') {
+      console.log('❌ Usuario no es admin:', session.user.email);
       return res.status(403).json({ error: 'Permisos insuficientes' });
     }
 

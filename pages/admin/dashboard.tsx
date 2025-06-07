@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/googleAuth';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -386,9 +387,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   console.log('🔍 Dashboard - Verificando sesión...');
   
   try {
-    const session = await getSession(context);
+    // Usar getServerSession que es más confiable
+    const session = await getServerSession(context.req, context.res, authOptions);
     
-    if (!session) {
+    if (!session || !session.user?.email) {
       console.log('❌ Dashboard - No hay sesión, redirigiendo a login');
       return {
         redirect: {
@@ -398,7 +400,25 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
-    console.log('✅ Dashboard - Sesión válida encontrada');
+    console.log('✅ Dashboard - Sesión válida encontrada para:', session.user.email);
+    
+    // Conectar a base de datos
+    await dbConnect();
+    
+    // Verificar que el usuario es admin
+    const user = await User.findOne({ email: session.user.email });
+    
+    if (!user || user.role !== 'admin') {
+      console.log('❌ Dashboard - Usuario no es admin, redirigiendo a home');
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
+
+    console.log('✅ Dashboard - Usuario es admin, acceso permitido');
     
     return {
       props: {
