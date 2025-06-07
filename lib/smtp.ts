@@ -313,52 +313,6 @@ export function createEmailTemplate({
                 box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
             }
             
-            .contact-section {
-                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-                padding: 30px;
-                border-radius: 16px;
-                margin: 30px 0;
-                border: 1px solid #bae6fd;
-                text-align: center;
-            }
-            
-            .contact-section h3 {
-                color: #0c4a6e;
-                margin: 0 0 16px 0;
-                font-size: 20px;
-                font-weight: 700;
-            }
-            
-            .contact-info {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 20px;
-                flex-wrap: wrap;
-                margin-top: 16px;
-            }
-            
-            .contact-item {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                background: rgba(255, 255, 255, 0.8);
-                padding: 12px 18px;
-                border-radius: 25px;
-                color: #0f172a;
-                text-decoration: none;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-            
-            .contact-item:hover {
-                background: white;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                color: #3b82f6;
-            }
-            
             .disclaimer {
                 margin-top: 24px;
                 padding-top: 20px;
@@ -404,20 +358,6 @@ export function createEmailTemplate({
                     height: 40px;
                     font-size: 16px;
                 }
-                
-                .contact-info {
-                    flex-direction: column;
-                    gap: 12px;
-                }
-                
-                .contact-item {
-                    justify-content: center;
-                    min-width: 200px;
-                }
-                
-                .contact-section {
-                    padding: 24px 20px;
-                }
             }
         </style>
     </head>
@@ -457,23 +397,6 @@ export function createEmailTemplate({
             <div class="footer">
                 <p><strong>Este email fue enviado desde la plataforma de Nahuel Lozano</strong></p>
                 <p>Tu fuente confiable para estrategias de trading e inversión</p>
-                
-                <div class="contact-section">
-                    <h3>💬 Contacto Masivo & Soporte</h3>
-                    <p style="color: #475569; margin-bottom: 16px;">¿Necesitas ayuda o tienes preguntas? Estamos aquí para ti</p>
-                    
-                    <div class="contact-info">
-                        <a href="https://lozanonahuel.vercel.app" class="contact-item">
-                            🌐 Plataforma
-                        </a>
-                        <a href="mailto:${process.env.ADMIN_EMAIL || 'info@lozanonahuel.com'}" class="contact-item">
-                            📧 Email Directo
-                        </a>
-                        <a href="https://lozanonahuel.vercel.app/asesorias" class="contact-item">
-                            🤝 Asesorías
-                        </a>
-                    </div>
-                </div>
                 
                 <div class="social-links">
                     <a href="https://lozanonahuel.vercel.app" class="social-link" title="Sitio Web">🌐</a>

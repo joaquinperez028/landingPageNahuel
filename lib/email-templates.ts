@@ -21,323 +21,153 @@ export function createEmailTemplate({
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${title}</title>
         <style>
-            * {
+            body {
                 margin: 0;
                 padding: 0;
-                box-sizing: border-box;
-            }
-            
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 line-height: 1.6;
-                color: #2d3748;
+                color: #333;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                margin: 0;
-                padding: 20px;
                 min-height: 100vh;
             }
-            
-            .email-container {
+            .container {
                 max-width: 600px;
                 margin: 0 auto;
                 background: #ffffff;
-                border-radius: 16px;
+                border-radius: 12px;
                 overflow: hidden;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                margin-top: 20px;
+                margin-bottom: 20px;
             }
-            
             .header {
-                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
                 padding: 40px 30px;
                 text-align: center;
-                position: relative;
-                overflow: hidden;
             }
-            
-            .header::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-                opacity: 0.1;
-            }
-            
             .header h1 {
-                color: #ffffff;
-                margin: 0 0 8px 0;
-                font-size: 32px;
-                font-weight: 700;
-                letter-spacing: -0.025em;
-                position: relative;
-                z-index: 1;
-            }
-            
-            .header .subtitle {
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 16px;
-                font-weight: 500;
                 margin: 0;
-                position: relative;
-                z-index: 1;
+                font-size: 28px;
+                font-weight: 700;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
             }
-            
-            .logo-container {
-                width: 80px;
-                height: 80px;
-                margin: 0 auto 20px;
-                position: relative;
-                z-index: 1;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 50%;
-                padding: 8px;
-                backdrop-filter: blur(10px);
-                border: 2px solid rgba(255, 255, 255, 0.2);
+            .header p {
+                margin: 10px 0 0 0;
+                font-size: 16px;
+                opacity: 0.95;
             }
-            
-            .logo-container img {
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                border-radius: 50%;
-            }
-            
             .content {
                 padding: 40px 30px;
             }
-            
-            .content h2 {
-                color: #1a202c;
-                margin: 0 0 24px 0;
-                font-size: 24px;
-                font-weight: 600;
-                line-height: 1.3;
-            }
-            
             .message-content {
-                color: #4a5568;
                 font-size: 16px;
                 line-height: 1.8;
-                margin-bottom: 32px;
+                color: #4a5568;
+                margin-bottom: 30px;
             }
-            
             .message-content p {
-                margin: 0 0 16px 0;
+                margin: 0 0 15px 0;
             }
-            
-            .message-content p:last-child {
-                margin-bottom: 0;
-            }
-            
             .cta-section {
                 text-align: center;
-                margin: 40px 0;
+                margin: 30px 0;
             }
-            
             .cta-button {
                 display: inline-block;
-                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-                color: #ffffff !important;
-                text-decoration: none !important;
-                padding: 16px 32px;
-                border-radius: 12px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-decoration: none;
+                padding: 15px 30px;
+                border-radius: 8px;
                 font-weight: 600;
                 font-size: 16px;
-                letter-spacing: 0.025em;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.4);
-                border: none;
-                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                transition: transform 0.2s ease;
             }
-            
             .cta-button:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 25px 0 rgba(59, 130, 246, 0.5);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
             }
-            
             .divider {
                 height: 1px;
                 background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-                margin: 32px 0;
+                margin: 30px 0;
             }
-            
             .footer {
-                background: #f7fafc;
+                background: #f8fafc;
                 padding: 30px;
                 text-align: center;
                 border-top: 1px solid #e2e8f0;
             }
-            
             .footer p {
-                color: #718096;
+                margin: 0 0 10px 0;
                 font-size: 14px;
-                margin: 0 0 8px 0;
-                line-height: 1.5;
+                color: #64748b;
             }
-            
-            .footer a {
-                color: #3b82f6;
-                text-decoration: none;
-                font-weight: 500;
-            }
-            
-            .footer a:hover {
-                text-decoration: underline;
-            }
-            
             .social-links {
                 margin: 20px 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 16px;
-                flex-wrap: wrap;
-            }
-            
-            .social-link {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 44px;
-                height: 44px;
-                background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
-                border-radius: 12px;
-                color: #4a5568;
-                text-decoration: none;
-                transition: all 0.3s ease;
-                font-size: 18px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-            
-            .social-link:hover {
-                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-                color: white;
-                transform: translateY(-3px);
-                box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-            }
-            
-            .contact-section {
-                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-                padding: 30px;
-                border-radius: 16px;
-                margin: 30px 0;
-                border: 1px solid #bae6fd;
                 text-align: center;
             }
-            
-            .contact-section h3 {
-                color: #0c4a6e;
-                margin: 0 0 16px 0;
-                font-size: 20px;
-                font-weight: 700;
-            }
-            
-            .contact-info {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 20px;
-                flex-wrap: wrap;
-                margin-top: 16px;
-            }
-            
-            .contact-item {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                background: rgba(255, 255, 255, 0.8);
-                padding: 12px 18px;
-                border-radius: 25px;
-                color: #0f172a;
+            .social-link {
+                display: inline-block;
+                margin: 0 10px;
+                width: 40px;
+                height: 40px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-radius: 50%;
                 text-decoration: none;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                line-height: 40px;
+                text-align: center;
+                font-size: 16px;
+                transition: transform 0.2s ease;
             }
-            
-            .contact-item:hover {
-                background: white;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                color: #3b82f6;
+            .social-link:hover {
+                transform: scale(1.1);
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             }
-            
             .disclaimer {
-                margin-top: 24px;
+                margin-top: 20px;
                 padding-top: 20px;
                 border-top: 1px solid #e2e8f0;
                 font-size: 12px;
-                color: #a0aec0;
-                line-height: 1.4;
+                color: #94a3b8;
+                line-height: 1.5;
             }
-            
-            /* Responsive Design */
+            .disclaimer a {
+                color: #667eea;
+                text-decoration: none;
+            }
             @media only screen and (max-width: 600px) {
-                body {
-                    padding: 10px;
+                .container {
+                    margin: 10px;
+                    border-radius: 8px;
                 }
-                
-                .email-container {
-                    border-radius: 12px;
+                .header {
+                    padding: 30px 20px;
                 }
-                
-                .header, .content, .footer {
-                    padding: 24px 20px;
-                }
-                
                 .header h1 {
-                    font-size: 28px;
+                    font-size: 24px;
                 }
-                
-                .content h2 {
-                    font-size: 22px;
+                .content {
+                    padding: 30px 20px;
                 }
-                
-                .cta-button {
-                    padding: 14px 28px;
-                    font-size: 15px;
-                }
-                
-                .social-links {
-                    gap: 12px;
-                }
-                
-                .social-link {
-                    width: 40px;
-                    height: 40px;
-                    font-size: 16px;
-                }
-                
-                .contact-info {
-                    flex-direction: column;
-                    gap: 12px;
-                }
-                
-                .contact-item {
-                    justify-content: center;
-                    min-width: 200px;
-                }
-                
-                .contact-section {
-                    padding: 24px 20px;
+                .footer {
+                    padding: 20px;
                 }
             }
         </style>
     </head>
     <body>
-        <div class="email-container">
+        <div class="container">
             <div class="header">
-                <div class="logo-container">
-                    <img src="https://lozanonahuel.vercel.app/logos/logo%20notificaciones.png" alt="Nahuel Lozano Logo" />
-                </div>
-                <h1>Nahuel Lozano</h1>
-                <p class="subtitle">Trading & Investment Platform</p>
+                <h1>📈 Nahuel Lozano</h1>
+                <p>Trading & Estrategias de Inversión</p>
             </div>
             
             <div class="content">
-                <h2>${title}</h2>
+                <h2 style="color: #2d3748; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">${title}</h2>
                 <div class="message-content">
                     ${content.split('\n').map(paragraph => 
                         paragraph.trim() ? `<p>${paragraph}</p>` : ''
@@ -363,32 +193,15 @@ export function createEmailTemplate({
                 <p><strong>Este email fue enviado desde la plataforma de Nahuel Lozano</strong></p>
                 <p>Tu fuente confiable para estrategias de trading e inversión</p>
                 
-                <div class="contact-section">
-                    <h3>💬 Contacto Masivo & Soporte</h3>
-                    <p style="color: #475569; margin-bottom: 16px;">¿Necesitas ayuda o tienes preguntas? Estamos aquí para ti</p>
-                    
-                    <div class="contact-info">
-                        <a href="https://lozanonahuel.vercel.app" class="contact-item">
-                            🌐 Plataforma
-                        </a>
-                        <a href="mailto:info@lozanonahuel.com" class="contact-item">
-                            📧 Email Directo
-                        </a>
-                        <a href="https://lozanonahuel.vercel.app/asesorias" class="contact-item">
-                            🤝 Asesorías
-                        </a>
-                    </div>
-                </div>
-                
                 <div class="social-links">
                     <a href="https://lozanonahuel.vercel.app" class="social-link" title="Sitio Web">🌐</a>
-                    <a href="mailto:info@lozanonahuel.com" class="social-link" title="Email">📧</a>
+                    <a href="mailto:${process.env.ADMIN_EMAIL || 'info@lozanonahuel.com'}" class="social-link" title="Email">📧</a>
                     <a href="https://lozanonahuel.vercel.app/alertas" class="social-link" title="Alertas">📊</a>
                     <a href="https://lozanonahuel.vercel.app/recursos" class="social-link" title="Recursos">📚</a>
                 </div>
                 
                 <div class="disclaimer">
-                    <p>Si tienes preguntas, contáctanos en: <a href="mailto:info@lozanonahuel.com">info@lozanonahuel.com</a></p>
+                    <p>Si tienes preguntas, contáctanos en: <a href="mailto:${process.env.ADMIN_EMAIL || 'info@lozanonahuel.com'}">${process.env.ADMIN_EMAIL || 'info@lozanonahuel.com'}</a></p>
                     <p>© ${new Date().getFullYear()} Nahuel Lozano Trading Platform. Todos los derechos reservados.</p>
                     <p>Este email fue enviado porque eres parte de nuestra comunidad de trading. Si no deseas recibir más emails, <a href="https://lozanonahuel.vercel.app/perfil">puedes gestionar tus preferencias aquí</a>.</p>
                 </div>
