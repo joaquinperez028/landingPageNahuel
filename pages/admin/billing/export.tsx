@@ -4,12 +4,12 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Mail, 
-  Send,
-  Users,
+  FileText, 
+  Download,
+  Calendar,
+  DollarSign,
   ArrowLeft,
-  AlertCircle,
-  CheckCircle
+  AlertCircle
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -18,41 +18,37 @@ import User from '@/models/User';
 import styles from '@/styles/AdminUsers.module.css';
 import { toast } from 'react-hot-toast';
 
-export default function AdminBulkEmailPage() {
+export default function AdminBillingExportPage() {
   const [loading, setLoading] = useState(false);
-  const [emailData, setEmailData] = useState({
-    subject: '',
-    message: '',
-    recipients: 'all' // all, suscriptores, admins
+  const [dateRange, setDateRange] = useState({
+    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+    to: new Date().toISOString().split('T')[0]
   });
 
-  const sendBulkEmail = async () => {
-    if (!emailData.subject.trim() || !emailData.message.trim()) {
-      toast.error('Por favor completa el asunto y el mensaje');
-      return;
-    }
-
+  const exportBillingData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/email/bulk', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(emailData),
+      const params = new URLSearchParams({
+        from: dateRange.from,
+        to: dateRange.to
       });
 
+      const response = await fetch(`/api/admin/billing/export?${params}`);
       if (response.ok) {
-        const result = await response.json();
-        toast.success(`Email enviado a ${result.sentCount} usuarios`);
-        setEmailData({ subject: '', message: '', recipients: 'all' });
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `facturacion-${dateRange.from}-${dateRange.to}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        toast.success('Archivo exportado correctamente');
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Error al enviar emails');
+        toast.error('Error al exportar datos');
       }
     } catch (error) {
-      console.error('Error al enviar emails:', error);
-      toast.error('Error al enviar emails');
+      console.error('Error al exportar:', error);
+      toast.error('Error al exportar datos');
     } finally {
       setLoading(false);
     }
@@ -61,8 +57,8 @@ export default function AdminBulkEmailPage() {
   return (
     <>
       <Head>
-        <title>Envío Masivo de Emails - Admin Dashboard</title>
-        <meta name="description" content="Enviar emails masivos a usuarios del sistema" />
+        <title>Exportar Facturación - Admin Dashboard</title>
+        <meta name="description" content="Exportar datos de facturación para reportes" />
       </Head>
 
       <Navbar />
@@ -79,12 +75,12 @@ export default function AdminBulkEmailPage() {
             <div className={styles.header}>
               <div className={styles.headerLeft}>
                 <div className={styles.headerIcon}>
-                  <Mail size={40} />
+                  <Download size={40} />
                 </div>
                 <div>
-                  <h1 className={styles.title}>Envío Masivo de Emails</h1>
+                  <h1 className={styles.title}>Exportar Facturación</h1>
                   <p className={styles.subtitle}>
-                    Envía comunicaciones importantes a grupos de usuarios
+                    Genera reportes de facturación en Excel con datos de usuarios y pagos
                   </p>
                 </div>
               </div>
@@ -99,93 +95,71 @@ export default function AdminBulkEmailPage() {
               </div>
             </div>
 
-            {/* Email Form */}
+            {/* Export Form */}
             <div className={styles.tableContainer}>
               <div style={{ padding: '2rem' }}>
                 <div className={styles.subscriptionStats}>
-                  <h3>Configuración del Email</h3>
+                  <h3>Configuración de Exportación</h3>
                   
                   <div className={styles.filtersSection}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                      {/* Recipients */}
+                    <div className={styles.filters} style={{ gridTemplateColumns: '1fr 1fr auto' }}>
                       <div className={styles.formGroup}>
                         <label style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'block' }}>
-                          Destinatarios
-                        </label>
-                        <select
-                          value={emailData.recipients}
-                          onChange={(e) => setEmailData(prev => ({ ...prev, recipients: e.target.value }))}
-                          className={styles.searchInput}
-                          style={{ width: '300px' }}
-                        >
-                          <option value="all">Todos los usuarios</option>
-                          <option value="suscriptores">Solo suscriptores</option>
-                          <option value="admins">Solo administradores</option>
-                        </select>
-                      </div>
-
-                      {/* Subject */}
-                      <div className={styles.formGroup}>
-                        <label style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'block' }}>
-                          Asunto del Email
+                          Fecha Desde
                         </label>
                         <input
-                          type="text"
-                          value={emailData.subject}
-                          onChange={(e) => setEmailData(prev => ({ ...prev, subject: e.target.value }))}
-                          placeholder="Ej: Actualización importante del sistema"
+                          type="date"
+                          value={dateRange.from}
+                          onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
+                          className={styles.searchInput}
+                          style={{ width: '100%' }}
+                        />
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'block' }}>
+                          Fecha Hasta
+                        </label>
+                        <input
+                          type="date"
+                          value={dateRange.to}
+                          onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
                           className={styles.searchInput}
                           style={{ width: '100%' }}
                         />
                       </div>
 
-                      {/* Message */}
                       <div className={styles.formGroup}>
-                        <label style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'block' }}>
-                          Mensaje
+                        <label style={{ color: 'transparent', marginBottom: '0.5rem', display: 'block' }}>
+                          Acción
                         </label>
-                        <textarea
-                          value={emailData.message}
-                          onChange={(e) => setEmailData(prev => ({ ...prev, message: e.target.value }))}
-                          placeholder="Escribe tu mensaje aquí..."
-                          className={styles.searchInput}
-                          style={{ 
-                            width: '100%', 
-                            minHeight: '200px', 
-                            resize: 'vertical',
-                            fontFamily: 'inherit'
-                          }}
-                        />
-                      </div>
-
-                      {/* Send Button */}
-                      <div className={styles.formGroup}>
                         <button
-                          onClick={sendBulkEmail}
-                          disabled={loading || !emailData.subject.trim() || !emailData.message.trim()}
+                          onClick={exportBillingData}
+                          disabled={loading}
                           className={`${styles.actionButton} ${styles.primary}`}
-                          style={{ width: 'auto' }}
                         >
-                          <Send size={20} />
-                          {loading ? 'Enviando...' : 'Enviar Email Masivo'}
+                          <Download size={20} />
+                          {loading ? 'Exportando...' : 'Exportar Excel'}
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  {/* Warning */}
-                  <div className={styles.subscriptionCard} style={{ marginTop: '2rem', backgroundColor: 'rgba(245, 158, 11, 0.1)' }}>
-                    <div className={styles.subscriptionIcon} style={{ backgroundColor: '#f59e0b' }}>
+                  {/* Info */}
+                  <div className={styles.subscriptionCard} style={{ marginTop: '2rem', backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
+                    <div className={styles.subscriptionIcon} style={{ backgroundColor: '#3b82f6' }}>
                       <AlertCircle size={20} />
                     </div>
                     <div className={styles.subscriptionInfo}>
-                      <h4>Importante</h4>
-                      <p>Usa esta función con responsabilidad:</p>
+                      <h4>Información del Archivo</h4>
+                      <p>El archivo Excel contendrá las siguientes columnas:</p>
                       <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                        <li>• Verifica el contenido antes de enviar</li>
-                        <li>• El envío no se puede deshacer</li>
-                        <li>• Se enviará a todos los usuarios del grupo seleccionado</li>
-                        <li>• Evita el spam respetando la frecuencia de envíos</li>
+                        <li>• Nombre y Apellido</li>
+                        <li>• Email</li>
+                        <li>• CUIT/CUIL (si está disponible)</li>
+                        <li>• Monto Abonado</li>
+                        <li>• Fecha de Pago</li>
+                        <li>• Tipo de Suscripción</li>
                       </ul>
                     </div>
                   </div>
@@ -193,35 +167,35 @@ export default function AdminBulkEmailPage() {
               </div>
             </div>
 
-            {/* Stats */}
+            {/* Quick Stats */}
             <div className={styles.statsGrid}>
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>
-                  <Mail size={24} className={styles.iconBlue} />
+                  <FileText size={24} className={styles.iconBlue} />
                 </div>
                 <div className={styles.statInfo}>
-                  <h3>Email</h3>
-                  <p>Canal de Comunicación</p>
+                  <h3>Excel</h3>
+                  <p>Formato de Exportación</p>
                 </div>
               </div>
               
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>
-                  <Users size={24} className={styles.iconGreen} />
+                  <Calendar size={24} className={styles.iconGreen} />
                 </div>
                 <div className={styles.statInfo}>
-                  <h3>Masivo</h3>
-                  <p>Alcance del Envío</p>
+                  <h3>Mensual</h3>
+                  <p>Frecuencia Recomendada</p>
                 </div>
               </div>
               
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>
-                  <CheckCircle size={24} className={styles.iconGold} />
+                  <DollarSign size={24} className={styles.iconGold} />
                 </div>
                 <div className={styles.statInfo}>
-                  <h3>Eficiente</h3>
-                  <p>Comunicación Directa</p>
+                  <h3>Completo</h3>
+                  <p>Datos Financieros</p>
                 </div>
               </div>
             </div>

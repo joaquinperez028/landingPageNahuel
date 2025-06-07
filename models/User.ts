@@ -161,10 +161,10 @@ UserSchema.pre('findOneAndUpdate', function(next) {
   next();
 });
 
-// Índices para optimizar búsquedas
-UserSchema.index({ email: 1 });
+// Índices para optimizar búsquedas (sin duplicar los unique: true)
 UserSchema.index({ role: 1 });
 UserSchema.index({ 'subscriptions.tipo': 1, 'subscriptions.activa': 1 });
 UserSchema.index({ createdAt: -1 });
+UserSchema.index({ lastLogin: -1 });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema); 

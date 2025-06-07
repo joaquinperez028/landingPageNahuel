@@ -1,167 +1,129 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/googleAuth';
-import dbConnect from '@/lib/mongodb';
+import { getSession } from 'next-auth/react';
+import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 
+interface UserStat {
+  _id: string;
+  count: number;
+}
+
+interface RecentUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: Date;
+  lastLogin?: Date;
+}
+
+/**
+ * API para obtener estadísticas del dashboard administrativo
+ * GET: Estadísticas generales del sistema
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log('📊 API dashboard stats - método:', req.method);
+  
   if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Método no permitido' });
+    return res.status(405).json({ error: 'Método no permitido' });
   }
 
   try {
-    const session = await getServerSession(req, res, authOptions);
+    // Verificar autenticación
+    const session = await getSession({ req });
+    if (!session) {
+      return res.status(401).json({ error: 'No autorizado' });
+    }
+
+    console.log('🔗 Conectando a la base de datos...');
+    await connectDB();
+
+    // Verificar permisos de admin con timeout personalizado
+    console.log('👤 Verificando permisos de administrador...');
+    const currentUser = await User.findOne({ email: session.user?.email }).maxTimeMS(5000);
     
-    if (!session?.user?.email) {
-      return res.status(401).json({ message: 'No autorizado' });
+    if (!currentUser || currentUser.role !== 'admin') {
+      return res.status(403).json({ error: 'Permisos insuficientes' });
     }
 
-    // Conectar a la base de datos con timeout
-    const connection = await dbConnect();
-    if (!connection) {
-      throw new Error('No se pudo conectar a la base de datos');
-    }
+    console.log('📊 Obteniendo estadísticas del sistema...');
 
-    // Verificar que el usuario sea administrador
-    const user = await User.findOne({ email: session.user.email });
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ message: 'Acceso denegado. Solo administradores.' });
-    }
+    // Obtener estadísticas básicas con timeout usando promesas separadas
+    const userStatsPromise = User.aggregate([
+      {
+        $group: {
+          _id: '$role',
+          count: { $sum: 1 }
+        }
+      }
+    ]).exec();
 
-    // Obtener estadísticas básicas de usuarios de forma segura
-    let finalTotalUsers = 0;
-    let finalUsersByRole: any[] = [];
-    let finalRecentUsers: any[] = [];
-
-    try {
-      finalTotalUsers = await User.countDocuments();
-    } catch (error) {
-      console.error('Error obteniendo total de usuarios:', error);
-    }
-
-    try {
-      finalUsersByRole = await User.aggregate([
-        { $group: { _id: '$role', count: { $sum: 1 } } }
-      ]);
-    } catch (error) {
-      console.error('Error obteniendo usuarios por rol:', error);
-    }
-
-    try {
-      finalRecentUsers = await User.find({
-        createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
-      })
+    const recentUsersPromise = User.find({})
+      .select('name email role createdAt lastLogin')
       .sort({ createdAt: -1 })
       .limit(5)
-      .select('name email role createdAt');
-    } catch (error) {
-      console.error('Error obteniendo usuarios recientes:', error);
-    }
+      .maxTimeMS(5000)
+      .exec();
 
-    // Procesar usuarios por rol
-    const roleStats = {
-      admin: 0,
-      suscriptor: 0,
-      normal: 0
-    };
+    const [userStats, recentUsers] = await Promise.all([userStatsPromise, recentUsersPromise]);
 
-    finalUsersByRole.forEach((role: any) => {
-      if (role._id && roleStats.hasOwnProperty(role._id)) {
-        roleStats[role._id as keyof typeof roleStats] = role.count;
-      }
-    });
-
-    // Generar actividad reciente
-    const recentActivity = [
-      {
-        description: 'Sistema iniciado correctamente',
-        time: 'Hace unos minutos',
-        type: 'system'
-      },
-      {
-        description: 'Dashboard cargado',
-        time: 'Ahora',
-        type: 'dashboard'
-      }
-    ];
-
-    // Agregar actividad de usuarios recientes si hay datos
-    finalRecentUsers.forEach((recentUser: any) => {
-      const timeAgo = getTimeAgo(recentUser.createdAt);
-      recentActivity.unshift({
-        description: `${recentUser.name} se registró como ${recentUser.role}`,
-        time: timeAgo,
-        type: 'user_registration'
-      });
-    });
-
-    // Limitar actividad reciente a los últimos 10 elementos
-    const limitedActivity = recentActivity.slice(0, 10);
-
+    // Procesar estadísticas
     const stats = {
-      totalUsers: finalTotalUsers,
-      adminUsers: roleStats.admin,
-      suscriptorUsers: roleStats.suscriptor,
-      normalUsers: roleStats.normal,
-      totalNotifications: 0, // Simplificado por ahora
-      activeNotifications: 0, // Simplificado por ahora
-      recentActivity: limitedActivity,
-      
-      // Estadísticas adicionales
-      userGrowth: {
-        thisWeek: finalRecentUsers.length,
-        lastWeek: 0
-      },
-      
-      // Métricas simplificadas
-      notificationMetrics: {
-        active: 0,
-        inactive: 0,
-        recentlyCreated: 0
-      }
-    };
-
-    return res.status(200).json(stats);
-
-  } catch (error) {
-    console.error('❌ Error al obtener estadísticas del dashboard:', error);
-    
-    // Retornar estadísticas básicas en caso de error
-    return res.status(200).json({
       totalUsers: 0,
       adminUsers: 0,
       suscriptorUsers: 0,
       normalUsers: 0,
       totalNotifications: 0,
       activeNotifications: 0,
-      recentActivity: [
-        {
-          description: 'Error al cargar estadísticas, modo básico activado',
-          time: 'Ahora',
-          type: 'error'
-        }
-      ],
-      userGrowth: { thisWeek: 0, lastWeek: 0 },
-      notificationMetrics: { active: 0, inactive: 0, recentlyCreated: 0 }
+      recentActivity: [] as Array<{ description: string; time: string }>
+    };
+
+    // Procesar estadísticas de usuarios
+    userStats.forEach((stat: UserStat) => {
+      const count = stat.count;
+      stats.totalUsers += count;
+      
+      switch (stat._id) {
+        case 'admin':
+          stats.adminUsers = count;
+          break;
+        case 'suscriptor':
+          stats.suscriptorUsers = count;
+          break;
+        case 'normal':
+          stats.normalUsers = count;
+          break;
+      }
     });
-  }
-}
 
-// Función auxiliar para calcular tiempo relativo
-function getTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - new Date(date).getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    // Simular notificaciones activas (puedes reemplazar con lógica real)
+    stats.activeNotifications = 3;
+    stats.totalNotifications = 10;
 
-  if (diffDays > 0) {
-    return `Hace ${diffDays} día${diffDays !== 1 ? 's' : ''}`;
-  } else if (diffHours > 0) {
-    return `Hace ${diffHours} hora${diffHours !== 1 ? 's' : ''}`;
-  } else if (diffMinutes > 0) {
-    return `Hace ${diffMinutes} minuto${diffMinutes !== 1 ? 's' : ''}`;
-  } else {
-    return 'Hace un momento';
+    // Actividad reciente basada en usuarios recientes
+    stats.recentActivity = recentUsers.map((user: RecentUser) => ({
+      description: `Usuario ${user.name} se registró`,
+      time: user.createdAt ? new Date(user.createdAt).toLocaleDateString('es-ES') : 'Fecha desconocida'
+    }));
+
+    console.log('✅ Estadísticas obtenidas exitosamente');
+
+    return res.status(200).json(stats);
+
+  } catch (error: any) {
+    console.error('❌ Error en dashboard stats:', error);
+    
+    // Manejo específico de errores de MongoDB
+    if (error.name === 'MongooseError' || error.name === 'MongoError') {
+      return res.status(500).json({ 
+        error: 'Error de conexión con la base de datos',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+
+    return res.status(500).json({ 
+      error: 'Error interno del servidor',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 } 
