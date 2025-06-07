@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
+import { verifyAdminAccess } from '@/lib/adminAuth';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -44,8 +45,6 @@ export default function AdminNotificationsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingNotification, setEditingNotification] = useState<Notification | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [checking, setChecking] = useState(true);
   const [newNotification, setNewNotification] = useState({
     title: '',
     message: '',
@@ -58,91 +57,29 @@ export default function AdminNotificationsPage() {
     expiresAt: ''
   });
 
-  // Verificar si es admin en el lado del cliente
-  const checkAdminStatus = async () => {
-    try {
-      setChecking(true);
-      const response = await fetch('/api/profile/get');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.user?.role === 'admin') {
-          setIsAdmin(true);
-        } else {
-          window.location.href = '/';
-          return;
-        }
-      } else {
-        window.location.href = '/api/auth/signin';
-        return;
-      }
-    } catch (error) {
-      console.error('Error verificando rol de admin:', error);
-      window.location.href = '/';
-      return;
-    } finally {
-      setChecking(false);
-    }
-  };
-
   // Cargar notificaciones
   const fetchNotifications = async () => {
     try {
       setLoading(true);
+      console.log('📊 Notificaciones - Cargando...');
       const response = await fetch('/api/admin/notifications');
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ Notificaciones - Cargadas:', data.notifications?.length);
         setNotifications(data.notifications || []);
+      } else {
+        console.error('❌ Notificaciones - Error al cargar:', response.status);
       }
     } catch (error) {
-      console.error('Error al cargar notificaciones:', error);
+      console.error('💥 Notificaciones - Error al cargar:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    checkAdminStatus();
+    fetchNotifications();
   }, []);
-
-  useEffect(() => {
-    if (isAdmin) {
-      fetchNotifications();
-    }
-  }, [isAdmin]);
-
-  // Mostrar loading mientras verifica permisos
-  if (checking) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        flexDirection: 'column',
-        gap: '20px'
-      }}>
-        <div style={{ 
-          width: '40px', 
-          height: '40px', 
-          border: '4px solid #f3f3f3', 
-          borderTop: '4px solid #667eea', 
-          borderRadius: '50%', 
-          animation: 'spin 1s linear infinite' 
-        }} />
-        <p>Verificando permisos de administrador...</p>
-        <style jsx>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return null;
-  }
 
   // Crear nueva notificación
   const handleCreateNotification = async () => {
@@ -506,26 +443,34 @@ export default function AdminNotificationsPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  console.log('🔍 [NOTIFICATIONS] Iniciando verificación de acceso...');
+  
   try {
-    const session = await getSession(context);
+    // Usar la función de verificación que ya sabemos que funciona
+    const verification = await verifyAdminAccess(context);
     
-    if (!session) {
+    console.log('🔍 [NOTIFICATIONS] Resultado de verificación:', verification);
+    
+    if (!verification.isAdmin) {
+      console.log('❌ [NOTIFICATIONS] Acceso denegado - redirigiendo a:', verification.redirectTo);
       return {
         redirect: {
-          destination: '/api/auth/signin',
+          destination: verification.redirectTo || '/',
           permanent: false,
         },
       };
     }
 
+    console.log('✅ [NOTIFICATIONS] Acceso de admin confirmado para:', verification.user?.email);
+    
     return {
       props: {
-        session,
+        user: verification.user,
       },
     };
 
   } catch (error) {
-    console.error('Error en getServerSideProps de notificaciones:', error);
+    console.error('💥 [NOTIFICATIONS] Error en getServerSideProps:', error);
     
     return {
       redirect: {
