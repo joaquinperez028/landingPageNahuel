@@ -217,12 +217,23 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                   {session.user.image ? (
                     <img
                       src={session.user.image}
-                      alt={session.user.name}
+                      alt={session.user.name || 'Usuario'}
                       className={styles.userAvatar}
+                      onError={(e) => {
+                        // Si falla la carga de la imagen, ocultar y mostrar icono
+                        e.currentTarget.style.display = 'none';
+                        const fallbackIcon = e.currentTarget.parentElement?.querySelector('.fallback-icon');
+                        if (fallbackIcon) {
+                          (fallbackIcon as HTMLElement).style.display = 'inline-flex';
+                        }
+                      }}
                     />
-                  ) : (
-                    <User size={20} />
-                  )}
+                  ) : null}
+                  <User 
+                    size={20} 
+                    className="fallback-icon"
+                    style={{ display: session.user.image ? 'none' : 'inline-flex' }}
+                  />
                   <span className={styles.userName}>{session.user.name}</span>
                   <ChevronDown 
                     size={16} 
@@ -336,7 +347,25 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
               {session ? (
                 <>
                   <Link href="/perfil" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
-                    <User size={16} />
+                    {session.user.image ? (
+                      <img
+                        src={session.user.image}
+                        alt={session.user.name || 'Usuario'}
+                        className={styles.userAvatar}
+                        style={{ width: '16px', height: '16px' }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallbackIcon = e.currentTarget.nextElementSibling;
+                          if (fallbackIcon) {
+                            (fallbackIcon as HTMLElement).style.display = 'inline-flex';
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <User 
+                      size={16} 
+                      style={{ display: session.user.image ? 'none' : 'inline-flex' }}
+                    />
                     Mi Perfil
                   </Link>
                   {session.user.role === 'admin' && (

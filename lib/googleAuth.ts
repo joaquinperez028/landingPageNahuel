@@ -94,6 +94,8 @@ export const authOptions: NextAuthOptions = {
             session.user.id = user._id.toString();
             session.user.role = user.role;
             session.user.suscripciones = user.suscripciones;
+            // Asegurar que la imagen esté actualizada desde la BD
+            session.user.image = user.picture || session.user.image;
             
             // No actualizar lastLogin aquí para evitar demasiadas escrituras a BD
             // Solo lo hacemos en signIn para tener el registro real de login
