@@ -1,5 +1,6 @@
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
+import { verifyAdminAccess } from '@/lib/adminAuth';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -949,9 +950,35 @@ export default function AdminUsersPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
+  console.log('🔍 [USERS] Iniciando verificación de acceso...');
+  
+  try {
+    // Usar la función de verificación que ya sabemos que funciona
+    const verification = await verifyAdminAccess(context);
+    
+    console.log('🔍 [USERS] Resultado de verificación:', verification);
+    
+    if (!verification.isAdmin) {
+      console.log('❌ [USERS] Acceso denegado - redirigiendo a:', verification.redirectTo);
+      return {
+        redirect: {
+          destination: verification.redirectTo || '/',
+          permanent: false,
+        },
+      };
+    }
 
-  if (!session) {
+    console.log('✅ [USERS] Acceso de admin confirmado para:', verification.user?.email);
+    
+    return {
+      props: {
+        user: verification.user,
+      },
+    };
+
+  } catch (error) {
+    console.error('💥 [USERS] Error en getServerSideProps:', error);
+    
     return {
       redirect: {
         destination: '/api/auth/signin',
@@ -959,29 +986,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     };
   }
-
-  // Verificar que el usuario es admin
-  try {
-    const user = await User.findOne({ email: session.user?.email });
-    if (!user || user.role !== 'admin') {
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      };
-    }
-  } catch (error) {
-    console.error('Error al verificar usuario admin:', error);
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {},
-  };
 };
