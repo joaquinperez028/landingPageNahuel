@@ -7,7 +7,7 @@ alwaysApply: true
 
 1. *Variables de entorno siempre en el servidor*
    – Nunca hardcodeés claves o URLs sensibles en el código cliente.
-   – Usá process.env.NOMBRE_VARIABLE o equivalente para acceder a las variables (MongoDB, Google, MUX, Stripe/Mobbex, etc.).
+   – Usá process.env.NOMBRE_VARIABLE o equivalente para acceder a las variables (MongoDB, Google, MUX, mercadopago, etc.).
    – Para cada variable, definí un nombre claro (MONGODB_URI, GOOGLE_CLIENT_ID, MUX_TOKEN_SECRET, etc.) y documentá en un .env.example las que se necesitan.
 
 2. *Después de cada cambio importante: npm run build*
@@ -45,10 +45,12 @@ alwaysApply: true
    – Si el usuario está en Uruguay, convertí a America/Montevideo en el frontend sólo para mostrar (no cambies el dato que se guarda).
    – Al generar eventos en Google Calendar, envialos en UTC y especificá timezone en la API de Google.
 
-9. *Pagos: entorno de pruebas vs producción*
-   – Usar keys de prueba (STRIPE_TEST_KEY, MOBBEX_TEST_KEY) en desarrollo, y las de producción (sin “TEST”) en producción.
-   – Nunca confundas keys; al deployar, verificá que las variables en Vercel estén con prefijo correcto (STRIPE_SECRET_KEY y no la de prueba).
-   – Validá el webhook de Stripe/Mobbex en el backend antes de marcar transacción como “exitosa” en MongoDB.
+9. *Pagos: MercadoPago y transferencias bancarias*
+    – Implementar sólo MercadoPago (SDK + webhooks) y transferencias bancarias (integración manual o webhook de banco si aplica).
+    – En desarrollo, usá las credenciales de prueba de MercadoPago (MP_TEST_PUBLIC_KEY, MP_TEST_ACCESS_TOKEN).
+    – En producción, usá las credenciales oficiales (MP_PUBLIC_KEY, MP_ACCESS_TOKEN) definidas en Vercel.
+    – Validá el webhook de MercadoPago en el backend antes de marcar la transacción como “exitosa” en MongoDB.
+    – Para transferencias bancarias, diseñá un endpoint que reciba comprobantes y actualice el estado de pago tras validación manual o automática.
 
 10. *Consistencia de estilos y Responsividad Mobile-First*
     – Definí breakpoints clave (mobile, tablet, desktop) en tu CSS o Tailwind.
