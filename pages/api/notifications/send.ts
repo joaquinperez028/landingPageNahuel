@@ -1,7 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
-import { sendEmail, createEmailTemplate } from '@/lib/smtp';
+import { 
+  sendEmail, 
+  createEmailTemplate, 
+  createWelcomeEmailTemplate, 
+  createAlertEmailTemplate,
+  createPromotionalEmailTemplate 
+} from '@/lib/smtp';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 
@@ -25,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { userId, type, title, message, actionUrl, actionText } = req.body;
+    const { userId, type, title, message, actionUrl, actionText, urgency, offer, expiryDate } = req.body;
 
     // Validar datos de entrada
     if (!userId || !type || !title || !message) {
@@ -51,8 +57,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     switch (type) {
       case 'welcome':
         subject = `¡Bienvenido a la plataforma, ${targetUser.name}!`;
-        emailHTML = createEmailTemplate({
-          title: title,
+        emailHTML = createWelcomeEmailTemplate({
+          userName: targetUser.name,
           content: message,
           buttonText: actionText || 'Comenzar Ahora',
           buttonUrl: actionUrl || 'https://lozanonahuel.vercel.app/perfil'
@@ -60,22 +66,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         break;
         
       case 'alert':
+      case 'trader-call':
+      case 'smart-money':
+      case 'cash-flow':
         subject = `🚨 ${title}`;
-        emailHTML = createEmailTemplate({
+        emailHTML = createAlertEmailTemplate({
+          alertType: type === 'alert' ? 'Alerta General' : type.replace('-', ' ').toUpperCase(),
           title: title,
           content: message,
+          urgency: urgency || 'medium',
           buttonText: actionText || 'Ver Alerta',
           buttonUrl: actionUrl || 'https://lozanonahuel.vercel.app/alertas'
         });
         break;
         
       case 'subscription':
+      case 'promotional':
+      case 'offer':
         subject = `📈 ${title}`;
-        emailHTML = createEmailTemplate({
+        emailHTML = createPromotionalEmailTemplate({
           title: title,
           content: message,
+          offer: offer,
           buttonText: actionText || 'Ver Suscripción',
-          buttonUrl: actionUrl || 'https://lozanonahuel.vercel.app/perfil'
+          buttonUrl: actionUrl || 'https://lozanonahuel.vercel.app/perfil',
+          expiryDate: expiryDate
         });
         break;
         
