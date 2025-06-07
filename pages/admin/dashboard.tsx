@@ -25,6 +25,7 @@ import Footer from '@/components/Footer';
 import Link from 'next/link';
 import User from '@/models/User';
 import styles from '@/styles/AdminDashboard.module.css';
+import dbConnect from '@/lib/mongodb';
 
 interface DashboardStats {
   totalUsers: number;
@@ -47,6 +48,37 @@ export default function AdminDashboardPage() {
     recentActivity: []
   });
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  // Verificar si es admin en el lado del cliente
+  const checkAdminStatus = async () => {
+    try {
+      setChecking(true);
+      const response = await fetch('/api/profile/get');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.user?.role === 'admin') {
+          setIsAdmin(true);
+        } else {
+          // No es admin, redirigir
+          window.location.href = '/';
+          return;
+        }
+      } else {
+        // Error al verificar, redirigir a login
+        window.location.href = '/api/auth/signin';
+        return;
+      }
+    } catch (error) {
+      console.error('Error verificando rol de admin:', error);
+      // En caso de error, redirigir al home
+      window.location.href = '/';
+      return;
+    } finally {
+      setChecking(false);
+    }
+  };
 
   // Cargar estadísticas del dashboard
   const fetchDashboardStats = async () => {
@@ -65,8 +97,49 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    fetchDashboardStats();
+    checkAdminStatus();
   }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchDashboardStats();
+    }
+  }, [isAdmin]);
+
+  // Mostrar loading mientras verifica permisos
+  if (checking) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <div style={{ 
+          width: '40px', 
+          height: '40px', 
+          border: '4px solid #f3f3f3', 
+          borderTop: '4px solid #667eea', 
+          borderRadius: '50%', 
+          animation: 'spin 1s linear infinite' 
+        }} />
+        <p>Verificando permisos de administrador...</p>
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // No mostrar nada si no es admin (ya se redirigió)
+  if (!isAdmin) {
+    return null;
+  }
 
   const dashboardSections = [
     {
@@ -303,9 +376,32 @@ export default function AdminDashboardPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
+  console.log('🔍 Dashboard - Verificando sesión...');
+  
+  try {
+    const session = await getSession(context);
+    
+    if (!session) {
+      console.log('❌ Dashboard - No hay sesión, redirigiendo a login');
+      return {
+        redirect: {
+          destination: '/api/auth/signin',
+          permanent: false,
+        },
+      };
+    }
 
-  if (!session) {
+    console.log('✅ Dashboard - Sesión válida encontrada');
+    
+    return {
+      props: {
+        session,
+      },
+    };
+
+  } catch (error) {
+    console.error('❌ Dashboard - Error en getServerSideProps:', error);
+    
     return {
       redirect: {
         destination: '/api/auth/signin',
@@ -313,21 +409,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     };
   }
-
-  // Verificar que el usuario sea administrador
-  const user = await User.findOne({ email: session.user?.email });
-  if (!user || user.role !== 'admin') {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {
-      session,
-    },
-  };
 }; 

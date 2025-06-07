@@ -19,7 +19,7 @@ async function dbConnect() {
     console.error('❌ Variable de entorno MONGODB_URI no encontrada');
     throw new Error('Por favor define la variable de entorno MONGODB_URI');
   }
-  
+
   if (cached.conn) {
     console.log('✅ Usando conexión existente a MongoDB');
     return cached.conn;
@@ -29,18 +29,23 @@ async function dbConnect() {
     const opts = {
       bufferCommands: false,
       maxPoolSize: 10,
-      // Aumentar timeouts para evitar errores de conexión
-      serverSelectionTimeoutMS: 30000, // 30 segundos
-      socketTimeoutMS: 45000, // 45 segundos
-      connectTimeoutMS: 30000, // 30 segundos
+      // Timeouts muy conservadores para evitar errores
+      serverSelectionTimeoutMS: 60000, // 60 segundos
+      socketTimeoutMS: 60000, // 60 segundos  
+      connectTimeoutMS: 60000, // 60 segundos
       // Configuraciones adicionales para estabilidad
       maxIdleTimeMS: 30000,
       heartbeatFrequencyMS: 30000,
       // Configuración para retry de conexión
       retryWrites: true,
       retryReads: true,
+      // Configuraciones específicas para Atlas
+      ssl: true,
+      authSource: 'admin',
     };
 
+    console.log('🔗 Creando nueva conexión a MongoDB...');
+    
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       console.log('✅ Conectado exitosamente a MongoDB');
       return mongoose;
@@ -53,11 +58,12 @@ async function dbConnect() {
 
   try {
     cached.conn = await cached.promise;
+    console.log('✅ Conexión MongoDB lista para usar');
   } catch (e) {
     cached.promise = null;
     console.error('❌ Error conectando a MongoDB:', e);
-    // En lugar de hacer throw, devolvemos null para evitar crashes
-    return null;
+    // En producción, lanzamos el error para que sea manejado por la API
+    throw new Error(`Error de conexión a MongoDB: ${(e as Error).message}`);
   }
 
   return cached.conn;

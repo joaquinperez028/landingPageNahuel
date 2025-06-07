@@ -44,6 +44,8 @@ export default function AdminNotificationsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingNotification, setEditingNotification] = useState<Notification | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [newNotification, setNewNotification] = useState({
     title: '',
     message: '',
@@ -55,6 +57,32 @@ export default function AdminNotificationsPage() {
     actionText: '',
     expiresAt: ''
   });
+
+  // Verificar si es admin en el lado del cliente
+  const checkAdminStatus = async () => {
+    try {
+      setChecking(true);
+      const response = await fetch('/api/profile/get');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.user?.role === 'admin') {
+          setIsAdmin(true);
+        } else {
+          window.location.href = '/';
+          return;
+        }
+      } else {
+        window.location.href = '/api/auth/signin';
+        return;
+      }
+    } catch (error) {
+      console.error('Error verificando rol de admin:', error);
+      window.location.href = '/';
+      return;
+    } finally {
+      setChecking(false);
+    }
+  };
 
   // Cargar notificaciones
   const fetchNotifications = async () => {
@@ -73,8 +101,48 @@ export default function AdminNotificationsPage() {
   };
 
   useEffect(() => {
-    fetchNotifications();
+    checkAdminStatus();
   }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchNotifications();
+    }
+  }, [isAdmin]);
+
+  // Mostrar loading mientras verifica permisos
+  if (checking) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <div style={{ 
+          width: '40px', 
+          height: '40px', 
+          border: '4px solid #f3f3f3', 
+          borderTop: '4px solid #667eea', 
+          borderRadius: '50%', 
+          animation: 'spin 1s linear infinite' 
+        }} />
+        <p>Verificando permisos de administrador...</p>
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
 
   // Crear nueva notificación
   const handleCreateNotification = async () => {
@@ -438,9 +506,27 @@ export default function AdminNotificationsPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
+  try {
+    const session = await getSession(context);
+    
+    if (!session) {
+      return {
+        redirect: {
+          destination: '/api/auth/signin',
+          permanent: false,
+        },
+      };
+    }
 
-  if (!session) {
+    return {
+      props: {
+        session,
+      },
+    };
+
+  } catch (error) {
+    console.error('Error en getServerSideProps de notificaciones:', error);
+    
     return {
       redirect: {
         destination: '/api/auth/signin',
@@ -448,21 +534,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     };
   }
-
-  // Verificar que el usuario sea administrador
-  const user = await User.findOne({ email: session.user?.email });
-  if (!user || user.role !== 'admin') {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {
-      session,
-    },
-  };
 }; 
