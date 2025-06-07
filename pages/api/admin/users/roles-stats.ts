@@ -62,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         { lastLogin: { $gte: thirtyDaysAgo } }
       ]
     })
-    .select('name email role createdAt lastLogin updatedAt')
+    .select('name email picture role createdAt lastLogin updatedAt')
     .sort({ updatedAt: -1 })
     .limit(10);
 
@@ -75,6 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         _id: user._id,
         name: user.name,
         email: user.email,
+        picture: user.picture,
         role: user.role,
         createdAt: user.createdAt,
         lastLogin: user.lastLogin

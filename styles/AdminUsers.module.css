@@ -393,13 +393,23 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   font-weight: 600;
-  font-size: 1rem;
+  color: white;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.userAvatarImage {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--border-color);
 }
 
 .userName {

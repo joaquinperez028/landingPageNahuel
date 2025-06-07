@@ -73,7 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Obtener usuarios con paginación
         const users = await User.find(query)
-          .select('name email role createdAt lastLogin isActive subscriptions')
+          .select('name email picture role createdAt lastLogin isActive subscriptions')
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(Number(limit));
@@ -91,6 +91,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             _id: user._id,
             name: user.name,
             email: user.email,
+            picture: user.picture,
             role: user.role,
             createdAt: user.createdAt,
             lastLogin: user.lastLogin,

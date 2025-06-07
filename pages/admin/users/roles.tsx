@@ -35,6 +35,7 @@ interface UserData {
   _id: string;
   name: string;
   email: string;
+  picture?: string;
   role: 'admin' | 'suscriptor' | 'normal';
   createdAt: string;
   lastLogin?: string;
@@ -88,6 +89,29 @@ export default function AdminRolesPage() {
       case 'suscriptor': return <UserCheck size={16} />;
       default: return <UserIcon size={16} />;
     }
+  };
+
+  // Componente para el avatar del usuario
+  const UserAvatar = ({ user }: { user: UserData }) => {
+    const [imageError, setImageError] = useState(false);
+    
+    if (user.picture && !imageError) {
+      return (
+        <img
+          src={user.picture}
+          alt={`${user.name} avatar`}
+          className={styles.userAvatarImage}
+          onError={() => setImageError(true)}
+        />
+      );
+    }
+    
+    // Fallback a iniciales si no hay imagen o falla la carga
+    return (
+      <div className={styles.userAvatar}>
+        {user.name.charAt(0).toUpperCase()}
+      </div>
+    );
   };
 
   return (
@@ -292,9 +316,7 @@ export default function AdminRolesPage() {
                     >
                       <div className={styles.tableCell}>
                         <div className={styles.userInfo}>
-                          <div className={styles.userAvatar}>
-                            {user.name.charAt(0).toUpperCase()}
-                          </div>
+                          <UserAvatar user={user} />
                           <div>
                             <p className={styles.userName}>{user.name}</p>
                             <p className={styles.userEmail}>{user.email}</p>
