@@ -27,7 +27,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // Contar usuarios con emails válidos (que tengan email)
     const totalEmails = await User.countDocuments({ 
-      email: { $exists: true, $ne: null, $ne: '' } 
+      $and: [
+        { email: { $exists: true } },
+        { email: { $ne: null } },
+        { email: { $ne: '' } }
+      ]
     });
     
     // Contar suscriptores activos
