@@ -223,42 +223,334 @@ export default async function handler(
       });
     }
 
-    // Crear contenido del email
+    // Crear contenido del email con plantilla profesional
     const emailSubject = `[CONTACTO WEB] ${cleanSubject}`;
     const emailContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px;">
-        <h2 style="color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
-          Nuevo Mensaje de Contacto
-        </h2>
-        
-        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3 style="margin: 0 0 10px 0; color: #374151;">Información del Usuario:</h3>
-          <p style="margin: 5px 0;"><strong>Nombre:</strong> ${userName}</p>
-          <p style="margin: 5px 0;"><strong>Email:</strong> ${userEmail}</p>
-          <p style="margin: 5px 0;"><strong>Fecha:</strong> ${new Date().toLocaleString('es-ES')}</p>
-        </div>
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Nuevo Mensaje de Contacto</title>
+          <style>
+              body {
+                  margin: 0;
+                  padding: 0;
+                  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                  line-height: 1.6;
+                  color: #333;
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  min-height: 100vh;
+              }
+              .container {
+                  max-width: 650px;
+                  margin: 20px auto;
+                  background: #ffffff;
+                  border-radius: 16px;
+                  overflow: hidden;
+                  box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+              }
+              .header {
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  color: white;
+                  padding: 40px 35px;
+                  text-align: center;
+                  position: relative;
+              }
+              .header::before {
+                  content: '';
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  right: 0;
+                  bottom: 0;
+                  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grain)"/></svg>') repeat;
+                  opacity: 0.3;
+              }
+              .header-content {
+                  position: relative;
+                  z-index: 1;
+              }
+              .header h1 {
+                  margin: 0 0 10px 0;
+                  font-size: 32px;
+                  font-weight: 700;
+                  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+              }
+              .header .icon {
+                  font-size: 48px;
+                  margin-bottom: 15px;
+                  display: block;
+              }
+              .header p {
+                  margin: 0;
+                  font-size: 16px;
+                  opacity: 0.95;
+                  font-weight: 400;
+              }
+              .content {
+                  padding: 45px 35px;
+              }
+              .user-info-card {
+                  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                  border: 1px solid #e2e8f0;
+                  border-radius: 16px;
+                  padding: 25px;
+                  margin-bottom: 35px;
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                  position: relative;
+              }
+              .user-info-card::before {
+                  content: '';
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  right: 0;
+                  height: 4px;
+                  background: linear-gradient(90deg, #667eea, #764ba2);
+                  border-radius: 16px 16px 0 0;
+              }
+              .user-info-title {
+                  font-size: 18px;
+                  font-weight: 700;
+                  color: #1e293b;
+                  margin: 0 0 20px 0;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+              }
+              .user-info-grid {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                  gap: 15px;
+              }
+              .user-info-item {
+                  display: flex;
+                  flex-direction: column;
+                  gap: 5px;
+              }
+              .user-info-label {
+                  font-size: 13px;
+                  font-weight: 600;
+                  color: #64748b;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+              }
+              .user-info-value {
+                  font-size: 15px;
+                  font-weight: 600;
+                  color: #1e293b;
+              }
+              .message-section {
+                  margin: 35px 0;
+              }
+              .section-title {
+                  font-size: 20px;
+                  font-weight: 700;
+                  color: #1e293b;
+                  margin: 0 0 15px 0;
+                  padding-bottom: 10px;
+                  border-bottom: 2px solid #e2e8f0;
+                  position: relative;
+              }
+              .section-title::after {
+                  content: '';
+                  position: absolute;
+                  bottom: -2px;
+                  left: 0;
+                  width: 60px;
+                  height: 2px;
+                  background: linear-gradient(90deg, #667eea, #764ba2);
+              }
+              .subject-box {
+                  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+                  border: 1px solid #bfdbfe;
+                  border-left: 4px solid #3b82f6;
+                  padding: 20px;
+                  border-radius: 12px;
+                  margin-bottom: 25px;
+              }
+              .subject-text {
+                  font-size: 17px;
+                  font-weight: 600;
+                  color: #1e40af;
+                  margin: 0;
+                  line-height: 1.4;
+              }
+              .message-box {
+                  background: #ffffff;
+                  border: 2px solid #f1f5f9;
+                  border-radius: 12px;
+                  padding: 25px;
+                  font-size: 16px;
+                  line-height: 1.7;
+                  color: #334155;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                  position: relative;
+              }
+              .message-box::before {
+                  content: '"';
+                  position: absolute;
+                  top: -10px;
+                  left: 20px;
+                  font-size: 60px;
+                  color: #e2e8f0;
+                  font-family: Georgia, serif;
+                  line-height: 1;
+              }
+              .timestamp {
+                  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                  border: 1px solid #f59e0b;
+                  color: #92400e;
+                  padding: 15px 20px;
+                  border-radius: 12px;
+                  font-size: 14px;
+                  text-align: center;
+                  margin-top: 35px;
+                  font-weight: 600;
+              }
+              .footer {
+                  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                  padding: 35px;
+                  border-top: 1px solid #e2e8f0;
+                  text-align: center;
+              }
+              .footer-title {
+                  font-size: 16px;
+                  font-weight: 700;
+                  color: #1e293b;
+                  margin: 0 0 15px 0;
+              }
+              .footer-text {
+                  font-size: 14px;
+                  color: #64748b;
+                  margin: 0 0 10px 0;
+                  line-height: 1.5;
+              }
+              .reply-button {
+                  display: inline-block;
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  color: white;
+                  text-decoration: none;
+                  padding: 12px 25px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  margin-top: 15px;
+                  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                  transition: transform 0.2s ease;
+              }
+              .reply-button:hover {
+                  transform: translateY(-2px);
+                  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+              }
+              @media only screen and (max-width: 600px) {
+                  .container {
+                      margin: 10px;
+                      border-radius: 12px;
+                  }
+                  .header {
+                      padding: 30px 25px;
+                  }
+                  .header h1 {
+                      font-size: 26px;
+                  }
+                  .content {
+                      padding: 30px 25px;
+                  }
+                  .footer {
+                      padding: 25px;
+                  }
+                  .user-info-grid {
+                      grid-template-columns: 1fr;
+                  }
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <div class="header-content">
+                      <span class="icon">📧</span>
+                      <h1>Nuevo Mensaje de Contacto</h1>
+                      <p>Un usuario se ha puesto en contacto contigo a través del sitio web</p>
+                  </div>
+              </div>
+              
+              <div class="content">
+                  <div class="user-info-card">
+                      <h3 class="user-info-title">
+                          👤 Información del Remitente
+                      </h3>
+                      <div class="user-info-grid">
+                          <div class="user-info-item">
+                              <span class="user-info-label">Nombre</span>
+                              <span class="user-info-value">${userName}</span>
+                          </div>
+                          <div class="user-info-item">
+                              <span class="user-info-label">Email</span>
+                              <span class="user-info-value">${userEmail}</span>
+                          </div>
+                          <div class="user-info-item">
+                              <span class="user-info-label">Fecha y Hora</span>
+                              <span class="user-info-value">${new Date().toLocaleString('es-ES', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}</span>
+                          </div>
+                      </div>
+                  </div>
 
-        <div style="margin: 20px 0;">
-          <h3 style="color: #374151; margin-bottom: 10px;">Asunto:</h3>
-          <p style="background: #eff6ff; padding: 15px; border-radius: 6px; border-left: 4px solid #3b82f6;">
-            ${cleanSubject}
-          </p>
-        </div>
+                  <div class="message-section">
+                      <h3 class="section-title">📋 Asunto del Mensaje</h3>
+                      <div class="subject-box">
+                          <p class="subject-text">${cleanSubject}</p>
+                      </div>
+                  </div>
 
-        <div style="margin: 20px 0;">
-          <h3 style="color: #374151; margin-bottom: 10px;">Mensaje:</h3>
-          <div style="background: #ffffff; padding: 20px; border: 1px solid #e5e7eb; border-radius: 6px; line-height: 1.6;">
-            ${cleanMessage.replace(/\n/g, '<br>')}
+                  <div class="message-section">
+                      <h3 class="section-title">💬 Contenido del Mensaje</h3>
+                      <div class="message-box">
+                          ${cleanMessage.replace(/\n/g, '<br>')}
+                      </div>
+                  </div>
+
+                  <div class="timestamp">
+                      ⏰ Mensaje recibido el ${new Date().toLocaleDateString('es-ES', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long', 
+                        day: 'numeric'
+                      })} a las ${new Date().toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                  </div>
+              </div>
+
+              <div class="footer">
+                  <h4 class="footer-title">¿Cómo responder?</h4>
+                  <p class="footer-text">
+                      Para responder a este mensaje, simplemente envía un email directamente a:
+                  </p>
+                  <p class="footer-text">
+                      <strong>${userEmail}</strong>
+                  </p>
+                  <a href="mailto:${userEmail}?subject=Re: ${cleanSubject}" class="reply-button">
+                      Responder Email
+                  </a>
+                  <p class="footer-text" style="margin-top: 25px; font-size: 13px; color: #94a3b8;">
+                      Este mensaje fue enviado automáticamente desde el formulario de contacto de tu sitio web.<br>
+                      No respondas a este email directamente.
+                  </p>
+              </div>
           </div>
-        </div>
-
-        <div style="margin-top: 30px; padding: 15px; background: #fef3c7; border-radius: 6px; border-left: 4px solid #f59e0b;">
-          <p style="margin: 0; font-size: 14px; color: #92400e;">
-            <strong>Nota:</strong> Este mensaje fue enviado a través del formulario de contacto del sitio web.
-            Para responder, utiliza la dirección de email del remitente: ${userEmail}
-          </p>
-        </div>
-      </div>
+      </body>
+      </html>
     `;
 
     // Enviar email al administrador
