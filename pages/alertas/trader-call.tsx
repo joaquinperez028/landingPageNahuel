@@ -383,6 +383,16 @@ const SubscriberView: React.FC = () => {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [communityMessages, setCommunityMessages] = useState<CommunityMessage[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showCreateAlert, setShowCreateAlert] = useState(false);
+  const [newAlert, setNewAlert] = useState({
+    symbol: '',
+    action: 'BUY',
+    stopLoss: '',
+    takeProfit: '',
+    analysis: ''
+  });
+  const [stockPrice, setStockPrice] = useState<number | null>(null);
+  const [priceLoading, setPriceLoading] = useState(false);
 
   // Alertas vigentes (definir primero para evitar dependencias circulares)
   const alertasVigentes = [
@@ -567,6 +577,74 @@ const SubscriberView: React.FC = () => {
     setCommunityMessages(prev => [...prev, newMessage]);
   };
 
+  // Función para obtener precio real de la acción
+  const fetchStockPrice = async (symbol: string) => {
+    if (!symbol) return;
+    
+    setPriceLoading(true);
+    try {
+      // Usar API gratuita de Yahoo Finance a través de un proxy
+      const response = await fetch(`/api/stock-price?symbol=${symbol}`);
+      const data = await response.json();
+      
+      if (data.price) {
+        setStockPrice(data.price);
+      } else {
+        console.error('No se pudo obtener el precio');
+      }
+    } catch (error) {
+      console.error('Error al obtener el precio:', error);
+    } finally {
+      setPriceLoading(false);
+    }
+  };
+
+  // Función para crear nueva alerta
+  const handleCreateAlert = async () => {
+    if (!newAlert.symbol || !stockPrice) return;
+    
+    setLoading(true);
+    try {
+      const alertData = {
+        symbol: newAlert.symbol.toUpperCase(),
+        action: newAlert.action,
+        entryPrice: stockPrice,
+        stopLoss: parseFloat(newAlert.stopLoss),
+        takeProfit: parseFloat(newAlert.takeProfit),
+        analysis: newAlert.analysis,
+        date: new Date().toISOString().split('T')[0]
+      };
+
+      const response = await fetch('/api/alerts/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(alertData),
+      });
+
+      if (response.ok) {
+        // Resetear formulario
+        setNewAlert({
+          symbol: '',
+          action: 'BUY',
+          stopLoss: '',
+          takeProfit: '',
+          analysis: ''
+        });
+        setStockPrice(null);
+        setShowCreateAlert(false);
+        
+        // Aquí podrías recargar las alertas o agregar la nueva alerta al estado
+        console.log('Alerta creada exitosamente');
+      }
+    } catch (error) {
+      console.error('Error al crear alerta:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderDashboard = () => (
     <div className={styles.dashboardContent}>
       <h2 className={styles.sectionTitle}>Dashboard de Trabajo</h2>
@@ -716,7 +794,15 @@ const SubscriberView: React.FC = () => {
 
   const renderSeguimientoAlertas = () => (
     <div className={styles.alertasContent}>
-      <h2 className={styles.sectionTitle}>Seguimiento de Alertas</h2>
+      <div className={styles.alertasHeader}>
+        <h2 className={styles.sectionTitle}>Seguimiento de Alertas</h2>
+        <button 
+          className={styles.createAlertButton}
+          onClick={() => setShowCreateAlert(true)}
+        >
+          + Crear Nueva Alerta
+        </button>
+      </div>
       
       {/* Filtros */}
       <div className={styles.alertFilters}>
@@ -961,6 +1047,125 @@ const SubscriberView: React.FC = () => {
     </div>
   );
 
+  // Modal para crear nueva alerta
+  const renderCreateAlertModal = () => {
+    if (!showCreateAlert) return null;
+
+    return (
+      <div className={styles.modalOverlay}>
+        <div className={styles.modalContent}>
+          <div className={styles.modalHeader}>
+            <h3>Crear Nueva Alerta</h3>
+            <button 
+              className={styles.closeModal}
+              onClick={() => setShowCreateAlert(false)}
+            >
+              ×
+            </button>
+          </div>
+
+          <div className={styles.modalBody}>
+            {/* Símbolo de la acción */}
+            <div className={styles.inputGroup}>
+              <label>Símbolo de la Acción</label>
+              <div className={styles.symbolInput}>
+                <input
+                  type="text"
+                  placeholder="Ej: AAPL, TSLA, MSFT"
+                  value={newAlert.symbol}
+                  onChange={(e) => setNewAlert(prev => ({ ...prev, symbol: e.target.value }))}
+                  className={styles.input}
+                />
+                <button
+                  onClick={() => fetchStockPrice(newAlert.symbol)}
+                  disabled={!newAlert.symbol || priceLoading}
+                  className={styles.getPriceButton}
+                >
+                  {priceLoading ? 'Cargando...' : 'Obtener Precio'}
+                </button>
+              </div>
+            </div>
+
+            {/* Precio actual */}
+            {stockPrice && (
+              <div className={styles.priceDisplay}>
+                <label>Precio Actual:</label>
+                <span className={styles.currentPrice}>${stockPrice.toFixed(2)}</span>
+              </div>
+            )}
+
+            {/* Acción */}
+            <div className={styles.inputGroup}>
+              <label>Acción</label>
+              <select
+                value={newAlert.action}
+                onChange={(e) => setNewAlert(prev => ({ ...prev, action: e.target.value }))}
+                className={styles.select}
+              >
+                <option value="BUY">BUY (Compra)</option>
+                <option value="SELL">SELL (Venta)</option>
+              </select>
+            </div>
+
+            {/* Stop Loss */}
+            <div className={styles.inputGroup}>
+              <label>Stop Loss</label>
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Precio de stop loss"
+                value={newAlert.stopLoss}
+                onChange={(e) => setNewAlert(prev => ({ ...prev, stopLoss: e.target.value }))}
+                className={styles.input}
+              />
+            </div>
+
+            {/* Take Profit */}
+            <div className={styles.inputGroup}>
+              <label>Take Profit</label>
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Precio de take profit"
+                value={newAlert.takeProfit}
+                onChange={(e) => setNewAlert(prev => ({ ...prev, takeProfit: e.target.value }))}
+                className={styles.input}
+              />
+            </div>
+
+            {/* Análisis */}
+            <div className={styles.inputGroup}>
+              <label>Análisis / Descripción</label>
+              <textarea
+                placeholder="Descripción del análisis técnico o fundamental..."
+                value={newAlert.analysis}
+                onChange={(e) => setNewAlert(prev => ({ ...prev, analysis: e.target.value }))}
+                className={styles.textarea}
+                rows={4}
+              />
+            </div>
+          </div>
+
+          <div className={styles.modalFooter}>
+            <button 
+              onClick={() => setShowCreateAlert(false)}
+              className={styles.cancelButton}
+            >
+              Cancelar
+            </button>
+            <button 
+              onClick={handleCreateAlert}
+              disabled={!newAlert.symbol || !stockPrice || loading}
+              className={styles.createButton}
+            >
+              {loading ? 'Creando...' : 'Crear Alerta'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.subscriberView}>
       <div className={styles.container}>
@@ -1020,6 +1225,9 @@ const SubscriberView: React.FC = () => {
           {activeTab === 'comunidad' && renderComunidad()}
         </div>
       </div>
+
+      {/* Modal para crear alertas */}
+      {renderCreateAlertModal()}
     </div>
   );
 };
