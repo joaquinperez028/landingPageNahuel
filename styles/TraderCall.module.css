@@ -1246,6 +1246,23 @@
   margin: 0;
 }
 
+/* Estados de carga y vacío */
+.loadingContainer {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+.emptyState p {
+  margin: 0.5rem 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .heroContent {

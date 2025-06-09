@@ -393,6 +393,8 @@ const SubscriberView: React.FC = () => {
   });
   const [stockPrice, setStockPrice] = useState<number | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
+  const [realAlerts, setRealAlerts] = useState<any[]>([]);
+  const [loadingAlerts, setLoadingAlerts] = useState(false);
 
   // Alertas vigentes (definir primero para evitar dependencias circulares)
   const alertasVigentes = [
@@ -566,6 +568,34 @@ const SubscriberView: React.FC = () => {
 
   const recentActivity = generateRecentActivity();
 
+  // Función para cargar alertas desde la API
+  const loadAlerts = async () => {
+    setLoadingAlerts(true);
+    try {
+      const response = await fetch('/api/alerts/list?tipo=TraderCall', {
+        method: 'GET',
+        credentials: 'same-origin',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setRealAlerts(data.alerts || []);
+        console.log('Alertas cargadas:', data.alerts?.length || 0);
+      } else {
+        console.error('Error al cargar alertas:', response.status);
+      }
+    } catch (error) {
+      console.error('Error al cargar alertas:', error);
+    } finally {
+      setLoadingAlerts(false);
+    }
+  };
+
+  // Cargar alertas al montar el componente
+  React.useEffect(() => {
+    loadAlerts();
+  }, []);
+
   const handleSendMessage = (message: string) => {
     // Simular envío de mensaje
     const newMessage = {
@@ -643,6 +673,9 @@ const SubscriberView: React.FC = () => {
         
         alert('¡Alerta creada exitosamente!');
         console.log('Alerta creada exitosamente:', data.alert);
+        
+        // Recargar alertas para mostrar la nueva
+        await loadAlerts();
       } else {
         // Manejar errores específicos
         if (response.status === 401) {
@@ -855,89 +888,102 @@ const SubscriberView: React.FC = () => {
           <span>Estado</span>
         </div>
         
-        {/* Mostrar alertas históricas cerradas */}
-        {alertasHistoricas.slice(0, 5).map((alert) => (
-          <div key={alert.id} className={styles.tableRow}>
-            <span>{alert.date}</span>
-            <span className={styles.symbol}>{alert.symbol}</span>
-            <span className={`${styles.action} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
-              {alert.action}
-            </span>
-            <span>${alert.entryPrice}</span>
-            <span>${alert.exitPrice}</span>
-            <span className={alert.type === 'WIN' ? styles.profit : styles.loss}>
-              {alert.profit > 0 ? '+' : ''}{alert.profit.toFixed(1)}%
-            </span>
-            <span className={styles.status}>
-              CERRADA
-            </span>
+        {/* Mostrar alertas reales */}
+        {loadingAlerts ? (
+          <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem' }}>
+            <span>Cargando alertas...</span>
           </div>
-        ))}
-
-        {/* Mostrar alertas vigentes activas */}
-        {alertasVigentes.map((alert) => (
-          <div key={`active-${alert.id}`} className={styles.tableRow}>
-            <span>{alert.date}</span>
-            <span className={styles.symbol}>{alert.symbol}</span>
-            <span className={`${styles.action} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
-              {alert.action}
-            </span>
-            <span>{alert.entryPrice}</span>
-            <span>{alert.currentPrice}</span>
-            <span className={styles.profit}>{alert.profit}</span>
-            <span className={`${styles.status} ${styles.statusActive}`}>
-              {alert.status}
-            </span>
+        ) : realAlerts.length === 0 ? (
+          <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+            <span>No hay alertas creadas aún. ¡Crea tu primera alerta!</span>
           </div>
-        ))}
+        ) : (
+          realAlerts.map((alert) => (
+            <div key={alert.id} className={styles.tableRow}>
+              <span>{alert.date}</span>
+              <span className={styles.symbol}>{alert.symbol}</span>
+              <span className={`${styles.action} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
+                {alert.action}
+              </span>
+              <span>{alert.entryPrice}</span>
+              <span>{alert.exitPrice || alert.currentPrice}</span>
+              <span className={alert.profit.includes('+') ? styles.profit : styles.loss}>
+                {alert.profit}
+              </span>
+              <span className={`${styles.status} ${alert.status === 'ACTIVE' ? styles.statusActive : ''}`}>
+                {alert.status === 'ACTIVE' ? 'ACTIVA' : 'CERRADA'}
+              </span>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 
-  const renderAlertasVigentes = () => (
-    <div className={styles.vigentesContent}>
-      <h2 className={styles.sectionTitle}>Alertas Vigentes</h2>
-      
-      {alertasVigentes.map((alert) => (
-        <div key={alert.id} className={styles.alertCard}>
-          <div className={styles.alertHeader}>
-            <h3 className={styles.alertSymbol}>{alert.symbol}</h3>
-            <span className={`${styles.alertAction} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
-              {alert.action}
-            </span>
+  const renderAlertasVigentes = () => {
+    // Filtrar solo alertas activas de las alertas reales
+    const alertasActivas = realAlerts.filter(alert => alert.status === 'ACTIVE');
+    
+    return (
+      <div className={styles.vigentesContent}>
+        <h2 className={styles.sectionTitle}>Alertas Vigentes</h2>
+        
+        {loadingAlerts ? (
+          <div className={styles.loadingContainer}>
+            <p>Cargando alertas...</p>
           </div>
-          
-          <div className={styles.alertDetails}>
-            <div className={styles.alertDetail}>
-              <span>Precio Entrada:</span>
-              <strong>{alert.entryPrice}</strong>
-            </div>
-            <div className={styles.alertDetail}>
-              <span>Precio Actual:</span>
-              <strong>{alert.currentPrice}</strong>
-            </div>
-            <div className={styles.alertDetail}>
-              <span>Stop Loss:</span>
-              <strong>{alert.stopLoss}</strong>
-            </div>
-            <div className={styles.alertDetail}>
-              <span>Take Profit:</span>
-              <strong>{alert.takeProfit}</strong>
-            </div>
-            <div className={styles.alertDetail}>
-              <span>P&L:</span>
-              <strong className={styles.profit}>{alert.profit}</strong>
-            </div>
+        ) : alertasActivas.length === 0 ? (
+          <div className={styles.emptyState}>
+            <p>No hay alertas vigentes en este momento.</p>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+              Las alertas aparecerán aquí cuando las crees.
+            </p>
           </div>
-          
-          <div className={styles.alertActions}>
-            <button className={styles.closeButton}>Cerrar Posición</button>
-            <button className={styles.modifyButton}>Modificar</button>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+        ) : (
+          alertasActivas.map((alert) => (
+            <div key={alert.id} className={styles.alertCard}>
+              <div className={styles.alertHeader}>
+                <h3 className={styles.alertSymbol}>{alert.symbol}</h3>
+                <span className={`${styles.alertAction} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
+                  {alert.action}
+                </span>
+              </div>
+              
+              <div className={styles.alertDetails}>
+                <div className={styles.alertDetail}>
+                  <span>Precio Entrada:</span>
+                  <strong>{alert.entryPrice}</strong>
+                </div>
+                <div className={styles.alertDetail}>
+                  <span>Precio Actual:</span>
+                  <strong>{alert.currentPrice}</strong>
+                </div>
+                <div className={styles.alertDetail}>
+                  <span>Stop Loss:</span>
+                  <strong>{alert.stopLoss}</strong>
+                </div>
+                <div className={styles.alertDetail}>
+                  <span>Take Profit:</span>
+                  <strong>{alert.takeProfit}</strong>
+                </div>
+                <div className={styles.alertDetail}>
+                  <span>P&L:</span>
+                  <strong className={alert.profit.includes('+') ? styles.profit : styles.loss}>
+                    {alert.profit}
+                  </strong>
+                </div>
+              </div>
+              
+              <div className={styles.alertActions}>
+                <button className={styles.closeButton}>Cerrar Posición</button>
+                <button className={styles.modifyButton}>Modificar</button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    );
+  };
 
   const renderInformes = () => (
     <div className={styles.informesContent}>

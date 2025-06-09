@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import Alert from '@/models/Alert';
 
 interface AlertRequest {
   symbol: string;
@@ -66,39 +67,45 @@ export default async function handler(
       return res.status(400).json({ error: 'Los precios deben ser mayores a 0' });
     }
 
-    // Crear la nueva alerta
-    const newAlert = {
-      id: Date.now(),
+    // Crear la nueva alerta en MongoDB
+    const newAlert = await Alert.create({
       symbol: symbol.toUpperCase(),
       action,
-      entryPrice: `$${entryPrice.toFixed(2)}`,
-      currentPrice: `$${entryPrice.toFixed(2)}`, // Precio inicial igual al de entrada
-      stopLoss: `$${stopLoss.toFixed(2)}`,
-      takeProfit: `$${takeProfit.toFixed(2)}`,
-      profit: '+0.0%', // Inicial en 0%
+      entryPrice,
+      currentPrice: entryPrice, // Precio inicial igual al de entrada
+      stopLoss,
+      takeProfit,
       status: 'ACTIVE',
-      date: date || new Date().toISOString().split('T')[0],
+      profit: 0, // Inicial en 0%
+      date: date ? new Date(date) : new Date(),
       analysis: analysis || '',
       createdBy: user._id,
-      createdAt: new Date()
+      tipo: 'TraderCall' // Por defecto TraderCall, se puede modificar según la sección
+    });
+
+    console.log('Nueva alerta creada por usuario:', user.name || user.email, newAlert._id);
+
+    // Formatear la respuesta para el frontend
+    const alertResponse = {
+      id: newAlert._id.toString(),
+      symbol: newAlert.symbol,
+      action: newAlert.action,
+      entryPrice: `$${newAlert.entryPrice.toFixed(2)}`,
+      currentPrice: `$${newAlert.currentPrice.toFixed(2)}`,
+      stopLoss: `$${newAlert.stopLoss.toFixed(2)}`,
+      takeProfit: `$${newAlert.takeProfit.toFixed(2)}`,
+      profit: `${newAlert.profit >= 0 ? '+' : ''}${newAlert.profit.toFixed(1)}%`,
+      status: newAlert.status,
+      date: newAlert.date.toISOString().split('T')[0],
+      analysis: newAlert.analysis
     };
 
-    // Aquí podrías guardar la alerta en una colección separada de MongoDB
-    // Por ahora, simulamos la creación exitosa
-
-         // TODO: Implementar modelo Alert y guardarlo en MongoDB
-     // const Alert = require('@/models/Alert');
-     // const savedAlert = await Alert.create(newAlert);
-
-     console.log('Nueva alerta creada por usuario:', user.name || user.email, newAlert);
-
-     // Enviar notificación a todos los suscriptores (opcional)
-     // TODO: Implementar sistema de notificaciones
+    // TODO: Enviar notificación a todos los suscriptores (opcional)
 
     return res.status(201).json({
       success: true,
       message: 'Alerta creada exitosamente',
-      alert: newAlert
+      alert: alertResponse
     });
 
   } catch (error) {

@@ -1,0 +1,114 @@
+/**
+ * API para obtener la lista de alertas del usuario autenticado
+ * Soporte para filtros por estado, tipo, etc.
+ */
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/googleAuth';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
+import Alert from '@/models/Alert';
+
+interface AlertsListResponse {
+  success?: boolean;
+  alerts?: any[];
+  error?: string;
+  message?: string;
+  total?: number;
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<AlertsListResponse>
+) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Método no permitido' });
+  }
+
+  try {
+    // Verificar autenticación
+    const session = await getServerSession(req, res, authOptions);
+    
+    if (!session?.user?.email) {
+      return res.status(401).json({ error: 'No autorizado' });
+    }
+
+    // Conectar a la base de datos
+    await dbConnect();
+
+    // Obtener información del usuario
+    const user = await User.findOne({ email: session.user.email });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Extraer parámetros de query
+    const { 
+      status = 'ALL', 
+      tipo = 'TraderCall',
+      limit = '50',
+      page = '1'
+    } = req.query;
+
+    // Construir filtro
+    const filter: any = {
+      createdBy: user._id,
+      tipo: tipo
+    };
+
+    if (status !== 'ALL') {
+      filter.status = status;
+    }
+
+    // Paginación
+    const limitNum = parseInt(limit as string);
+    const pageNum = parseInt(page as string);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Obtener alertas con paginación
+    const alerts = await Alert.find(filter)
+      .sort({ createdAt: -1 }) // Más recientes primero
+      .limit(limitNum)
+      .skip(skip)
+      .lean();
+
+    // Contar total de alertas
+    const total = await Alert.countDocuments(filter);
+
+    // Formatear alertas para el frontend
+    const formattedAlerts = alerts.map((alert: any) => ({
+      id: alert._id.toString(),
+      symbol: alert.symbol,
+      action: alert.action,
+      entryPrice: `$${alert.entryPrice.toFixed(2)}`,
+      currentPrice: `$${alert.currentPrice.toFixed(2)}`,
+      stopLoss: `$${alert.stopLoss.toFixed(2)}`,
+      takeProfit: `$${alert.takeProfit.toFixed(2)}`,
+      profit: `${alert.profit >= 0 ? '+' : ''}${alert.profit.toFixed(1)}%`,
+      status: alert.status,
+      date: alert.date.toISOString().split('T')[0],
+      analysis: alert.analysis,
+      createdAt: alert.createdAt,
+      // Campos adicionales para mostrar si está cerrada
+      exitPrice: alert.exitPrice ? `$${alert.exitPrice.toFixed(2)}` : null,
+      exitDate: alert.exitDate?.toISOString().split('T')[0] || null,
+      exitReason: alert.exitReason || null,
+      type: alert.profit >= 0 ? 'WIN' : 'LOSS' // Para alertas cerradas
+    }));
+
+    return res.status(200).json({
+      success: true,
+      alerts: formattedAlerts,
+      total,
+      message: `Se encontraron ${formattedAlerts.length} alertas`
+    });
+
+  } catch (error) {
+    console.error('Error al obtener alertas:', error);
+    return res.status(500).json({ 
+      error: 'Error interno del servidor',
+      message: 'No se pudieron obtener las alertas'
+    });
+  }
+} 
