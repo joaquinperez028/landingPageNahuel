@@ -368,13 +368,389 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
   );
 };
 
-// Vista de suscriptor simplificada
+// Interfaces para tipos
+interface CommunityMessage {
+  id: number;
+  user: string;
+  message: string;
+  timestamp: string;
+}
+
+// Vista de suscriptor completa
 const SubscriberView: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [communityMessages, setCommunityMessages] = useState<CommunityMessage[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Datos de ejemplo para el dashboard
+  const dashboardMetrics = {
+    totalAlertas: 145,
+    alertasGanadoras: 132,
+    alertasPerdedoras: 13,
+    rendimientoPromedio: '+87.5%',
+    precisión: '91.0%',
+    gananciaTotal: '+$12,450'
+  };
+
+  const alertasVigentes = [
+    {
+      id: 1,
+      symbol: 'AAPL',
+      action: 'BUY',
+      entryPrice: '$185.50',
+      currentPrice: '$189.20',
+      stopLoss: '$182.00',
+      takeProfit: '$195.00',
+      profit: '+2.0%',
+      status: 'ACTIVE',
+      date: '2024-01-15'
+    },
+    {
+      id: 2,
+      symbol: 'TSLA',
+      action: 'SELL',
+      entryPrice: '$248.90',
+      currentPrice: '$245.30',
+      stopLoss: '$255.00',
+      takeProfit: '$235.00',
+      profit: '+1.4%',
+      status: 'ACTIVE',
+      date: '2024-01-14'
+    }
+  ];
+
+  const handleSendMessage = (message: string) => {
+    // Simular envío de mensaje
+    const newMessage = {
+      id: Date.now(),
+      user: 'Tu',
+      message,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    setCommunityMessages(prev => [...prev, newMessage]);
+  };
+
+  const renderDashboard = () => (
+    <div className={styles.dashboardContent}>
+      <h2 className={styles.sectionTitle}>Dashboard de Trabajo</h2>
+      
+      {/* Métricas principales */}
+      <div className={styles.metricsGrid}>
+        <div className={styles.metricCard}>
+          <h3>Total Alertas</h3>
+          <p className={styles.metricNumber}>{dashboardMetrics.totalAlertas}</p>
+        </div>
+        <div className={styles.metricCard}>
+          <h3>Precisión</h3>
+          <p className={styles.metricNumber}>{dashboardMetrics.precisión}</p>
+        </div>
+        <div className={styles.metricCard}>
+          <h3>Rendimiento</h3>
+          <p className={styles.metricNumber}>{dashboardMetrics.rendimientoPromedio}</p>
+        </div>
+        <div className={styles.metricCard}>
+          <h3>Ganancia Total</h3>
+          <p className={styles.metricNumber}>{dashboardMetrics.gananciaTotal}</p>
+        </div>
+      </div>
+
+      {/* Gráfico de rendimiento */}
+      <div className={styles.chartContainer}>
+        <h3>Evolución del Portafolio (Últimos 30 días)</h3>
+        <div className={styles.chartPlaceholder}>
+          <BarChart3 size={64} />
+          <p>Gráfico de Chart.js se implementaría aquí</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSeguimientoAlertas = () => (
+    <div className={styles.alertasContent}>
+      <h2 className={styles.sectionTitle}>Seguimiento de Alertas</h2>
+      
+      {/* Filtros */}
+      <div className={styles.alertFilters}>
+        <select className={styles.filterSelect}>
+          <option value="">Filtrar por símbolo</option>
+          <option value="AAPL">AAPL</option>
+          <option value="TSLA">TSLA</option>
+          <option value="MSFT">MSFT</option>
+        </select>
+        <select className={styles.filterSelect}>
+          <option value="">Filtrar por estado</option>
+          <option value="ACTIVE">Activa</option>
+          <option value="CLOSED">Cerrada</option>
+          <option value="STOPPED">Stop Loss</option>
+        </select>
+        <input 
+          type="date" 
+          className={styles.filterDate}
+          placeholder="Fecha desde"
+        />
+      </div>
+
+      {/* Tabla de alertas */}
+      <div className={styles.alertasTable}>
+        <div className={styles.tableHeader}>
+          <span>Fecha</span>
+          <span>Símbolo</span>
+          <span>Acción</span>
+          <span>Precio Entrada</span>
+          <span>Precio Actual</span>
+          <span>P&L</span>
+          <span>Estado</span>
+        </div>
+        
+        {alertasVigentes.map((alert) => (
+          <div key={alert.id} className={styles.tableRow}>
+            <span>{alert.date}</span>
+            <span className={styles.symbol}>{alert.symbol}</span>
+            <span className={`${styles.action} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
+              {alert.action}
+            </span>
+            <span>{alert.entryPrice}</span>
+            <span>{alert.currentPrice}</span>
+            <span className={styles.profit}>{alert.profit}</span>
+            <span className={`${styles.status} ${styles.statusActive}`}>
+              {alert.status}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderAlertasVigentes = () => (
+    <div className={styles.vigentesContent}>
+      <h2 className={styles.sectionTitle}>Alertas Vigentes</h2>
+      
+      {alertasVigentes.map((alert) => (
+        <div key={alert.id} className={styles.alertCard}>
+          <div className={styles.alertHeader}>
+            <h3 className={styles.alertSymbol}>{alert.symbol}</h3>
+            <span className={`${styles.alertAction} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
+              {alert.action}
+            </span>
+          </div>
+          
+          <div className={styles.alertDetails}>
+            <div className={styles.alertDetail}>
+              <span>Precio Entrada:</span>
+              <strong>{alert.entryPrice}</strong>
+            </div>
+            <div className={styles.alertDetail}>
+              <span>Precio Actual:</span>
+              <strong>{alert.currentPrice}</strong>
+            </div>
+            <div className={styles.alertDetail}>
+              <span>Stop Loss:</span>
+              <strong>{alert.stopLoss}</strong>
+            </div>
+            <div className={styles.alertDetail}>
+              <span>Take Profit:</span>
+              <strong>{alert.takeProfit}</strong>
+            </div>
+            <div className={styles.alertDetail}>
+              <span>P&L:</span>
+              <strong className={styles.profit}>{alert.profit}</strong>
+            </div>
+          </div>
+          
+          <div className={styles.alertActions}>
+            <button className={styles.closeButton}>Cerrar Posición</button>
+            <button className={styles.modifyButton}>Modificar</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderInformes = () => (
+    <div className={styles.informesContent}>
+      <h2 className={styles.sectionTitle}>Informes</h2>
+      
+      <div className={styles.informesList}>
+        <div className={styles.informeCard}>
+          <div className={styles.informeHeader}>
+            <h3>Análisis Semanal - Semana 3 Enero 2024</h3>
+            <span className={styles.informeDate}>15 Enero 2024</span>
+          </div>
+          <p className={styles.informeDescription}>
+            Análisis completo de las oportunidades de la semana en el mercado estadounidense. 
+            Cobertura de sectores tecnológicos y financieros.
+          </p>
+          <div className={styles.informeActions}>
+            <button className={styles.readButton}>Leer Informe</button>
+            <button className={styles.downloadButton}>
+              <Download size={16} />
+              Descargar PDF
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.informeCard}>
+          <div className={styles.informeHeader}>
+            <h3>Video Análisis: Estrategia Swing Trading</h3>
+            <span className={styles.informeDate}>12 Enero 2024</span>
+          </div>
+          <p className={styles.informeDescription}>
+            Video explicativo sobre técnicas avanzadas de swing trading aplicadas a nuestras alertas recientes.
+          </p>
+          <div className={styles.videoContainer}>
+            <VideoPlayerMux 
+              playbackId="sample-analysis-video" 
+              autoplay={false}
+              className={styles.informeVideo}
+            />
+          </div>
+        </div>
+
+        <div className={styles.informeCard}>
+          <div className={styles.informeHeader}>
+            <h3>Reporte Mensual - Diciembre 2023</h3>
+            <span className={styles.informeDate}>31 Diciembre 2023</span>
+          </div>
+          <p className={styles.informeDescription}>
+            Resumen completo del desempeño del mes, alertas más exitosas y lecciones aprendidas.
+          </p>
+          <div className={styles.informeActions}>
+            <button className={styles.readButton}>Leer Informe</button>
+            <button className={styles.downloadButton}>
+              <Download size={16} />
+              Descargar PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderComunidad = () => (
+    <div className={styles.comunidadContent}>
+      <h2 className={styles.sectionTitle}>Comunidad Trader Call</h2>
+      
+      <div className={styles.chatContainer}>
+        <div className={styles.chatMessages}>
+          <div className={styles.message}>
+            <strong>Nahuel Lozano:</strong>
+            <p>¡Bienvenidos al chat de la comunidad! Aquí pueden compartir ideas y hacer consultas.</p>
+            <span className={styles.messageTime}>09:30</span>
+          </div>
+          
+          <div className={styles.message}>
+            <strong>María González:</strong>
+            <p>Excelente la alerta de AAPL, ya estoy en +8%. ¿Mantenemos hasta el take profit?</p>
+            <span className={styles.messageTime}>10:15</span>
+          </div>
+          
+          <div className={styles.message}>
+            <strong>Carlos Rodríguez:</strong>
+            <p>¿Qué opinan sobre el sector tech esta semana? Veo mucha volatilidad.</p>
+            <span className={styles.messageTime}>10:45</span>
+          </div>
+
+          {communityMessages.map((msg) => (
+            <div key={msg.id} className={styles.message}>
+              <strong>{msg.user}:</strong>
+              <p>{msg.message}</p>
+              <span className={styles.messageTime}>{msg.timestamp}</span>
+            </div>
+          ))}
+        </div>
+        
+        <div className={styles.chatInput}>
+          <input 
+            type="text" 
+            placeholder="Escribe tu mensaje..."
+            className={styles.messageInput}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                handleSendMessage(e.currentTarget.value);
+                e.currentTarget.value = '';
+              }
+            }}
+          />
+          <button className={styles.sendButton}>Enviar</button>
+        </div>
+      </div>
+      
+      <div className={styles.comunidadStats}>
+        <div className={styles.statCard}>
+          <h4>Miembros Activos</h4>
+          <p>342</p>
+        </div>
+        <div className={styles.statCard}>
+          <h4>Mensajes Hoy</h4>
+          <p>89</p>
+        </div>
+        <div className={styles.statCard}>
+          <h4>Ideas Compartidas</h4>
+          <p>23</p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.subscriberView}>
       <div className={styles.container}>
-        <h1>Dashboard de Trader Call</h1>
-        <p>Contenido para usuarios suscritos...</p>
+        {/* Header de suscriptor */}
+        <div className={styles.subscriberHeader}>
+          <h1 className={styles.subscriberTitle}>Trader Call - Dashboard</h1>
+          <p className={styles.subscriberWelcome}>
+            Bienvenido a tu área exclusiva de Trader Call. Aquí tienes acceso completo a todas las alertas y recursos.
+          </p>
+        </div>
+
+        {/* Navegación de pestañas */}
+        <nav className={styles.subscriberNav}>
+          <button 
+            className={`${styles.navButton} ${activeTab === 'dashboard' ? styles.navActive : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            <BarChart3 size={20} />
+            Dashboard de Trabajo
+          </button>
+          <button 
+            className={`${styles.navButton} ${activeTab === 'seguimiento' ? styles.navActive : ''}`}
+            onClick={() => setActiveTab('seguimiento')}
+          >
+            <Activity size={20} />
+            Seguimiento de Alertas
+          </button>
+          <button 
+            className={`${styles.navButton} ${activeTab === 'vigentes' ? styles.navActive : ''}`}
+            onClick={() => setActiveTab('vigentes')}
+          >
+            <TrendingUp size={20} />
+            Alertas Vigentes
+          </button>
+          <button 
+            className={`${styles.navButton} ${activeTab === 'informes' ? styles.navActive : ''}`}
+            onClick={() => setActiveTab('informes')}
+          >
+            <Download size={20} />
+            Informes
+          </button>
+          <button 
+            className={`${styles.navButton} ${activeTab === 'comunidad' ? styles.navActive : ''}`}
+            onClick={() => setActiveTab('comunidad')}
+          >
+            <Users size={20} />
+            Comunidad
+          </button>
+        </nav>
+
+        {/* Contenido dinámico */}
+        <div className={styles.subscriberContent}>
+          {activeTab === 'dashboard' && renderDashboard()}
+          {activeTab === 'seguimiento' && renderSeguimientoAlertas()}
+          {activeTab === 'vigentes' && renderAlertasVigentes()}
+          {activeTab === 'informes' && renderInformes()}
+          {activeTab === 'comunidad' && renderComunidad()}
+        </div>
       </div>
     </div>
   );
@@ -412,6 +788,47 @@ const TraderCallPage: React.FC<TraderCallPageProps> = ({
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Verificar autenticación y suscripción
+  let isSubscribed = false;
+  
+  try {
+    // Importar dinámicamente para evitar errores de SSR
+    const { getSession } = await import('next-auth/react');
+    const dbConnect = (await import('@/lib/mongodb')).default;
+    const User = (await import('@/models/User')).default;
+
+    const session = await getSession(context);
+    
+    if (session?.user?.email) {
+      await dbConnect();
+      const user = await User.findOne({ email: session.user.email });
+      
+      if (user) {
+        // Verificar si tiene suscripción activa a TraderCall
+        const suscripcionActiva = user.suscripciones?.find(
+          (sub: any) => 
+            sub.servicio === 'TraderCall' && 
+            sub.activa === true && 
+            new Date(sub.fechaVencimiento) > new Date()
+        );
+        
+        // También verificar en el array alternativo
+        const subscriptionActiva = user.subscriptions?.find(
+          (sub: any) => 
+            sub.tipo === 'TraderCall' && 
+            sub.activa === true &&
+            (!sub.fechaFin || new Date(sub.fechaFin) > new Date())
+        );
+
+        isSubscribed = !!(suscripcionActiva || subscriptionActiva);
+      }
+    }
+  } catch (error) {
+    console.error('Error verificando suscripción:', error);
+    // En caso de error, mostramos vista no suscrita por defecto
+    isSubscribed = false;
+  }
+
   const metrics = {
     performance: '+87.5%',
     activeUsers: '+500',
@@ -488,7 +905,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
-      isSubscribed: false,
+      isSubscribed,
       metrics,
       historicalAlerts
     }
