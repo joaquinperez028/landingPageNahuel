@@ -601,7 +601,10 @@ const SubscriberView: React.FC = () => {
 
   // Función para crear nueva alerta
   const handleCreateAlert = async () => {
-    if (!newAlert.symbol || !stockPrice) return;
+    if (!newAlert.symbol || !stockPrice) {
+      alert('Por favor completa todos los campos requeridos');
+      return;
+    }
     
     setLoading(true);
     try {
@@ -621,7 +624,10 @@ const SubscriberView: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(alertData),
+        credentials: 'same-origin', // Incluir cookies de sesión
       });
+
+      const data = await response.json();
 
       if (response.ok) {
         // Resetear formulario
@@ -635,11 +641,23 @@ const SubscriberView: React.FC = () => {
         setStockPrice(null);
         setShowCreateAlert(false);
         
-        // Aquí podrías recargar las alertas o agregar la nueva alerta al estado
-        console.log('Alerta creada exitosamente');
+        alert('¡Alerta creada exitosamente!');
+        console.log('Alerta creada exitosamente:', data.alert);
+      } else {
+        // Manejar errores específicos
+        if (response.status === 401) {
+          alert('Error de autenticación. Por favor, inicia sesión nuevamente.');
+          window.location.href = '/';
+        } else if (response.status === 403) {
+          alert('No tienes permisos para crear alertas.');
+        } else {
+          alert(data.error || 'Error al crear la alerta. Intenta nuevamente.');
+        }
+        console.error('Error response:', data);
       }
     } catch (error) {
       console.error('Error al crear alerta:', error);
+      alert('Error de conexión. Verifica tu internet e intenta nuevamente.');
     } finally {
       setLoading(false);
     }

@@ -3,7 +3,8 @@
  * Todos los usuarios autenticados pueden crear alertas
  */
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/googleAuth';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 
@@ -34,7 +35,7 @@ export default async function handler(
 
   try {
     // Verificar autenticación
-    const session = await getSession({ req });
+    const session = await getServerSession(req, res, authOptions);
     
     if (!session?.user?.email) {
       return res.status(401).json({ error: 'No autorizado' });

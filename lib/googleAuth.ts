@@ -29,6 +29,10 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  pages: {
+    error: '/auth/error',
+  },
+  debug: process.env.NODE_ENV === 'development',
   callbacks: {
     async signIn({ user, account, profile }) {
       console.log('🔐 Iniciando sesión:', user.email);
@@ -135,8 +139,20 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 días
   },
   secret: process.env.NEXTAUTH_SECRET,
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
+  },
 };
 
 // Extender el tipo de session para incluir nuestros campos personalizados
