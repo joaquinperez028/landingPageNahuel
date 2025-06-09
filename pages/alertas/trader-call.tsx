@@ -384,6 +384,34 @@ const SubscriberView: React.FC = () => {
   const [communityMessages, setCommunityMessages] = useState<CommunityMessage[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Alertas vigentes (definir primero para evitar dependencias circulares)
+  const alertasVigentes = [
+    {
+      id: 1,
+      symbol: 'AAPL',
+      action: 'BUY',
+      entryPrice: '$185.50',
+      currentPrice: '$189.20',
+      stopLoss: '$182.00',
+      takeProfit: '$195.00',
+      profit: '+2.0%',
+      status: 'ACTIVE',
+      date: '2024-01-15'
+    },
+    {
+      id: 2,
+      symbol: 'TSLA',
+      action: 'SELL',
+      entryPrice: '$248.90',
+      currentPrice: '$245.30',
+      stopLoss: '$255.00',
+      takeProfit: '$235.00',
+      profit: '+1.4%',
+      status: 'ACTIVE',
+      date: '2024-01-14'
+    }
+  ];
+
   // Datos históricos de alertas (simulando base de datos)
   const alertasHistoricas = [
     { id: 1, symbol: 'AAPL', action: 'BUY', entryPrice: 185.50, exitPrice: 189.20, profit: 2.0, status: 'CLOSED', date: '2024-01-10', type: 'WIN' },
@@ -527,33 +555,6 @@ const SubscriberView: React.FC = () => {
   };
 
   const recentActivity = generateRecentActivity();
-
-  const alertasVigentes = [
-    {
-      id: 1,
-      symbol: 'AAPL',
-      action: 'BUY',
-      entryPrice: '$185.50',
-      currentPrice: '$189.20',
-      stopLoss: '$182.00',
-      takeProfit: '$195.00',
-      profit: '+2.0%',
-      status: 'ACTIVE',
-      date: '2024-01-15'
-    },
-    {
-      id: 2,
-      symbol: 'TSLA',
-      action: 'SELL',
-      entryPrice: '$248.90',
-      currentPrice: '$245.30',
-      stopLoss: '$255.00',
-      takeProfit: '$235.00',
-      profit: '+1.4%',
-      status: 'ACTIVE',
-      date: '2024-01-14'
-    }
-  ];
 
   const handleSendMessage = (message: string) => {
     // Simular envío de mensaje
