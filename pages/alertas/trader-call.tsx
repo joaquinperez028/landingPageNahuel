@@ -393,6 +393,58 @@ const SubscriberView: React.FC = () => {
     alertasSemanales: 15
   };
 
+  // Feed de actividad reciente
+  const recentActivity = [
+    {
+      id: 1,
+      type: 'comment',
+      user: 'María González',
+      message: 'Excelente entrada en AAPL, ya estoy en +8%',
+      alert: 'AAPL',
+      timestamp: '2 min',
+      icon: '💬'
+    },
+    {
+      id: 2,
+      type: 'news',
+      message: 'Fed: Powell hablará sobre política monetaria hoy a las 15:30hs',
+      timestamp: '15 min',
+      icon: '📰'
+    },
+    {
+      id: 3,
+      type: 'update',
+      message: 'Se actualizó el Stop Loss de TSLA a $240.00',
+      alert: 'TSLA',
+      timestamp: '22 min',
+      icon: '🔄'
+    },
+    {
+      id: 4,
+      type: 'comment',
+      user: 'Carlos Rodríguez',
+      message: 'Gracias por la alerta de EUR/USD, entrada perfecta',
+      alert: 'EUR/USD',
+      timestamp: '35 min',
+      icon: '💬'
+    },
+    {
+      id: 5,
+      type: 'alert',
+      message: 'Nueva alerta enviada: MSFT - BUY en $380.50',
+      alert: 'MSFT',
+      timestamp: '1h',
+      icon: '🚨'
+    },
+    {
+      id: 6,
+      type: 'news',
+      message: 'Mercados: Datos de inflación mejor de lo esperado',
+      timestamp: '1h 15min',
+      icon: '📈'
+    }
+  ];
+
   const alertasVigentes = [
     {
       id: 1,
@@ -511,6 +563,56 @@ const SubscriberView: React.FC = () => {
               {(dashboardMetrics.alertasGanancias / dashboardMetrics.alertasPerdidas).toFixed(1)}:1
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Actividad Reciente */}
+      <div className={styles.activitySection}>
+        <h3>Mensajes Destacados / Noticias</h3>
+        <p className={styles.activitySubtitle}>Actividad reciente en Trader Call</p>
+        
+        <div className={styles.activityFeed}>
+          {recentActivity.map((item) => (
+            <div key={item.id} className={styles.activityItem}>
+              <div className={styles.activityIcon}>
+                <span>{item.icon}</span>
+              </div>
+              
+              <div className={styles.activityContent}>
+                <div className={styles.activityMessage}>
+                  {item.user && (
+                    <span className={styles.activityUser}>{item.user}: </span>
+                  )}
+                  {item.message}
+                  {item.alert && (
+                    <span className={styles.activityAlert}> #{item.alert}</span>
+                  )}
+                </div>
+                <div className={styles.activityTime}>
+                  hace {item.timestamp}
+                </div>
+              </div>
+              
+              <div className={styles.activityType}>
+                <span className={`${styles.typeTag} ${styles[`type-${item.type}`]}`}>
+                  {item.type === 'comment' && 'Comentario'}
+                  {item.type === 'news' && 'Noticia'}
+                  {item.type === 'update' && 'Actualización'}
+                  {item.type === 'alert' && 'Alerta'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className={styles.activityActions}>
+          <button className={styles.viewAllButton}>
+            Ver toda la actividad
+          </button>
+          <button className={styles.refreshButton}>
+            <Activity size={16} />
+            Actualizar
+          </button>
         </div>
       </div>
 
