@@ -10,6 +10,7 @@ import Carousel from '@/components/Carousel';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
+  TrendingDown,
   Users, 
   Activity, 
   Download, 
@@ -385,12 +386,11 @@ const SubscriberView: React.FC = () => {
 
   // Datos de ejemplo para el dashboard
   const dashboardMetrics = {
-    totalAlertas: 145,
-    alertasGanadoras: 132,
-    alertasPerdedoras: 13,
-    rendimientoPromedio: '+87.5%',
-    precisión: '91.0%',
-    gananciaTotal: '+$12,450'
+    alertasActivas: 8,
+    alertasGanancias: 127,
+    alertasPerdidas: 18,
+    rentabilidadSemanal: '+12.5%',
+    alertasSemanales: 15
   };
 
   const alertasVigentes = [
@@ -438,20 +438,79 @@ const SubscriberView: React.FC = () => {
       {/* Métricas principales */}
       <div className={styles.metricsGrid}>
         <div className={styles.metricCard}>
-          <h3>Total Alertas</h3>
-          <p className={styles.metricNumber}>{dashboardMetrics.totalAlertas}</p>
+          <div className={styles.metricIcon}>
+            <Activity size={24} />
+          </div>
+          <h3>Alertas Activas</h3>
+          <p className={styles.metricNumber}>{dashboardMetrics.alertasActivas}</p>
+          <span className={styles.metricLabel}>Posiciones abiertas</span>
         </div>
+        
         <div className={styles.metricCard}>
-          <h3>Precisión</h3>
-          <p className={styles.metricNumber}>{dashboardMetrics.precisión}</p>
+          <div className={styles.metricIcon} style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+            <TrendingUp size={24} />
+          </div>
+          <h3>Alertas Ganadoras</h3>
+          <p className={styles.metricNumber} style={{ color: 'var(--success-color)' }}>
+            {dashboardMetrics.alertasGanancias}
+          </p>
+          <span className={styles.metricLabel}>Cerradas con ganancia</span>
         </div>
+        
         <div className={styles.metricCard}>
-          <h3>Rendimiento</h3>
-          <p className={styles.metricNumber}>{dashboardMetrics.rendimientoPromedio}</p>
+          <div className={styles.metricIcon} style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}>
+            <TrendingDown size={24} />
+          </div>
+          <h3>Alertas Perdedoras</h3>
+          <p className={styles.metricNumber} style={{ color: 'var(--error-color)' }}>
+            {dashboardMetrics.alertasPerdidas}
+          </p>
+          <span className={styles.metricLabel}>Cerradas con pérdida</span>
         </div>
+        
         <div className={styles.metricCard}>
-          <h3>Ganancia Total</h3>
-          <p className={styles.metricNumber}>{dashboardMetrics.gananciaTotal}</p>
+          <div className={styles.metricIcon} style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
+            <BarChart3 size={24} />
+          </div>
+          <h3>Rentabilidad Semanal</h3>
+          <p className={styles.metricNumber} style={{ color: 'var(--warning-color)' }}>
+            {dashboardMetrics.rentabilidadSemanal}
+          </p>
+          <span className={styles.metricLabel}>Últimos 7 días</span>
+        </div>
+        
+        <div className={styles.metricCard}>
+          <div className={styles.metricIcon}>
+            <Users size={24} />
+          </div>
+          <h3>Alertas Semanales</h3>
+          <p className={styles.metricNumber}>{dashboardMetrics.alertasSemanales}</p>
+          <span className={styles.metricLabel}>Enviadas esta semana</span>
+        </div>
+      </div>
+
+      {/* Resumen de Performance */}
+      <div className={styles.performanceSection}>
+        <h3>Resumen de Performance</h3>
+        <div className={styles.performanceGrid}>
+          <div className={styles.performanceCard}>
+            <h4>Win Rate</h4>
+            <p className={styles.performanceValue}>
+              {(dashboardMetrics.alertasGanancias / (dashboardMetrics.alertasGanancias + dashboardMetrics.alertasPerdidas) * 100).toFixed(1)}%
+            </p>
+          </div>
+          <div className={styles.performanceCard}>
+            <h4>Total Alertas</h4>
+            <p className={styles.performanceValue}>
+              {dashboardMetrics.alertasGanancias + dashboardMetrics.alertasPerdidas + dashboardMetrics.alertasActivas}
+            </p>
+          </div>
+          <div className={styles.performanceCard}>
+            <h4>Ratio G/P</h4>
+            <p className={styles.performanceValue}>
+              {(dashboardMetrics.alertasGanancias / dashboardMetrics.alertasPerdidas).toFixed(1)}:1
+            </p>
+          </div>
         </div>
       </div>
 
@@ -461,6 +520,9 @@ const SubscriberView: React.FC = () => {
         <div className={styles.chartPlaceholder}>
           <BarChart3 size={64} />
           <p>Gráfico de Chart.js se implementaría aquí</p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+            Mostrará la evolución diaria del rendimiento del portafolio
+          </p>
         </div>
       </div>
     </div>
