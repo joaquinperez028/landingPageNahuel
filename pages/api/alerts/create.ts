@@ -1,3 +1,7 @@
+/**
+ * API para crear nuevas alertas de trading
+ * Todos los usuarios autenticados pueden crear alertas
+ */
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/react';
 import dbConnect from '@/lib/mongodb';
@@ -39,11 +43,11 @@ export default async function handler(
     // Conectar a la base de datos
     await dbConnect();
 
-    // Verificar que el usuario sea administrador
+    // Obtener información del usuario (ya no verificamos si es admin)
     const user = await User.findOne({ email: session.user.email });
     
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ error: 'Acceso denegado. Solo administradores pueden crear alertas.' });
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
     // Validar datos de entrada
@@ -81,14 +85,14 @@ export default async function handler(
     // Aquí podrías guardar la alerta en una colección separada de MongoDB
     // Por ahora, simulamos la creación exitosa
 
-    // TODO: Implementar modelo Alert y guardarlo en MongoDB
-    // const Alert = require('@/models/Alert');
-    // const savedAlert = await Alert.create(newAlert);
+         // TODO: Implementar modelo Alert y guardarlo en MongoDB
+     // const Alert = require('@/models/Alert');
+     // const savedAlert = await Alert.create(newAlert);
 
-    console.log('Nueva alerta creada:', newAlert);
+     console.log('Nueva alerta creada por usuario:', user.name || user.email, newAlert);
 
-    // Enviar notificación a todos los suscriptores (opcional)
-    // TODO: Implementar sistema de notificaciones
+     // Enviar notificación a todos los suscriptores (opcional)
+     // TODO: Implementar sistema de notificaciones
 
     return res.status(201).json({
       success: true,
