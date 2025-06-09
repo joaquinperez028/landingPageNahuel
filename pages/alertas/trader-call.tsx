@@ -395,6 +395,8 @@ const SubscriberView: React.FC = () => {
   const [priceLoading, setPriceLoading] = useState(false);
   const [realAlerts, setRealAlerts] = useState<any[]>([]);
   const [loadingAlerts, setLoadingAlerts] = useState(false);
+  const [updatingPrices, setUpdatingPrices] = useState(false);
+  const [lastPriceUpdate, setLastPriceUpdate] = useState<Date | null>(null);
 
   // Alertas vigentes (definir primero para evitar dependencias circulares)
   const alertasVigentes = [
@@ -591,10 +593,57 @@ const SubscriberView: React.FC = () => {
     }
   };
 
+  // Función para actualizar precios en tiempo real
+  const updatePrices = async (silent: boolean = false) => {
+    if (!silent) setUpdatingPrices(true);
+    
+    try {
+      const response = await fetch('/api/alerts/update-prices', {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Precios actualizados:', data.updated, 'alertas');
+        setLastPriceUpdate(new Date());
+        
+        // Recargar alertas para mostrar los nuevos precios
+        await loadAlerts();
+      } else {
+        console.error('Error al actualizar precios:', response.status);
+      }
+    } catch (error) {
+      console.error('Error al actualizar precios:', error);
+    } finally {
+      if (!silent) setUpdatingPrices(false);
+    }
+  };
+
   // Cargar alertas al montar el componente
   React.useEffect(() => {
     loadAlerts();
   }, []);
+
+  // Sistema de actualización automática de precios cada 30 segundos
+  React.useEffect(() => {
+    // Solo actualizar si hay alertas activas
+    const hasActiveAlerts = realAlerts.some(alert => alert.status === 'ACTIVE');
+    
+    if (!hasActiveAlerts) return;
+
+    // Actualizar precios inmediatamente si es la primera vez
+    if (!lastPriceUpdate) {
+      updatePrices(true);
+    }
+
+    // Configurar intervalo de actualización cada 30 segundos
+    const interval = setInterval(() => {
+      updatePrices(true); // silent = true para no mostrar loading
+    }, 30000); // 30 segundos
+
+    return () => clearInterval(interval);
+  }, [realAlerts, lastPriceUpdate]);
 
   const handleSendMessage = (message: string) => {
     // Simular envío de mensaje
@@ -926,7 +975,23 @@ const SubscriberView: React.FC = () => {
     
     return (
       <div className={styles.vigentesContent}>
-        <h2 className={styles.sectionTitle}>Alertas Vigentes</h2>
+        <div className={styles.vigentesHeader}>
+          <h2 className={styles.sectionTitle}>Alertas Vigentes</h2>
+          <div className={styles.priceUpdateControls}>
+            <button 
+              className={styles.updatePricesButton}
+              onClick={() => updatePrices(false)}
+              disabled={updatingPrices}
+            >
+              {updatingPrices ? '🔄 Actualizando...' : '📈 Actualizar Precios'}
+            </button>
+            {lastPriceUpdate && (
+              <span className={styles.lastUpdateTime}>
+                Última actualización: {lastPriceUpdate.toLocaleTimeString()}
+              </span>
+            )}
+          </div>
+        </div>
         
         {loadingAlerts ? (
           <div className={styles.loadingContainer}>
