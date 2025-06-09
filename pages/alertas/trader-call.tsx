@@ -384,66 +384,149 @@ const SubscriberView: React.FC = () => {
   const [communityMessages, setCommunityMessages] = useState<CommunityMessage[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Datos de ejemplo para el dashboard
-  const dashboardMetrics = {
-    alertasActivas: 8,
-    alertasGanancias: 127,
-    alertasPerdidas: 18,
-    rentabilidadSemanal: '+12.5%',
-    alertasSemanales: 15
+  // Datos históricos de alertas (simulando base de datos)
+  const alertasHistoricas = [
+    { id: 1, symbol: 'AAPL', action: 'BUY', entryPrice: 185.50, exitPrice: 189.20, profit: 2.0, status: 'CLOSED', date: '2024-01-10', type: 'WIN' },
+    { id: 2, symbol: 'TSLA', action: 'SELL', entryPrice: 248.90, exitPrice: 245.30, profit: 1.4, status: 'CLOSED', date: '2024-01-11', type: 'WIN' },
+    { id: 3, symbol: 'MSFT', action: 'BUY', entryPrice: 380.50, exitPrice: 375.20, profit: -1.4, status: 'CLOSED', date: '2024-01-12', type: 'LOSS' },
+    { id: 4, symbol: 'NVDA', action: 'BUY', entryPrice: 520.30, exitPrice: 535.80, profit: 2.98, status: 'CLOSED', date: '2024-01-13', type: 'WIN' },
+    { id: 5, symbol: 'GOOGL', action: 'SELL', entryPrice: 142.10, exitPrice: 139.45, profit: 1.87, status: 'CLOSED', date: '2024-01-14', type: 'WIN' },
+    { id: 6, symbol: 'META', action: 'BUY', entryPrice: 365.20, exitPrice: 358.90, profit: -1.73, status: 'CLOSED', date: '2024-01-14', type: 'LOSS' },
+    { id: 7, symbol: 'AMD', action: 'BUY', entryPrice: 148.50, exitPrice: 155.30, profit: 4.58, status: 'CLOSED', date: '2024-01-15', type: 'WIN' }
+  ];
+
+  // Función para calcular métricas reales del dashboard
+  const calculateDashboardMetrics = () => {
+    const alertasGanadoras = alertasHistoricas.filter(alert => alert.type === 'WIN').length;
+    const alertasPerdedoras = alertasHistoricas.filter(alert => alert.type === 'LOSS').length;
+    const alertasActivas = alertasVigentes.length;
+    
+    // Calcular alertas de esta semana (últimos 7 días)
+    const ahora = new Date();
+    const hace7Dias = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const alertasSemanales = alertasHistoricas.filter(alert => {
+      const fechaAlert = new Date(alert.date);
+      return fechaAlert >= hace7Dias;
+    }).length + alertasActivas;
+
+    // Calcular rentabilidad semanal
+    const gananciasSemanal = alertasHistoricas
+      .filter(alert => {
+        const fechaAlert = new Date(alert.date);
+        return fechaAlert >= hace7Dias;
+      })
+      .reduce((total, alert) => total + alert.profit, 0);
+
+    const rentabilidadSemanal = gananciasSemanal.toFixed(1);
+
+    return {
+      alertasActivas,
+      alertasGanadoras,
+      alertasPerdedoras,
+      rentabilidadSemanal: `+${rentabilidadSemanal}%`,
+      alertasSemanales
+    };
   };
 
-  // Feed de actividad reciente
-  const recentActivity = [
+  const dashboardMetrics = calculateDashboardMetrics();
+
+  // Informes disponibles
+  const informesDisponibles = [
     {
       id: 1,
-      type: 'comment',
-      user: 'María González',
-      message: 'Excelente entrada en AAPL, ya estoy en +8%',
-      alert: 'AAPL',
-      timestamp: '2 min',
-      icon: '💬'
+      title: 'Análisis Semanal - Semana 3 Enero 2024',
+      date: '15 Enero 2024',
+      type: 'informe',
+      summary: 'Análisis completo de las oportunidades de la semana en el mercado estadounidense'
     },
     {
       id: 2,
-      type: 'news',
-      message: 'Fed: Powell hablará sobre política monetaria hoy a las 15:30hs',
-      timestamp: '15 min',
-      icon: '📰'
+      title: 'Video Análisis: Estrategia Swing Trading',
+      date: '12 Enero 2024',
+      type: 'video',
+      summary: 'Técnicas avanzadas de swing trading aplicadas a nuestras alertas recientes'
     },
     {
       id: 3,
-      type: 'update',
-      message: 'Se actualizó el Stop Loss de TSLA a $240.00',
-      alert: 'TSLA',
-      timestamp: '22 min',
-      icon: '🔄'
-    },
-    {
-      id: 4,
-      type: 'comment',
-      user: 'Carlos Rodríguez',
-      message: 'Gracias por la alerta de EUR/USD, entrada perfecta',
-      alert: 'EUR/USD',
-      timestamp: '35 min',
-      icon: '💬'
-    },
-    {
-      id: 5,
-      type: 'alert',
-      message: 'Nueva alerta enviada: MSFT - BUY en $380.50',
-      alert: 'MSFT',
-      timestamp: '1h',
-      icon: '🚨'
-    },
-    {
-      id: 6,
-      type: 'news',
-      message: 'Mercados: Datos de inflación mejor de lo esperado',
-      timestamp: '1h 15min',
-      icon: '📈'
+      title: 'Reporte Mensual - Diciembre 2023',
+      date: '31 Diciembre 2023',
+      type: 'informe',
+      summary: 'Resumen completo del desempeño del mes, alertas más exitosas y lecciones aprendidas'
     }
   ];
+
+  // Mensajes de comunidad base
+  const mensajesComunidadBase = [
+    { user: 'Nahuel Lozano', message: '¡Bienvenidos al chat de la comunidad! Aquí pueden compartir ideas y hacer consultas.', time: '09:30' },
+    { user: 'María González', message: 'Excelente la alerta de AAPL, ya estoy en +8%. ¿Mantenemos hasta el take profit?', time: '10:15' },
+    { user: 'Carlos Rodríguez', message: '¿Qué opinan sobre el sector tech esta semana? Veo mucha volatilidad.', time: '10:45' }
+  ];
+
+  // Función para generar feed de actividad real
+  const generateRecentActivity = () => {
+    const activity = [];
+    
+         // Agregar comentarios de la comunidad
+     mensajesComunidadBase.slice(1).forEach((msg, index) => {
+       activity.push({
+         id: `comment-${index}`,
+         type: 'comment',
+         user: msg.user,
+         message: msg.message,
+         alert: undefined,
+         timestamp: `${index * 30 + 15} min`,
+         icon: '💬'
+       });
+     });
+
+         // Agregar alertas vigentes como actualizaciones
+     alertasVigentes.forEach((alert, index) => {
+       activity.push({
+         id: `alert-${alert.id}`,
+         type: 'update',
+         user: undefined,
+         message: `Se actualizó el Stop Loss de ${alert.symbol} a ${alert.stopLoss}`,
+         alert: alert.symbol,
+         timestamp: `${index * 45 + 20} min`,
+         icon: '🔄'
+       });
+     });
+
+     // Agregar informes como noticias
+     informesDisponibles.slice(0, 2).forEach((informe, index) => {
+       activity.push({
+         id: `informe-${informe.id}`,
+         type: 'news',
+         user: undefined,
+         message: `Nuevo ${informe.type}: ${informe.title}`,
+         alert: undefined,
+         timestamp: `${index * 60 + 45} min`,
+         icon: informe.type === 'video' ? '🎥' : '📰'
+       });
+     });
+
+     // Agregar nueva alerta como ejemplo
+     activity.push({
+       id: 'new-alert',
+       type: 'alert',
+       user: undefined,
+       message: 'Nueva alerta enviada: NVDA - BUY en $520.30',
+       alert: 'NVDA',
+       timestamp: '1h',
+       icon: '🚨'
+     });
+
+    // Ordenar por timestamp (más reciente primero)
+    return activity.sort((a, b) => {
+      const getMinutes = (timestamp: string) => {
+        if (timestamp.includes('h')) return parseInt(timestamp) * 60;
+        return parseInt(timestamp);
+      };
+      return getMinutes(a.timestamp) - getMinutes(b.timestamp);
+    }).slice(0, 6); // Mostrar solo los 6 más recientes
+  };
+
+  const recentActivity = generateRecentActivity();
 
   const alertasVigentes = [
     {
@@ -504,7 +587,7 @@ const SubscriberView: React.FC = () => {
           </div>
           <h3>Alertas Ganadoras</h3>
           <p className={styles.metricNumber} style={{ color: 'var(--success-color)' }}>
-            {dashboardMetrics.alertasGanancias}
+            {dashboardMetrics.alertasGanadoras}
           </p>
           <span className={styles.metricLabel}>Cerradas con ganancia</span>
         </div>
@@ -515,7 +598,7 @@ const SubscriberView: React.FC = () => {
           </div>
           <h3>Alertas Perdedoras</h3>
           <p className={styles.metricNumber} style={{ color: 'var(--error-color)' }}>
-            {dashboardMetrics.alertasPerdidas}
+            {dashboardMetrics.alertasPerdedoras}
           </p>
           <span className={styles.metricLabel}>Cerradas con pérdida</span>
         </div>
@@ -548,19 +631,19 @@ const SubscriberView: React.FC = () => {
           <div className={styles.performanceCard}>
             <h4>Win Rate</h4>
             <p className={styles.performanceValue}>
-              {(dashboardMetrics.alertasGanancias / (dashboardMetrics.alertasGanancias + dashboardMetrics.alertasPerdidas) * 100).toFixed(1)}%
+              {(dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras) * 100).toFixed(1)}%
             </p>
           </div>
           <div className={styles.performanceCard}>
             <h4>Total Alertas</h4>
             <p className={styles.performanceValue}>
-              {dashboardMetrics.alertasGanancias + dashboardMetrics.alertasPerdidas + dashboardMetrics.alertasActivas}
+              {dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras + dashboardMetrics.alertasActivas}
             </p>
           </div>
           <div className={styles.performanceCard}>
             <h4>Ratio G/P</h4>
             <p className={styles.performanceValue}>
-              {(dashboardMetrics.alertasGanancias / dashboardMetrics.alertasPerdidas).toFixed(1)}:1
+              {(dashboardMetrics.alertasGanadoras / dashboardMetrics.alertasPerdedoras).toFixed(1)}:1
             </p>
           </div>
         </div>
@@ -667,8 +750,28 @@ const SubscriberView: React.FC = () => {
           <span>Estado</span>
         </div>
         
-        {alertasVigentes.map((alert) => (
+        {/* Mostrar alertas históricas cerradas */}
+        {alertasHistoricas.slice(0, 5).map((alert) => (
           <div key={alert.id} className={styles.tableRow}>
+            <span>{alert.date}</span>
+            <span className={styles.symbol}>{alert.symbol}</span>
+            <span className={`${styles.action} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
+              {alert.action}
+            </span>
+            <span>${alert.entryPrice}</span>
+            <span>${alert.exitPrice}</span>
+            <span className={alert.type === 'WIN' ? styles.profit : styles.loss}>
+              {alert.profit > 0 ? '+' : ''}{alert.profit.toFixed(1)}%
+            </span>
+            <span className={styles.status}>
+              CERRADA
+            </span>
+          </div>
+        ))}
+
+        {/* Mostrar alertas vigentes activas */}
+        {alertasVigentes.map((alert) => (
+          <div key={`active-${alert.id}`} className={styles.tableRow}>
             <span>{alert.date}</span>
             <span className={styles.symbol}>{alert.symbol}</span>
             <span className={`${styles.action} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
