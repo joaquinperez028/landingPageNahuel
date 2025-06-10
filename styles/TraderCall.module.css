@@ -914,15 +914,16 @@
 .filterSelect,
 .filterDate {
   padding: 0.875rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  background: rgba(26, 32, 44, 0.6);
-  color: var(--text-primary);
+  background: rgba(26, 32, 44, 0.8);
+  color: #e2e8f0;
   font-size: 0.9rem;
   min-width: 160px;
   transition: all 0.3s ease;
   cursor: pointer;
   backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .filterDate::-webkit-calendar-picker-indicator {
@@ -933,27 +934,35 @@
 .filterSelect:hover,
 .filterDate:hover {
   border-color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(45, 55, 72, 0.8);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
 }
 
 .filterSelect:focus,
 .filterDate:focus {
   outline: none;
   border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  background: rgba(45, 55, 72, 0.9);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 
 .filterSelect option {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: #1a202c;
+  color: #e2e8f0;
   padding: 0.5rem;
+  border: none;
 }
 
-.filterSelect option:checked {
-  background: rgba(102, 126, 234, 0.1);
+.filterSelect option:hover {
+  background: rgba(102, 126, 234, 0.2);
+  color: white;
+}
+
+.filterSelect option:checked,
+.filterSelect option:selected {
+  background: rgba(102, 126, 234, 0.3);
+  color: white;
 }
 
 .clearFilters {
