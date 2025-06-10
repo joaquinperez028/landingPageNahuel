@@ -829,9 +829,41 @@ const SubscriberView: React.FC = () => {
     return () => clearInterval(interval);
   }, [realAlerts, lastPriceUpdate]);
 
-  // Funciones dummy para evitar errores de compilación
+  // Función para obtener precio individual de una acción (modal crear alerta)
   const fetchStockPrice = async (symbol: string) => {
-    console.log('fetchStockPrice not implemented:', symbol);
+    if (!symbol.trim()) {
+      alert('Por favor ingresa un símbolo válido');
+      return;
+    }
+
+    setPriceLoading(true);
+    setStockPrice(null);
+    
+    try {
+      console.log(`🔍 Obteniendo precio para: ${symbol}`);
+      
+      const response = await fetch(`/api/stock-price?symbol=${symbol.toUpperCase()}`, {
+        method: 'GET',
+        credentials: 'same-origin',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`💰 Precio obtenido para ${symbol}: $${data.price}`);
+        console.log(`📊 Estado del mercado: ${data.marketStatus}`);
+        
+        setStockPrice(data.price);
+        
+      } else {
+        console.error('Error al obtener precio:', response.status);
+        alert('Error al obtener el precio. Intenta nuevamente.');
+      }
+    } catch (error) {
+      console.error('Error al obtener precio:', error);
+      alert('Error de conexión. Verifica tu internet e intenta nuevamente.');
+    } finally {
+      setPriceLoading(false);
+    }
   };
 
   const handleCreateAlert = async () => {
