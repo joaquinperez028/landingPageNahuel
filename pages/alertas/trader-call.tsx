@@ -520,94 +520,94 @@ const SubscriberView: React.FC = () => {
     return calculateDashboardMetrics();
   }, [realAlerts]);
 
-  // Mensajes simulados eliminados - solo mostramos actividad real de alertas
-
-  // Función para generar feed de actividad real usando SOLO alertas reales
+  // Generar actividad reciente con alertas e informes
   const generateRecentActivity = () => {
-    const activity: any[] = [];
-
-    // Solo agregar actividad basada en alertas reales de la base de datos
-    realAlerts.forEach((alert, index) => {
-      // Calcular hace cuánto tiempo se creó la alerta
+    const activities: any[] = [];
+    
+    // Agregar alertas recientes
+    realAlerts.forEach((alert) => {
+      const alertDate = new Date(alert.createdAt);
       const now = new Date();
-      const alertDate = new Date(alert.date);
-      const diffMinutes = Math.floor((now.getTime() - alertDate.getTime()) / (1000 * 60));
-      const timeString = diffMinutes < 60 ? `${diffMinutes} min` : `${Math.floor(diffMinutes / 60)}h ${diffMinutes % 60}min`;
+      const diffTime = Math.abs(now.getTime() - alertDate.getTime());
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+      const diffMinutes = Math.floor(diffTime / (1000 * 60));
 
-      if (alert.status === 'ACTIVE') {
-        // Mostrar alertas activas con su P&L actual
-        activity.push({
-          id: `alert-update-${alert.id}`,
-          type: 'update',
-          user: undefined,
-          message: `${alert.symbol} actualizado: ${alert.profit} P&L #${alert.symbol}`,
-          alert: alert.symbol,
-          timestamp: timeString,
-          icon: '🔄'
-        });
-      } else if (alert.status === 'CLOSED') {
-        // Mostrar alertas cerradas con su resultado final
-        const isWin = alert.profit.includes('+');
-        activity.push({
-          id: `alert-closed-${alert.id}`,
-          type: 'alert',
-          user: undefined,
-          message: `${alert.symbol} cerrada con ${alert.profit} ${isWin ? '✅' : '❌'}`,
-          alert: alert.symbol,
-          timestamp: timeString,
-          icon: isWin ? '💰' : '📉'
-        });
+      let timestamp;
+      if (diffDays > 0) {
+        timestamp = `${diffDays}d`;
+      } else if (diffHours > 0) {
+        timestamp = `${diffHours}h`;
       } else {
-        // Mostrar alertas nuevas
-        activity.push({
-          id: `new-alert-${alert.id}`,
-          type: 'alert',
-          user: undefined,
-          message: `Nueva alerta: ${alert.symbol} - ${alert.action} en $${alert.entryPrice}`,
-          alert: alert.symbol,
-          timestamp: timeString,
-          icon: '🚨'
-        });
+        timestamp = `${diffMinutes}min`;
       }
+
+      let message = '';
+      let type = 'alert';
+      
+      if (alert.status === 'ACTIVE') {
+        const currentPnL = alert.currentPrice && alert.entryPrice 
+          ? ((alert.currentPrice - alert.entryPrice) / alert.entryPrice * 100).toFixed(2)
+          : '0.00';
+        const pnlValue = parseFloat(currentPnL);
+        message = `${alert.symbol} actualizado: ${pnlValue > 0 ? '+' : ''}${currentPnL}% P&L #${alert.symbol}`;
+      } else if (alert.status === 'CLOSED') {
+        const profit = alert.profit || 0;
+        message = `${alert.symbol} cerrado: ${profit > 0 ? '+' : ''}${profit.toFixed(2)}% ${profit > 0 ? 'ganancia' : 'pérdida'} #${alert.symbol}`;
+      } else {
+        message = `Nueva alerta: ${alert.symbol} ${alert.action} a $${alert.entryPrice} #${alert.symbol}`;
+      }
+
+      activities.push({
+        id: alert._id,
+        type,
+        message,
+        timestamp,
+        dateCreated: alertDate
+      });
     });
 
-    // Si no hay alertas, mostrar mensaje informativo
-    if (activity.length === 0) {
-      activity.push({
-        id: 'no-activity',
-        type: 'info',
-        user: undefined,
-        message: 'No hay actividad reciente. Las alertas aparecerán aquí cuando se generen.',
-        alert: undefined,
-        timestamp: 'ahora',
-        icon: '📋'
-      });
-    }
+    // Agregar informes recientes
+    informes.forEach((informe) => {
+      const informeDate = new Date(informe.createdAt);
+      const now = new Date();
+      const diffTime = Math.abs(now.getTime() - informeDate.getTime());
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+      const diffMinutes = Math.floor(diffTime / (1000 * 60));
 
-    // Ordenar por timestamp (más reciente primero) y limitar a 6
-    return activity
-      .sort((a, b) => {
-        if (a.timestamp === 'ahora') return 1;
-        if (b.timestamp === 'ahora') return -1;
-        
-        const getMinutes = (timestamp: string) => {
-          if (timestamp.includes('h')) {
-            const parts = timestamp.split('h');
-            const hours = parseInt(parts[0]);
-            const minutes = parts[1] ? parseInt(parts[1].replace('min', '')) : 0;
-            return hours * 60 + minutes;
-          }
-          return parseInt(timestamp.replace('min', ''));
-        };
-        return getMinutes(a.timestamp) - getMinutes(b.timestamp);
-      })
+      let timestamp;
+      if (diffDays > 0) {
+        timestamp = `${diffDays}d`;
+      } else if (diffHours > 0) {
+        timestamp = `${diffHours}h`;
+      } else {
+        timestamp = `${diffMinutes}min`;
+      }
+
+      const typeIcon = informe.type === 'video' ? '🎥' : informe.type === 'analisis' ? '📊' : '📄';
+      const message = `Nuevo ${informe.type}: ${informe.title} ${typeIcon}`;
+
+      activities.push({
+        id: informe.id || informe._id,
+        type: 'informe',
+        message,
+        timestamp,
+        dateCreated: informeDate,
+        reportData: informe
+      });
+    });
+
+    // Ordenar por fecha más reciente y tomar los primeros 6
+    return activities
+      .sort((a, b) => b.dateCreated.getTime() - a.dateCreated.getTime())
       .slice(0, 6);
   };
 
   // Generar actividad reciente reactivamente cuando cambien las alertas
   const recentActivity = React.useMemo(() => {
     return generateRecentActivity();
-  }, [realAlerts]);
+  }, [realAlerts, informes]);
 
   // Función para cargar alertas desde la API
   const loadAlerts = async () => {
@@ -944,41 +944,38 @@ const SubscriberView: React.FC = () => {
 
       {/* Actividad Reciente */}
       <div className={styles.activitySection}>
-        <h3>Mensajes Destacados / Noticias</h3>
+        <h3>Última actividad</h3>
         <p className={styles.activitySubtitle}>Actividad reciente en Trader Call</p>
         
         <div className={styles.activityFeed}>
-          {recentActivity.map((item) => (
-            <div key={item.id} className={styles.activityItem}>
-              <div className={styles.activityIcon}>
-                <span>{item.icon}</span>
-              </div>
-              
-              <div className={styles.activityContent}>
-                <div className={styles.activityMessage}>
-                  {item.user && (
-                    <span className={styles.activityUser}>{item.user}: </span>
-                  )}
-                  {item.message}
-                  {item.alert && (
-                    <span className={styles.activityAlert}> #{item.alert}</span>
-                  )}
+          {recentActivity.length > 0 ? (
+            recentActivity.map((activity) => (
+              <div 
+                key={activity.id} 
+                className={`${styles.activityItem} ${activity.type === 'informe' ? styles.clickableActivity : ''}`}
+                onClick={activity.type === 'informe' ? () => openReport(activity.id) : undefined}
+                style={activity.type === 'informe' ? { cursor: 'pointer' } : {}}
+              >
+                <div className={styles.activityContent}>
+                  <div className={styles.activityText}>
+                    {activity.message}
+                  </div>
+                  <div className={styles.activityMeta}>
+                    <span className={styles.activityTime}>hace {activity.timestamp}</span>
+                    <span className={styles.activityType}>
+                      {activity.type === 'informe' ? '📰 INFORME' : '🔄 ACTUALIZACIÓN'}
+                    </span>
+                  </div>
                 </div>
-                <div className={styles.activityTime}>
-                  hace {item.timestamp}
-                </div>
               </div>
-              
-              <div className={styles.activityType}>
-                <span className={`${styles.typeTag} ${styles[`type-${item.type}`]}`}>
-                  {item.type === 'comment' && 'Comentario'}
-                  {item.type === 'news' && 'Noticia'}
-                  {item.type === 'update' && 'Actualización'}
-                  {item.type === 'alert' && 'Alerta'}
-                </span>
-              </div>
+            ))
+          ) : (
+            <div className={styles.emptyActivity}>
+              <span>📋</span>
+              <p>No hay actividad reciente.</p>
+              <p>Las alertas e informes aparecerán aquí cuando se generen.</p>
             </div>
-          ))}
+          )}
         </div>
         
         <div className={styles.activityActions}>

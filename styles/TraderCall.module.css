@@ -2071,4 +2071,52 @@
   .submitButton {
     width: 100%;
   }
+}
+
+.clickableActivity {
+  transition: all 0.2s ease;
+}
+
+.clickableActivity:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid #3b82f6;
+  transform: translateX(2px);
+}
+
+.activityText {
+  color: #e5e7eb;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.activityMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.activityType {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #3b82f6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.emptyActivity {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.emptyActivity span {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.emptyActivity p {
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
 } 
