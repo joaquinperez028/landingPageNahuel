@@ -398,9 +398,11 @@ const SubscriberView: React.FC = () => {
   const [loadingAlerts, setLoadingAlerts] = useState(false);
   const [updatingPrices, setUpdatingPrices] = useState(false);
   const [lastPriceUpdate, setLastPriceUpdate] = useState<Date | null>(null);
-  const [informes, setInformes] = React.useState<any[]>([]);
-  const [loadingInformes, setLoadingInformes] = React.useState(false);
-  const [selectedReport, setSelectedReport] = React.useState<any>(null);
+  const [informes, setInformes] = useState<any[]>([]);
+  const [loadingInformes, setLoadingInformes] = useState(true);
+  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [showCreateReportModal, setShowCreateReportModal] = useState(false);
+  const [creatingReport, setCreatingReport] = useState(false);
   const [userRole, setUserRole] = React.useState<string>('');
 
   const { data: session } = useSession();
@@ -685,11 +687,40 @@ const SubscriberView: React.FC = () => {
     try {
       const response = await fetch(`/api/reports/${reportId}`);
       if (response.ok) {
-        const data = await response.json();
-        setSelectedReport(data.data.report);
+        const report = await response.json();
+        setSelectedReport(report);
       }
     } catch (error) {
       console.error('Error al cargar informe:', error);
+    }
+  };
+
+  const handleCreateReport = async (formData: any) => {
+    setCreatingReport(true);
+    try {
+      const response = await fetch('/api/admin/reports/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const newReport = await response.json();
+        setInformes(prev => [newReport, ...prev]);
+        setShowCreateReportModal(false);
+        // Mostrar mensaje de éxito
+        alert('Informe creado exitosamente');
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error al crear informe:', error);
+      alert('Error al crear el informe');
+    } finally {
+      setCreatingReport(false);
     }
   };
 
@@ -1134,7 +1165,7 @@ const SubscriberView: React.FC = () => {
         <h2 className={styles.sectionTitle}>Informes</h2>
         <button 
           className={styles.createButton}
-          onClick={() => router.push('/admin/reports')}
+          onClick={() => setShowCreateReportModal(true)}
           title="Crear nuevo informe"
         >
           + Crear Informe
@@ -1211,7 +1242,7 @@ const SubscriberView: React.FC = () => {
             </p>
             <button 
               className={styles.emptyCreateButton}
-              onClick={() => router.push('/admin/reports')}
+              onClick={() => setShowCreateReportModal(true)}
             >
               Crear Primer Informe
             </button>
@@ -1257,6 +1288,15 @@ const SubscriberView: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal para crear informe */}
+      {showCreateReportModal && (
+        <CreateReportModal 
+          onClose={() => setShowCreateReportModal(false)}
+          onSubmit={handleCreateReport}
+          loading={creatingReport}
+        />
       )}
     </div>
   );
@@ -1472,6 +1512,159 @@ const SubscriberView: React.FC = () => {
 
       {/* Modal para crear alertas */}
       {renderCreateAlertModal()}
+    </div>
+  );
+};
+
+// Componente para modal de creación de informes
+const CreateReportModal = ({ onClose, onSubmit, loading }: {
+  onClose: () => void;
+  onSubmit: (data: any) => void;
+  loading: boolean;
+}) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    type: 'informe',
+    content: '',
+    summary: '',
+    tags: '',
+    status: 'published'
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.title.trim() || !formData.content.trim()) {
+      alert('Título y contenido son obligatorios');
+      return;
+    }
+
+    const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    
+    onSubmit({
+      ...formData,
+      tags: tagsArray
+    });
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.createReportModal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>Crear Nuevo Informe</h2>
+          <button 
+            className={styles.closeModal}
+            onClick={onClose}
+            disabled={loading}
+          >
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className={styles.createReportForm}>
+          <div className={styles.formGroup}>
+            <label htmlFor="title">Título *</label>
+            <input
+              id="title"
+              type="text"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              placeholder="Título del informe"
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="type">Tipo</label>
+            <select
+              id="type"
+              value={formData.type}
+              onChange={(e) => handleInputChange('type', e.target.value)}
+              disabled={loading}
+            >
+              <option value="informe">📄 Informe</option>
+              <option value="analisis">📊 Análisis</option>
+              <option value="video">🎥 Video</option>
+            </select>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="summary">Resumen</label>
+            <textarea
+              id="summary"
+              value={formData.summary}
+              onChange={(e) => handleInputChange('summary', e.target.value)}
+              placeholder="Breve descripción del informe"
+              rows={3}
+              disabled={loading}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="content">Contenido *</label>
+            <textarea
+              id="content"
+              value={formData.content}
+              onChange={(e) => handleInputChange('content', e.target.value)}
+              placeholder="Contenido completo del informe"
+              rows={8}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="tags">Tags (separados por comas)</label>
+            <input
+              id="tags"
+              type="text"
+              value={formData.tags}
+              onChange={(e) => handleInputChange('tags', e.target.value)}
+              placeholder="trading, análisis, mercado"
+              disabled={loading}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="status">Estado</label>
+            <select
+              id="status"
+              value={formData.status}
+              onChange={(e) => handleInputChange('status', e.target.value)}
+              disabled={loading}
+            >
+              <option value="draft">Borrador</option>
+              <option value="published">Publicado</option>
+            </select>
+          </div>
+
+          <div className={styles.formActions}>
+            <button 
+              type="button" 
+              onClick={onClose}
+              className={styles.cancelButton}
+              disabled={loading}
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              className={styles.submitButton}
+              disabled={loading}
+            >
+              {loading ? 'Creando...' : 'Crear Informe'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
