@@ -8,7 +8,7 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
 }
 
 /* Vista No Suscripto */
@@ -437,15 +437,15 @@
 .subscriberView {
   background: var(--bg-primary);
   min-height: 100vh;
-  padding: 2rem 0;
+  padding: 0.75rem 0;
 }
 
 .subscriberHeader {
   background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
   color: white;
-  padding: 3rem 0;
+  padding: 1.5rem 0;
   border-radius: var(--border-radius-lg);
-  margin-bottom: 2rem;
+  margin-bottom: 0.75rem;
   text-align: center;
   box-shadow: var(--shadow-lg);
   position: relative;
@@ -464,15 +464,15 @@
 }
 
 .subscriberTitle {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   position: relative;
   z-index: 2;
 }
 
 .subscriberWelcome {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.9);
   max-width: 600px;
   margin: 0 auto;
@@ -487,9 +487,9 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  padding: 0.5rem;
+  padding: 0.375rem;
   box-shadow: var(--shadow-sm);
-  margin-bottom: 2rem;
+  margin-bottom: 0.75rem;
   overflow-x: auto;
   gap: 0.5rem;
 }
@@ -521,6 +521,7 @@
   box-shadow: var(--shadow-md);
 }
 
+/* Contenido específico para comunidad - más compacto */
 .subscriberContent {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
@@ -2684,4 +2685,44 @@
   .replyingTo {
     padding: 0.5rem;
   }
+}
+
+/* Ajustes para vista suscriptor en móvil */
+.subscriberView {
+  padding: 0.5rem 0;
+}
+
+.subscriberHeader {
+  padding: 1rem 0;
+  margin-bottom: 0.5rem;
+}
+
+.subscriberTitle {
+  font-size: 1.5rem;
+}
+
+.subscriberNav {
+  margin-bottom: 0.5rem;
+  padding: 0.25rem;
+}
+
+.subscriberContent {
+  min-height: 65vh;
+}
+
+.tableHeader,
+.tableRow {
+  grid-template-columns: repeat(2, 1fr);
+  padding: 0.75rem;
+}
+
+.tableHeader span:nth-child(3),
+.tableHeader span:nth-child(4),
+.tableHeader span:nth-child(5),
+.tableHeader span:nth-child(6),
+.tableRow span:nth-child(3),
+.tableRow span:nth-child(4),
+.tableRow span:nth-child(5),
+.tableRow span:nth-child(6) {
+  display: none;
 } 
