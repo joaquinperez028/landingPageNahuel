@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useSession, signIn } from 'next-auth/react';
@@ -1303,35 +1303,208 @@ const SubscriberView: React.FC = () => {
     </div>
   );
 
-  const renderComunidad = () => (
-    <div className={styles.comunidadContent}>
-      <h2 className={styles.sectionTitle}>Comunidad Trader Call</h2>
-      
-      <div className={styles.emptyState}>
-        <div className={styles.emptyIcon}>💬</div>
-        <h3>Comunidad en construcción</h3>
-        <p>El chat de la comunidad estará disponible próximamente.</p>
-        <p className={styles.emptyHint}>
-          Aquí podrás interactuar con otros traders, compartir ideas y hacer consultas en tiempo real.
-        </p>
+  const renderComunidad = () => {
+    const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState([
+      {
+        id: 1,
+        user: 'TradingPro2024',
+        message: '¡Hola a todos! ¿Qué opinan de AAPL hoy?',
+        timestamp: new Date(Date.now() - 1000 * 60 * 15).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+        type: 'normal',
+        userType: 'subscriber'
+      },
+      {
+        id: 2,
+        user: 'MarketAnalyst',
+        message: 'Creo que hay una buena oportunidad en el sector tech',
+        timestamp: new Date(Date.now() - 1000 * 60 * 12).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+        type: 'normal',
+        userType: 'premium'
+      },
+      {
+        id: 3,
+        user: 'Nahuel',
+        message: 'Recuerden siempre usar stop loss y gestionar el riesgo adecuadamente',
+        timestamp: new Date(Date.now() - 1000 * 60 * 8).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+        type: 'highlight',
+        userType: 'admin'
+      },
+      {
+        id: 4,
+        user: 'InvestorNovato',
+        message: '¿Cuál es la mejor estrategia para principiantes?',
+        timestamp: new Date(Date.now() - 1000 * 60 * 5).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+        type: 'normal',
+        userType: 'normal'
+      },
+      {
+        id: 5,
+        user: 'CryptoTrader',
+        message: 'También están muy interesantes las crypto ahora 🚀',
+        timestamp: new Date(Date.now() - 1000 * 60 * 2).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+        type: 'normal',
+        userType: 'subscriber'
+      }
+    ]);
+    const [onlineUsers] = useState([
+      { name: 'TradingPro2024', type: 'subscriber' },
+      { name: 'MarketAnalyst', type: 'premium' },
+      { name: 'Nahuel', type: 'admin' },
+      { name: 'InvestorNovato', type: 'normal' },
+      { name: 'CryptoTrader', type: 'subscriber' },
+      { name: 'DayTrader123', type: 'normal' },
+      { name: 'FinanceGuru', type: 'premium' },
+      { name: 'StockWatcher', type: 'normal' }
+    ]);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+      scrollToBottom();
+    }, [messages]);
+
+    const sendMessage = () => {
+      if (message.trim()) {
+        const newMessage = {
+          id: messages.length + 1,
+          user: 'Tú',
+          message: message.trim(),
+          timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+          type: 'normal' as const,
+          userType: 'normal' as const
+        };
+        setMessages(prev => [...prev, newMessage]);
+        setMessage('');
+      }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    };
+
+    const getUserBadge = (userType: string) => {
+      switch (userType) {
+        case 'admin':
+          return '👑';
+        case 'premium':
+          return '⭐';
+        case 'subscriber':
+          return '💎';
+        default:
+          return '';
+      }
+    };
+
+    const getUserColor = (userType: string) => {
+      switch (userType) {
+        case 'admin':
+          return '#ef4444';
+        case 'premium':
+          return '#f59e0b';
+        case 'subscriber':
+          return '#3b82f6';
+        default:
+          return '#6b7280';
+      }
+    };
+
+    return (
+      <div className={styles.comunidadContent}>
+        <div className={styles.chatContainer}>
+          {/* Header del Chat */}
+          <div className={styles.chatHeader}>
+            <div className={styles.chatTitle}>
+              <h2>💬 Comunidad Trader Call</h2>
+              <div className={styles.onlineCount}>
+                <span className={styles.onlineIndicator}></span>
+                {onlineUsers.length} en línea
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.chatBody}>
+            {/* Panel Lateral - Usuarios Online */}
+            <div className={styles.usersPanel}>
+              <div className={styles.usersPanelHeader}>
+                <h3>Usuarios Online ({onlineUsers.length})</h3>
+              </div>
+              <div className={styles.usersList}>
+                {onlineUsers.map((user, index) => (
+                  <div key={index} className={styles.userItem}>
+                    <span 
+                      className={styles.userName}
+                      style={{ color: getUserColor(user.type) }}
+                    >
+                      {getUserBadge(user.type)} {user.name}
+                    </span>
+                    <span className={styles.userStatus}></span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Área Principal del Chat */}
+            <div className={styles.chatMain}>
+              <div className={styles.messagesContainer}>
+                {messages.map((msg) => (
+                  <div 
+                    key={msg.id} 
+                    className={`${styles.chatMessage} ${msg.type === 'highlight' ? styles.highlightMessage : ''}`}
+                  >
+                    <div className={styles.messageHeader}>
+                      <span 
+                        className={styles.messageUser}
+                        style={{ color: getUserColor(msg.userType) }}
+                      >
+                        {getUserBadge(msg.userType)} {msg.user}
+                      </span>
+                      <span className={styles.messageTime}>{msg.timestamp}</span>
+                    </div>
+                    <div className={styles.messageContent}>
+                      {msg.message}
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Input para enviar mensajes */}
+              <div className={styles.chatInput}>
+                <div className={styles.inputContainer}>
+                  <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Escribe un mensaje..."
+                    className={styles.messageInput}
+                    maxLength={200}
+                  />
+                  <button 
+                    onClick={sendMessage}
+                    className={styles.sendButton}
+                    disabled={!message.trim()}
+                  >
+                    🚀
+                  </button>
+                </div>
+                <div className={styles.chatInfo}>
+                  <span>Presiona Enter para enviar • {message.length}/200</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <div className={styles.comunidadStats}>
-        <div className={styles.statCard}>
-          <h4>Miembros Activos</h4>
-          <p>-</p>
-        </div>
-        <div className={styles.statCard}>
-          <h4>Mensajes Hoy</h4>
-          <p>-</p>
-        </div>
-        <div className={styles.statCard}>
-          <h4>Ideas Compartidas</h4>
-          <p>-</p>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   // Modal para crear nueva alerta
   const renderCreateAlertModal = () => {
