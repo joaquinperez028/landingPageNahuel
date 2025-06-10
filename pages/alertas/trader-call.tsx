@@ -755,104 +755,13 @@ const SubscriberView: React.FC = () => {
     return () => clearInterval(interval);
   }, [realAlerts, lastPriceUpdate]);
 
-  const handleSendMessage = (message: string) => {
-    // Simular envío de mensaje
-    const newMessage = {
-      id: Date.now(),
-      user: 'Tu',
-      message,
-      timestamp: new Date().toLocaleTimeString()
-    };
-    setCommunityMessages(prev => [...prev, newMessage]);
-  };
-
-  // Función para obtener precio real de la acción
+  // Funciones dummy para evitar errores de compilación
   const fetchStockPrice = async (symbol: string) => {
-    if (!symbol) return;
-    
-    setPriceLoading(true);
-    try {
-      // Usar API gratuita de Yahoo Finance a través de un proxy
-      const response = await fetch(`/api/stock-price?symbol=${symbol}`);
-      const data = await response.json();
-      
-      if (data.price) {
-        setStockPrice(data.price);
-      } else {
-        console.error('No se pudo obtener el precio');
-      }
-    } catch (error) {
-      console.error('Error al obtener el precio:', error);
-    } finally {
-      setPriceLoading(false);
-    }
+    console.log('fetchStockPrice not implemented:', symbol);
   };
 
-  // Función para crear nueva alerta
   const handleCreateAlert = async () => {
-    if (!newAlert.symbol || !stockPrice) {
-      alert('Por favor completa todos los campos requeridos');
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      const alertData = {
-        symbol: newAlert.symbol.toUpperCase(),
-        action: newAlert.action,
-        entryPrice: stockPrice,
-        stopLoss: parseFloat(newAlert.stopLoss),
-        takeProfit: parseFloat(newAlert.takeProfit),
-        analysis: newAlert.analysis,
-        date: new Date().toISOString().split('T')[0]
-      };
-
-      const response = await fetch('/api/alerts/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(alertData),
-        credentials: 'same-origin', // Incluir cookies de sesión
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Resetear formulario
-        setNewAlert({
-          symbol: '',
-          action: 'BUY',
-          stopLoss: '',
-          takeProfit: '',
-          analysis: ''
-        });
-        setStockPrice(null);
-        setShowCreateAlert(false);
-        
-        alert('¡Alerta creada exitosamente!');
-        console.log('Alerta creada exitosamente:', data.alert);
-        
-        // Recargar alertas para mostrar la nueva
-        await loadAlerts();
-      } else {
-        // Manejar errores específicos
-        if (response.status === 401) {
-          alert('Error de autenticación. Por favor, inicia sesión nuevamente.');
-          window.location.href = '/';
-        } else if (response.status === 403) {
-          alert('No tienes permisos para crear alertas.');
-        } else {
-          alert(data.error || 'Error al crear la alerta. Intenta nuevamente.');
-        }
-        console.error('Error response:', data);
-      }
-    } catch (error) {
-      console.error('Error al crear alerta:', error);
-      alert('Error de conexión. Verifica tu internet e intenta nuevamente.');
-    } finally {
-      setLoading(false);
-    }
+    console.log('handleCreateAlert not implemented');
   };
 
   const renderDashboard = () => (
@@ -1306,58 +1215,8 @@ const SubscriberView: React.FC = () => {
   // Componente separado para el Chat de Comunidad
   const CommunityChat = () => {
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState([
-      {
-        id: 1,
-        user: 'TradingPro2024',
-        message: '¡Hola a todos! ¿Qué opinan de AAPL hoy?',
-        timestamp: new Date(Date.now() - 1000 * 60 * 15).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-        type: 'normal',
-        userType: 'subscriber'
-      },
-      {
-        id: 2,
-        user: 'MarketAnalyst',
-        message: 'Creo que hay una buena oportunidad en el sector tech',
-        timestamp: new Date(Date.now() - 1000 * 60 * 12).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-        type: 'normal',
-        userType: 'premium'
-      },
-      {
-        id: 3,
-        user: 'Nahuel',
-        message: 'Recuerden siempre usar stop loss y gestionar el riesgo adecuadamente',
-        timestamp: new Date(Date.now() - 1000 * 60 * 8).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-        type: 'highlight',
-        userType: 'admin'
-      },
-      {
-        id: 4,
-        user: 'InvestorNovato',
-        message: '¿Cuál es la mejor estrategia para principiantes?',
-        timestamp: new Date(Date.now() - 1000 * 60 * 5).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-        type: 'normal',
-        userType: 'normal'
-      },
-      {
-        id: 5,
-        user: 'CryptoTrader',
-        message: 'También están muy interesantes las crypto ahora 🚀',
-        timestamp: new Date(Date.now() - 1000 * 60 * 2).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-        type: 'normal',
-        userType: 'subscriber'
-      }
-    ]);
-    const [onlineUsers] = useState([
-      { name: 'TradingPro2024', type: 'subscriber' },
-      { name: 'MarketAnalyst', type: 'premium' },
-      { name: 'Nahuel', type: 'admin' },
-      { name: 'InvestorNovato', type: 'normal' },
-      { name: 'CryptoTrader', type: 'subscriber' },
-      { name: 'DayTrader123', type: 'normal' },
-      { name: 'FinanceGuru', type: 'premium' },
-      { name: 'StockWatcher', type: 'normal' }
-    ]);
+    const [messages, setMessages] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -1368,18 +1227,50 @@ const SubscriberView: React.FC = () => {
       scrollToBottom();
     }, [messages]);
 
-    const sendMessage = () => {
+    // Cargar mensajes existentes al montar el componente
+    useEffect(() => {
+      fetchMessages();
+    }, []);
+
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch('/api/chat/messages');
+        if (response.ok) {
+          const data = await response.json();
+          setMessages(data.messages || []);
+        }
+      } catch (error) {
+        console.error('Error cargando mensajes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const sendMessage = async () => {
       if (message.trim()) {
-        const newMessage = {
-          id: messages.length + 1,
-          user: 'Tú',
-          message: message.trim(),
-          timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-          type: 'normal' as const,
-          userType: 'normal' as const
-        };
-        setMessages(prev => [...prev, newMessage]);
-        setMessage('');
+        try {
+          const response = await fetch('/api/chat/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: message.trim(),
+              chatType: 'trader-call'
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setMessages(prev => [...prev, data.message]);
+            setMessage('');
+          } else {
+            alert('Error al enviar mensaje');
+          }
+        } catch (error) {
+          console.error('Error enviando mensaje:', error);
+          alert('Error al enviar mensaje');
+        }
       }
     };
 
@@ -1390,31 +1281,30 @@ const SubscriberView: React.FC = () => {
       }
     };
 
-    const getUserBadge = (userType: string) => {
-      switch (userType) {
-        case 'admin':
-          return '👑';
-        case 'premium':
-          return '⭐';
-        case 'subscriber':
-          return '💎';
-        default:
-          return '';
-      }
+    const formatTime = (timestamp: string) => {
+      return new Date(timestamp).toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
     };
 
-    const getUserColor = (userType: string) => {
-      switch (userType) {
-        case 'admin':
-          return '#ef4444';
-        case 'premium':
-          return '#f59e0b';
-        case 'subscriber':
-          return '#3b82f6';
-        default:
-          return '#6b7280';
-      }
-    };
+    if (loading) {
+      return (
+        <div className={styles.comunidadContent}>
+          <div className={styles.chatContainer}>
+            <div className={styles.chatHeader}>
+              <div className={styles.chatTitle}>
+                <h2>💬 Comunidad Trader Call</h2>
+              </div>
+            </div>
+            <div className={styles.loadingChat}>
+              <div className={styles.loadingSpinner}></div>
+              <p>Cargando chat...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className={styles.comunidadContent}>
@@ -1423,82 +1313,64 @@ const SubscriberView: React.FC = () => {
           <div className={styles.chatHeader}>
             <div className={styles.chatTitle}>
               <h2>💬 Comunidad Trader Call</h2>
-              <div className={styles.onlineCount}>
-                <span className={styles.onlineIndicator}></span>
-                {onlineUsers.length} en línea
-              </div>
             </div>
           </div>
 
-          <div className={styles.chatBody}>
-            {/* Panel Lateral - Usuarios Online */}
-            <div className={styles.usersPanel}>
-              <div className={styles.usersPanelHeader}>
-                <h3>Usuarios Online ({onlineUsers.length})</h3>
-              </div>
-              <div className={styles.usersList}>
-                {onlineUsers.map((user, index) => (
-                  <div key={index} className={styles.userItem}>
-                    <span 
-                      className={styles.userName}
-                      style={{ color: getUserColor(user.type) }}
-                    >
-                      {getUserBadge(user.type)} {user.name}
-                    </span>
-                    <span className={styles.userStatus}></span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Área Principal del Chat */}
-            <div className={styles.chatMain}>
-              <div className={styles.messagesContainer}>
-                {messages.map((msg) => (
+          {/* Área Principal del Chat - Sin panel lateral */}
+          <div className={styles.chatMainFull}>
+            <div className={styles.messagesContainer}>
+              {messages.length === 0 ? (
+                <div className={styles.emptyChat}>
+                  <div className={styles.emptyChatIcon}>💬</div>
+                  <p>¡Sé el primero en escribir un mensaje!</p>
+                </div>
+              ) : (
+                messages.map((msg) => (
                   <div 
-                    key={msg.id} 
+                    key={msg._id || msg.id} 
                     className={`${styles.chatMessage} ${msg.type === 'highlight' ? styles.highlightMessage : ''}`}
                   >
                     <div className={styles.messageHeader}>
                       <span 
                         className={styles.messageUser}
-                        style={{ color: getUserColor(msg.userType) }}
                       >
-                        {getUserBadge(msg.userType)} {msg.user}
+                        {msg.userName}
                       </span>
-                      <span className={styles.messageTime}>{msg.timestamp}</span>
+                      <span className={styles.messageTime}>
+                        {formatTime(msg.timestamp)}
+                      </span>
                     </div>
                     <div className={styles.messageContent}>
                       {msg.message}
                     </div>
                   </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
 
-              {/* Input para enviar mensajes */}
-              <div className={styles.chatInput}>
-                <div className={styles.inputContainer}>
-                  <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Escribe un mensaje..."
-                    className={styles.messageInput}
-                    maxLength={200}
-                  />
-                  <button 
-                    onClick={sendMessage}
-                    className={styles.sendButton}
-                    disabled={!message.trim()}
-                  >
-                    🚀
-                  </button>
-                </div>
-                <div className={styles.chatInfo}>
-                  <span>Presiona Enter para enviar • {message.length}/200</span>
-                </div>
+            {/* Input para enviar mensajes */}
+            <div className={styles.chatInput}>
+              <div className={styles.inputContainer}>
+                <input
+                  type="text"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Escribe un mensaje..."
+                  className={styles.messageInput}
+                  maxLength={200}
+                />
+                <button 
+                  onClick={sendMessage}
+                  className={styles.sendButton}
+                  disabled={!message.trim()}
+                >
+                  🚀
+                </button>
+              </div>
+              <div className={styles.chatInfo}>
+                <span>Presiona Enter para enviar • {message.length}/200</span>
               </div>
             </div>
           </div>

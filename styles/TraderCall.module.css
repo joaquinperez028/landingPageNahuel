@@ -1405,6 +1405,9 @@
   color: white;
   font-size: 1.25rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .onlineCount {
@@ -2414,4 +2417,115 @@
 .emptyActivity p {
   margin: 0.25rem 0;
   font-size: 0.875rem;
+}
+
+/* Chat principal sin panel lateral */
+.chatMainFull {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #0f1419;
+  width: 100%;
+}
+
+/* Estado de carga */
+.loadingChat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #e5e7eb;
+  padding: 2rem;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(59, 130, 246, 0.3);
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Chat vacío */
+.emptyChat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  padding: 2rem;
+  text-align: center;
+}
+
+.emptyChatIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.emptyChat p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Ajustar header sin contador online */
+.chatTitle h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Responsive para chat sin panel lateral */
+@media (max-width: 768px) {
+  .loadingChat {
+    padding: 1.5rem;
+  }
+  
+  .loadingSpinner {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .emptyChat {
+    padding: 1.5rem;
+  }
+  
+  .emptyChatIcon {
+    font-size: 2.5rem;
+  }
+  
+  .emptyChat p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loadingChat {
+    padding: 1rem;
+  }
+  
+  .emptyChat {
+    padding: 1rem;
+  }
+  
+  .emptyChatIcon {
+    font-size: 2rem;
+  }
+  
+  .emptyChat p {
+    font-size: 0.9rem;
+  }
 } 
