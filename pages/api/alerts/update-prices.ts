@@ -18,14 +18,24 @@ interface UpdatePricesResponse {
 }
 
 // Función para obtener precio actual de una acción
-async function fetchCurrentPrice(symbol: string): Promise<number | null> {
+async function fetchCurrentPrice(symbol: string): Promise<{ price: number; marketStatus: string; isSimulated: boolean } | null> {
   try {
     // Usar la misma API de stock-price que ya existe
     const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/stock-price?symbol=${symbol}`);
     
     if (response.ok) {
       const data = await response.json();
-      return data.price;
+      console.log(`📊 API Response para ${symbol}:`, {
+        price: data.price,
+        marketStatus: data.marketStatus,
+        isSimulated: data.isSimulated
+      });
+      
+      return {
+        price: data.price,
+        marketStatus: data.marketStatus || 'UNKNOWN',
+        isSimulated: data.isSimulated || false
+      };
     }
     
     return null;
@@ -73,10 +83,25 @@ export default async function handler(
 
     // Actualizar precios para cada alerta activa
     for (const alert of activeAlerts) {
-      const currentPrice = await fetchCurrentPrice(alert.symbol);
+      console.log(`🔍 Procesando alerta ${alert.symbol}: Precio anterior: $${alert.currentPrice || 'N/A'}`);
       
-      if (currentPrice && currentPrice !== alert.currentPrice) {
-        // Actualizar precio actual
+      const priceData = await fetchCurrentPrice(alert.symbol);
+      console.log(`💰 Precio obtenido para ${alert.symbol}: $${priceData?.price || 'N/A'}`);
+      
+      if (priceData && priceData.price) {
+        const currentPrice = priceData.price;
+        
+        // Actualizar precio actual SIEMPRE que obtengamos un precio válido
+        // (ya sea porque cambió o porque no teníamos precio anterior)
+        const shouldUpdate = !alert.currentPrice || currentPrice !== alert.currentPrice;
+        
+        if (shouldUpdate) {
+          console.log(`✅ Actualizando ${alert.symbol}: $${alert.currentPrice || 'N/A'} → $${currentPrice}`);
+        } else {
+          console.log(`ℹ️ ${alert.symbol}: Precio sin cambios $${currentPrice}, pero actualizando de todas formas`);
+        }
+        
+        // Actualizar precio actual (siempre si tenemos precio válido)
         alert.currentPrice = currentPrice;
         
         // El profit se calcula automáticamente por el middleware pre('save')
@@ -97,8 +122,12 @@ export default async function handler(
           status: alert.status,
           date: alert.date.toISOString().split('T')[0],
           analysis: alert.analysis,
-          priceChange: currentPrice - alert.entryPrice
+          priceChange: currentPrice - alert.entryPrice,
+          marketStatus: priceData.marketStatus,
+          isSimulated: priceData.isSimulated
         });
+      } else {
+        console.log(`❌ No se pudo obtener precio para ${alert.symbol}`);
       }
     }
 
