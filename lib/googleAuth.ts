@@ -153,6 +153,7 @@ export const authOptions: NextAuthOptions = {
       }
     }
   },
+
 };
 
 // Extender el tipo de session para incluir nuestros campos personalizados
