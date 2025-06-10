@@ -1043,6 +1043,53 @@
   padding: 2rem;
 }
 
+.informesHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.adminCreateButton {
+  padding: 0.5rem 1rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.adminCreateButton:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.adminEmptyActions {
+  margin-top: 1rem;
+}
+
+.emptyCreateButton {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.emptyCreateButton:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
 .informesList {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -1248,6 +1295,17 @@
   .reportModal {
     margin: 1rem;
     max-height: 95vh;
+  }
+
+  .informesHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .adminCreateButton {
+    width: 100%;
+    text-align: center;
   }
 }
 

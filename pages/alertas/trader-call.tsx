@@ -19,6 +19,7 @@ import {
   Star
 } from 'lucide-react';
 import styles from '@/styles/TraderCall.module.css';
+import { useRouter } from 'next/router';
 
 interface TraderCallPageProps {
   isSubscribed: boolean;
@@ -400,6 +401,31 @@ const SubscriberView: React.FC = () => {
   const [informes, setInformes] = React.useState<any[]>([]);
   const [loadingInformes, setLoadingInformes] = React.useState(false);
   const [selectedReport, setSelectedReport] = React.useState<any>(null);
+  const [userRole, setUserRole] = React.useState<string>('');
+
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  // Verificar rol del usuario
+  React.useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        const response = await fetch('/api/profile/get', {
+          credentials: 'same-origin',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUserRole(data.user?.role || '');
+        }
+      } catch (error) {
+        console.error('Error al verificar rol:', error);
+      }
+    };
+
+    if (session?.user) {
+      checkUserRole();
+    }
+  }, [session]);
 
   // Alertas vigentes (definir primero para evitar dependencias circulares)
   const alertasVigentes = [
@@ -1104,7 +1130,18 @@ const SubscriberView: React.FC = () => {
 
   const renderInformes = () => (
     <div className={styles.informesContent}>
-      <h2 className={styles.sectionTitle}>Informes</h2>
+      <div className={styles.informesHeader}>
+        <h2 className={styles.sectionTitle}>Informes</h2>
+        {userRole === 'admin' && (
+          <button 
+            className={styles.adminCreateButton}
+            onClick={() => router.push('/admin/reports')}
+            title="Crear nuevo informe"
+          >
+            + Crear Informe
+          </button>
+        )}
+      </div>
       
       {loadingInformes ? (
         <div className={styles.emptyState}>
@@ -1170,9 +1207,23 @@ const SubscriberView: React.FC = () => {
           <div className={styles.emptyIcon}>📄</div>
           <h3>No hay informes disponibles</h3>
           <p>Los informes y análisis aparecerán aquí cuando estén disponibles.</p>
-          <p className={styles.emptyHint}>
-            Próximamente: análisis semanales, reportes de performance y contenido educativo.
-          </p>
+          {userRole === 'admin' ? (
+            <div className={styles.adminEmptyActions}>
+              <p className={styles.emptyHint}>
+                Como administrador, puedes crear el primer informe.
+              </p>
+              <button 
+                className={styles.emptyCreateButton}
+                onClick={() => router.push('/admin/reports')}
+              >
+                Crear Primer Informe
+              </button>
+            </div>
+          ) : (
+            <p className={styles.emptyHint}>
+              Próximamente: análisis semanales, reportes de performance y contenido educativo.
+            </p>
+          )}
         </div>
       )}
 
