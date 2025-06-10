@@ -410,6 +410,10 @@ const SubscriberView: React.FC = () => {
   const [filterSymbol, setFilterSymbol] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterDate, setFilterDate] = useState('');
+  
+  // Estados para información del mercado
+  const [marketStatus, setMarketStatus] = useState<string>('');
+  const [isUsingSimulatedPrices, setIsUsingSimulatedPrices] = useState(false);
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -652,6 +656,18 @@ const SubscriberView: React.FC = () => {
         const data = await response.json();
         console.log('Precios actualizados:', data.updated, 'alertas');
         setLastPriceUpdate(new Date());
+        
+        // Actualizar información del mercado si está disponible
+        if (data.alerts && data.alerts.length > 0) {
+          // Verificar si alguna alerta está usando precios simulados
+          const hasSimulated = data.alerts.some((alert: any) => alert.isSimulated);
+          setIsUsingSimulatedPrices(hasSimulated);
+          
+          // Usar el estado del mercado de la primera alerta (todas deberían tener el mismo)
+          if (data.alerts[0].marketStatus) {
+            setMarketStatus(data.alerts[0].marketStatus);
+          }
+        }
         
         // Recargar alertas para mostrar los nuevos precios
         await loadAlerts();
@@ -1128,11 +1144,27 @@ const SubscriberView: React.FC = () => {
             >
               {updatingPrices ? '🔄 Actualizando...' : '📈 Actualizar Precios'}
             </button>
-            {lastPriceUpdate && (
-              <span className={styles.lastUpdateTime}>
-                Última actualización: {lastPriceUpdate.toLocaleTimeString()}
-              </span>
-            )}
+            <div className={styles.marketInfo}>
+              {lastPriceUpdate && (
+                <span className={styles.lastUpdateTime}>
+                  Última actualización: {lastPriceUpdate.toLocaleTimeString()}
+                </span>
+              )}
+              {marketStatus && (
+                <span className={`${styles.marketStatus} ${styles[`status${marketStatus}`]}`}>
+                  {marketStatus === 'OPEN' ? '🟢 Mercado Abierto' : 
+                   marketStatus === 'CLOSED_WEEKEND' ? '🔴 Mercado Cerrado (Fin de semana)' :
+                   marketStatus === 'CLOSED_AFTER_HOURS' ? '🟡 Mercado Cerrado (After hours)' :
+                   marketStatus === 'CLOSED_PRE_MARKET' ? '🟡 Mercado Cerrado (Pre-market)' :
+                   '🟡 Estado desconocido'}
+                </span>
+              )}
+              {isUsingSimulatedPrices && (
+                <span className={styles.simulatedWarning}>
+                  ⚠️ Precios simulados
+                </span>
+              )}
+            </div>
           </div>
         </div>
         
