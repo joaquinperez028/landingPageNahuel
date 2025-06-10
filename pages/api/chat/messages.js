@@ -43,6 +43,14 @@ export default async function handler(req, res) {
         });
       }
 
+      // Debug: verificar qué datos de usuario tenemos
+      console.log('🔍 Datos de sesión en chat:', {
+        name: session.user.name,
+        email: session.user.email,
+        image: session.user.image,
+        hasImage: !!session.user.image
+      });
+
       const { message, chatType = 'trader-call', replyTo } = req.body;
 
       if (!message || message.trim().length === 0) {
@@ -67,13 +75,21 @@ export default async function handler(req, res) {
       const newMessageData = {
         userName: session.user.name,
         userEmail: session.user.email,
-        userImage: session.user.image,
+        userImage: session.user.image, // Agregar la imagen del usuario de Google
         userType,
         message: message.trim(),
         chatType,
         type: messageType,
         timestamp: new Date()
       };
+
+      // Debug: verificar qué datos vamos a guardar
+      console.log('💾 Datos del mensaje a guardar:', {
+        userName: newMessageData.userName,
+        userEmail: newMessageData.userEmail,
+        userImage: newMessageData.userImage,
+        hasImage: !!newMessageData.userImage
+      });
 
       // Si hay una respuesta, agregar la referencia
       if (replyTo) {
@@ -87,6 +103,8 @@ export default async function handler(req, res) {
       const newMessage = new ChatMessage(newMessageData);
 
       await newMessage.save();
+
+      console.log('✅ Mensaje guardado correctamente con imagen:', !!newMessage.userImage);
 
       res.status(201).json({ 
         success: true, 

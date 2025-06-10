@@ -25,6 +25,9 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           scope: 'openid email profile',
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code'
         },
       },
     }),
@@ -36,6 +39,12 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       console.log('🔐 Iniciando sesión:', user.email);
+      console.log('🖼️ Datos de imagen:', {
+        userImage: user.image,
+        profilePicture: (profile as any)?.picture,
+        hasUserImage: !!user.image,
+        hasProfilePicture: !!(profile as any)?.picture
+      });
       
       try {
         const connection = await dbConnect();
@@ -49,6 +58,10 @@ export const authOptions: NextAuthOptions = {
         // Buscar usuario existente
         let existingUser = await User.findOne({ email: user.email });
         
+        // Usar la imagen del profile si está disponible, sino la del user
+        const userImageUrl = user.image || (profile as any)?.picture;
+        console.log('🖼️ URL de imagen final:', userImageUrl);
+        
         if (!existingUser) {
           // Crear nuevo usuario
           console.log('👤 Creando nuevo usuario:', user.email);
@@ -56,7 +69,7 @@ export const authOptions: NextAuthOptions = {
             googleId: account?.providerAccountId,
             name: user.name,
             email: user.email,
-            picture: user.image,
+            picture: userImageUrl,
             role: 'normal',
             tarjetas: [],
             compras: [],
@@ -68,7 +81,7 @@ export const authOptions: NextAuthOptions = {
           console.log('👤 Actualizando usuario existente y último login:', user.email);
           await User.findByIdAndUpdate(existingUser._id, {
             name: user.name,
-            picture: user.image,
+            picture: userImageUrl,
             googleId: account?.providerAccountId,
             lastLogin: new Date() // Actualizar último login
           });
