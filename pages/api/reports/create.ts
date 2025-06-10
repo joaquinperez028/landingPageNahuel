@@ -1,9 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/googleAuth';
-import connectDB from '../../../../lib/mongodb';
-import Report from '../../../../models/Report';
-import User from '../../../../models/User';
+import connectDB from '../../../lib/mongodb';
+import Report from '../../../models/Report';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -16,24 +13,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await connectDB();
 
-    // Verificar autenticación básica (simplificada por ahora)
-    const session = await getServerSession(req, res, authOptions);
-    if (!session?.user?.email) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Debes estar autenticado' 
-      });
-    }
-
-    // Buscar el usuario para obtener su información
-    const user = await User.findOne({ email: session.user.email });
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Usuario no encontrado' 
-      });
-    }
-
     const {
       title,
       type,
@@ -44,7 +23,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       imageUrl,
       status = 'published',
       tags = [],
-      isFeature = false
+      isFeature = false,
+      author = 'Usuario'
     } = req.body;
 
     // Validaciones
@@ -64,8 +44,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       videoMuxId,
       pdfUrl,
       imageUrl,
-      author: user.name || user.email,
-      authorId: user._id.toString(),
+      author,
+      authorId: 'temp-id',
       status,
       tags: Array.isArray(tags) ? tags : [],
       isFeature,
@@ -79,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(201).json({
       success: true,
       message: 'Informe creado exitosamente',
-      data: { report: newReport }
+      data: newReport
     });
 
   } catch (error) {

@@ -698,7 +698,7 @@ const SubscriberView: React.FC = () => {
   const handleCreateReport = async (formData: any) => {
     setCreatingReport(true);
     try {
-      const response = await fetch('/api/admin/reports/create', {
+      const response = await fetch('/api/reports/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -707,7 +707,8 @@ const SubscriberView: React.FC = () => {
       });
 
       if (response.ok) {
-        const newReport = await response.json();
+        const result = await response.json();
+        const newReport = result.data;
         setInformes(prev => [newReport, ...prev]);
         setShowCreateReportModal(false);
         // Mostrar mensaje de éxito
