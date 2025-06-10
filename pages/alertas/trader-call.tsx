@@ -1039,6 +1039,8 @@ const SubscriberView: React.FC = () => {
           <span>Acción</span>
           <span>Precio Entrada</span>
           <span>Precio Actual</span>
+          <span>Stop Loss</span>
+          <span>Take Profit</span>
           <span>P&L</span>
           <span>Estado</span>
         </div>
@@ -1095,6 +1097,8 @@ const SubscriberView: React.FC = () => {
               </span>
               <span>{alert.entryPrice}</span>
               <span>{alert.exitPrice || alert.currentPrice}</span>
+              <span>{alert.stopLoss || '-'}</span>
+              <span>{alert.takeProfit || '-'}</span>
               <span className={alert.profit.includes('+') ? styles.profit : styles.loss}>
                 {alert.profit}
               </span>

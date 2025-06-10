@@ -220,8 +220,8 @@
 
 .tableHeader {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0.5rem;
   padding: 1rem 1.5rem;
   background: linear-gradient(135deg, #667eea, #764ba2);
   font-weight: 600;
@@ -234,15 +234,18 @@
 
 .tableRow {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0.5rem;
   padding: 1rem 1.5rem;
-  border-top: 1px solid #e5e7eb;
-  transition: background-color 0.2s ease;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .tableRow:hover {
-  background: #f9fafb;
+  background: rgba(45, 55, 72, 0.1) !important;
+  border-color: rgba(102, 126, 234, 0.2);
 }
 
 .tableCell {
@@ -1939,12 +1942,14 @@
     font-size: 0.75rem;
   }
 
-  .tableHeader span:nth-child(4),
-  .tableHeader span:nth-child(5),
   .tableHeader span:nth-child(6),
-  .tableRow span:nth-child(4),
-  .tableRow span:nth-child(5),
-  .tableRow span:nth-child(6) {
+  .tableHeader span:nth-child(7),
+  .tableHeader span:nth-child(8),
+  .tableHeader span:nth-child(9),
+  .tableRow span:nth-child(6),
+  .tableRow span:nth-child(7),
+  .tableRow span:nth-child(8),
+  .tableRow span:nth-child(9) {
     display: none;
   }
 
@@ -2037,14 +2042,18 @@
     padding: 0.75rem;
   }
 
-  .tableHeader span:nth-child(3),
   .tableHeader span:nth-child(4),
   .tableHeader span:nth-child(5),
   .tableHeader span:nth-child(6),
-  .tableRow span:nth-child(3),
+  .tableHeader span:nth-child(7),
+  .tableHeader span:nth-child(8),
+  .tableHeader span:nth-child(9),
   .tableRow span:nth-child(4),
   .tableRow span:nth-child(5),
-  .tableRow span:nth-child(6) {
+  .tableRow span:nth-child(6),
+  .tableRow span:nth-child(7),
+  .tableRow span:nth-child(8),
+  .tableRow span:nth-child(9) {
     display: none;
   }
 
@@ -2900,14 +2909,18 @@
   padding: 0.75rem;
 }
 
-.tableHeader span:nth-child(3),
 .tableHeader span:nth-child(4),
 .tableHeader span:nth-child(5),
 .tableHeader span:nth-child(6),
-.tableRow span:nth-child(3),
+.tableHeader span:nth-child(7),
+.tableHeader span:nth-child(8),
+.tableHeader span:nth-child(9),
 .tableRow span:nth-child(4),
 .tableRow span:nth-child(5),
-.tableRow span:nth-child(6) {
+.tableRow span:nth-child(6),
+.tableRow span:nth-child(7),
+.tableRow span:nth-child(8),
+.tableRow span:nth-child(9) {
   display: none;
 }
 
