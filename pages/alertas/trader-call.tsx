@@ -437,27 +437,41 @@ const SubscriberView: React.FC = () => {
     { id: 7, symbol: 'AMD', action: 'BUY', entryPrice: 148.50, exitPrice: 155.30, profit: 4.58, status: 'CLOSED', date: '2024-01-15', type: 'WIN' }
   ];
 
-  // Función para calcular métricas reales del dashboard
+  // Función para calcular métricas reales del dashboard usando alertas reales
   const calculateDashboardMetrics = () => {
-    const alertasGanadoras = alertasHistoricas.filter(alert => alert.type === 'WIN').length;
-    const alertasPerdedoras = alertasHistoricas.filter(alert => alert.type === 'LOSS').length;
-    const alertasActivas = alertasVigentes.length;
+    // Usar alertas reales en lugar de datos simulados
+    const alertasActivas = realAlerts.filter(alert => alert.status === 'ACTIVE').length;
+    const alertasCerradas = realAlerts.filter(alert => alert.status === 'CLOSED');
+    
+    // Calcular ganadoras y perdedoras basándose en el profit
+    const alertasGanadoras = alertasCerradas.filter(alert => {
+      const profitValue = parseFloat(alert.profit.replace('%', '').replace('+', ''));
+      return profitValue > 0;
+    }).length;
+    
+    const alertasPerdedoras = alertasCerradas.filter(alert => {
+      const profitValue = parseFloat(alert.profit.replace('%', '').replace('+', ''));
+      return profitValue < 0;
+    }).length;
     
     // Calcular alertas de esta semana (últimos 7 días)
     const ahora = new Date();
     const hace7Dias = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const alertasSemanales = alertasHistoricas.filter(alert => {
+    const alertasSemanales = realAlerts.filter(alert => {
       const fechaAlert = new Date(alert.date);
       return fechaAlert >= hace7Dias;
-    }).length + alertasActivas;
+    }).length;
 
-    // Calcular rentabilidad semanal
-    const gananciasSemanal = alertasHistoricas
-      .filter(alert => {
-        const fechaAlert = new Date(alert.date);
-        return fechaAlert >= hace7Dias;
-      })
-      .reduce((total, alert) => total + alert.profit, 0);
+    // Calcular rentabilidad semanal usando alertas reales
+    const alertasSemanalConGanancias = realAlerts.filter(alert => {
+      const fechaAlert = new Date(alert.date);
+      return fechaAlert >= hace7Dias;
+    });
+
+    const gananciasSemanal = alertasSemanalConGanancias.reduce((total, alert) => {
+      const profitValue = parseFloat(alert.profit.replace('%', '').replace('+', ''));
+      return total + profitValue;
+    }, 0);
 
     const rentabilidadSemanal = gananciasSemanal.toFixed(1);
 
@@ -465,12 +479,15 @@ const SubscriberView: React.FC = () => {
       alertasActivas,
       alertasGanadoras,
       alertasPerdedoras,
-      rentabilidadSemanal: `+${rentabilidadSemanal}%`,
+      rentabilidadSemanal: `${gananciasSemanal >= 0 ? '+' : ''}${rentabilidadSemanal}%`,
       alertasSemanales
     };
   };
 
-  const dashboardMetrics = calculateDashboardMetrics();
+  // Calcular métricas reactivamente cuando cambien las alertas reales
+  const dashboardMetrics = React.useMemo(() => {
+    return calculateDashboardMetrics();
+  }, [realAlerts]);
 
   // Informes disponibles
   const informesDisponibles = [
@@ -504,59 +521,83 @@ const SubscriberView: React.FC = () => {
     { user: 'Carlos Rodríguez', message: '¿Qué opinan sobre el sector tech esta semana? Veo mucha volatilidad.', time: '10:45' }
   ];
 
-  // Función para generar feed de actividad real
+  // Función para generar feed de actividad real usando alertas reales
   const generateRecentActivity = () => {
-    const activity = [];
+    const activity: any[] = [];
     
-         // Agregar comentarios de la comunidad
-     mensajesComunidadBase.slice(1).forEach((msg, index) => {
-       activity.push({
-         id: `comment-${index}`,
-         type: 'comment',
-         user: msg.user,
-         message: msg.message,
-         alert: undefined,
-         timestamp: `${index * 30 + 15} min`,
-         icon: '💬'
-       });
-     });
+    // Agregar comentarios de la comunidad
+    mensajesComunidadBase.slice(1).forEach((msg, index) => {
+      activity.push({
+        id: `comment-${index}`,
+        type: 'comment',
+        user: msg.user,
+        message: msg.message,
+        alert: undefined,
+        timestamp: `${index * 30 + 15} min`,
+        icon: '💬'
+      });
+    });
 
-         // Agregar alertas vigentes como actualizaciones
-     alertasVigentes.forEach((alert, index) => {
-       activity.push({
-         id: `alert-${alert.id}`,
-         type: 'update',
-         user: undefined,
-         message: `Se actualizó el Stop Loss de ${alert.symbol} a ${alert.stopLoss}`,
-         alert: alert.symbol,
-         timestamp: `${index * 45 + 20} min`,
-         icon: '🔄'
-       });
-     });
+    // Agregar alertas reales como actualizaciones
+    realAlerts.slice(0, 3).forEach((alert, index) => {
+      if (alert.status === 'ACTIVE') {
+        activity.push({
+          id: `alert-update-${alert.id}`,
+          type: 'update',
+          user: undefined,
+          message: `${alert.symbol} actualizado: ${alert.profit} P&L`,
+          alert: alert.symbol,
+          timestamp: `${index * 20 + 10} min`,
+          icon: '🔄'
+        });
+      } else if (alert.status === 'CLOSED') {
+        const isWin = alert.profit.includes('+');
+        activity.push({
+          id: `alert-closed-${alert.id}`,
+          type: 'alert',
+          user: undefined,
+          message: `${alert.symbol} cerrada con ${alert.profit} ${isWin ? '✅' : '❌'}`,
+          alert: alert.symbol,
+          timestamp: `${index * 25 + 30} min`,
+          icon: isWin ? '💰' : '📉'
+        });
+      }
+    });
 
-     // Agregar informes como noticias
-     informesDisponibles.slice(0, 2).forEach((informe, index) => {
-       activity.push({
-         id: `informe-${informe.id}`,
-         type: 'news',
-         user: undefined,
-         message: `Nuevo ${informe.type}: ${informe.title}`,
-         alert: undefined,
-         timestamp: `${index * 60 + 45} min`,
-         icon: informe.type === 'video' ? '🎥' : '📰'
-       });
-     });
+    // Agregar alertas recientes como nuevas
+    const alertasRecientes = realAlerts
+      .filter(alert => {
+        const now = new Date();
+        const alertDate = new Date(alert.date);
+        const diffHours = (now.getTime() - alertDate.getTime()) / (1000 * 60 * 60);
+        return diffHours < 24; // Últimas 24 horas
+      })
+      .slice(0, 2);
 
-     // Agregar nueva alerta como ejemplo
-     activity.push({
-       id: 'new-alert',
-       type: 'alert',
-       user: undefined,
-       message: 'Nueva alerta enviada: NVDA - BUY en $520.30',
-       alert: 'NVDA',
-       timestamp: '1h',
-       icon: '🚨'
-     });
+    alertasRecientes.forEach((alert, index) => {
+      activity.push({
+        id: `new-alert-${alert.id}`,
+        type: 'alert',
+        user: undefined,
+        message: `Nueva alerta: ${alert.symbol} - ${alert.action} en ${alert.entryPrice}`,
+        alert: alert.symbol,
+        timestamp: `${index * 60 + 45} min`,
+        icon: '🚨'
+      });
+    });
+
+    // Agregar informes como noticias
+    informesDisponibles.slice(0, 1).forEach((informe, index) => {
+      activity.push({
+        id: `informe-${informe.id}`,
+        type: 'news',
+        user: undefined,
+        message: `Nuevo ${informe.type}: ${informe.title}`,
+        alert: undefined,
+        timestamp: `${index * 60 + 120} min`,
+        icon: informe.type === 'video' ? '🎥' : '📰'
+      });
+    });
 
     // Ordenar por timestamp (más reciente primero)
     return activity.sort((a, b) => {
@@ -568,7 +609,10 @@ const SubscriberView: React.FC = () => {
     }).slice(0, 6); // Mostrar solo los 6 más recientes
   };
 
-  const recentActivity = generateRecentActivity();
+  // Generar actividad reciente reactivamente cuando cambien las alertas
+  const recentActivity = React.useMemo(() => {
+    return generateRecentActivity();
+  }, [realAlerts]);
 
   // Función para cargar alertas desde la API
   const loadAlerts = async () => {
@@ -810,19 +854,23 @@ const SubscriberView: React.FC = () => {
           <div className={styles.performanceCard}>
             <h4>Win Rate</h4>
             <p className={styles.performanceValue}>
-              {(dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras) * 100).toFixed(1)}%
+              {dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras > 0 
+                ? ((dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras)) * 100).toFixed(1) 
+                : '0.0'}%
             </p>
           </div>
           <div className={styles.performanceCard}>
             <h4>Total Alertas</h4>
             <p className={styles.performanceValue}>
-              {dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras + dashboardMetrics.alertasActivas}
+              {realAlerts.length}
             </p>
           </div>
           <div className={styles.performanceCard}>
             <h4>Ratio G/P</h4>
             <p className={styles.performanceValue}>
-              {(dashboardMetrics.alertasGanadoras / dashboardMetrics.alertasPerdedoras).toFixed(1)}:1
+              {dashboardMetrics.alertasPerdedoras > 0 
+                ? (dashboardMetrics.alertasGanadoras / dashboardMetrics.alertasPerdedoras).toFixed(1) 
+                : dashboardMetrics.alertasGanadoras > 0 ? '∞' : '0.0'}:1
             </p>
           </div>
         </div>
