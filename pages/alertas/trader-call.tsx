@@ -405,6 +405,11 @@ const SubscriberView: React.FC = () => {
   const [creatingReport, setCreatingReport] = useState(false);
   const [userRole, setUserRole] = React.useState<string>('');
   const [refreshingActivity, setRefreshingActivity] = useState(false);
+  
+  // Estados para filtros
+  const [filterSymbol, setFilterSymbol] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterDate, setFilterDate] = useState('');
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -747,6 +752,41 @@ const SubscriberView: React.FC = () => {
     }
   };
 
+  // Función para filtrar alertas
+  const getFilteredAlerts = () => {
+    let filtered = [...realAlerts];
+
+    // Filtrar por símbolo
+    if (filterSymbol) {
+      filtered = filtered.filter(alert => 
+        alert.symbol.toLowerCase().includes(filterSymbol.toLowerCase())
+      );
+    }
+
+    // Filtrar por estado
+    if (filterStatus) {
+      filtered = filtered.filter(alert => alert.status === filterStatus);
+    }
+
+    // Filtrar por fecha
+    if (filterDate) {
+      const filterDateObj = new Date(filterDate);
+      filtered = filtered.filter(alert => {
+        const alertDate = new Date(alert.date || alert.createdAt);
+        return alertDate >= filterDateObj;
+      });
+    }
+
+    return filtered;
+  };
+
+  // Limpiar filtros
+  const clearFilters = () => {
+    setFilterSymbol('');
+    setFilterStatus('');
+    setFilterDate('');
+  };
+
   // Cargar alertas y informes al montar el componente
   React.useEffect(() => {
     loadAlerts();
@@ -951,13 +991,22 @@ const SubscriberView: React.FC = () => {
       
       {/* Filtros */}
       <div className={styles.alertFilters}>
-        <select className={styles.filterSelect}>
+        <select 
+          className={styles.filterSelect}
+          value={filterSymbol}
+          onChange={(e) => setFilterSymbol(e.target.value)}
+        >
           <option value="">Filtrar por símbolo</option>
-          <option value="AAPL">AAPL</option>
-          <option value="TSLA">TSLA</option>
-          <option value="MSFT">MSFT</option>
+          {/* Generar opciones dinámicamente basándose en alertas existentes */}
+          {Array.from(new Set(realAlerts.map(alert => alert.symbol))).map(symbol => (
+            <option key={symbol} value={symbol}>{symbol}</option>
+          ))}
         </select>
-        <select className={styles.filterSelect}>
+        <select 
+          className={styles.filterSelect}
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+        >
           <option value="">Filtrar por estado</option>
           <option value="ACTIVE">Activa</option>
           <option value="CLOSED">Cerrada</option>
@@ -967,7 +1016,19 @@ const SubscriberView: React.FC = () => {
           type="date" 
           className={styles.filterDate}
           placeholder="Fecha desde"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
         />
+        {/* Botón para limpiar filtros */}
+        {(filterSymbol || filterStatus || filterDate) && (
+          <button 
+            className={styles.clearFilters}
+            onClick={clearFilters}
+            title="Limpiar todos los filtros"
+          >
+            ✕ Limpiar
+          </button>
+        )}
       </div>
 
       {/* Tabla de alertas */}
@@ -982,17 +1043,50 @@ const SubscriberView: React.FC = () => {
           <span>Estado</span>
         </div>
         
-        {/* Mostrar alertas reales */}
-        {loadingAlerts ? (
-          <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem' }}>
-            <span>Cargando alertas...</span>
-          </div>
-        ) : realAlerts.length === 0 ? (
-          <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-            <span>No hay alertas creadas aún. ¡Crea tu primera alerta!</span>
-          </div>
-        ) : (
-          realAlerts.map((alert) => (
+        {/* Mostrar alertas reales filtradas */}
+        {(() => {
+          const filteredAlerts = getFilteredAlerts();
+          
+          if (loadingAlerts) {
+            return (
+              <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem' }}>
+                <span>Cargando alertas...</span>
+              </div>
+            );
+          }
+          
+          if (realAlerts.length === 0) {
+            return (
+              <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                <span>No hay alertas creadas aún. ¡Crea tu primera alerta!</span>
+              </div>
+            );
+          }
+          
+          if (filteredAlerts.length === 0) {
+            return (
+              <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                <span>No se encontraron alertas con los filtros aplicados.</span>
+                <br />
+                <button 
+                  onClick={clearFilters}
+                  style={{ 
+                    marginTop: '0.5rem', 
+                    background: 'none', 
+                    border: '1px solid var(--primary-color)', 
+                    color: 'var(--primary-color)', 
+                    padding: '0.25rem 0.5rem', 
+                    borderRadius: '4px', 
+                    cursor: 'pointer' 
+                  }}
+                >
+                  Limpiar filtros
+                </button>
+              </div>
+            );
+          }
+          
+          return filteredAlerts.map((alert) => (
             <div key={alert.id} className={styles.tableRow}>
               <span>{alert.date}</span>
               <span className={styles.symbol}>{alert.symbol}</span>
@@ -1008,8 +1102,8 @@ const SubscriberView: React.FC = () => {
                 {alert.status === 'ACTIVE' ? 'ACTIVA' : 'CERRADA'}
               </span>
             </div>
-          ))
-        )}
+          ));
+        })()}
       </div>
     </div>
   );
