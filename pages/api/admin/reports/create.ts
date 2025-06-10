@@ -24,12 +24,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // Verificar que sea admin
+    // Buscar el usuario para obtener su información
     const user = await User.findOne({ email: session.user.email });
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ 
+    if (!user) {
+      return res.status(404).json({ 
         success: false, 
-        message: 'Acceso denegado. Solo administradores pueden crear informes.' 
+        message: 'Usuario no encontrado' 
       });
     }
 
@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       videoMuxId,
       pdfUrl,
       imageUrl,
-      status = 'draft',
+      status = 'published',
       tags = [],
       isFeature = false
     } = req.body;
