@@ -1132,15 +1132,13 @@ const SubscriberView: React.FC = () => {
     <div className={styles.informesContent}>
       <div className={styles.informesHeader}>
         <h2 className={styles.sectionTitle}>Informes</h2>
-        {userRole === 'admin' && (
-          <button 
-            className={styles.adminCreateButton}
-            onClick={() => router.push('/admin/reports')}
-            title="Crear nuevo informe"
-          >
-            + Crear Informe
-          </button>
-        )}
+        <button 
+          className={styles.createButton}
+          onClick={() => router.push('/admin/reports')}
+          title="Crear nuevo informe"
+        >
+          + Crear Informe
+        </button>
       </div>
       
       {loadingInformes ? (
@@ -1207,23 +1205,17 @@ const SubscriberView: React.FC = () => {
           <div className={styles.emptyIcon}>📄</div>
           <h3>No hay informes disponibles</h3>
           <p>Los informes y análisis aparecerán aquí cuando estén disponibles.</p>
-          {userRole === 'admin' ? (
-            <div className={styles.adminEmptyActions}>
-              <p className={styles.emptyHint}>
-                Como administrador, puedes crear el primer informe.
-              </p>
-              <button 
-                className={styles.emptyCreateButton}
-                onClick={() => router.push('/admin/reports')}
-              >
-                Crear Primer Informe
-              </button>
-            </div>
-          ) : (
+          <div className={styles.emptyActions}>
             <p className={styles.emptyHint}>
-              Próximamente: análisis semanales, reportes de performance y contenido educativo.
+              Puedes crear el primer informe para comenzar.
             </p>
-          )}
+            <button 
+              className={styles.emptyCreateButton}
+              onClick={() => router.push('/admin/reports')}
+            >
+              Crear Primer Informe
+            </button>
+          </div>
         </div>
       )}
 

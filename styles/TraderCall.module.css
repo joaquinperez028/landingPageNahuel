@@ -1051,7 +1051,7 @@
   gap: 1rem;
 }
 
-.adminCreateButton {
+.createButton {
   padding: 0.5rem 1rem;
   background: #10b981;
   color: white;
@@ -1064,12 +1064,12 @@
   white-space: nowrap;
 }
 
-.adminCreateButton:hover {
+.createButton:hover {
   background: #059669;
   transform: translateY(-1px);
 }
 
-.adminEmptyActions {
+.emptyActions {
   margin-top: 1rem;
 }
 
@@ -1303,7 +1303,7 @@
     gap: 1rem;
   }
 
-  .adminCreateButton {
+  .createButton {
     width: 100%;
     text-align: center;
   }
