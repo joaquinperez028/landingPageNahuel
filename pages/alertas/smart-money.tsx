@@ -379,13 +379,567 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
   );
 };
 
-// Vista de suscriptor simplificada
+// Vista de suscriptor completa
 const SubscriberView: React.FC = () => {
+  const { data: session } = useSession();
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [userRole, setUserRole] = useState<string>('normal');
+  const [informes, setInformes] = useState<any[]>([]);
+  const [loadingInformes, setLoadingInformes] = useState(true);
+  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [showCreateReportModal, setShowCreateReportModal] = useState(false);
+  const [creatingReport, setCreatingReport] = useState(false);
+
+  // Verificar el rol del usuario
+  useEffect(() => {
+    const checkUserRole = async () => {
+      if (!session?.user?.email) return;
+      
+      try {
+        const response = await fetch(`/api/users/role?email=${session.user.email}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUserRole(data.role || 'normal');
+        }
+      } catch (error) {
+        console.error('Error verificando rol:', error);
+      }
+    };
+
+    checkUserRole();
+  }, [session]);
+
+  // Función para cargar informes desde la API
+  const loadInformes = async () => {
+    setLoadingInformes(true);
+    try {
+      const response = await fetch('/api/reports/list?type=smart-money');
+      if (response.ok) {
+        const data = await response.json();
+        setInformes(data.data?.reports || []);
+        console.log('Informes cargados:', data.data?.reports?.length || 0);
+      } else {
+        console.error('Error al cargar informes:', response.status);
+      }
+    } catch (error) {
+      console.error('Error al cargar informes:', error);
+    } finally {
+      setLoadingInformes(false);
+    }
+  };
+
+  const openReport = async (reportId: string) => {
+    try {
+      const response = await fetch(`/api/reports/view/${reportId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedReport(data.data);
+      }
+    } catch (error) {
+      console.error('Error al cargar informe:', error);
+    }
+  };
+
+  const handleCreateReport = async (formData: any) => {
+    setCreatingReport(true);
+    try {
+      const response = await fetch('/api/reports/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({...formData, category: 'smart-money'}),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const newReport = result.data;
+        setInformes(prev => [newReport, ...prev]);
+        setShowCreateReportModal(false);
+        alert('Informe creado exitosamente');
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error al crear informe:', error);
+      alert('Error al crear el informe');
+    } finally {
+      setCreatingReport(false);
+    }
+  };
+
+  // Cargar informes al montar el componente
+  useEffect(() => {
+    loadInformes();
+  }, []);
+
+  const renderDashboard = () => (
+    <div className={styles.dashboardContent}>
+      <div className={styles.dashboardHeader}>
+        <h2 className={styles.sectionTitle}>Dashboard Smart Money</h2>
+        <p className={styles.sectionDescription}>
+          Panel de control para análisis de flujos institucionales
+        </p>
+      </div>
+      
+      <div className={styles.metricsGrid}>
+        <div className={styles.metricCard}>
+          <div className={styles.metricIcon}>💰</div>
+          <h3 className={styles.metricNumber}>+94.2%</h3>
+          <p className={styles.metricLabel}>Rendimiento Anual</p>
+        </div>
+        <div className={styles.metricCard}>
+          <div className={styles.metricIcon}>🔍</div>
+          <h3 className={styles.metricNumber}>89.7%</h3>
+          <p className={styles.metricLabel}>Precisión de Detección</p>
+        </div>
+        <div className={styles.metricCard}>
+          <div className={styles.metricIcon}>📊</div>
+          <h3 className={styles.metricNumber}>+1,300</h3>
+          <p className={styles.metricLabel}>Flujos Detectados</p>
+        </div>
+        <div className={styles.metricCard}>
+          <div className={styles.metricIcon}>👥</div>
+          <h3 className={styles.metricNumber}>+500</h3>
+          <p className={styles.metricLabel}>Usuarios Activos</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderInformes = () => (
+    <div className={styles.informesContent}>
+      <div className={styles.informesHeader}>
+        <h2 className={styles.sectionTitle}>Informes Smart Money</h2>
+        {userRole === 'admin' && (
+          <button 
+            className={styles.createButton}
+            onClick={() => setShowCreateReportModal(true)}
+            title="Crear nuevo informe"
+          >
+            + Crear Informe
+          </button>
+        )}
+      </div>
+      
+      {loadingInformes ? (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>⏳</div>
+          <h3>Cargando informes...</h3>
+        </div>
+      ) : informes.length > 0 ? (
+        <div className={styles.informesList}>
+          {informes.map((informe) => (
+            <div key={informe.id || informe._id} className={styles.informeCard}>
+              <div className={styles.informeHeader}>
+                <h3>{informe.title}</h3>
+                <span className={styles.informeDate}>
+                  {new Date(informe.publishedAt || informe.createdAt).toLocaleDateString('es-ES')}
+                </span>
+                {informe.isFeature && (
+                  <span className={styles.featuredBadge}>⭐ Destacado</span>
+                )}
+              </div>
+              
+              <div className={styles.informeMeta}>
+                <span className={styles.informeType}>
+                  {informe.type === 'video' ? '🎥' : informe.type === 'analisis' ? '📊' : '📄'} 
+                  {informe.type === 'video' ? 'Video' : informe.type === 'analisis' ? 'Análisis' : 'Informe'}
+                </span>
+                {informe.readTime && (
+                  <span className={styles.readTime}>⏱️ {informe.readTime} min lectura</span>
+                )}
+                <span className={styles.views}>👁️ {informe.views} vistas</span>
+              </div>
+
+              <p className={styles.informeDescription}>
+                {informe.summary}
+              </p>
+
+              {informe.tags && informe.tags.length > 0 && (
+                <div className={styles.informeTags}>
+                  {informe.tags.slice(0, 3).map((tag: string, index: number) => (
+                    <span key={index} className={styles.tag}>#{tag}</span>
+                  ))}
+                </div>
+              )}
+
+              <div className={styles.informeActions}>
+                <button 
+                  className={styles.readButton}
+                  onClick={() => openReport(informe.id || informe._id)}
+                >
+                  {informe.type === 'video' ? 'Ver Video' : 'Leer Informe'}
+                </button>
+                {informe.pdfUrl && (
+                  <button className={styles.downloadButton}>
+                    <Download size={16} />
+                    Descargar PDF
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>📄</div>
+          <h3>No hay informes disponibles</h3>
+          <p>Los informes de Smart Money aparecerán aquí cuando estén disponibles.</p>
+          {userRole === 'admin' && (
+            <div className={styles.emptyActions}>
+              <p className={styles.emptyHint}>
+                Puedes crear el primer informe para comenzar.
+              </p>
+              <button 
+                className={styles.emptyCreateButton}
+                onClick={() => setShowCreateReportModal(true)}
+              >
+                Crear Primer Informe
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Modal para mostrar informe completo */}
+      {selectedReport && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedReport(null)}>
+          <div className={styles.reportModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.reportHeader}>
+              <h2>{selectedReport.title}</h2>
+              <button 
+                className={styles.closeModal}
+                onClick={() => setSelectedReport(null)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className={styles.reportMeta}>
+              <span>Por {selectedReport.author}</span>
+              <span>{new Date(selectedReport.publishedAt || selectedReport.createdAt).toLocaleDateString('es-ES')}</span>
+            </div>
+
+            <div className={styles.reportContent}>
+              {selectedReport.type === 'video' && selectedReport.videoMuxId ? (
+                <div className={styles.videoContainer}>
+                  <VideoPlayerMux 
+                    playbackId={selectedReport.videoMuxId} 
+                    autoplay={false}
+                    className={styles.reportVideo}
+                  />
+                </div>
+              ) : null}
+              
+              <div className={styles.reportText}>
+                {selectedReport.content.split('\n').map((paragraph: string, index: number) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+
+              {/* Sección de comentarios */}
+              <ReportComments reportId={selectedReport.id || selectedReport._id} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para crear informe */}
+      {showCreateReportModal && (
+        <CreateReportModal 
+          onClose={() => setShowCreateReportModal(false)}
+          onSubmit={handleCreateReport}
+          loading={creatingReport}
+        />
+      )}
+    </div>
+  );
+
+  // Componente para los comentarios de informes
+  const ReportComments = ({ reportId }: { reportId: string }) => {
+    const { data: session } = useSession();
+    const [comments, setComments] = useState<any[]>([]);
+    const [newComment, setNewComment] = useState('');
+    const [loadingComments, setLoadingComments] = useState(true);
+    const [submittingComment, setSubmittingComment] = useState(false);
+    const [replyingTo, setReplyingTo] = useState<any>(null);
+
+    // Cargar comentarios cuando se monta el componente
+    useEffect(() => {
+      if (reportId) {
+        fetchComments();
+      }
+    }, [reportId]);
+
+    const fetchComments = async () => {
+      try {
+        const response = await fetch(`/api/reports/comments?reportId=${reportId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setComments(data.comments || []);
+        }
+      } catch (error) {
+        console.error('Error cargando comentarios:', error);
+      } finally {
+        setLoadingComments(false);
+      }
+    };
+
+    const submitComment = async () => {
+      if (!newComment.trim() || !session) return;
+      
+      setSubmittingComment(true);
+      try {
+        const commentData: any = {
+          reportId,
+          comment: newComment.trim()
+        };
+
+        if (replyingTo) {
+          commentData.replyTo = {
+            commentId: replyingTo._id || replyingTo.id,
+            userName: replyingTo.userName,
+            comment: replyingTo.comment
+          };
+        }
+
+        const response = await fetch('/api/reports/comments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(commentData),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setComments(prev => [...prev, data.comment]);
+          setNewComment('');
+          setReplyingTo(null);
+        }
+      } catch (error) {
+        console.error('Error enviando comentario:', error);
+      } finally {
+        setSubmittingComment(false);
+      }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        submitComment();
+      } else if (e.key === 'Escape') {
+        setReplyingTo(null);
+      }
+    };
+
+    const formatCommentTime = (timestamp: string) => {
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffMins < 1) return 'Hace un momento';
+      if (diffMins < 60) return `Hace ${diffMins} min`;
+      if (diffHours < 24) return `Hace ${diffHours}h`;
+      if (diffDays < 7) return `Hace ${diffDays}d`;
+      return date.toLocaleDateString('es-ES');
+    };
+
+    const getCharCountClass = () => {
+      if (newComment.length >= 450) return 'error';
+      if (newComment.length >= 400) return 'warning';
+      return '';
+    };
+
+    return (
+      <div className={styles.reportComments}>
+        <div className={styles.commentsHeader}>
+          <h3 className={styles.commentsTitle}>
+            💬 Comentarios
+            {comments.length > 0 && (
+              <span className={styles.commentsCount}>{comments.length}</span>
+            )}
+          </h3>
+        </div>
+
+        {/* Formulario para nuevo comentario */}
+        {session ? (
+          <div className={styles.commentForm}>
+            {replyingTo && (
+              <div className={styles.commentReply}>
+                <div className={styles.commentReplyUser}>
+                  Respondiendo a @{replyingTo.userName}
+                </div>
+                <div className={styles.commentReplyText}>
+                  {replyingTo.comment.length > 100 
+                    ? `${replyingTo.comment.substring(0, 100)}...` 
+                    : replyingTo.comment}
+                </div>
+                <button 
+                  onClick={() => setReplyingTo(null)}
+                  style={{ 
+                    background: 'none', 
+                    border: 'none', 
+                    color: '#ef4444', 
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    marginTop: '0.5rem'
+                  }}
+                >
+                  ✕ Cancelar respuesta
+                </button>
+              </div>
+            )}
+            
+            <div className={styles.commentInputContainer}>
+              {session.user.image ? (
+                <img 
+                  src={session.user.image} 
+                  alt={session.user.name} 
+                  className={styles.commentUserAvatar}
+                />
+              ) : (
+                <div className={styles.commentUserPlaceholder}>
+                  {session.user.name?.charAt(0).toUpperCase()}
+                </div>
+              )}
+              
+              <div className={styles.commentInputWrapper}>
+                <textarea
+                  className={styles.commentTextarea}
+                  placeholder={replyingTo ? `Responder a ${replyingTo.userName}...` : "Escribe tu comentario..."}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  maxLength={500}
+                />
+                
+                <div className={styles.commentActions}>
+                  <span className={`${styles.commentCharCount} ${styles[getCharCountClass()]}`}>
+                    {newComment.length}/500
+                  </span>
+                  
+                  <button 
+                    className={styles.commentSubmitButton}
+                    onClick={submitComment}
+                    disabled={!newComment.trim() || submittingComment || newComment.length > 500}
+                  >
+                    {submittingComment ? 'Enviando...' : (replyingTo ? 'Responder' : 'Comentar')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.commentForm}>
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+              Debes iniciar sesión para comentar
+            </p>
+          </div>
+        )}
+
+        {/* Lista de comentarios */}
+        {loadingComments ? (
+          <div className={styles.commentsLoading}>
+            <div>⏳ Cargando comentarios...</div>
+          </div>
+        ) : comments.length > 0 ? (
+          <div className={styles.commentsList}>
+            {comments.map((comment) => (
+              <div key={comment._id || comment.id} className={styles.comment}>
+                {comment.replyTo && (
+                  <div className={styles.commentReply}>
+                    <div className={styles.commentReplyUser}>
+                      @{comment.replyTo.userName}
+                    </div>
+                    <div className={styles.commentReplyText}>
+                      {comment.replyTo.comment.length > 100 
+                        ? `${comment.replyTo.comment.substring(0, 100)}...` 
+                        : comment.replyTo.comment}
+                    </div>
+                  </div>
+                )}
+                
+                <div className={styles.commentHeader}>
+                  <div className={styles.commentUser}>
+                    {comment.userImage ? (
+                      <img 
+                        src={comment.userImage} 
+                        alt={comment.userName} 
+                        className={styles.commentAvatar}
+                      />
+                    ) : (
+                      <div className={styles.commentAvatarPlaceholder}>
+                        {comment.userName?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    {comment.userName}
+                  </div>
+                  <span className={styles.commentTime}>
+                    {formatCommentTime(comment.timestamp)}
+                  </span>
+                </div>
+                
+                <div className={styles.commentContent}>
+                  {comment.comment}
+                </div>
+                
+                {session && (
+                  <button 
+                    className={styles.commentReplyButton}
+                    onClick={() => setReplyingTo(comment)}
+                  >
+                    ↩️ Responder
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className={styles.commentsEmpty}>
+            <div className={styles.commentsEmptyIcon}>💬</div>
+            <h4>Aún no hay comentarios</h4>
+            <p>Sé el primero en comentar este informe</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className={styles.subscriberView}>
-      <div className={styles.container}>
-        <h1>Dashboard de Smart Money</h1>
-        <p>Contenido para usuarios suscritos...</p>
+      <div className={styles.subscriberHeader}>
+        <h1 className={styles.pageTitle}>Smart Money Dashboard</h1>
+        <p className={styles.pageDescription}>
+          Panel de control para seguimiento de flujos institucionales
+        </p>
+      </div>
+
+      <div className={styles.subscriberContent}>
+        <nav className={styles.subscriberNav}>
+          <button 
+            className={`${styles.navButton} ${activeTab === 'dashboard' ? styles.navActive : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            📊 Dashboard
+          </button>
+          <button 
+            className={`${styles.navButton} ${activeTab === 'informes' ? styles.navActive : ''}`}
+            onClick={() => setActiveTab('informes')}
+          >
+            📄 Informes
+          </button>
+        </nav>
+
+        <div className={styles.subscriberTabContent}>
+          {activeTab === 'dashboard' && renderDashboard()}
+          {activeTab === 'informes' && renderInformes()}
+        </div>
       </div>
     </div>
   );
@@ -504,6 +1058,187 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       historicalAlerts
     }
   };
+};
+
+// Componente modal para crear informe (igual al de trader-call)
+const CreateReportModal = ({ onClose, onSubmit, loading }: {
+  onClose: () => void;
+  onSubmit: (data: any) => void;
+  loading: boolean;
+}) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    type: 'informe',
+    summary: '',
+    content: '',
+    readTime: '',
+    tags: '',
+    author: 'Nahuel Lozano',
+    isFeature: false,
+    publishedAt: new Date().toISOString().split('T')[0]
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.title.trim() || !formData.content.trim()) {
+      alert('Por favor completa al menos el título y el contenido');
+      return;
+    }
+
+    const submitData = {
+      ...formData,
+      tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
+      readTime: formData.readTime ? parseInt(formData.readTime) : null,
+      publishedAt: new Date(formData.publishedAt)
+    };
+
+    onSubmit(submitData);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  return (
+    <div className={styles.modalOverlay}>
+      <div className={styles.createReportModal}>
+        <div className={styles.modalHeader}>
+          <h2>Crear Nuevo Informe Smart Money</h2>
+          <button 
+            className={styles.closeModal}
+            onClick={onClose}
+            type="button"
+          >
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className={styles.createReportForm}>
+          <div className={styles.formGroup}>
+            <label>Título del Informe</label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              placeholder="Análisis de flujos institucionales..."
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Tipo de Contenido</label>
+            <select
+              value={formData.type}
+              onChange={(e) => handleInputChange('type', e.target.value)}
+            >
+              <option value="informe">Informe</option>
+              <option value="analisis">Análisis</option>
+              <option value="video">Video</option>
+            </select>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Resumen</label>
+            <textarea
+              value={formData.summary}
+              onChange={(e) => handleInputChange('summary', e.target.value)}
+              placeholder="Breve descripción del contenido..."
+              rows={3}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Contenido Principal</label>
+            <textarea
+              value={formData.content}
+              onChange={(e) => handleInputChange('content', e.target.value)}
+              placeholder="Contenido completo del informe..."
+              rows={8}
+              required
+            />
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Tiempo de Lectura (min)</label>
+              <input
+                type="number"
+                value={formData.readTime}
+                onChange={(e) => handleInputChange('readTime', e.target.value)}
+                placeholder="5"
+                min="1"
+                max="60"
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Autor</label>
+              <input
+                type="text"
+                value={formData.author}
+                onChange={(e) => handleInputChange('author', e.target.value)}
+                placeholder="Nahuel Lozano"
+              />
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Tags (separados por comas)</label>
+            <input
+              type="text"
+              value={formData.tags}
+              onChange={(e) => handleInputChange('tags', e.target.value)}
+              placeholder="smart-money, flujos, institucional"
+            />
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Fecha de Publicación</label>
+              <input
+                type="date"
+                value={formData.publishedAt}
+                onChange={(e) => handleInputChange('publishedAt', e.target.value)}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={formData.isFeature}
+                  onChange={(e) => handleInputChange('isFeature', e.target.checked.toString())}
+                />
+                <span>Informe Destacado</span>
+              </label>
+            </div>
+          </div>
+
+          <div className={styles.formActions}>
+            <button 
+              type="button" 
+              className={styles.cancelButton} 
+              onClick={onClose}
+              disabled={loading}
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              className={styles.submitButton}
+              disabled={loading}
+            >
+              {loading ? 'Creando...' : 'Crear Informe'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default SmartMoneyPage; 

@@ -1196,6 +1196,9 @@ const SubscriberView: React.FC = () => {
                   <p key={index}>{paragraph}</p>
                 ))}
               </div>
+
+              {/* Sección de comentarios */}
+              <ReportComments reportId={selectedReport.id || selectedReport._id} />
             </div>
           </div>
         </div>
@@ -1473,6 +1476,260 @@ const SubscriberView: React.FC = () => {
   };
 
   const renderComunidad = () => <CommunityChat />;
+
+  // Componente para los comentarios de informes
+  const ReportComments = ({ reportId }: { reportId: string }) => {
+    const { data: session } = useSession();
+    const [comments, setComments] = useState<any[]>([]);
+    const [newComment, setNewComment] = useState('');
+    const [loadingComments, setLoadingComments] = useState(true);
+    const [submittingComment, setSubmittingComment] = useState(false);
+    const [replyingTo, setReplyingTo] = useState<any>(null);
+
+    // Cargar comentarios cuando se monta el componente
+    useEffect(() => {
+      if (reportId) {
+        fetchComments();
+      }
+    }, [reportId]);
+
+    const fetchComments = async () => {
+      try {
+        const response = await fetch(`/api/reports/comments?reportId=${reportId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setComments(data.comments || []);
+        }
+      } catch (error) {
+        console.error('Error cargando comentarios:', error);
+      } finally {
+        setLoadingComments(false);
+      }
+    };
+
+    const submitComment = async () => {
+      if (!newComment.trim() || !session) return;
+      
+      setSubmittingComment(true);
+      try {
+        const commentData: any = {
+          reportId,
+          comment: newComment.trim()
+        };
+
+        if (replyingTo) {
+          commentData.replyTo = {
+            commentId: replyingTo._id || replyingTo.id,
+            userName: replyingTo.userName,
+            comment: replyingTo.comment
+          };
+        }
+
+        const response = await fetch('/api/reports/comments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(commentData),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setComments(prev => [...prev, data.comment]);
+          setNewComment('');
+          setReplyingTo(null);
+        }
+      } catch (error) {
+        console.error('Error enviando comentario:', error);
+      } finally {
+        setSubmittingComment(false);
+      }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        submitComment();
+      } else if (e.key === 'Escape') {
+        setReplyingTo(null);
+      }
+    };
+
+    const formatCommentTime = (timestamp: string) => {
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffMins < 1) return 'Hace un momento';
+      if (diffMins < 60) return `Hace ${diffMins} min`;
+      if (diffHours < 24) return `Hace ${diffHours}h`;
+      if (diffDays < 7) return `Hace ${diffDays}d`;
+      return date.toLocaleDateString('es-ES');
+    };
+
+    const getCharCountClass = () => {
+      if (newComment.length >= 450) return 'error';
+      if (newComment.length >= 400) return 'warning';
+      return '';
+    };
+
+    return (
+      <div className={styles.reportComments}>
+        <div className={styles.commentsHeader}>
+          <h3 className={styles.commentsTitle}>
+            💬 Comentarios
+            {comments.length > 0 && (
+              <span className={styles.commentsCount}>{comments.length}</span>
+            )}
+          </h3>
+        </div>
+
+        {/* Formulario para nuevo comentario */}
+        {session ? (
+          <div className={styles.commentForm}>
+            {replyingTo && (
+              <div className={styles.commentReply}>
+                <div className={styles.commentReplyUser}>
+                  Respondiendo a @{replyingTo.userName}
+                </div>
+                <div className={styles.commentReplyText}>
+                  {replyingTo.comment.length > 100 
+                    ? `${replyingTo.comment.substring(0, 100)}...` 
+                    : replyingTo.comment}
+                </div>
+                <button 
+                  onClick={() => setReplyingTo(null)}
+                  style={{ 
+                    background: 'none', 
+                    border: 'none', 
+                    color: '#ef4444', 
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    marginTop: '0.5rem'
+                  }}
+                >
+                  ✕ Cancelar respuesta
+                </button>
+              </div>
+            )}
+            
+            <div className={styles.commentInputContainer}>
+              {session.user.image ? (
+                <img 
+                  src={session.user.image} 
+                  alt={session.user.name} 
+                  className={styles.commentUserAvatar}
+                />
+              ) : (
+                <div className={styles.commentUserPlaceholder}>
+                  {session.user.name?.charAt(0).toUpperCase()}
+                </div>
+              )}
+              
+              <div className={styles.commentInputWrapper}>
+                <textarea
+                  className={styles.commentTextarea}
+                  placeholder={replyingTo ? `Responder a ${replyingTo.userName}...` : "Escribe tu comentario..."}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  maxLength={500}
+                />
+                
+                <div className={styles.commentActions}>
+                  <span className={`${styles.commentCharCount} ${styles[getCharCountClass()]}`}>
+                    {newComment.length}/500
+                  </span>
+                  
+                  <button 
+                    className={styles.commentSubmitButton}
+                    onClick={submitComment}
+                    disabled={!newComment.trim() || submittingComment || newComment.length > 500}
+                  >
+                    {submittingComment ? 'Enviando...' : (replyingTo ? 'Responder' : 'Comentar')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.commentForm}>
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+              Debes iniciar sesión para comentar
+            </p>
+          </div>
+        )}
+
+        {/* Lista de comentarios */}
+        {loadingComments ? (
+          <div className={styles.commentsLoading}>
+            <div>⏳ Cargando comentarios...</div>
+          </div>
+        ) : comments.length > 0 ? (
+          <div className={styles.commentsList}>
+            {comments.map((comment) => (
+              <div key={comment._id || comment.id} className={styles.comment}>
+                {comment.replyTo && (
+                  <div className={styles.commentReply}>
+                    <div className={styles.commentReplyUser}>
+                      @{comment.replyTo.userName}
+                    </div>
+                    <div className={styles.commentReplyText}>
+                      {comment.replyTo.comment.length > 100 
+                        ? `${comment.replyTo.comment.substring(0, 100)}...` 
+                        : comment.replyTo.comment}
+                    </div>
+                  </div>
+                )}
+                
+                <div className={styles.commentHeader}>
+                  <div className={styles.commentUser}>
+                    {comment.userImage ? (
+                      <img 
+                        src={comment.userImage} 
+                        alt={comment.userName} 
+                        className={styles.commentAvatar}
+                      />
+                    ) : (
+                      <div className={styles.commentAvatarPlaceholder}>
+                        {comment.userName?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    {comment.userName}
+                  </div>
+                  <span className={styles.commentTime}>
+                    {formatCommentTime(comment.timestamp)}
+                  </span>
+                </div>
+                
+                <div className={styles.commentContent}>
+                  {comment.comment}
+                </div>
+                
+                {session && (
+                  <button 
+                    className={styles.commentReplyButton}
+                    onClick={() => setReplyingTo(comment)}
+                  >
+                    ↩️ Responder
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className={styles.commentsEmpty}>
+            <div className={styles.commentsEmptyIcon}>💬</div>
+            <h4>Aún no hay comentarios</h4>
+            <p>Sé el primero en comentar este informe</p>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Modal para crear nueva alerta
   const renderCreateAlertModal = () => {
