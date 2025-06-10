@@ -687,11 +687,15 @@ const SubscriberView: React.FC = () => {
     try {
       const response = await fetch(`/api/reports/${reportId}`);
       if (response.ok) {
-        const report = await response.json();
-        setSelectedReport(report);
+        const data = await response.json();
+        setSelectedReport(data.data.report);
+      } else {
+        console.error('Error al cargar informe:', response.status);
+        alert('Error al cargar el informe');
       }
     } catch (error) {
       console.error('Error al cargar informe:', error);
+      alert('Error al cargar el informe');
     }
   };
 
@@ -1181,7 +1185,7 @@ const SubscriberView: React.FC = () => {
       ) : informes.length > 0 ? (
         <div className={styles.informesList}>
           {informes.map((informe) => (
-            <div key={informe.id} className={styles.informeCard}>
+            <div key={informe.id || informe._id} className={styles.informeCard}>
               <div className={styles.informeHeader}>
                 <h3>{informe.title}</h3>
                 <span className={styles.informeDate}>
@@ -1218,7 +1222,7 @@ const SubscriberView: React.FC = () => {
               <div className={styles.informeActions}>
                 <button 
                   className={styles.readButton}
-                  onClick={() => openReport(informe.id)}
+                  onClick={() => openReport(informe.id || informe._id)}
                 >
                   {informe.type === 'video' ? 'Ver Video' : 'Leer Informe'}
                 </button>
