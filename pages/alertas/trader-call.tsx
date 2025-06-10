@@ -489,68 +489,35 @@ const SubscriberView: React.FC = () => {
     return calculateDashboardMetrics();
   }, [realAlerts]);
 
-  // Informes disponibles
-  const informesDisponibles = [
-    {
-      id: 1,
-      title: 'Análisis Semanal - Semana 3 Enero 2024',
-      date: '15 Enero 2024',
-      type: 'informe',
-      summary: 'Análisis completo de las oportunidades de la semana en el mercado estadounidense'
-    },
-    {
-      id: 2,
-      title: 'Video Análisis: Estrategia Swing Trading',
-      date: '12 Enero 2024',
-      type: 'video',
-      summary: 'Técnicas avanzadas de swing trading aplicadas a nuestras alertas recientes'
-    },
-    {
-      id: 3,
-      title: 'Reporte Mensual - Diciembre 2023',
-      date: '31 Diciembre 2023',
-      type: 'informe',
-      summary: 'Resumen completo del desempeño del mes, alertas más exitosas y lecciones aprendidas'
-    }
-  ];
+  // Informes simulados eliminados - próximamente se cargarán desde la base de datos
 
-  // Mensajes de comunidad base
-  const mensajesComunidadBase = [
-    { user: 'Nahuel Lozano', message: '¡Bienvenidos al chat de la comunidad! Aquí pueden compartir ideas y hacer consultas.', time: '09:30' },
-    { user: 'María González', message: 'Excelente la alerta de AAPL, ya estoy en +8%. ¿Mantenemos hasta el take profit?', time: '10:15' },
-    { user: 'Carlos Rodríguez', message: '¿Qué opinan sobre el sector tech esta semana? Veo mucha volatilidad.', time: '10:45' }
-  ];
+  // Mensajes simulados eliminados - solo mostramos actividad real de alertas
 
-  // Función para generar feed de actividad real usando alertas reales
+  // Función para generar feed de actividad real usando SOLO alertas reales
   const generateRecentActivity = () => {
     const activity: any[] = [];
-    
-    // Agregar comentarios de la comunidad
-    mensajesComunidadBase.slice(1).forEach((msg, index) => {
-      activity.push({
-        id: `comment-${index}`,
-        type: 'comment',
-        user: msg.user,
-        message: msg.message,
-        alert: undefined,
-        timestamp: `${index * 30 + 15} min`,
-        icon: '💬'
-      });
-    });
 
-    // Agregar alertas reales como actualizaciones
-    realAlerts.slice(0, 3).forEach((alert, index) => {
+    // Solo agregar actividad basada en alertas reales de la base de datos
+    realAlerts.forEach((alert, index) => {
+      // Calcular hace cuánto tiempo se creó la alerta
+      const now = new Date();
+      const alertDate = new Date(alert.date);
+      const diffMinutes = Math.floor((now.getTime() - alertDate.getTime()) / (1000 * 60));
+      const timeString = diffMinutes < 60 ? `${diffMinutes} min` : `${Math.floor(diffMinutes / 60)}h ${diffMinutes % 60}min`;
+
       if (alert.status === 'ACTIVE') {
+        // Mostrar alertas activas con su P&L actual
         activity.push({
           id: `alert-update-${alert.id}`,
           type: 'update',
           user: undefined,
-          message: `${alert.symbol} actualizado: ${alert.profit} P&L`,
+          message: `${alert.symbol} actualizado: ${alert.profit} P&L #${alert.symbol}`,
           alert: alert.symbol,
-          timestamp: `${index * 20 + 10} min`,
+          timestamp: timeString,
           icon: '🔄'
         });
       } else if (alert.status === 'CLOSED') {
+        // Mostrar alertas cerradas con su resultado final
         const isWin = alert.profit.includes('+');
         activity.push({
           id: `alert-closed-${alert.id}`,
@@ -558,55 +525,54 @@ const SubscriberView: React.FC = () => {
           user: undefined,
           message: `${alert.symbol} cerrada con ${alert.profit} ${isWin ? '✅' : '❌'}`,
           alert: alert.symbol,
-          timestamp: `${index * 25 + 30} min`,
+          timestamp: timeString,
           icon: isWin ? '💰' : '📉'
+        });
+      } else {
+        // Mostrar alertas nuevas
+        activity.push({
+          id: `new-alert-${alert.id}`,
+          type: 'alert',
+          user: undefined,
+          message: `Nueva alerta: ${alert.symbol} - ${alert.action} en $${alert.entryPrice}`,
+          alert: alert.symbol,
+          timestamp: timeString,
+          icon: '🚨'
         });
       }
     });
 
-    // Agregar alertas recientes como nuevas
-    const alertasRecientes = realAlerts
-      .filter(alert => {
-        const now = new Date();
-        const alertDate = new Date(alert.date);
-        const diffHours = (now.getTime() - alertDate.getTime()) / (1000 * 60 * 60);
-        return diffHours < 24; // Últimas 24 horas
-      })
-      .slice(0, 2);
-
-    alertasRecientes.forEach((alert, index) => {
+    // Si no hay alertas, mostrar mensaje informativo
+    if (activity.length === 0) {
       activity.push({
-        id: `new-alert-${alert.id}`,
-        type: 'alert',
+        id: 'no-activity',
+        type: 'info',
         user: undefined,
-        message: `Nueva alerta: ${alert.symbol} - ${alert.action} en ${alert.entryPrice}`,
-        alert: alert.symbol,
-        timestamp: `${index * 60 + 45} min`,
-        icon: '🚨'
-      });
-    });
-
-    // Agregar informes como noticias
-    informesDisponibles.slice(0, 1).forEach((informe, index) => {
-      activity.push({
-        id: `informe-${informe.id}`,
-        type: 'news',
-        user: undefined,
-        message: `Nuevo ${informe.type}: ${informe.title}`,
+        message: 'No hay actividad reciente. Las alertas aparecerán aquí cuando se generen.',
         alert: undefined,
-        timestamp: `${index * 60 + 120} min`,
-        icon: informe.type === 'video' ? '🎥' : '📰'
+        timestamp: 'ahora',
+        icon: '📋'
       });
-    });
+    }
 
-    // Ordenar por timestamp (más reciente primero)
-    return activity.sort((a, b) => {
-      const getMinutes = (timestamp: string) => {
-        if (timestamp.includes('h')) return parseInt(timestamp) * 60;
-        return parseInt(timestamp);
-      };
-      return getMinutes(a.timestamp) - getMinutes(b.timestamp);
-    }).slice(0, 6); // Mostrar solo los 6 más recientes
+    // Ordenar por timestamp (más reciente primero) y limitar a 6
+    return activity
+      .sort((a, b) => {
+        if (a.timestamp === 'ahora') return 1;
+        if (b.timestamp === 'ahora') return -1;
+        
+        const getMinutes = (timestamp: string) => {
+          if (timestamp.includes('h')) {
+            const parts = timestamp.split('h');
+            const hours = parseInt(parts[0]);
+            const minutes = parts[1] ? parseInt(parts[1].replace('min', '')) : 0;
+            return hours * 60 + minutes;
+          }
+          return parseInt(timestamp.replace('min', ''));
+        };
+        return getMinutes(a.timestamp) - getMinutes(b.timestamp);
+      })
+      .slice(0, 6);
   };
 
   // Generar actividad reciente reactivamente cuando cambien las alertas
@@ -1102,58 +1068,13 @@ const SubscriberView: React.FC = () => {
     <div className={styles.informesContent}>
       <h2 className={styles.sectionTitle}>Informes</h2>
       
-      <div className={styles.informesList}>
-        <div className={styles.informeCard}>
-          <div className={styles.informeHeader}>
-            <h3>Análisis Semanal - Semana 3 Enero 2024</h3>
-            <span className={styles.informeDate}>15 Enero 2024</span>
-          </div>
-          <p className={styles.informeDescription}>
-            Análisis completo de las oportunidades de la semana en el mercado estadounidense. 
-            Cobertura de sectores tecnológicos y financieros.
-          </p>
-          <div className={styles.informeActions}>
-            <button className={styles.readButton}>Leer Informe</button>
-            <button className={styles.downloadButton}>
-              <Download size={16} />
-              Descargar PDF
-            </button>
-          </div>
-        </div>
-
-        <div className={styles.informeCard}>
-          <div className={styles.informeHeader}>
-            <h3>Video Análisis: Estrategia Swing Trading</h3>
-            <span className={styles.informeDate}>12 Enero 2024</span>
-          </div>
-          <p className={styles.informeDescription}>
-            Video explicativo sobre técnicas avanzadas de swing trading aplicadas a nuestras alertas recientes.
-          </p>
-          <div className={styles.videoContainer}>
-            <VideoPlayerMux 
-              playbackId="sample-analysis-video" 
-              autoplay={false}
-              className={styles.informeVideo}
-            />
-          </div>
-        </div>
-
-        <div className={styles.informeCard}>
-          <div className={styles.informeHeader}>
-            <h3>Reporte Mensual - Diciembre 2023</h3>
-            <span className={styles.informeDate}>31 Diciembre 2023</span>
-          </div>
-          <p className={styles.informeDescription}>
-            Resumen completo del desempeño del mes, alertas más exitosas y lecciones aprendidas.
-          </p>
-          <div className={styles.informeActions}>
-            <button className={styles.readButton}>Leer Informe</button>
-            <button className={styles.downloadButton}>
-              <Download size={16} />
-              Descargar PDF
-            </button>
-          </div>
-        </div>
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIcon}>📄</div>
+        <h3>No hay informes disponibles</h3>
+        <p>Los informes y análisis aparecerán aquí cuando estén disponibles.</p>
+        <p className={styles.emptyHint}>
+          Próximamente: análisis semanales, reportes de performance y contenido educativo.
+        </p>
       </div>
     </div>
   );
@@ -1162,63 +1083,27 @@ const SubscriberView: React.FC = () => {
     <div className={styles.comunidadContent}>
       <h2 className={styles.sectionTitle}>Comunidad Trader Call</h2>
       
-      <div className={styles.chatContainer}>
-        <div className={styles.chatMessages}>
-          <div className={styles.message}>
-            <strong>Nahuel Lozano:</strong>
-            <p>¡Bienvenidos al chat de la comunidad! Aquí pueden compartir ideas y hacer consultas.</p>
-            <span className={styles.messageTime}>09:30</span>
-          </div>
-          
-          <div className={styles.message}>
-            <strong>María González:</strong>
-            <p>Excelente la alerta de AAPL, ya estoy en +8%. ¿Mantenemos hasta el take profit?</p>
-            <span className={styles.messageTime}>10:15</span>
-          </div>
-          
-          <div className={styles.message}>
-            <strong>Carlos Rodríguez:</strong>
-            <p>¿Qué opinan sobre el sector tech esta semana? Veo mucha volatilidad.</p>
-            <span className={styles.messageTime}>10:45</span>
-          </div>
-
-          {communityMessages.map((msg) => (
-            <div key={msg.id} className={styles.message}>
-              <strong>{msg.user}:</strong>
-              <p>{msg.message}</p>
-              <span className={styles.messageTime}>{msg.timestamp}</span>
-            </div>
-          ))}
-        </div>
-        
-        <div className={styles.chatInput}>
-          <input 
-            type="text" 
-            placeholder="Escribe tu mensaje..."
-            className={styles.messageInput}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                handleSendMessage(e.currentTarget.value);
-                e.currentTarget.value = '';
-              }
-            }}
-          />
-          <button className={styles.sendButton}>Enviar</button>
-        </div>
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIcon}>💬</div>
+        <h3>Comunidad en construcción</h3>
+        <p>El chat de la comunidad estará disponible próximamente.</p>
+        <p className={styles.emptyHint}>
+          Aquí podrás interactuar con otros traders, compartir ideas y hacer consultas en tiempo real.
+        </p>
       </div>
       
       <div className={styles.comunidadStats}>
         <div className={styles.statCard}>
           <h4>Miembros Activos</h4>
-          <p>342</p>
+          <p>-</p>
         </div>
         <div className={styles.statCard}>
           <h4>Mensajes Hoy</h4>
-          <p>89</p>
+          <p>-</p>
         </div>
         <div className={styles.statCard}>
           <h4>Ideas Compartidas</h4>
-          <p>23</p>
+          <p>-</p>
         </div>
       </div>
     </div>

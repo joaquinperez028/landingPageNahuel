@@ -1713,4 +1713,33 @@
     font-size: 0.7rem;
     text-align: right;
   }
+}
+
+/* Estilos para estado vacío */
+.emptyState {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6b7280;
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.emptyState h3 {
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.emptyState p {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.emptyHint {
+  font-style: italic;
+  color: #9ca3af;
+  font-size: 0.875rem;
 } 
