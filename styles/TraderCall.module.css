@@ -2528,4 +2528,171 @@
   .emptyChat p {
     font-size: 0.9rem;
   }
+}
+
+/* Funcionalidad de Respuesta */
+.messageActions {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.chatMessage:hover .messageActions {
+  opacity: 1;
+}
+
+.replyButton {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.replyButton:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Referencias de respuesta en mensajes */
+.replyReference {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid #3b82f6;
+}
+
+.replyLine {
+  width: 2px;
+  background: #3b82f6;
+  height: 100%;
+  border-radius: 1px;
+}
+
+.replyContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.replyUser {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.replyText {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Estado de respondiendo */
+.replyingTo {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px 8px 0 0;
+  padding: 0.75rem;
+  margin-bottom: -1px;
+}
+
+.replyingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.replyingHeader span {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.cancelReply {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelReply:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.replyingText {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.4;
+  padding: 0.25rem 0;
+  border-left: 2px solid #3b82f6;
+  padding-left: 0.5rem;
+  font-style: italic;
+}
+
+/* Responsive para respuestas */
+@media (max-width: 768px) {
+  .replyButton {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+  }
+  
+  .replyReference {
+    padding: 0.4rem;
+    gap: 0.4rem;
+  }
+  
+  .replyUser, .replyText {
+    font-size: 0.7rem;
+  }
+  
+  .replyingTo {
+    padding: 0.6rem;
+  }
+  
+  .replyingHeader span {
+    font-size: 0.8rem;
+  }
+  
+  .replyingText {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .messageActions {
+    opacity: 1; /* Siempre visible en móvil */
+    margin-top: 0.3rem;
+  }
+  
+  .replyButton {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.65rem;
+  }
+  
+  .replyReference {
+    padding: 0.3rem;
+  }
+  
+  .replyingTo {
+    padding: 0.5rem;
+  }
 } 

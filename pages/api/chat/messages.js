@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         });
       }
 
-      const { message, chatType = 'trader-call' } = req.body;
+      const { message, chatType = 'trader-call', replyTo } = req.body;
 
       if (!message || message.trim().length === 0) {
         return res.status(400).json({ 
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
       const messageType = 'normal';
 
       // Crear el nuevo mensaje
-      const newMessage = new ChatMessage({
+      const newMessageData = {
         userName: session.user.name,
         userEmail: session.user.email,
         userType,
@@ -72,7 +72,18 @@ export default async function handler(req, res) {
         chatType,
         type: messageType,
         timestamp: new Date()
-      });
+      };
+
+      // Si hay una respuesta, agregar la referencia
+      if (replyTo) {
+        newMessageData.replyTo = {
+          messageId: replyTo.messageId,
+          userName: replyTo.userName,
+          message: replyTo.message
+        };
+      }
+
+      const newMessage = new ChatMessage(newMessageData);
 
       await newMessage.save();
 

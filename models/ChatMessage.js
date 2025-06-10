@@ -29,6 +29,15 @@ const ChatMessageSchema = new mongoose.Schema({
     enum: ['normal', 'highlight'],
     default: 'normal'
   },
+  // Referencia a mensaje que se está respondiendo
+  replyTo: {
+    messageId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ChatMessage'
+    },
+    userName: String,
+    message: String
+  },
   timestamp: {
     type: Date,
     default: Date.now

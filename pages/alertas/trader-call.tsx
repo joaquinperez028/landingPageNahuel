@@ -1217,6 +1217,7 @@ const SubscriberView: React.FC = () => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [replyingTo, setReplyingTo] = useState<any>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -1249,21 +1250,33 @@ const SubscriberView: React.FC = () => {
     const sendMessage = async () => {
       if (message.trim()) {
         try {
+          const messageData: any = {
+            message: message.trim(),
+            chatType: 'trader-call'
+          };
+
+          // Si estamos respondiendo a un mensaje, incluir la referencia
+          if (replyingTo) {
+            messageData.replyTo = {
+              messageId: replyingTo._id || replyingTo.id,
+              userName: replyingTo.userName,
+              message: replyingTo.message
+            };
+          }
+
           const response = await fetch('/api/chat/messages', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              message: message.trim(),
-              chatType: 'trader-call'
-            }),
+            body: JSON.stringify(messageData),
           });
 
           if (response.ok) {
             const data = await response.json();
             setMessages(prev => [...prev, data.message]);
             setMessage('');
+            setReplyingTo(null); // Limpiar la respuesta
           } else {
             alert('Error al enviar mensaje');
           }
@@ -1278,7 +1291,22 @@ const SubscriberView: React.FC = () => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
+      } else if (e.key === 'Escape') {
+        setReplyingTo(null); // Cancelar respuesta con Escape
       }
+    };
+
+    const handleReply = (msg: any) => {
+      setReplyingTo(msg);
+      // Enfocar el input después de seleccionar respuesta
+      setTimeout(() => {
+        const input = document.querySelector('.messageInput') as HTMLInputElement;
+        if (input) input.focus();
+      }, 100);
+    };
+
+    const cancelReply = () => {
+      setReplyingTo(null);
     };
 
     const formatTime = (timestamp: string) => {
@@ -1330,10 +1358,23 @@ const SubscriberView: React.FC = () => {
                     key={msg._id || msg.id} 
                     className={`${styles.chatMessage} ${msg.type === 'highlight' ? styles.highlightMessage : ''}`}
                   >
+                    {/* Mostrar cita si el mensaje es una respuesta */}
+                    {msg.replyTo && (
+                      <div className={styles.replyReference}>
+                        <div className={styles.replyLine}></div>
+                        <div className={styles.replyContent}>
+                          <span className={styles.replyUser}>@{msg.replyTo.userName}</span>
+                          <span className={styles.replyText}>
+                            {msg.replyTo.message.length > 50 
+                              ? msg.replyTo.message.substring(0, 50) + '...' 
+                              : msg.replyTo.message}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
                     <div className={styles.messageHeader}>
-                      <span 
-                        className={styles.messageUser}
-                      >
+                      <span className={styles.messageUser}>
                         {msg.userName}
                       </span>
                       <span className={styles.messageTime}>
@@ -1343,6 +1384,17 @@ const SubscriberView: React.FC = () => {
                     <div className={styles.messageContent}>
                       {msg.message}
                     </div>
+
+                    {/* Botón de respuesta (aparece en hover) */}
+                    <div className={styles.messageActions}>
+                      <button 
+                        className={styles.replyButton}
+                        onClick={() => handleReply(msg)}
+                        title="Responder mensaje"
+                      >
+                        ↩️ Responder
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -1351,14 +1403,31 @@ const SubscriberView: React.FC = () => {
 
             {/* Input para enviar mensajes */}
             <div className={styles.chatInput}>
+              {/* Mostrar cita cuando se está respondiendo */}
+              {replyingTo && (
+                <div className={styles.replyingTo}>
+                  <div className={styles.replyingHeader}>
+                    <span>Respondiendo a @{replyingTo.userName}</span>
+                    <button className={styles.cancelReply} onClick={cancelReply}>
+                      ✕
+                    </button>
+                  </div>
+                  <div className={styles.replyingText}>
+                    {replyingTo.message.length > 100 
+                      ? replyingTo.message.substring(0, 100) + '...' 
+                      : replyingTo.message}
+                  </div>
+                </div>
+              )}
+
               <div className={styles.inputContainer}>
                 <input
                   type="text"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Escribe un mensaje..."
-                  className={styles.messageInput}
+                  placeholder={replyingTo ? "Escribe tu respuesta..." : "Escribe un mensaje..."}
+                  className={`${styles.messageInput} messageInput`}
                   maxLength={200}
                 />
                 <button 
@@ -1370,7 +1439,7 @@ const SubscriberView: React.FC = () => {
                 </button>
               </div>
               <div className={styles.chatInfo}>
-                <span>Presiona Enter para enviar • {message.length}/200</span>
+                <span>Presiona Enter para enviar • Escape para cancelar respuesta • {message.length}/200</span>
               </div>
             </div>
           </div>
