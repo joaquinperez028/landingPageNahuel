@@ -404,6 +404,7 @@ const SubscriberView: React.FC = () => {
   const [showCreateReportModal, setShowCreateReportModal] = useState(false);
   const [creatingReport, setCreatingReport] = useState(false);
   const [userRole, setUserRole] = React.useState<string>('');
+  const [refreshingActivity, setRefreshingActivity] = useState(false);
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -729,6 +730,23 @@ const SubscriberView: React.FC = () => {
     }
   };
 
+  // Refrescar actividad
+  const refreshActivity = async () => {
+    setRefreshingActivity(true);
+    try {
+      // Recargar alertas y informes
+      await Promise.all([
+        loadAlerts(),
+        loadInformes()
+      ]);
+      console.log('✅ Actividad actualizada correctamente');
+    } catch (error) {
+      console.error('❌ Error al actualizar actividad:', error);
+    } finally {
+      setRefreshingActivity(false);
+    }
+  };
+
   // Cargar alertas y informes al montar el componente
   React.useEffect(() => {
     loadAlerts();
@@ -888,12 +906,19 @@ const SubscriberView: React.FC = () => {
         </div>
         
         <div className={styles.activityActions}>
-          <button className={styles.viewAllButton}>
+          <button 
+            className={styles.viewAllButton}
+            onClick={() => setActiveTab('seguimiento')}
+          >
             Ver toda la actividad
           </button>
-          <button className={styles.refreshButton}>
+          <button 
+            className={styles.refreshButton}
+            onClick={() => refreshActivity()}
+            disabled={refreshingActivity}
+          >
             <Activity size={16} />
-            Actualizar
+            {refreshingActivity ? 'Actualizando...' : 'Actualizar'}
           </button>
         </div>
       </div>
