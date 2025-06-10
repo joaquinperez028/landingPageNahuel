@@ -1375,6 +1375,30 @@ const SubscriberView: React.FC = () => {
 
                     <div className={styles.messageHeader}>
                       <span className={styles.messageUser}>
+                        {/* Imagen de perfil del usuario */}
+                        {msg.userImage ? (
+                          <img 
+                            src={msg.userImage} 
+                            alt={`Foto de ${msg.userName}`}
+                            className={styles.userAvatar}
+                            onError={(e) => {
+                              // Si falla la carga de la imagen, mostrar placeholder
+                              const target = e.currentTarget;
+                              target.style.display = 'none';
+                              const placeholder = target.nextElementSibling as HTMLElement;
+                              if (placeholder) {
+                                placeholder.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : null}
+                        {/* Placeholder para usuarios sin imagen */}
+                        <div 
+                          className={styles.userAvatarPlaceholder}
+                          style={{ display: msg.userImage ? 'none' : 'flex' }}
+                        >
+                          {msg.userName ? msg.userName.charAt(0).toUpperCase() : '?'}
+                        </div>
                         {msg.userName}
                       </span>
                       <span className={styles.messageTime}>

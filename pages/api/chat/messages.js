@@ -67,6 +67,7 @@ export default async function handler(req, res) {
       const newMessageData = {
         userName: session.user.name,
         userEmail: session.user.email,
+        userImage: session.user.image,
         userType,
         message: message.trim(),
         chatType,

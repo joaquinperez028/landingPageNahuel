@@ -9,6 +9,10 @@ const ChatMessageSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  userImage: {
+    type: String,
+    required: false // La imagen puede ser opcional por si no la tienen
+  },
   userType: {
     type: String,
     enum: ['normal', 'subscriber', 'premium', 'admin'],
