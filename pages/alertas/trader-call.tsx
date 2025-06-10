@@ -397,6 +397,9 @@ const SubscriberView: React.FC = () => {
   const [loadingAlerts, setLoadingAlerts] = useState(false);
   const [updatingPrices, setUpdatingPrices] = useState(false);
   const [lastPriceUpdate, setLastPriceUpdate] = useState<Date | null>(null);
+  const [informes, setInformes] = React.useState<any[]>([]);
+  const [loadingInformes, setLoadingInformes] = React.useState(false);
+  const [selectedReport, setSelectedReport] = React.useState<any>(null);
 
   // Alertas vigentes (definir primero para evitar dependencias circulares)
   const alertasVigentes = [
@@ -488,8 +491,6 @@ const SubscriberView: React.FC = () => {
   const dashboardMetrics = React.useMemo(() => {
     return calculateDashboardMetrics();
   }, [realAlerts]);
-
-  // Informes simulados eliminados - próximamente se cargarán desde la base de datos
 
   // Mensajes simulados eliminados - solo mostramos actividad real de alertas
 
@@ -630,9 +631,46 @@ const SubscriberView: React.FC = () => {
     }
   };
 
-  // Cargar alertas al montar el componente
+  // Función para cargar informes desde la API
+  const loadInformes = async () => {
+    setLoadingInformes(true);
+    try {
+      const response = await fetch('/api/reports?limit=6&featured=false', {
+        method: 'GET',
+        credentials: 'same-origin',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setInformes(data.data?.reports || []);
+        console.log('Informes cargados:', data.data?.reports?.length || 0);
+      } else {
+        console.error('Error al cargar informes:', response.status);
+      }
+    } catch (error) {
+      console.error('Error al cargar informes:', error);
+    } finally {
+      setLoadingInformes(false);
+    }
+  };
+
+  // Función para abrir informe completo
+  const openReport = async (reportId: string) => {
+    try {
+      const response = await fetch(`/api/reports/${reportId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedReport(data.data.report);
+      }
+    } catch (error) {
+      console.error('Error al cargar informe:', error);
+    }
+  };
+
+  // Cargar alertas y informes al montar el componente
   React.useEffect(() => {
     loadAlerts();
+    loadInformes();
   }, []);
 
   // Sistema de actualización automática de precios cada 30 segundos
@@ -1068,14 +1106,115 @@ const SubscriberView: React.FC = () => {
     <div className={styles.informesContent}>
       <h2 className={styles.sectionTitle}>Informes</h2>
       
-      <div className={styles.emptyState}>
-        <div className={styles.emptyIcon}>📄</div>
-        <h3>No hay informes disponibles</h3>
-        <p>Los informes y análisis aparecerán aquí cuando estén disponibles.</p>
-        <p className={styles.emptyHint}>
-          Próximamente: análisis semanales, reportes de performance y contenido educativo.
-        </p>
-      </div>
+      {loadingInformes ? (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>⏳</div>
+          <h3>Cargando informes...</h3>
+        </div>
+      ) : informes.length > 0 ? (
+        <div className={styles.informesList}>
+          {informes.map((informe) => (
+            <div key={informe.id} className={styles.informeCard}>
+              <div className={styles.informeHeader}>
+                <h3>{informe.title}</h3>
+                <span className={styles.informeDate}>
+                  {new Date(informe.publishedAt || informe.createdAt).toLocaleDateString('es-ES')}
+                </span>
+                {informe.isFeature && (
+                  <span className={styles.featuredBadge}>⭐ Destacado</span>
+                )}
+              </div>
+              
+              <div className={styles.informeMeta}>
+                <span className={styles.informeType}>
+                  {informe.type === 'video' ? '🎥' : informe.type === 'analisis' ? '📊' : '📄'} 
+                  {informe.type === 'video' ? 'Video' : informe.type === 'analisis' ? 'Análisis' : 'Informe'}
+                </span>
+                {informe.readTime && (
+                  <span className={styles.readTime}>⏱️ {informe.readTime} min lectura</span>
+                )}
+                <span className={styles.views}>👁️ {informe.views} vistas</span>
+              </div>
+
+              <p className={styles.informeDescription}>
+                {informe.summary}
+              </p>
+
+              {informe.tags && informe.tags.length > 0 && (
+                <div className={styles.informeTags}>
+                  {informe.tags.slice(0, 3).map((tag: string, index: number) => (
+                    <span key={index} className={styles.tag}>#{tag}</span>
+                  ))}
+                </div>
+              )}
+
+              <div className={styles.informeActions}>
+                <button 
+                  className={styles.readButton}
+                  onClick={() => openReport(informe.id)}
+                >
+                  {informe.type === 'video' ? 'Ver Video' : 'Leer Informe'}
+                </button>
+                {informe.pdfUrl && (
+                  <button className={styles.downloadButton}>
+                    <Download size={16} />
+                    Descargar PDF
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>📄</div>
+          <h3>No hay informes disponibles</h3>
+          <p>Los informes y análisis aparecerán aquí cuando estén disponibles.</p>
+          <p className={styles.emptyHint}>
+            Próximamente: análisis semanales, reportes de performance y contenido educativo.
+          </p>
+        </div>
+      )}
+
+      {/* Modal para mostrar informe completo */}
+      {selectedReport && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedReport(null)}>
+          <div className={styles.reportModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.reportHeader}>
+              <h2>{selectedReport.title}</h2>
+              <button 
+                className={styles.closeModal}
+                onClick={() => setSelectedReport(null)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className={styles.reportMeta}>
+              <span>Por {selectedReport.author}</span>
+              <span>{new Date(selectedReport.publishedAt || selectedReport.createdAt).toLocaleDateString('es-ES')}</span>
+            </div>
+
+            <div className={styles.reportContent}>
+              {selectedReport.type === 'video' && selectedReport.videoMuxId ? (
+                <div className={styles.videoContainer}>
+                  <VideoPlayerMux 
+                    playbackId={selectedReport.videoMuxId} 
+                    autoplay={false}
+                    className={styles.reportVideo}
+                  />
+                </div>
+              ) : null}
+              
+              <div className={styles.reportText}>
+                {selectedReport.content.split('\n').map((paragraph: string, index: number) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 
