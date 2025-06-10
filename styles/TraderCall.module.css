@@ -1228,19 +1228,20 @@
 
 /* Modal para mostrar informe completo */
 .reportModal {
-  background: white;
+  background: var(--bg-secondary);
   border-radius: 12px;
   width: 90%;
   max-width: 800px;
   max-height: 85vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
 }
 
 .reportHeader {
   padding: 2rem 2rem 1rem 2rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px 12px 0 0;
   color: white;
@@ -1280,13 +1281,13 @@
 
 .reportMeta {
   padding: 1rem 2rem;
-  background: #f8fafc;
+  background: var(--bg-tertiary);
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 0.875rem;
-  color: #64748b;
-  border-bottom: 1px solid #e2e8f0;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .reportMeta span {
@@ -1295,13 +1296,14 @@
 
 .reportContent {
   padding: 2rem;
+  background: var(--bg-secondary);
 }
 
 .videoContainer {
   margin-bottom: 2rem;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
 .reportVideo {
@@ -1310,7 +1312,7 @@
 }
 
 .reportText {
-  color: #374151;
+  color: var(--text-primary);
   line-height: 1.8;
   font-size: 1rem;
 }
@@ -1327,7 +1329,7 @@
 .reportText p:first-child {
   font-size: 1.125rem;
   font-weight: 500;
-  color: #1f2937;
+  color: var(--text-primary);
   margin-bottom: 2rem;
 }
 
@@ -1966,7 +1968,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2245,7 +2247,7 @@
 
 /* Modal para crear informe */
 .createReportModal {
-  background: white;
+  background: var(--bg-secondary);
   border-radius: 12px;
   width: 90%;
   max-width: 600px;
@@ -2253,21 +2255,22 @@
   overflow-y: auto;
   position: relative;
   padding: 0;
+  border: 1px solid var(--border-color);
 }
 
 .modalHeader {
   padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f9fafb;
+  background: var(--bg-tertiary);
   border-radius: 12px 12px 0 0;
 }
 
 .modalHeader h2 {
   margin: 0;
-  color: #1f2937;
+  color: var(--text-primary);
   font-size: 1.25rem;
   font-weight: 600;
 }
@@ -2795,6 +2798,7 @@
   margin-top: 2rem;
   border-top: 1px solid var(--border-color);
   padding-top: 2rem;
+  background: var(--bg-secondary);
 }
 
 .commentsHeader {
