@@ -1375,17 +1375,22 @@
 
 /* Comunidad Content */
 .comunidadContent {
-  padding: 2rem;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
 }
 
 .chatContainer {
-  height: 600px;
+  height: 70vh;
+  min-height: 500px;
+  max-height: 800px;
   background: #0f1419;
   border-radius: 12px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin: 1rem 0;
 }
 
 .chatHeader {
@@ -1640,85 +1645,57 @@
 /* Responsive para el chat */
 @media (max-width: 768px) {
   .chatContainer {
-    height: 500px;
+    height: 60vh;
+    min-height: 400px;
+    max-height: 600px;
+    margin: 0.5rem 0;
   }
   
-  .usersPanel {
-    width: 150px;
+  .loadingChat {
+    padding: 1.5rem;
   }
   
-  .usersPanelHeader h3 {
-    font-size: 0.75rem;
+  .loadingSpinner {
+    width: 30px;
+    height: 30px;
   }
   
-  .userName {
-    font-size: 0.75rem;
+  .emptyChat {
+    padding: 1.5rem;
   }
   
-  .messagesContainer {
-    padding: 0.75rem;
-    gap: 0.5rem;
+  .emptyChatIcon {
+    font-size: 2.5rem;
   }
   
-  .chatMessage {
-    padding: 0.5rem;
-  }
-  
-  .messageUser {
-    font-size: 0.75rem;
-  }
-  
-  .messageContent {
-    font-size: 0.8rem;
-  }
-  
-  .chatInput {
-    padding: 0.75rem;
-  }
-  
-  .inputContainer {
-    gap: 0.5rem;
-  }
-  
-  .messageInput {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8rem;
-  }
-  
-  .sendButton {
-    padding: 0.5rem 0.75rem;
-    min-width: 45px;
+  .emptyChat p {
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .chatBody {
-    flex-direction: column;
-  }
-  
-  .usersPanel {
-    width: 100%;
-    height: 120px;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .usersList {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 0.5rem;
-  }
-  
-  .userItem {
-    min-width: 120px;
-    margin-bottom: 0;
-  }
-  
   .chatContainer {
-    height: 450px;
+    height: 50vh;
+    min-height: 350px;
+    max-height: 500px;
+    margin: 0.25rem 0;
+    border-radius: 8px;
+  }
+  
+  .loadingChat {
+    padding: 1rem;
+  }
+  
+  .emptyChat {
+    padding: 1rem;
+  }
+  
+  .emptyChatIcon {
+    font-size: 2rem;
+  }
+  
+  .emptyChat p {
+    font-size: 0.9rem;
   }
 }
 
