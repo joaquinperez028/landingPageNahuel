@@ -223,12 +223,13 @@
   grid-template-columns: repeat(6, 1fr);
   gap: 1rem;
   padding: 1rem 1.5rem;
-  background: #f3f4f6;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   font-weight: 600;
-  color: #1f2937;
+  color: white;
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
 }
 
 .tableRow {
@@ -864,13 +865,16 @@
   top: -0.75rem;
   left: 1.5rem;
   background: linear-gradient(135deg, #667eea, #764ba2);
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1rem 0.5rem 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: 8px;
   color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .alertasHeader {
@@ -933,8 +937,9 @@
 
 .filterSelect:hover,
 .filterDate:hover {
-  border-color: #667eea;
-  background: rgba(45, 55, 72, 0.8);
+  border-color: #667eea !important;
+  background: rgba(45, 55, 72, 0.9) !important;
+  color: #e2e8f0 !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
 }
@@ -942,27 +947,40 @@
 .filterSelect:focus,
 .filterDate:focus {
   outline: none;
-  border-color: #667eea;
-  background: rgba(45, 55, 72, 0.9);
+  border-color: #667eea !important;
+  background: rgba(45, 55, 72, 0.95) !important;
+  color: #e2e8f0 !important;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 
 .filterSelect option {
-  background: #1a202c;
-  color: #e2e8f0;
+  background: #1a202c !important;
+  color: #e2e8f0 !important;
   padding: 0.5rem;
   border: none;
 }
 
 .filterSelect option:hover {
-  background: rgba(102, 126, 234, 0.2);
-  color: white;
+  background: rgba(102, 126, 234, 0.2) !important;
+  color: white !important;
 }
 
 .filterSelect option:checked,
 .filterSelect option:selected {
-  background: rgba(102, 126, 234, 0.3);
-  color: white;
+  background: rgba(102, 126, 234, 0.3) !important;
+  color: white !important;
+}
+
+/* Asegurar que los elementos select se mantengan oscuros */
+.filterSelect {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
 }
 
 .clearFilters {
