@@ -1303,7 +1303,8 @@ const SubscriberView: React.FC = () => {
     </div>
   );
 
-  const renderComunidad = () => {
+  // Componente separado para el Chat de Comunidad
+  const CommunityChat = () => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([
       {
@@ -1505,6 +1506,8 @@ const SubscriberView: React.FC = () => {
       </div>
     );
   };
+
+  const renderComunidad = () => <CommunityChat />;
 
   // Modal para crear nueva alerta
   const renderCreateAlertModal = () => {
