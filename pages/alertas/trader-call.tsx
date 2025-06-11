@@ -2208,6 +2208,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
   const [formData, setFormData] = useState({
     title: '',
     type: 'text',
+    category: 'trader-call',
     content: ''
   });
 

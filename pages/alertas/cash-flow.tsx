@@ -2199,6 +2199,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
   const [formData, setFormData] = useState({
     title: '',
     type: 'informe',
+    category: 'cash-flow',
     content: '',
     summary: '',
     readTime: '',
