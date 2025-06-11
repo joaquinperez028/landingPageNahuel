@@ -1,5 +1,6 @@
 import dbConnect from '../../../lib/mongodb';
 import ChatMessage from '../../../models/ChatMessage';
+import User from '../../../models/User';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../lib/googleAuth';
 
@@ -43,12 +44,28 @@ export default async function handler(req, res) {
         });
       }
 
-      // Debug: verificar qué datos de usuario tenemos
-      console.log('🔍 Datos de sesión en chat:', {
-        name: session.user.name,
-        email: session.user.email,
-        image: session.user.image,
-        hasImage: !!session.user.image
+      // Verificar permisos del usuario
+      const user = await User.findOne({ email: session.user.email });
+      
+      if (!user) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Usuario no encontrado' 
+        });
+      }
+
+      // NUEVA RESTRICCIÓN: Solo suscriptores y administradores pueden enviar mensajes
+      if (user.role !== 'suscriptor' && user.role !== 'admin') {
+        return res.status(403).json({ 
+          success: false, 
+          error: 'Solo los suscriptores y administradores pueden enviar mensajes en el chat.' 
+        });
+      }
+
+      console.log('🔍 Usuario autorizado para chat:', {
+        name: user.name,
+        email: user.email,
+        role: user.role
       });
 
       const { message, chatType = 'trader-call', replyTo } = req.body;
@@ -67,15 +84,15 @@ export default async function handler(req, res) {
         });
       }
 
-      // Determinar el tipo de usuario (simplificado - todos iguales)
-      const userType = 'normal';
-      const messageType = 'normal';
+      // Determinar el tipo de usuario basado en su rol
+      const userType = user.role;
+      const messageType = user.role === 'admin' ? 'admin' : 'normal';
 
       // Crear el nuevo mensaje
       const newMessageData = {
         userName: session.user.name,
         userEmail: session.user.email,
-        userImage: session.user.image, // Agregar la imagen del usuario de Google
+        userImage: session.user.image,
         userType,
         message: message.trim(),
         chatType,
@@ -83,11 +100,10 @@ export default async function handler(req, res) {
         timestamp: new Date()
       };
 
-      // Debug: verificar qué datos vamos a guardar
       console.log('💾 Datos del mensaje a guardar:', {
         userName: newMessageData.userName,
         userEmail: newMessageData.userEmail,
-        userImage: newMessageData.userImage,
+        userType: newMessageData.userType,
         hasImage: !!newMessageData.userImage
       });
 
@@ -104,7 +120,7 @@ export default async function handler(req, res) {
 
       await newMessage.save();
 
-      console.log('✅ Mensaje guardado correctamente con imagen:', !!newMessage.userImage);
+      console.log('✅ Mensaje guardado correctamente por', userType);
 
       res.status(201).json({ 
         success: true, 

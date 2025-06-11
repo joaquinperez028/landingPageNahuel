@@ -1,6 +1,6 @@
 /**
  * API para crear nuevas alertas de trading
- * Todos los usuarios autenticados pueden crear alertas
+ * Solo los administradores pueden crear alertas
  */
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
@@ -46,11 +46,18 @@ export default async function handler(
     // Conectar a la base de datos
     await dbConnect();
 
-    // Obtener información del usuario (ya no verificamos si es admin)
+    // Obtener información del usuario y verificar que sea admin
     const user = await User.findOne({ email: session.user.email });
     
     if (!user) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // NUEVA RESTRICCIÓN: Solo administradores pueden crear alertas
+    if (user.role !== 'admin') {
+      return res.status(403).json({ 
+        error: 'Permisos insuficientes. Solo los administradores pueden crear alertas.' 
+      });
     }
 
     // Validar datos de entrada

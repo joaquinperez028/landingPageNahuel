@@ -1,5 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/googleAuth';
 import connectDB from '../../../lib/mongodb';
+import User from '../../../models/User';
 import Report from '../../../models/Report';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -11,7 +14,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    // Verificar autenticación
+    const session = await getServerSession(req, res, authOptions);
+    
+    if (!session?.user?.email) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'No autorizado. Debes iniciar sesión.' 
+      });
+    }
+
     await connectDB();
+
+    // Verificar que el usuario sea admin
+    const user = await User.findOne({ email: session.user.email });
+    
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Usuario no encontrado' 
+      });
+    }
+
+    // NUEVA RESTRICCIÓN: Solo administradores pueden crear reportes
+    if (user.role !== 'admin') {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Permisos insuficientes. Solo los administradores pueden crear reportes.' 
+      });
+    }
 
     const {
       title,
@@ -24,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       status = 'published',
       tags = [],
       isFeature = false,
-      author = 'Usuario'
+      author = user.name || 'Administrador'
     } = req.body;
 
     // Validaciones
@@ -45,7 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       pdfUrl,
       imageUrl,
       author,
-      authorId: 'temp-id',
+      authorId: user._id.toString(),
       status,
       tags: Array.isArray(tags) ? tags : [],
       isFeature,

@@ -1070,12 +1070,14 @@ const SubscriberView: React.FC = () => {
     <div className={styles.alertasContent}>
       <div className={styles.alertasHeader}>
         <h2 className={styles.sectionTitle}>Seguimiento de Alertas</h2>
-        <button 
-          className={styles.createAlertButton}
-          onClick={() => setShowCreateAlert(true)}
-        >
-          + Crear Nueva Alerta
-        </button>
+        {userRole === 'admin' && (
+          <button 
+            className={styles.createAlertButton}
+            onClick={() => setShowCreateAlert(true)}
+          >
+            + Crear Nueva Alerta
+          </button>
+        )}
       </div>
       
       {/* Filtros */}
@@ -1302,13 +1304,15 @@ const SubscriberView: React.FC = () => {
     <div className={styles.informesContent}>
       <div className={styles.informesHeader}>
         <h2 className={styles.sectionTitle}>Informes</h2>
-        <button 
-          className={styles.createButton}
-          onClick={() => setShowCreateReportModal(true)}
-          title="Crear nuevo informe"
-        >
-          + Crear Informe
-        </button>
+        {userRole === 'admin' && (
+          <button 
+            className={styles.createButton}
+            onClick={() => setShowCreateReportModal(true)}
+            title="Crear nuevo informe"
+          >
+            + Crear Informe
+          </button>
+        )}
       </div>
       
       {loadingInformes ? (
@@ -1375,17 +1379,19 @@ const SubscriberView: React.FC = () => {
           <div className={styles.emptyIcon}>📄</div>
           <h3>No hay informes disponibles</h3>
           <p>Los informes y análisis aparecerán aquí cuando estén disponibles.</p>
-          <div className={styles.emptyActions}>
-            <p className={styles.emptyHint}>
-              Puedes crear el primer informe para comenzar.
-            </p>
-            <button 
-              className={styles.emptyCreateButton}
-              onClick={() => setShowCreateReportModal(true)}
-            >
-              Crear Primer Informe
-            </button>
-          </div>
+          {userRole === 'admin' && (
+            <div className={styles.emptyActions}>
+              <p className={styles.emptyHint}>
+                Puedes crear el primer informe para comenzar.
+              </p>
+              <button 
+                className={styles.emptyCreateButton}
+                onClick={() => setShowCreateReportModal(true)}
+              >
+                Crear Primer Informe
+              </button>
+            </div>
+          )}
         </div>
       )}
 
