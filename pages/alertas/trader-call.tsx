@@ -2209,7 +2209,14 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     title: '',
     type: 'text',
     category: 'trader-call',
-    content: ''
+    content: '',
+    summary: '',
+    readTime: '',
+    tags: '',
+    author: 'Nahuel Lozano',
+    isFeature: false,
+    publishedAt: new Date().toISOString().split('T')[0],
+    status: 'published'
   });
 
   const [images, setImages] = useState<CloudinaryImage[]>([]);
@@ -2225,9 +2232,14 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
       return;
     }
 
+    const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+
     // Preparar datos con imágenes de Cloudinary
     const submitData = {
       ...formData,
+      tags: tagsArray,
+      readTime: formData.readTime ? parseInt(formData.readTime) : null,
+      publishedAt: new Date(formData.publishedAt),
       coverImage: coverImage,
       images: images
     };
@@ -2284,7 +2296,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               type="text"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="Título del informe"
+              placeholder="Título del informe Trader Call"
               required
               disabled={loading}
             />
@@ -2302,6 +2314,71 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               <option value="video">🎥 Video</option>
               <option value="mixed">🔄 Mixto</option>
             </select>
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label htmlFor="readTime">Tiempo de Lectura (min)</label>
+              <input
+                id="readTime"
+                type="number"
+                value={formData.readTime}
+                onChange={(e) => handleInputChange('readTime', e.target.value)}
+                placeholder="5"
+                min="1"
+                max="60"
+                disabled={loading}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="author">Autor</label>
+              <input
+                id="author"
+                type="text"
+                value={formData.author}
+                onChange={(e) => handleInputChange('author', e.target.value)}
+                placeholder="Nahuel Lozano"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label htmlFor="publishedAt">Fecha de Publicación</label>
+              <input
+                id="publishedAt"
+                type="date"
+                value={formData.publishedAt}
+                onChange={(e) => handleInputChange('publishedAt', e.target.value)}
+                disabled={loading}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="tags">Tags (separados por comas)</label>
+              <input
+                id="tags"
+                type="text"
+                value={formData.tags}
+                onChange={(e) => handleInputChange('tags', e.target.value)}
+                placeholder="trading, análisis, señales"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="summary">Resumen</label>
+            <textarea
+              id="summary"
+              value={formData.summary}
+              onChange={(e) => handleInputChange('summary', e.target.value)}
+              placeholder="Breve descripción del análisis de Trader Call"
+              rows={3}
+              disabled={loading}
+            />
           </div>
 
           {/* Imagen de portada */}
