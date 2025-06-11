@@ -28,6 +28,7 @@ const AdminReportsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [migrating, setMigrating] = useState(false);
   
   const [newReport, setNewReport] = useState({
     title: '',
@@ -63,6 +64,35 @@ const AdminReportsPage: React.FC = () => {
       console.error('Error al cargar informes:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMigrateReports = async () => {
+    if (!confirm('¿Estás seguro de que quieres migrar los informes existentes al nuevo esquema de Cloudinary?')) {
+      return;
+    }
+
+    setMigrating(true);
+    try {
+      const response = await fetch('/api/admin/reports/migrate', {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(`Migración completada: ${data.data.migrados} informes migrados, ${data.data.errores} errores`);
+        // Recargar informes después de la migración
+        loadReports();
+      } else {
+        const errorData = await response.json();
+        alert(`Error en migración: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error en migración:', error);
+      alert('Error al ejecutar migración');
+    } finally {
+      setMigrating(false);
     }
   };
 
@@ -144,24 +174,71 @@ const AdminReportsPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>Gestión de Informes - Admin</title>
+        <title>Admin - Gestión de Informes</title>
+        <meta name="description" content="Panel de administración para gestión de informes" />
       </Head>
-      
+
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1>Gestión de Informes</h1>
-          <button 
-            className={styles.createButton}
-            onClick={() => setShowCreateForm(true)}
-          >
-            + Crear Informe
-          </button>
+          <div>
+            <h1 className={styles.title}>📄 Gestión de Informes</h1>
+            <p className={styles.subtitle}>
+              {reports.length} informe{reports.length !== 1 ? 's' : ''} en total
+            </p>
+          </div>
+          
+          <div className={styles.headerActions}>
+            <button 
+              className={styles.migrateButton}
+              onClick={handleMigrateReports}
+              disabled={migrating}
+              style={{
+                background: migrating ? '#6b7280' : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                color: 'white',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '8px',
+                fontWeight: '600',
+                cursor: migrating ? 'not-allowed' : 'pointer',
+                marginRight: '1rem'
+              }}
+            >
+              {migrating ? '⏳ Migrando...' : '🔄 Migrar Informes'}
+            </button>
+            
+            <button 
+              className={styles.createButton}
+              onClick={() => setShowCreateForm(true)}
+            >
+              + Crear Informe
+            </button>
+          </div>
         </div>
 
-        {/* Formulario de creación */}
+        {/* Mensaje de ayuda sobre migración */}
+        {reports.length === 0 && (
+          <div style={{
+            background: 'rgba(245, 158, 11, 0.1)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            borderRadius: '8px',
+            padding: '1rem',
+            marginBottom: '2rem',
+            color: '#d97706'
+          }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', color: '#d97706' }}>
+              ⚠️ No se encontraron informes
+            </h3>
+            <p style={{ margin: 0 }}>
+              Si tenías informes creados anteriormente, es posible que necesites ejecutar la migración 
+              para actualizar el esquema de base de datos al nuevo sistema de Cloudinary.
+            </p>
+          </div>
+        )}
+
+        {/* Modal de creación */}
         {showCreateForm && (
-          <div className={styles.modalOverlay}>
-            <div className={styles.modal}>
+          <div className={styles.modal}>
+            <div className={styles.modalContent}>
               <div className={styles.modalHeader}>
                 <h2>Crear Nuevo Informe</h2>
                 <button 
@@ -216,9 +293,8 @@ const AdminReportsPage: React.FC = () => {
                     value={newReport.summary}
                     onChange={(e) => setNewReport(prev => ({...prev, summary: e.target.value}))}
                     required
-                    maxLength={500}
                     rows={3}
-                    placeholder="Descripción breve del informe..."
+                    maxLength={500}
                   />
                 </div>
 
@@ -228,8 +304,7 @@ const AdminReportsPage: React.FC = () => {
                     value={newReport.content}
                     onChange={(e) => setNewReport(prev => ({...prev, content: e.target.value}))}
                     required
-                    rows={10}
-                    placeholder="Contenido completo del informe..."
+                    rows={8}
                   />
                 </div>
 
@@ -239,12 +314,12 @@ const AdminReportsPage: React.FC = () => {
                     type="text"
                     value={newReport.tags}
                     onChange={(e) => setNewReport(prev => ({...prev, tags: e.target.value}))}
-                    placeholder="trading, análisis, mercado"
+                    placeholder="trading, analisis, mercados"
                   />
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.checkbox}>
+                  <label className={styles.checkboxLabel}>
                     <input
                       type="checkbox"
                       checked={newReport.isFeature}
@@ -255,18 +330,10 @@ const AdminReportsPage: React.FC = () => {
                 </div>
 
                 <div className={styles.formActions}>
-                  <button 
-                    type="button" 
-                    onClick={() => setShowCreateForm(false)}
-                    className={styles.cancelButton}
-                  >
+                  <button type="button" onClick={() => setShowCreateForm(false)}>
                     Cancelar
                   </button>
-                  <button 
-                    type="submit" 
-                    disabled={creating}
-                    className={styles.submitButton}
-                  >
+                  <button type="submit" disabled={creating}>
                     {creating ? 'Creando...' : 'Crear Informe'}
                   </button>
                 </div>
@@ -277,12 +344,7 @@ const AdminReportsPage: React.FC = () => {
 
         {/* Lista de informes */}
         <div className={styles.reportsList}>
-          {reports.length === 0 ? (
-            <div className={styles.emptyState}>
-              <h3>No hay informes creados</h3>
-              <p>Crea tu primer informe para comenzar.</p>
-            </div>
-          ) : (
+          {reports.length > 0 ? (
             reports.map((report) => (
               <div key={report.id} className={styles.reportCard}>
                 <div className={styles.reportHeader}>
@@ -317,6 +379,11 @@ const AdminReportsPage: React.FC = () => {
                 )}
               </div>
             ))
+          ) : (
+            <div className={styles.emptyState}>
+              <h3>No hay informes disponibles</h3>
+              <p>Comienza creando tu primer informe o ejecuta la migración si tenías informes anteriores.</p>
+            </div>
           )}
         </div>
       </div>

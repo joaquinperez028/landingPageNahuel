@@ -758,6 +758,8 @@ const SubscriberView: React.FC = () => {
   const handleCreateReport = async (formData: any) => {
     setCreatingReport(true);
     try {
+      console.log('📤 Enviando datos del informe:', formData);
+      
       const response = await fetch('/api/reports/create', {
         method: 'POST',
         headers: {
@@ -766,21 +768,26 @@ const SubscriberView: React.FC = () => {
         body: JSON.stringify(formData),
       });
 
+      console.log('📡 Respuesta recibida del servidor:', response.status);
+
       if (response.ok) {
         const result = await response.json();
-        const newReport = result.data;
+        console.log('✅ Informe creado exitosamente:', result);
+        const newReport = result.data.report;
         setInformes(prev => [newReport, ...prev]);
         setShowCreateReportModal(false);
         // Mostrar mensaje de éxito
         alert('Informe creado exitosamente');
       } else {
-        const error = await response.json();
-        alert(`Error: ${error.message}`);
+        const errorData = await response.json();
+        console.error('❌ Error del servidor:', errorData);
+        alert(`Error: ${errorData.message || 'Error desconocido'}`);
       }
     } catch (error) {
-      console.error('Error al crear informe:', error);
-      alert('Error al crear el informe');
+      console.error('❌ Error al crear informe:', error);
+      alert('Error al crear el informe: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
+      console.log('🔄 Finalizando creación de informe...');
       setCreatingReport(false);
     }
   };
@@ -2232,11 +2239,13 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
 
   const handleCoverImageUploaded = (image: CloudinaryImage) => {
     setCoverImage(image);
+    setUploadingCover(false);  // Asegurar que se actualice el estado
     console.log('✅ Imagen de portada seleccionada:', image.public_id);
   };
 
   const handleImageUploaded = (image: CloudinaryImage) => {
     setImages(prev => [...prev, image]);
+    setUploadingImages(false);  // Asegurar que se actualice el estado
     console.log('✅ Imagen adicional agregada:', image.public_id);
   };
 
@@ -2409,7 +2418,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               className={styles.submitButton}
               disabled={loading || uploadingCover || uploadingImages}
             >
-              {loading ? 'Creando...' : uploadingCover || uploadingImages ? 'Subiendo...' : 'Crear Informe'}
+              {loading ? 'Creando...' : (uploadingCover || uploadingImages) ? 'Subiendo...' : 'Crear Informe'}
             </button>
           </div>
         </form>
