@@ -794,7 +794,11 @@ const SubscriberView: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({...formData, type: modelType}),
+        body: JSON.stringify({
+          ...formData, 
+          type: modelType,
+          category: 'smart-money' // Asignar categoría Smart Money
+        }),
       });
 
       if (response.ok) {

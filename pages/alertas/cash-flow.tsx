@@ -704,7 +704,8 @@ const SubscriberView: React.FC = () => {
   const loadInformes = async () => {
     setLoadingInformes(true);
     try {
-      const response = await fetch('/api/reports?limit=6&featured=false&type=cash-flow', {
+      // Filtrar solo informes de Cash Flow
+      const response = await fetch('/api/reports?limit=6&featured=false&category=cash-flow', {
         method: 'GET',
         credentials: 'same-origin',
       });
@@ -712,7 +713,7 @@ const SubscriberView: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setInformes(data.data?.reports || []);
-        console.log('Informes cargados:', data.data?.reports?.length || 0);
+        console.log('Informes Cash Flow cargados:', data.data?.reports?.length || 0);
       } else {
         console.error('Error al cargar informes:', response.status);
       }
@@ -763,7 +764,11 @@ const SubscriberView: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({...formData, type: modelType}),
+        body: JSON.stringify({
+          ...formData, 
+          type: modelType,
+          category: 'cash-flow' // Asignar categoría Cash Flow
+        }),
       });
 
       if (response.ok) {

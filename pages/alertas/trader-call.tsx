@@ -704,7 +704,8 @@ const SubscriberView: React.FC = () => {
   const loadInformes = async () => {
     setLoadingInformes(true);
     try {
-      const response = await fetch('/api/reports?limit=6&featured=false', {
+      // Filtrar solo informes de Trader Call
+      const response = await fetch('/api/reports?limit=6&featured=false&category=trader-call', {
         method: 'GET',
         credentials: 'same-origin',
       });
@@ -712,7 +713,7 @@ const SubscriberView: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setInformes(data.data?.reports || []);
-        console.log('Informes cargados:', data.data?.reports?.length || 0);
+        console.log('Informes Trader Call cargados:', data.data?.reports?.length || 0);
       } else {
         console.error('Error al cargar informes:', response.status);
       }
@@ -765,14 +766,17 @@ const SubscriberView: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData, 
+          category: 'trader-call' // Asignar categoría Trader Call
+        }),
       });
 
       console.log('📡 Respuesta recibida del servidor:', response.status);
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Informe creado exitosamente:', result);
+        console.log('✅ Informe Trader Call creado exitosamente:', result);
         const newReport = result.data.report;
         setInformes(prev => [newReport, ...prev]);
         setShowCreateReportModal(false);
@@ -2261,7 +2265,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.createReportModal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Crear Nuevo Informe</h2>
+          <h2>Crear Nuevo Informe Trader Call</h2>
           <button 
             className={styles.closeModal}
             onClick={onClose}
