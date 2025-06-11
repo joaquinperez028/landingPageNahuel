@@ -38,6 +38,27 @@ export default async function handler(
   }
 
   try {
+    console.log('🔧 Verificando configuración de Cloudinary...');
+    
+    // Verificar variables de entorno
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+    
+    if (!cloudName || !apiKey || !apiSecret) {
+      console.error('❌ Variables de Cloudinary faltantes:', {
+        cloudName: !!cloudName,
+        apiKey: !!apiKey,
+        apiSecret: !!apiSecret
+      });
+      return res.status(500).json({
+        success: false,
+        error: 'Configuración de Cloudinary incompleta'
+      });
+    }
+    
+    console.log('✅ Variables de Cloudinary configuradas correctamente');
+
     // Verificar autenticación y rol de admin
     const session = await getServerSession(req, res, authOptions);
     
@@ -98,7 +119,10 @@ export default async function handler(
     const fileBuffer = fs.readFileSync(file.filepath);
     const fileName = file.originalFilename || `image_${Date.now()}`;
 
-    console.log('📤 Subiendo imagen a Cloudinary...');
+    console.log('📤 Subiendo imagen a Cloudinary...', {
+      fileName,
+      bufferSize: fileBuffer.length
+    });
 
     // Subir a Cloudinary
     const uploadResult = await uploadImageToCloudinary(
@@ -107,7 +131,11 @@ export default async function handler(
       'nahuel-trading/reports' // Carpeta específica para reportes
     );
 
-    console.log('✅ Imagen subida exitosamente:', uploadResult.public_id);
+    console.log('✅ Imagen subida exitosamente:', {
+      public_id: uploadResult.public_id,
+      url: uploadResult.secure_url,
+      size: uploadResult.bytes
+    });
 
     // Limpiar archivo temporal
     fs.unlinkSync(file.filepath);
@@ -127,7 +155,11 @@ export default async function handler(
     });
 
   } catch (error) {
-    console.error('❌ Error en upload de imagen:', error);
+    console.error('❌ Error detallado en upload de imagen:', {
+      message: error instanceof Error ? error.message : 'Error desconocido',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
     
     return res.status(500).json({
       success: false,

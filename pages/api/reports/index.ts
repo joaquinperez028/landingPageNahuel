@@ -64,8 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           width: 400,
           height: 300,
           crop: 'fill',
-          quality: 'auto',
-          format: 'auto'
+          format: 'webp'
         });
       }
 
@@ -78,8 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             width: 600,
             height: 400,
             crop: 'fill',
-            quality: 'auto',
-            format: 'auto'
+            format: 'webp'
           })
         }));
       }

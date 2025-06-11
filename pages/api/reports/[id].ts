@@ -48,8 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         width: 800,
         height: 600,
         crop: 'fill',
-        quality: 'auto',
-        format: 'auto'
+        format: 'webp'
       });
     }
 
@@ -64,15 +63,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             width: 800,
             height: 600,
             crop: 'fill',
-            quality: 'auto',
-            format: 'auto'
+            format: 'webp'
           }),
           thumbnailUrl: getCloudinaryImageUrl(img.public_id, {
             width: 300,
             height: 200,
             crop: 'fill',
-            quality: 'auto',
-            format: 'auto'
+            format: 'webp'
           })
         }));
     }

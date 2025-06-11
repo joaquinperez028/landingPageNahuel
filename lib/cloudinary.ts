@@ -46,7 +46,6 @@ export async function uploadImageToCloudinary(
       resource_type: 'image',
       public_id: `${Date.now()}_${fileName.replace(/\.[^/.]+$/, "")}`,
       overwrite: true,
-      format: 'auto',
       quality: 'auto',
     };
 
@@ -107,8 +106,8 @@ export function getCloudinaryImageUrl(
     width?: number;
     height?: number;
     crop?: 'fill' | 'fit' | 'scale' | 'crop' | 'thumb' | 'limit' | 'mfit' | 'mpad';
-    quality?: 'auto' | number;
-    format?: 'auto' | 'webp' | 'jpg' | 'png';
+    quality?: 'auto' | number | string;
+    format?: 'webp' | 'jpg' | 'png';
     gravity?: 'auto' | 'face' | 'center' | 'north' | 'south' | 'east' | 'west';
   } = {}
 ): string {
@@ -117,7 +116,7 @@ export function getCloudinaryImageUrl(
     height,
     crop = 'fill',
     quality = 'auto',
-    format = 'auto',
+    format,
     gravity = 'auto'
   } = options;
 

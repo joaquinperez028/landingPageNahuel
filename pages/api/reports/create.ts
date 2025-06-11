@@ -132,8 +132,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           width: 800,
           height: 600,
           crop: 'fill',
-          quality: 'auto',
-          format: 'auto'
+          format: 'webp'
         }) : null,
       // URLs de imágenes adicionales optimizadas
       optimizedImages: processedImages.map((img: ProcessedImage) => ({
@@ -142,8 +141,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           width: 800,
           height: 600,
           crop: 'fill',
-          quality: 'auto',
-          format: 'auto'
+          format: 'webp'
         })
       }))
     };
