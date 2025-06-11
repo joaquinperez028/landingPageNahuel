@@ -129,10 +129,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           activa: true
         };
 
-        await User.findByIdAndUpdate(userId, {
-          $push: { subscriptions: newSubscription },
-          role: 'suscriptor' // Actualizar rol automáticamente
-        });
+        // Solo cambiar a 'suscriptor' si el usuario no es admin
+        const updateData: any = {
+          $push: { subscriptions: newSubscription }
+        };
+        
+        if (user.role !== 'admin') {
+          updateData.role = 'suscriptor';
+        }
+
+        await User.findByIdAndUpdate(userId, updateData);
 
         console.log(`✅ Suscripción ${tipo} agregada para usuario ${user.email}`);
 
@@ -177,8 +183,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           (sub: any) => sub.activa
         );
 
-        // Si no tiene más suscripciones activas, cambiar rol a normal
-        if (!hasActiveSubscriptions) {
+        // Si no tiene más suscripciones activas, cambiar rol a normal (solo si no es admin)
+        if (!hasActiveSubscriptions && updatedUser?.role !== 'admin') {
           await User.findByIdAndUpdate(userId, { role: 'normal' });
         }
 

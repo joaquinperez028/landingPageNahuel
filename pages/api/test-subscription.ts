@@ -67,10 +67,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           activa: true
         };
 
-        await User.findByIdAndUpdate(user._id, {
-          $push: { suscripciones: nuevaSuscripcion },
-          $set: { role: 'suscriptor' }
-        });
+        // Solo cambiar a 'suscriptor' si el usuario no es admin
+        const updateData: any = {
+          $push: { suscripciones: nuevaSuscripcion }
+        };
+
+        if (user.role !== 'admin') {
+          updateData.$set = { role: 'suscriptor' };
+        }
+
+        await User.findByIdAndUpdate(user._id, updateData);
 
         return res.status(200).json({
           success: true,
@@ -80,12 +86,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       } else if (action === 'deactivate') {
         // Desactivar suscripción
-        await User.findByIdAndUpdate(user._id, {
+        const updateDeactivate: any = {
           $set: { 
-            'suscripciones.$[elem].activa': false,
-            role: 'normal'
+            'suscripciones.$[elem].activa': false
           }
-        }, {
+        };
+
+        // Solo cambiar a 'normal' si el usuario no es admin
+        if (user.role !== 'admin') {
+          updateDeactivate.$set.role = 'normal';
+        }
+
+        await User.findByIdAndUpdate(user._id, updateDeactivate, {
           arrayFilters: [{ 'elem.servicio': 'TraderCall' }]
         });
 
