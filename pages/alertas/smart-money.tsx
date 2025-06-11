@@ -1523,15 +1523,32 @@ const SubscriberView: React.FC = () => {
             </div>
             
             <div className={styles.reportMeta}>
-              <span>Por {selectedReport.author?.name || selectedReport.author}</span>
+              <span>Por {typeof selectedReport.author === 'object' ? selectedReport.author?.name : selectedReport.author || 'Autor desconocido'}</span>
               <span>{new Date(selectedReport.publishedAt || selectedReport.createdAt).toLocaleDateString('es-ES')}</span>
             </div>
 
             <div className={styles.reportContent}>
-              {selectedReport.type === 'video' && selectedReport.videoMuxId ? (
+              {/* Imagen de portada usando Cloudinary */}
+              {(selectedReport.coverImage?.secure_url || selectedReport.imageUrl) && (
+                <div className={styles.reportCoverImage}>
+                  <img 
+                    src={selectedReport.coverImage?.secure_url || selectedReport.imageUrl} 
+                    alt={`Imagen de portada: ${selectedReport.title}`}
+                    className={styles.coverImage}
+                    onError={(e) => {
+                      console.error('Error cargando imagen de portada:', selectedReport.coverImage?.secure_url || selectedReport.imageUrl);
+                      const target = e.currentTarget;
+                      target.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Video si existe */}
+              {selectedReport.type === 'video' && selectedReport.muxAssetId ? (
                 <div className={styles.videoContainer}>
                   <VideoPlayerMux 
-                    playbackId={selectedReport.videoMuxId} 
+                    playbackId={selectedReport.playbackId || selectedReport.muxAssetId} 
                     autoplay={false}
                     className={styles.reportVideo}
                   />
@@ -1543,6 +1560,34 @@ const SubscriberView: React.FC = () => {
                   <p key={index}>{paragraph}</p>
                 ))}
               </div>
+
+              {/* Imágenes adicionales usando Cloudinary */}
+              {((selectedReport.images && selectedReport.images.length > 0) || (selectedReport.optimizedImages && selectedReport.optimizedImages.length > 0)) && (
+                <div className={styles.reportImages}>
+                  <h3 className={styles.imagesTitle}>Imágenes del Informe</h3>
+                  <div className={styles.imagesGrid}>
+                    {(selectedReport.images || selectedReport.optimizedImages || [])
+                      .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+                      .map((image: any, index: number) => (
+                        <div key={index} className={styles.reportImage}>
+                          <img 
+                            src={image.secure_url || image.url || image.optimizedUrl} 
+                            alt={image.caption || `Imagen ${index + 1} del informe`}
+                            className={styles.additionalImage}
+                            onError={(e) => {
+                              console.error('Error cargando imagen adicional:', image.url);
+                              const target = e.currentTarget;
+                              target.style.display = 'none';
+                            }}
+                          />
+                          {image.caption && (
+                            <p className={styles.imageCaption}>{image.caption}</p>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
 
               {/* Sección de comentarios */}
               <ReportComments reportId={selectedReport.id || selectedReport._id} />
