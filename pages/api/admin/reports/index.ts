@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../../lib/googleAuth';
 import connectDB from '../../../../lib/mongodb';
-import Report, { IReport } from '../../../../models/Report';
+import Report from '../../../../models/Report';
 import User from '../../../../models/User';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

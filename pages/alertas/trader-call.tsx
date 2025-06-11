@@ -3,11 +3,13 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useSession, signIn } from 'next-auth/react';
 import { GetServerSideProps } from 'next';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../../lib/googleAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import VideoPlayerMux from '@/components/VideoPlayerMux';
 import Carousel from '@/components/Carousel';
-import ImageUploader from '@/components/ImageUploader';
+import ImageUploader, { CloudinaryImage } from '@/components/ImageUploader';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -17,10 +19,26 @@ import {
   Download, 
   BarChart3,
   CheckCircle,
-  Star
+  Star,
+  Bell,
+  Filter,
+  Search,
+  MessageCircle,
+  Clock,
+  ThumbsUp,
+  Send,
+  Reply,
+  X,
+  AlertTriangle,
+  DollarSign,
+  PlusCircle,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink
 } from 'lucide-react';
 import styles from '@/styles/TraderCall.module.css';
 import { useRouter } from 'next/router';
+import { calculateDaysRemaining, calculateDaysSinceSubscription } from '../../utils/dateUtils';
 
 interface TraderCallPageProps {
   isSubscribed: boolean;
@@ -1390,15 +1408,15 @@ const SubscriberView: React.FC = () => {
             </div>
 
             <div className={styles.reportContent}>
-              {/* Imagen de portada */}
-              {selectedReport.imageUrl && (
+              {/* Imagen de portada usando Cloudinary */}
+              {(selectedReport.coverImage?.secure_url || selectedReport.imageUrl) && (
                 <div className={styles.reportCoverImage}>
                   <img 
-                    src={selectedReport.imageUrl} 
+                    src={selectedReport.coverImage?.secure_url || selectedReport.imageUrl} 
                     alt={`Imagen de portada: ${selectedReport.title}`}
                     className={styles.coverImage}
                     onError={(e) => {
-                      console.error('Error cargando imagen de portada:', selectedReport.imageUrl);
+                      console.error('Error cargando imagen de portada:', selectedReport.coverImage?.secure_url || selectedReport.imageUrl);
                       const target = e.currentTarget;
                       target.style.display = 'none';
                     }}
@@ -1407,10 +1425,10 @@ const SubscriberView: React.FC = () => {
               )}
 
               {/* Video si existe */}
-              {selectedReport.type === 'video' && selectedReport.videoMuxId ? (
+              {selectedReport.type === 'video' && selectedReport.muxAssetId ? (
                 <div className={styles.videoContainer}>
                   <VideoPlayerMux 
-                    playbackId={selectedReport.videoMuxId} 
+                    playbackId={selectedReport.playbackId || selectedReport.muxAssetId} 
                     autoplay={false}
                     className={styles.reportVideo}
                   />
@@ -1423,13 +1441,13 @@ const SubscriberView: React.FC = () => {
                 ))}
               </div>
 
-              {/* Imágenes adicionales */}
-              {selectedReport.images && selectedReport.images.length > 0 && (
+              {/* Imágenes adicionales usando Cloudinary */}
+              {((selectedReport.images && selectedReport.images.length > 0) || (selectedReport.optimizedImages && selectedReport.optimizedImages.length > 0)) && (
                 <div className={styles.reportImages}>
                   <h3 className={styles.imagesTitle}>Imágenes del Informe</h3>
                   <div className={styles.imagesGrid}>
-                    {selectedReport.images
-                      .sort((a: any, b: any) => a.order - b.order)
+                    {(selectedReport.images || selectedReport.optimizedImages || [])
+                      .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
                       .map((image: any, index: number) => (
                         <div key={index} className={styles.reportImage}>
                           <img 
@@ -2178,15 +2196,14 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
 }) => {
   const [formData, setFormData] = useState({
     title: '',
-    type: 'informe',
-    content: '',
-    summary: '',
-    tags: '',
-    status: 'published'
+    type: 'text',
+    content: ''
   });
 
-  const [images, setImages] = useState<any[]>([]);
-  const [coverImage, setCoverImage] = useState<any>(null);
+  const [images, setImages] = useState<CloudinaryImage[]>([]);
+  const [coverImage, setCoverImage] = useState<CloudinaryImage | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -2196,18 +2213,11 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
       return;
     }
 
-    const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-    
-    // Preparar datos con imágenes
+    // Preparar datos con imágenes de Cloudinary
     const submitData = {
       ...formData,
-      tags: tagsArray,
-      imageMuxId: coverImage?.assetId || null,
-      images: images.map((img, index) => ({
-        assetId: img.assetId,
-        caption: img.caption || '',
-        order: index
-      }))
+      coverImage: coverImage,
+      images: images
     };
     
     onSubmit(submitData);
@@ -2220,12 +2230,22 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     }));
   };
 
-  const handleCoverImageChange = (images: any[]) => {
-    setCoverImage(images[0]);
+  const handleCoverImageUploaded = (image: CloudinaryImage) => {
+    setCoverImage(image);
+    console.log('✅ Imagen de portada seleccionada:', image.public_id);
   };
 
-  const handleImagesChange = (images: any[]) => {
-    setImages(images);
+  const handleImageUploaded = (image: CloudinaryImage) => {
+    setImages(prev => [...prev, image]);
+    console.log('✅ Imagen adicional agregada:', image.public_id);
+  };
+
+  const removeCoverImage = () => {
+    setCoverImage(null);
+  };
+
+  const removeImage = (publicId: string) => {
+    setImages(prev => prev.filter(img => img.public_id !== publicId));
   };
 
   return (
@@ -2264,33 +2284,52 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               onChange={(e) => handleInputChange('type', e.target.value)}
               disabled={loading}
             >
-              <option value="informe">📄 Informe</option>
-              <option value="analisis">📊 Análisis</option>
+              <option value="text">📄 Texto</option>
               <option value="video">🎥 Video</option>
+              <option value="mixed">🔄 Mixto</option>
             </select>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="summary">Resumen</label>
-            <textarea
-              id="summary"
-              value={formData.summary}
-              onChange={(e) => handleInputChange('summary', e.target.value)}
-              placeholder="Breve descripción del informe"
-              rows={3}
-              disabled={loading}
-            />
           </div>
 
           {/* Imagen de portada */}
           <div className={styles.formGroup}>
             <label>Imagen de Portada</label>
-            <ImageUploader
-              onImagesChange={handleCoverImageChange}
-              maxImages={1}
-              allowCaptions={false}
-              className={styles.coverImageUploader}
-            />
+            {!coverImage ? (
+              <ImageUploader
+                onImageUploaded={handleCoverImageUploaded}
+                onUploadStart={() => setUploadingCover(true)}
+                onUploadProgress={() => {}}
+                onError={(error) => {
+                  console.error('Error subiendo imagen de portada:', error);
+                  alert('Error subiendo imagen: ' + error);
+                  setUploadingCover(false);
+                }}
+                maxFiles={1}
+                multiple={false}
+                buttonText="Subir Imagen de Portada"
+                className={styles.coverImageUploader}
+              />
+            ) : (
+              <div className={styles.uploadedImagePreview}>
+                <img 
+                  src={coverImage.secure_url} 
+                  alt="Imagen de portada"
+                  className={styles.previewImage}
+                />
+                <div className={styles.previewActions}>
+                  <span className={styles.imageInfo}>
+                    {coverImage.width} × {coverImage.height} | 
+                    {Math.round(coverImage.bytes / 1024)}KB
+                  </span>
+                  <button 
+                    type="button" 
+                    onClick={removeCoverImage}
+                    className={styles.removeImageButton}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -2312,37 +2351,48 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
             <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
               Imágenes que se mostrarán dentro del contenido del informe
             </p>
+            
             <ImageUploader
-              onImagesChange={handleImagesChange}
-              maxImages={5}
-              allowCaptions={true}
+              onImageUploaded={handleImageUploaded}
+              onUploadStart={() => setUploadingImages(true)}
+              onUploadProgress={() => {}}
+              onError={(error) => {
+                console.error('Error subiendo imagen adicional:', error);
+                alert('Error subiendo imagen: ' + error);
+                setUploadingImages(false);
+              }}
+              maxFiles={5}
+              multiple={true}
+              buttonText="Subir Imágenes Adicionales"
               className={styles.additionalImagesUploader}
             />
-          </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="tags">Tags (separados por comas)</label>
-            <input
-              id="tags"
-              type="text"
-              value={formData.tags}
-              onChange={(e) => handleInputChange('tags', e.target.value)}
-              placeholder="trading, análisis, mercado"
-              disabled={loading}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="status">Estado</label>
-            <select
-              id="status"
-              value={formData.status}
-              onChange={(e) => handleInputChange('status', e.target.value)}
-              disabled={loading}
-            >
-              <option value="draft">Borrador</option>
-              <option value="published">Publicado</option>
-            </select>
+            {/* Preview de imágenes adicionales */}
+            {images.length > 0 && (
+              <div className={styles.additionalImagesPreview}>
+                <h4>Imágenes Adicionales ({images.length}/5)</h4>
+                <div className={styles.imagesGrid}>
+                  {images.map((image, index) => (
+                    <div key={image.public_id} className={styles.imagePreviewItem}>
+                      <img 
+                        src={image.secure_url} 
+                        alt={`Imagen adicional ${index + 1}`}
+                        className={styles.previewThumbnail}
+                      />
+                      <div className={styles.imagePreviewActions}>
+                        <button 
+                          type="button" 
+                          onClick={() => removeImage(image.public_id)}
+                          className={styles.removeImageButton}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className={styles.formActions}>
@@ -2357,9 +2407,9 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
             <button 
               type="submit" 
               className={styles.submitButton}
-              disabled={loading}
+              disabled={loading || uploadingCover || uploadingImages}
             >
-              {loading ? 'Creando...' : 'Crear Informe'}
+              {loading ? 'Creando...' : uploadingCover || uploadingImages ? 'Subiendo...' : 'Crear Informe'}
             </button>
           </div>
         </form>

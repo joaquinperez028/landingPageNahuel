@@ -1,159 +1,73 @@
 import mongoose from 'mongoose';
 
-export interface IReport {
-  _id?: string;
-  id?: string;
-  title: string;
-  type: 'informe' | 'video' | 'analisis';
-  content: string;
-  summary: string;
-  videoMuxId?: string; // Para videos con MUX
-  pdfUrl?: string; // Para PDFs
-  imageUrl?: string; // Imagen de portada (URL directo)
-  imageMuxId?: string; // Asset ID de MUX para imagen de portada
-  images?: Array<{ // Array de imágenes adicionales
-    assetId: string;
-    url: string;
-    caption?: string;
-    order: number;
-  }>;
-  author: string;
-  authorId: string; // ID del admin que lo creó
-  status: 'draft' | 'published' | 'archived';
-  tags: string[];
-  readTime?: number; // Tiempo estimado de lectura en minutos
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt?: Date;
-  views: number;
-  isFeature: boolean; // Si es destacado
-}
+// Esquema para imágenes de Cloudinary
+const CloudinaryImageSchema = new mongoose.Schema({
+  public_id: {
+    type: String,
+    required: true
+  },
+  url: {
+    type: String,
+    required: true
+  },
+  secure_url: {
+    type: String,
+    required: true
+  },
+  width: Number,
+  height: Number,
+  format: String,
+  bytes: Number,
+  caption: String,
+  order: {
+    type: Number,
+    default: 0
+  }
+});
 
-const reportSchema = new mongoose.Schema<IReport>({
+const ReportSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, 'El título es requerido'],
-    trim: true,
-    maxlength: [200, 'El título no puede exceder 200 caracteres']
-  },
-  type: {
-    type: String,
-    enum: ['informe', 'video', 'analisis'],
-    required: [true, 'El tipo es requerido'],
-    default: 'informe'
+    required: true
   },
   content: {
     type: String,
-    required: [true, 'El contenido es requerido']
+    required: true
   },
-  summary: {
-    type: String,
-    required: [true, 'El resumen es requerido'],
-    maxlength: [500, 'El resumen no puede exceder 500 caracteres']
-  },
-  videoMuxId: {
-    type: String,
-    sparse: true // Permite que sea único pero opcional
-  },
-  pdfUrl: {
-    type: String,
-    sparse: true
-  },
-  imageUrl: {
-    type: String,
-    sparse: true
-  },
-  imageMuxId: {
-    type: String,
-    sparse: true // Asset ID de MUX para imagen de portada
-  },
-  images: [{
-    assetId: {
-      type: String,
-      required: true
-    },
-    url: {
-      type: String,
-      required: true
-    },
-    caption: {
-      type: String,
-      maxlength: [200, 'El caption no puede exceder 200 caracteres']
-    },
-    order: {
-      type: Number,
-      required: true,
-      min: 0
-    }
-  }],
   author: {
-    type: String,
-    required: [true, 'El autor es requerido']
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
-  authorId: {
+  type: {
     type: String,
-    required: [true, 'El ID del autor es requerido']
+    enum: ['text', 'video', 'mixed'],
+    default: 'text'
   },
-  status: {
-    type: String,
-    enum: ['draft', 'published', 'archived'],
-    default: 'draft'
-  },
-  tags: [{
-    type: String,
-    trim: true
-  }],
-  readTime: {
-    type: Number,
-    min: 1,
-    max: 180 // Máximo 3 horas
-  },
+  muxAssetId: String,
+  playbackId: String,
+  thumbnailUrl: String,
+  // Imagen de portada usando Cloudinary
+  coverImage: CloudinaryImageSchema,
+  // Imágenes adicionales usando Cloudinary
+  images: [CloudinaryImageSchema],
+  // Campos legacy de Mux (mantener para compatibilidad)
+  imageMuxId: String,
+  imageUrl: String,
   views: {
     type: Number,
-    default: 0,
-    min: 0
+    default: 0
   },
-  isFeature: {
+  isPublished: {
     type: Boolean,
-    default: false
+    default: true
   },
   publishedAt: {
-    type: Date
+    type: Date,
+    default: Date.now
   }
 }, {
-  timestamps: true,
-  toJSON: { 
-    virtuals: true,
-    transform: function(doc, ret) {
-      ret.id = ret._id;
-      delete ret._id;
-      delete ret.__v;
-      return ret;
-    }
-  }
+  timestamps: true
 });
 
-// Índices para optimizar consultas
-reportSchema.index({ status: 1, publishedAt: -1 });
-reportSchema.index({ authorId: 1, createdAt: -1 });
-reportSchema.index({ type: 1, status: 1 });
-reportSchema.index({ tags: 1 });
-reportSchema.index({ isFeature: 1, publishedAt: -1 });
-
-// Middleware para establecer publishedAt cuando se publica
-reportSchema.pre('save', function(next) {
-  if (this.isModified('status') && this.status === 'published' && !this.publishedAt) {
-    this.publishedAt = new Date();
-  }
-  next();
-});
-
-// Método para calcular tiempo de lectura estimado basado en contenido
-reportSchema.methods.calculateReadTime = function() {
-  const wordsPerMinute = 200; // Promedio de lectura
-  const wordCount = this.content.split(/\s+/).length;
-  this.readTime = Math.max(1, Math.ceil(wordCount / wordsPerMinute));
-  return this.readTime;
-};
-
-export default mongoose.models.Report || mongoose.model<IReport>('Report', reportSchema); 
+export default mongoose.models.Report || mongoose.model('Report', ReportSchema); 

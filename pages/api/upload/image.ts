@@ -1,11 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/googleAuth';
-import { uploadImageToMux } from '@/lib/mux';
-import dbConnect from '@/lib/mongodb';
-import User from '@/models/User';
+import { authOptions } from '../../../lib/googleAuth';
 import formidable from 'formidable';
 import fs from 'fs';
+import { uploadImageToCloudinary } from '../../../lib/cloudinary';
 
 // Configuración para permitir archivos
 export const config = {
@@ -14,114 +12,126 @@ export const config = {
   },
 };
 
-interface UploadResponse {
+interface UploadImageResponse {
   success: boolean;
-  message?: string;
-  imageUrl?: string;
-  assetId?: string;
+  data?: {
+    public_id: string;
+    url: string;
+    secure_url: string;
+    width: number;
+    height: number;
+    format: string;
+    bytes: number;
+  };
   error?: string;
 }
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<UploadResponse>
+  res: NextApiResponse<UploadImageResponse>
 ) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ 
-      success: false, 
-      error: 'Método no permitido' 
+    return res.status(405).json({
+      success: false,
+      error: 'Método no permitido'
     });
   }
 
   try {
-    // Verificar autenticación
+    // Verificar autenticación y rol de admin
     const session = await getServerSession(req, res, authOptions);
     
-    if (!session?.user?.email) {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'No autorizado. Debes iniciar sesión.' 
+    if (!session?.user) {
+      return res.status(401).json({
+        success: false,
+        error: 'No autorizado'
       });
     }
-
-    await dbConnect();
 
     // Verificar que el usuario sea admin
-    const user = await User.findOne({ email: session.user.email });
-    
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'Usuario no encontrado' 
+    if (session.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Solo los administradores pueden subir imágenes'
       });
     }
 
-    if (user.role !== 'admin') {
-      return res.status(403).json({ 
-        success: false, 
-        error: 'Permisos insuficientes. Solo los administradores pueden subir imágenes.' 
-      });
-    }
+    console.log('📤 Iniciando upload de imagen para usuario:', session.user.email);
 
-    // Parsear el archivo usando formidable
+    // Configurar formidable para manejar archivos
     const form = formidable({
-      maxFileSize: 10 * 1024 * 1024, // 10MB máximo
-      allowEmptyFiles: false,
-      multiples: false
+      maxFileSize: 10 * 1024 * 1024, // 10MB max
+      keepExtensions: true,
+      filter: ({ mimetype }) => {
+        // Solo permitir imágenes
+        return Boolean(mimetype && mimetype.includes('image'));
+      }
     });
 
+    // Procesar el archivo
     const [fields, files] = await form.parse(req);
-    
     const file = Array.isArray(files.image) ? files.image[0] : files.image;
-    
+
     if (!file) {
       return res.status(400).json({
         success: false,
-        error: 'No se encontró ningún archivo'
+        error: 'No se encontró archivo de imagen'
       });
     }
 
+    console.log('📁 Archivo recibido:', {
+      originalFilename: file.originalFilename,
+      mimetype: file.mimetype,
+      size: file.size
+    });
+
     // Validar tipo de archivo
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    
-    if (!validTypes.includes(file.mimetype || '')) {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.mimetype || '')) {
       return res.status(400).json({
         success: false,
         error: 'Tipo de archivo no válido. Solo se permiten: JPG, PNG, GIF, WEBP'
       });
     }
 
-    // Leer el archivo
+    // Leer el archivo como buffer
     const fileBuffer = fs.readFileSync(file.filepath);
-    
-    // Subir a Mux
-    const assetId = await uploadImageToMux(fileBuffer, file.originalFilename || 'report-image');
-    
+    const fileName = file.originalFilename || `image_${Date.now()}`;
+
+    console.log('📤 Subiendo imagen a Cloudinary...');
+
+    // Subir a Cloudinary
+    const uploadResult = await uploadImageToCloudinary(
+      fileBuffer, 
+      fileName,
+      'nahuel-trading/reports' // Carpeta específica para reportes
+    );
+
+    console.log('✅ Imagen subida exitosamente:', uploadResult.public_id);
+
     // Limpiar archivo temporal
     fs.unlinkSync(file.filepath);
 
-    // Generar URL de la imagen usando el asset ID
-    const imageUrl = `https://image.mux.com/${assetId}/thumbnail.jpg?width=800&height=600&fit_mode=crop&time=0`;
-
-    console.log('✅ Imagen subida exitosamente a Mux:', {
-      assetId,
-      imageUrl,
-      originalName: file.originalFilename
-    });
-
+    // Responder con información de la imagen
     return res.status(200).json({
       success: true,
-      message: 'Imagen subida exitosamente a Mux',
-      imageUrl,
-      assetId
+      data: {
+        public_id: uploadResult.public_id,
+        url: uploadResult.url,
+        secure_url: uploadResult.secure_url,
+        width: uploadResult.width,
+        height: uploadResult.height,
+        format: uploadResult.format,
+        bytes: uploadResult.bytes
+      }
     });
 
   } catch (error) {
-    console.error('❌ Error subiendo imagen a Mux:', error);
+    console.error('❌ Error en upload de imagen:', error);
     
     return res.status(500).json({
       success: false,
-      error: 'Error interno del servidor al subir la imagen a Mux'
+      error: error instanceof Error ? error.message : 'Error interno del servidor'
     });
   }
 } 
