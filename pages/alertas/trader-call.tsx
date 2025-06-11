@@ -711,7 +711,22 @@ const SubscriberView: React.FC = () => {
       const response = await fetch(`/api/reports/${reportId}`);
       if (response.ok) {
         const data = await response.json();
-        setSelectedReport(data.data.report);
+        const report = data.data.report;
+        
+        // Debug: Mostrar qué datos estamos recibiendo
+        console.log('📊 Datos del informe recibidos:', {
+          id: report.id || report._id,
+          title: report.title,
+          hasImageUrl: !!report.imageUrl,
+          imageUrl: report.imageUrl,
+          hasImageMuxId: !!report.imageMuxId,
+          imageMuxId: report.imageMuxId,
+          hasImages: !!report.images,
+          imagesCount: report.images?.length || 0,
+          images: report.images
+        });
+        
+        setSelectedReport(report);
       } else {
         console.error('Error al cargar informe:', response.status);
         alert('Error al cargar el informe');
@@ -1375,6 +1390,23 @@ const SubscriberView: React.FC = () => {
             </div>
 
             <div className={styles.reportContent}>
+              {/* Imagen de portada */}
+              {selectedReport.imageUrl && (
+                <div className={styles.reportCoverImage}>
+                  <img 
+                    src={selectedReport.imageUrl} 
+                    alt={`Imagen de portada: ${selectedReport.title}`}
+                    className={styles.coverImage}
+                    onError={(e) => {
+                      console.error('Error cargando imagen de portada:', selectedReport.imageUrl);
+                      const target = e.currentTarget;
+                      target.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Video si existe */}
               {selectedReport.type === 'video' && selectedReport.videoMuxId ? (
                 <div className={styles.videoContainer}>
                   <VideoPlayerMux 
@@ -1390,6 +1422,34 @@ const SubscriberView: React.FC = () => {
                   <p key={index}>{paragraph}</p>
                 ))}
               </div>
+
+              {/* Imágenes adicionales */}
+              {selectedReport.images && selectedReport.images.length > 0 && (
+                <div className={styles.reportImages}>
+                  <h3 className={styles.imagesTitle}>Imágenes del Informe</h3>
+                  <div className={styles.imagesGrid}>
+                    {selectedReport.images
+                      .sort((a: any, b: any) => a.order - b.order)
+                      .map((image: any, index: number) => (
+                        <div key={index} className={styles.reportImage}>
+                          <img 
+                            src={image.url} 
+                            alt={image.caption || `Imagen ${index + 1} del informe`}
+                            className={styles.additionalImage}
+                            onError={(e) => {
+                              console.error('Error cargando imagen adicional:', image.url);
+                              const target = e.currentTarget;
+                              target.style.display = 'none';
+                            }}
+                          />
+                          {image.caption && (
+                            <p className={styles.imageCaption}>{image.caption}</p>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
 
               {/* Sección de comentarios */}
               <ReportComments reportId={selectedReport.id || selectedReport._id} />
