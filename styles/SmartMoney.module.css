@@ -2565,12 +2565,6 @@
   font-size: 1rem;
 }
 
-.imagesGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-}
-
 .imagePreviewItem {
   position: relative;
   background: var(--bg-tertiary);
@@ -2605,39 +2599,29 @@
   width: 100%;
   padding: 0.5rem;
   border: 1px solid var(--border-color);
-  border-top: none;
-  font-size: 0.75rem;
+  border-radius: 4px;
   background: var(--bg-primary);
   color: var(--text-primary);
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .captionInput:focus {
   outline: none;
   border-color: var(--primary-color);
-  background: var(--bg-secondary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
-.formActions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-/* Estilo para agrupar campos en la misma fila */
 .formRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
-  align-items: flex-start;
 }
 
 .formRow .formGroup {
-  flex: 1;
+  margin-bottom: 0;
 }
 
-/* Estilo para checkbox labels */
 .checkboxLabel {
   display: flex !important;
   align-items: center;
@@ -2656,306 +2640,419 @@
   font-size: 0.875rem;
 }
 
-/* Estilos para las imágenes del informe - Copiado desde TraderCall para consistencia */
-.reportCoverImage {
-  margin: 1.5rem 0;
-  text-align: center;
-}
-
-.coverImage {
-  max-width: 100%;
-  max-height: 400px; /* Limitar altura máxima */
-  width: auto;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
-  object-fit: cover; /* Para mantener proporciones */
-}
-
-.coverImage:hover {
-  transform: scale(1.02);
-  cursor: pointer;
-}
-
-.reportImages {
-  margin: 3rem 0;
+.reportText {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 16px;
   padding: 2rem;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(6, 182, 212, 0.05));
-  border-radius: 16px;
-  border: 1px solid rgba(16, 185, 129, 0.15);
-}
-
-.imagesTitle {
-  color: var(--text-primary);
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  padding-bottom: 1rem;
-  border-bottom: 3px solid var(--border-color);
-  position: relative;
-}
-
-.imagesTitle::before {
-  content: '🖼️';
-  margin-right: 0.5rem;
-}
-
-.imagesTitle::after {
-  content: '';
-  position: absolute;
-  bottom: -3px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 3px;
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-  border-radius: 2px;
-}
-
-.imagesGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.reportImage {
-  background: var(--bg-secondary);
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  border: 1px solid var(--border-color);
-}
-
-.reportImage:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
-  border-color: var(--primary-color);
-}
-
-/* Imagen adicional - similar al estilo de portada */
-.additionalImage {
-  width: 100%;
-  max-height: 400px; /* Misma altura máxima que la imagen de portada */
-  height: auto; /* Altura automática para mantener proporciones */
-  object-fit: contain; /* Mostrar imagen completa sin cortar */
-  background: var(--bg-primary); /* Fondo para cuando la imagen no llene todo el espacio */
-  transition: transform 0.3s ease;
-  display: block;
-}
-
-.reportImage:hover .additionalImage {
-  transform: scale(1.02);
-}
-
-.imageCaption {
-  padding: 1.5rem;
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  background: linear-gradient(135deg, var(--bg-primary), var(--bg-tertiary));
-  border-top: 1px solid var(--border-color);
-  font-style: italic;
-  position: relative;
-}
-
-.imageCaption::before {
-  content: '💭';
-  margin-right: 0.5rem;
-  opacity: 0.7;
-}
-
-/* Imagen de portada con título mejorado */
-.reportCoverImage {
   margin: 2rem 0;
-  text-align: center;
   position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
 }
 
-.reportCoverImage::before {
-  content: 'Imagen Principal';
+.reportText::before {
+  content: '📄';
   position: absolute;
-  top: -0.75rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  opacity: 0.3;
+}
+
+.reportText h3 {
+  color: var(--primary-color);
+  font-size: 1.125rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  z-index: 1;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.coverImage {
-  max-width: 100%;
-  max-height: 400px;
-  width: auto;
-  height: auto;
-  border-radius: 16px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
-  object-fit: contain; /* También para la portada, mantener consistencia */
-  background: var(--bg-primary);
-  border: 2px solid rgba(59, 130, 246, 0.2);
+.reportText h3::before {
+  content: '✨';
+  font-size: 1rem;
 }
 
-.coverImage:hover {
-  transform: scale(1.02);
-  cursor: pointer;
-  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.25);
+.reportText p {
+  color: var(--text-primary);
+  line-height: 1.8;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: justify;
 }
 
-/* Estilos para imageUploader en modal de crear informe */
-.coverImageUploader {
-  border: 2px dashed var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
-  background: var(--bg-tertiary);
+.reportText p:last-child {
+  margin-bottom: 0;
 }
 
-.additionalImagesUploader {
-  border: 2px dashed var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
-  background: var(--bg-tertiary);
+.reportText p:first-child {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
 }
 
-.uploadedImagePreview {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  overflow: hidden;
+/* Comentarios de Informes */
+.reportComments {
+  margin-top: 2rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 2rem;
   background: var(--bg-secondary);
 }
 
-.previewImage {
-  width: 100%;
-  max-height: 200px; /* Limitar altura en preview */
-  object-fit: cover;
-  display: block;
+.commentsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
-.previewActions {
-  padding: 0.75rem;
+.commentsTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.commentsCount {
   background: var(--bg-tertiary);
+  color: var(--text-muted);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.commentForm {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.commentInputContainer {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.commentUserAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.commentUserPlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.commentInputWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.commentTextarea {
+  width: 100%;
+  min-height: 80px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+.commentTextarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.commentTextarea::placeholder {
+  color: var(--text-muted);
+}
+
+.commentActions {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.imageInfo {
+.commentCharCount {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
 
-.removeImageButton {
-  background: #ef4444;
+.commentCharCount.warning {
+  color: #f59e0b;
+}
+
+.commentCharCount.error {
+  color: #ef4444;
+}
+
+.commentSubmitButton {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
   color: white;
   border: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
 }
 
-.removeImageButton:hover {
-  background: #dc2626;
+.commentSubmitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
 }
 
-.additionalImagesPreview {
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--bg-secondary);
+.commentSubmitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.additionalImagesPreview h4 {
-  margin: 0 0 1rem 0;
-  color: var(--text-primary);
-  font-size: 1rem;
+.commentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.imagePreviewItem {
-  position: relative;
+.comment {
   background: var(--bg-tertiary);
-  border-radius: 8px;
-  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  transition: all 0.2s ease;
 }
 
-.previewThumbnail {
-  width: 100%;
-  height: 120px; /* Altura más pequeña para thumbnails */
-  object-fit: cover;
+.comment:hover {
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
-.imagePreviewActions {
-  position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
+.commentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
-.imagePreviewActions .removeImageButton {
-  width: 24px;
-  height: 24px;
-  padding: 0;
+.commentUser {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.commentAvatar {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.commentAvatarPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.captionInput {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--bg-primary);
+.commentTime {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.commentContent {
   color: var(--text-primary);
+  line-height: 1.6;
   font-size: 0.875rem;
-  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+  word-wrap: break-word;
 }
 
-.captionInput:focus {
-  outline: none;
+.commentReply {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 3px solid #3b82f6;
+  border-radius: 0.5rem;
+}
+
+.commentReplyUser {
+  font-weight: 600;
+  color: #3b82f6;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.commentReplyText {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.commentReplyButton {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.commentReplyButton:hover {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  color: var(--primary-color);
+  background: rgba(59, 130, 246, 0.05);
 }
 
-/* Responsivo para imágenes en móviles */
+.commentsEmpty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+.commentsEmptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.commentsLoading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+}
+
+/* Comentarios responsive */
+@media (max-width: 768px) {
+  .commentInputContainer {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .commentUserAvatar,
+  .commentUserPlaceholder {
+    width: 32px;
+    height: 32px;
+    align-self: flex-start;
+  }
+
+  .commentAvatar,
+  .commentAvatarPlaceholder {
+    width: 28px;
+    height: 28px;
+  }
+
+  .commentForm {
+    padding: 1rem;
+  }
+
+  .comment {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .commentUserAvatar,
+  .commentUserPlaceholder {
+    width: 28px;
+    height: 28px;
+  }
+
+  .commentAvatar,
+  .commentAvatarPlaceholder {
+    width: 24px;
+    height: 24px;
+  }
+
+  .commentTextarea {
+    min-height: 60px;
+    padding: 0.75rem;
+  }
+
+  .commentForm {
+    padding: 0.75rem;
+  }
+
+  .comment {
+    padding: 0.75rem;
+  }
+
+  .commentActions {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+}
+
 @media (max-width: 768px) {
   .imagesGrid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 1.5rem;
   }
-  
+
   .reportCoverImage::before {
-    font-size: 0.625rem;
+    font-size: 0.7rem;
     padding: 0.375rem 0.75rem;
   }
-  
+
   .coverImage,
   .additionalImage {
     max-height: 300px;
   }
-  
+
   .reportImages {
+    padding: 1.5rem;
     margin: 2rem 0;
-    padding: 1rem;
   }
-  
+
   .imageCaption {
     padding: 1rem;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 }
 
@@ -2964,17 +3061,18 @@
   .additionalImage {
     max-height: 250px;
   }
-  
+
   .reportImages {
+    padding: 1rem;
     margin: 1.5rem 0;
-    padding: 0.75rem;
   }
-  
+
   .imagesTitle {
     font-size: 1.25rem;
   }
-  
+
   .imageCaption {
     padding: 0.75rem;
+    font-size: 0.8rem;
   }
 } 
