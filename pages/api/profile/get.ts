@@ -38,6 +38,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Crear objeto de respuesta con los datos del perfil
     return res.status(200).json({
       success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        image: user.picture,
+        phone: user.phone,
+        address: user.address,
+        role: user.role,
+        fullName: user.fullName,
+        cuitCuil: user.cuitCuil,
+        educacionFinanciera: user.educacionFinanciera,
+        brokerPreferencia: user.brokerPreferencia,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin,
+        compras: user.compras || [],
+        suscripciones: user.suscripciones || [],
+        subscriptions: user.subscriptions || []
+      },
       profile: {
         id: user._id,
         name: user.name,
