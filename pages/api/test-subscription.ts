@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const session = await getSession({ req });
     
     if (!session || !session.user) {
-      return res.status(401).json({ error: 'Debes iniciar sesión' });
+      return res.status(401).json({ error: 'Debes iniciar sesión.' });
     }
 
     const user = await User.findOne({ email: session.user.email });
