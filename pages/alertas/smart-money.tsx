@@ -1523,7 +1523,7 @@ const SubscriberView: React.FC = () => {
             </div>
             
             <div className={styles.reportMeta}>
-              <span>Por {selectedReport.author}</span>
+              <span>Por {selectedReport.author?.name || selectedReport.author}</span>
               <span>{new Date(selectedReport.publishedAt || selectedReport.createdAt).toLocaleDateString('es-ES')}</span>
             </div>
 
