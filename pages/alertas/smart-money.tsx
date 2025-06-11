@@ -623,7 +623,7 @@ const SubscriberView: React.FC = () => {
   const loadAlerts = async () => {
     setLoadingAlerts(true);
     try {
-      const response = await fetch('/api/alerts/list?tipo=TraderCall', {
+      const response = await fetch('/api/alerts/list?tipo=SmartMoney', {
         method: 'GET',
         credentials: 'same-origin',
       });
@@ -867,7 +867,60 @@ const SubscriberView: React.FC = () => {
   };
 
   const handleCreateAlert = async () => {
-    console.log('handleCreateAlert not implemented');
+    try {
+      setLoading(true);
+      
+      if (!stockPrice) {
+        alert('Por favor obtén el precio actual primero');
+        return;
+      }
+
+      const alertData = {
+        symbol: newAlert.symbol.toUpperCase(),
+        action: newAlert.flow, // Usar 'flow' en lugar de 'action'
+        entryPrice: stockPrice,
+        stopLoss: parseFloat(newAlert.volume) || stockPrice * 0.95, // Usar volume como valor alternativo
+        takeProfit: parseFloat(newAlert.expectedMovement) || stockPrice * 1.05, // Usar expectedMovement
+        analysis: newAlert.analysis,
+        date: new Date().toISOString(),
+        tipo: 'SmartMoney' // Especificar que es Smart Money
+      };
+
+      const response = await fetch('/api/alerts/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(alertData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Alerta Smart Money creada:', result.alert);
+        
+        // Recargar alertas y limpiar formulario
+        await loadAlerts();
+        setNewAlert({
+          symbol: '',
+          flow: 'ENTRADA',
+          volume: '',
+          expectedMovement: '',
+          analysis: ''
+        });
+        setStockPrice(null);
+        setShowCreateAlert(false);
+        
+        alert('¡Alerta de Smart Money creada exitosamente!');
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.message || 'No se pudo crear la alerta'}`);
+      }
+    } catch (error) {
+      console.error('Error creando alerta:', error);
+      alert('Error de conexión. Intenta nuevamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderDashboard = () => (
@@ -1084,12 +1137,12 @@ const SubscriberView: React.FC = () => {
         <div className={styles.tableHeader}>
           <span>Fecha</span>
           <span>Símbolo</span>
-          <span>Acción</span>
-          <span>Precio Entrada</span>
+                          <span>Flujo</span>
+          <span>Volumen</span>
           <span>Precio Actual</span>
-          <span>Stop Loss</span>
-          <span>Take Profit</span>
-          <span>P&L</span>
+          <span>Volumen Min</span>
+          <span>Objetivo</span>
+          <span>Impacto</span>
           <span>Estado</span>
         </div>
         
@@ -1223,25 +1276,25 @@ const SubscriberView: React.FC = () => {
               
               <div className={styles.alertDetails}>
                 <div className={styles.alertDetail}>
-                  <span>Precio Entrada:</span>
-                  <strong>{alert.entryPrice}</strong>
+                  <span>Volumen Detectado:</span>
+                  <strong>{alert.volume || alert.entryPrice}</strong>
                 </div>
                 <div className={styles.alertDetail}>
                   <span>Precio Actual:</span>
                   <strong>{alert.currentPrice}</strong>
                 </div>
                 <div className={styles.alertDetail}>
-                  <span>Stop Loss:</span>
-                  <strong>{alert.stopLoss}</strong>
+                  <span>Flujo Mínimo:</span>
+                  <strong>{alert.volume || alert.stopLoss}</strong>
                 </div>
                 <div className={styles.alertDetail}>
-                  <span>Take Profit:</span>
-                  <strong>{alert.takeProfit}</strong>
+                  <span>Objetivo de Movimiento:</span>
+                  <strong>{alert.expectedMovement || alert.takeProfit}</strong>
                 </div>
                 <div className={styles.alertDetail}>
-                  <span>P&L:</span>
+                  <span>Impacto:</span>
                   <strong className={alert.profit.includes('+') ? styles.profit : styles.loss}>
-                    {alert.profit}
+                    {alert.movement || alert.profit}
                   </strong>
                 </div>
               </div>
@@ -1938,7 +1991,7 @@ const SubscriberView: React.FC = () => {
           <div className={styles.modalBody}>
             {/* Símbolo de la acción */}
             <div className={styles.inputGroup}>
-              <label>Símbolo de la Acción</label>
+                              <label>Símbolo del Instrumento</label>
               <div className={styles.symbolInput}>
                 <input
                   type="text"

@@ -17,6 +17,7 @@ interface AlertRequest {
   takeProfit: number;
   analysis: string;
   date: string;
+  tipo?: 'TraderCall' | 'SmartMoney' | 'CashFlow';
 }
 
 interface AlertResponse {
@@ -53,7 +54,7 @@ export default async function handler(
     }
 
     // Validar datos de entrada
-    const { symbol, action, entryPrice, stopLoss, takeProfit, analysis, date }: AlertRequest = req.body;
+    const { symbol, action, entryPrice, stopLoss, takeProfit, analysis, date, tipo = 'TraderCall' }: AlertRequest = req.body;
 
     if (!symbol || !action || !entryPrice || !stopLoss || !takeProfit) {
       return res.status(400).json({ error: 'Todos los campos son requeridos' });
@@ -80,7 +81,7 @@ export default async function handler(
       date: date ? new Date(date) : new Date(),
       analysis: analysis || '',
       createdBy: user._id,
-      tipo: 'TraderCall' // Por defecto TraderCall, se puede modificar según la sección
+      tipo // Recibido desde el frontend
     });
 
     console.log('Nueva alerta creada por usuario:', user.name || user.email, newAlert._id);
