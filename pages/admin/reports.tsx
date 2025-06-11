@@ -11,7 +11,7 @@ interface Report {
   summary: string;
   content: string;
   status: 'draft' | 'published' | 'archived';
-  author: string;
+  author: string | { name?: string; email?: string; _id?: string };
   readTime?: number;
   views: number;
   isFeature: boolean;
@@ -364,7 +364,7 @@ const AdminReportsPage: React.FC = () => {
                 <p className={styles.reportSummary}>{report.summary}</p>
 
                 <div className={styles.reportMeta}>
-                  <span>Por {report.author}</span>
+                  <span>Por {typeof report.author === 'object' ? report.author?.name : report.author || 'Autor desconocido'}</span>
                   <span>{report.readTime} min lectura</span>
                   <span>{report.views} vistas</span>
                   <span>{new Date(report.createdAt).toLocaleDateString('es-ES')}</span>

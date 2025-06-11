@@ -1410,7 +1410,7 @@ const SubscriberView: React.FC = () => {
             </div>
             
             <div className={styles.reportMeta}>
-              <span>Por {selectedReport.author}</span>
+              <span>Por {typeof selectedReport.author === 'object' ? selectedReport.author?.name : selectedReport.author || 'Autor desconocido'}</span>
               <span>{new Date(selectedReport.publishedAt || selectedReport.createdAt).toLocaleDateString('es-ES')}</span>
             </div>
 
