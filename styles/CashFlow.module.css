@@ -3508,4 +3508,196 @@
 
 .imagePreviewActions .removeImageButton:hover {
   background: rgba(239, 68, 68, 1);
-} 
+}
+
+/* Estilos para el texto del informe - exactamente igual que Smart Money */
+.reportText {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.reportText::before {
+  content: '📄';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  opacity: 0.3;
+}
+
+.reportText h3 {
+  color: var(--primary-color);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reportText h3::before {
+  content: '✨';
+  font-size: 1rem;
+}
+
+.reportText p {
+  color: var(--text-primary);
+  line-height: 1.8;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: justify;
+}
+
+.reportText p:last-child {
+  margin-bottom: 0;
+}
+
+.reportText p:first-child {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* Estilos para imágenes del informe - exactamente igual que Smart Money */
+.reportCoverImage {
+  margin: 2rem 0;
+  text-align: center;
+  position: relative;
+}
+
+.reportCoverImage::before {
+  content: 'Imagen Principal';
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.coverImage {
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  object-fit: contain;
+  background: var(--bg-primary);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.coverImage:hover {
+  transform: scale(1.02);
+  cursor: pointer;
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.25);
+}
+
+.reportImages {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), rgba(139, 92, 246, 0.03));
+  border-radius: 16px;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.imagesTitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  position: relative;
+  padding: 0 2rem;
+}
+
+.imagesTitle::before {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--primary-color), transparent);
+}
+
+.imagesTitle::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(to left, transparent, var(--primary-color), transparent);
+}
+
+.imagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.reportImage {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.reportImage:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+  border-color: var(--primary-color);
+}
+
+.additionalImage {
+  width: 100%;
+  max-height: 400px;
+  height: auto;
+  object-fit: contain;
+  background: var(--bg-primary);
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.reportImage:hover .additionalImage {
+  transform: scale(1.02);
+}
+
+.imageCaption {
+  padding: 1.5rem;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  background: linear-gradient(135deg, var(--bg-primary), var(--bg-tertiary));
+  border-top: 1px solid var(--border-color);
+  font-style: italic;
+  position: relative;
+}
+
+.imageCaption::before {
+  content: '💭';
+  margin-right: 0.5rem;
+  opacity: 0.7;
+}
+  
