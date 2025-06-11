@@ -2190,7 +2190,11 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     type: 'informe',
     content: '',
     summary: '',
+    readTime: '',
     tags: '',
+    author: 'Nahuel Lozano',
+    isFeature: false,
+    publishedAt: new Date().toISOString().split('T')[0],
     status: 'published'
   });
 
@@ -2214,6 +2218,8 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     const submitData = {
       ...formData,
       tags: tagsArray,
+      readTime: formData.readTime ? parseInt(formData.readTime) : null,
+      publishedAt: new Date(formData.publishedAt),
       coverImage: coverImage,
       images: images.map((img, index) => ({
         ...img,
@@ -2287,18 +2293,59 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="type">Tipo</label>
-            <select
-              id="type"
-              value={formData.type}
-              onChange={(e) => handleInputChange('type', e.target.value)}
-              disabled={loading}
-            >
-              <option value="informe">📄 Informe</option>
-              <option value="analisis">📊 Análisis</option>
-              <option value="video">🎥 Video</option>
-            </select>
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label htmlFor="type">Tipo</label>
+              <select
+                id="type"
+                value={formData.type}
+                onChange={(e) => handleInputChange('type', e.target.value)}
+                disabled={loading}
+              >
+                <option value="informe">📄 Informe</option>
+                <option value="analisis">📊 Análisis</option>
+                <option value="video">🎥 Video</option>
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="readTime">Tiempo de Lectura (min)</label>
+              <input
+                id="readTime"
+                type="number"
+                value={formData.readTime}
+                onChange={(e) => handleInputChange('readTime', e.target.value)}
+                placeholder="5"
+                min="1"
+                max="60"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label htmlFor="author">Autor</label>
+              <input
+                id="author"
+                type="text"
+                value={formData.author}
+                onChange={(e) => handleInputChange('author', e.target.value)}
+                placeholder="Nahuel Lozano"
+                disabled={loading}
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="publishedAt">Fecha de Publicación</label>
+              <input
+                id="publishedAt"
+                type="date"
+                value={formData.publishedAt}
+                onChange={(e) => handleInputChange('publishedAt', e.target.value)}
+                disabled={loading}
+              />
+            </div>
           </div>
 
           <div className={styles.formGroup}>
@@ -2433,17 +2480,31 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="status">Estado</label>
-            <select
-              id="status"
-              value={formData.status}
-              onChange={(e) => handleInputChange('status', e.target.value)}
-              disabled={loading}
-            >
-              <option value="draft">Borrador</option>
-              <option value="published">Publicado</option>
-            </select>
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label htmlFor="status">Estado</label>
+              <select
+                id="status"
+                value={formData.status}
+                onChange={(e) => handleInputChange('status', e.target.value)}
+                disabled={loading}
+              >
+                <option value="draft">Borrador</option>
+                <option value="published">Publicado</option>
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={formData.isFeature}
+                  onChange={(e) => handleInputChange('isFeature', e.target.checked.toString())}
+                  disabled={loading}
+                />
+                <span>Informe Destacado</span>
+              </label>
+            </div>
           </div>
 
           <div className={styles.formActions}>

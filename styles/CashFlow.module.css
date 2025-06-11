@@ -2494,6 +2494,36 @@
   font-family: inherit;
 }
 
+/* Estilo para agrupar campos en la misma fila */
+.formRow {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.formRow .formGroup {
+  flex: 1;
+}
+
+/* Estilo para checkbox labels */
+.checkboxLabel {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: auto !important;
+  margin: 0;
+}
+
+.checkboxLabel span {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
 /* Estilos para imageUploader en modal de crear informe */
 .coverImageUploader {
   border: 2px dashed var(--border-color);
