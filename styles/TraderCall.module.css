@@ -1414,12 +1414,46 @@
 }
 
 .reportText {
-  color: var(--text-primary);
-  line-height: 1.8;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.reportText::before {
+  content: '📄';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  opacity: 0.3;
+}
+
+.reportText h3 {
+  color: var(--primary-color);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reportText h3::before {
+  content: '✨';
   font-size: 1rem;
 }
 
 .reportText p {
+  color: var(--text-primary);
+  line-height: 1.8;
+  font-size: 1rem;
   margin-bottom: 1.5rem;
   text-align: justify;
 }
@@ -1433,6 +1467,11 @@
   font-weight: 500;
   color: var(--text-primary);
   margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-color);
+  position: relative;
 }
 
 /* Responsive para modal de informe */
@@ -3322,56 +3361,138 @@
 }
 
 .reportImages {
-  margin: 2rem 0;
+  margin: 3rem 0;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(6, 182, 212, 0.05));
+  border-radius: 16px;
+  border: 1px solid rgba(16, 185, 129, 0.15);
 }
 
 .imagesTitle {
   color: var(--text-primary);
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid var(--border-color);
-  padding-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid var(--border-color);
+  position: relative;
+}
+
+.imagesTitle::before {
+  content: '🖼️';
+  margin-right: 0.5rem;
+}
+
+.imagesTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  border-radius: 2px;
 }
 
 .imagesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
 }
 
 .reportImage {
   background: var(--bg-secondary);
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
 }
 
 .reportImage:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+  border-color: var(--primary-color);
 }
 
+/* Imagen adicional - similar al estilo de portada */
 .additionalImage {
   width: 100%;
-  height: 250px; /* Altura fija más pequeña */
-  object-fit: cover;
+  max-height: 400px; /* Misma altura máxima que la imagen de portada */
+  height: auto; /* Altura automática para mantener proporciones */
+  object-fit: contain; /* Mostrar imagen completa sin cortar */
+  background: var(--bg-primary); /* Fondo para cuando la imagen no llene todo el espacio */
   transition: transform 0.3s ease;
+  display: block;
 }
 
 .reportImage:hover .additionalImage {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .imageCaption {
-  padding: 1rem;
+  padding: 1.5rem;
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.6;
+  background: linear-gradient(135deg, var(--bg-primary), var(--bg-tertiary));
+  border-top: 1px solid var(--border-color);
+  font-style: italic;
+  position: relative;
+}
+
+.imageCaption::before {
+  content: '💭';
+  margin-right: 0.5rem;
+  opacity: 0.7;
+}
+
+/* Imagen de portada con título mejorado */
+.reportCoverImage {
+  margin: 2rem 0;
+  text-align: center;
+  position: relative;
+}
+
+.reportCoverImage::before {
+  content: 'Imagen Principal';
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.coverImage {
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  object-fit: contain; /* También para la portada, mantener consistencia */
   background: var(--bg-primary);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.coverImage:hover {
+  transform: scale(1.02);
+  cursor: pointer;
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.25);
 }
 
 /* Estilos para imageUploader en modal de crear informe */
@@ -3473,67 +3594,4 @@
   justify-content: center;
   font-size: 14px;
   padding: 0;
-}
-
-/* Responsive para imágenes */
-@media (max-width: 768px) {
-  .imagesGrid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .reportImage {
-    margin: 0 auto;
-    max-width: 100%;
-  }
-  
-  .additionalImage {
-    height: 200px; /* Altura más pequeña en móvil */
-  }
-  
-  .imageCaption {
-    padding: 0.75rem;
-    font-size: 0.8rem;
-  }
-  
-  .coverImage {
-    max-width: 100%;
-    max-height: 300px; /* Altura más pequeña en móvil */
-  }
-
-  .previewImage {
-    max-height: 150px; /* Altura más pequeña en móvil para preview */
-  }
-}
-
-@media (max-width: 480px) {
-  .reportCoverImage {
-    margin: 1rem 0;
-  }
-  
-  .imagesTitle {
-    font-size: 1.1rem;
-  }
-  
-  .additionalImage {
-    height: 150px; /* Altura muy pequeña en móviles pequeños */
-  }
-  
-  .imageCaption {
-    padding: 0.6rem;
-    font-size: 0.75rem;
-  }
-  
-  .coverImage {
-    max-width: 100%;
-    max-height: 250px; /* Altura muy pequeña en móviles pequeños */
-  }
-
-  .previewThumbnail {
-    height: 100px; /* Altura muy pequeña para thumbnails en móvil */
-  }
-
-  .previewImage {
-    max-height: 120px; /* Altura muy pequeña en móvil para preview */
-  }
 } 
