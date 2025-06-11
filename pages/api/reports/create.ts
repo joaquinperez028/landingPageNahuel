@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
+import { getMuxImageUrl } from '@/lib/mux';
 import connectDB from '../../../lib/mongodb';
 import User from '../../../models/User';
 import Report from '../../../models/Report';
@@ -51,7 +52,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       summary,
       videoMuxId,
       pdfUrl,
-      imageUrl,
+      imageMuxId, // Asset ID de imagen de portada en Mux
+      images = [], // Array de imágenes adicionales
       status = 'published',
       tags = [],
       isFeature = false,
@@ -66,6 +68,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
+    // Procesar imagen de portada si existe
+    let imageUrl = '';
+    if (imageMuxId) {
+      imageUrl = getMuxImageUrl(imageMuxId, {
+        width: 800,
+        height: 600,
+        fit_mode: 'crop'
+      });
+    }
+
+    // Procesar imágenes adicionales
+    const processedImages = images.map((img: any, index: number) => ({
+      assetId: img.assetId,
+      url: getMuxImageUrl(img.assetId, {
+        width: 800,
+        height: 600,
+        fit_mode: 'crop'
+      }),
+      caption: img.caption || '',
+      order: img.order || index
+    }));
+
     // Crear nuevo informe
     const newReport = new Report({
       title: title.trim(),
@@ -75,6 +99,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       videoMuxId,
       pdfUrl,
       imageUrl,
+      imageMuxId,
+      images: processedImages,
       author,
       authorId: user._id.toString(),
       status,
@@ -86,6 +112,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     newReport.calculateReadTime();
 
     await newReport.save();
+
+    console.log('✅ Informe creado exitosamente:', {
+      id: newReport._id,
+      title: newReport.title,
+      hasImages: processedImages.length > 0,
+      hasCoverImage: !!imageMuxId
+    });
 
     return res.status(201).json({
       success: true,

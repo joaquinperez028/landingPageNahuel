@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import VideoPlayerMux from '@/components/VideoPlayerMux';
 import Carousel from '@/components/Carousel';
+import ImageUploader from '@/components/ImageUploader';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -2124,6 +2125,9 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     status: 'published'
   });
 
+  const [images, setImages] = useState<any[]>([]);
+  const [coverImage, setCoverImage] = useState<any>(null);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -2134,10 +2138,19 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
 
     const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
     
-    onSubmit({
+    // Preparar datos con imágenes
+    const submitData = {
       ...formData,
-      tags: tagsArray
-    });
+      tags: tagsArray,
+      imageMuxId: coverImage?.assetId || null,
+      images: images.map((img, index) => ({
+        assetId: img.assetId,
+        caption: img.caption || '',
+        order: index
+      }))
+    };
+    
+    onSubmit(submitData);
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -2145,6 +2158,14 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleCoverImageChange = (images: any[]) => {
+    setCoverImage(images[0]);
+  };
+
+  const handleImagesChange = (images: any[]) => {
+    setImages(images);
   };
 
   return (
@@ -2201,6 +2222,17 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
             />
           </div>
 
+          {/* Imagen de portada */}
+          <div className={styles.formGroup}>
+            <label>Imagen de Portada</label>
+            <ImageUploader
+              onImagesChange={handleCoverImageChange}
+              maxImages={1}
+              allowCaptions={false}
+              className={styles.coverImageUploader}
+            />
+          </div>
+
           <div className={styles.formGroup}>
             <label htmlFor="content">Contenido *</label>
             <textarea
@@ -2211,6 +2243,20 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               rows={8}
               required
               disabled={loading}
+            />
+          </div>
+
+          {/* Imágenes adicionales */}
+          <div className={styles.formGroup}>
+            <label>Imágenes Adicionales</label>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+              Imágenes que se mostrarán dentro del contenido del informe
+            </p>
+            <ImageUploader
+              onImagesChange={handleImagesChange}
+              maxImages={5}
+              allowCaptions={true}
+              className={styles.additionalImagesUploader}
             />
           </div>
 

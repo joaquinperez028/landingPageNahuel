@@ -9,7 +9,14 @@ export interface IReport {
   summary: string;
   videoMuxId?: string; // Para videos con MUX
   pdfUrl?: string; // Para PDFs
-  imageUrl?: string; // Imagen de portada
+  imageUrl?: string; // Imagen de portada (URL directo)
+  imageMuxId?: string; // Asset ID de MUX para imagen de portada
+  images?: Array<{ // Array de imágenes adicionales
+    assetId: string;
+    url: string;
+    caption?: string;
+    order: number;
+  }>;
   author: string;
   authorId: string; // ID del admin que lo creó
   status: 'draft' | 'published' | 'archived';
@@ -56,6 +63,29 @@ const reportSchema = new mongoose.Schema<IReport>({
     type: String,
     sparse: true
   },
+  imageMuxId: {
+    type: String,
+    sparse: true // Asset ID de MUX para imagen de portada
+  },
+  images: [{
+    assetId: {
+      type: String,
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    },
+    caption: {
+      type: String,
+      maxlength: [200, 'El caption no puede exceder 200 caracteres']
+    },
+    order: {
+      type: Number,
+      required: true,
+      min: 0
+    }
+  }],
   author: {
     type: String,
     required: [true, 'El autor es requerido']
