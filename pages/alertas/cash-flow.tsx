@@ -743,12 +743,27 @@ const SubscriberView: React.FC = () => {
   const handleCreateReport = async (formData: any) => {
     setCreatingReport(true);
     try {
+      // Mapear los tipos del formulario a los valores del enum del modelo
+      let modelType = 'text'; // valor por defecto
+      switch(formData.type) {
+        case 'video':
+          modelType = 'video';
+          break;
+        case 'analisis':
+          modelType = 'mixed';
+          break;
+        case 'informe':
+        default:
+          modelType = 'text';
+          break;
+      }
+
       const response = await fetch('/api/reports/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({...formData, type: 'cash-flow'}),
+        body: JSON.stringify({...formData, type: modelType}),
       });
 
       if (response.ok) {
