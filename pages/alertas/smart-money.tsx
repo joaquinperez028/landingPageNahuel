@@ -1438,14 +1438,37 @@ const SubscriberView: React.FC = () => {
                 <button 
                   className={styles.readButton}
                   onClick={() => {
-                    // Obtener ID más robustamente
-                    const reportId = informe._id || informe.id;
+                    // Obtener ID de manera más robusta
+                    let reportId = null;
+                    
+                    // Intentar diferentes propiedades que pueden contener el ID
+                    if (informe._id) {
+                      reportId = informe._id;
+                    } else if (informe.id) {
+                      reportId = informe.id;
+                    } else if (informe.ObjectId) {
+                      reportId = informe.ObjectId;
+                    } else if (typeof informe === 'object' && Object.keys(informe).length > 0) {
+                      // Buscar cualquier propiedad que parezca un ID de MongoDB
+                      const keys = Object.keys(informe);
+                      for (const key of keys) {
+                        const value = informe[key];
+                        if (typeof value === 'string' && value.length === 24 && /^[0-9a-fA-F]{24}$/.test(value)) {
+                          reportId = value;
+                          console.log(`🔍 ID encontrado en propiedad '${key}':`, value);
+                          break;
+                        }
+                      }
+                    }
+                    
                     console.log('🔍 Datos del informe completo:', informe);
-                    console.log('🔍 ID a usar:', reportId);
+                    console.log('🔍 Propiedades disponibles:', Object.keys(informe));
+                    console.log('🔍 ID final seleccionado:', reportId);
                     
                     if (!reportId) {
                       console.error('❌ No se pudo obtener ID del informe');
-                      alert('Error: No se pudo obtener el ID del informe');
+                      console.log('📊 Estructura completa del informe:', JSON.stringify(informe, null, 2));
+                      alert('Error: No se pudo obtener el ID del informe. Revisa la consola para más detalles.');
                       return;
                     }
                     
