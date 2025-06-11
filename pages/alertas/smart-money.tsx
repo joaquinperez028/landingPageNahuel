@@ -439,47 +439,21 @@ const SubscriberView: React.FC = () => {
 
   // Debug: Logear cambios en userRole
   React.useEffect(() => {
-    console.log('🎭 UserRole cambió a:', userRole);
-    console.log('🎭 Tipo de userRole:', typeof userRole);
-    console.log('🎭 userRole === "admin"?', userRole === 'admin');
-    console.log('🎭 userRole === "suscriptor"?', userRole === 'suscriptor');
-    console.log('🎭 userRole.length:', userRole.length);
-    if (userRole) {
-      console.log('🎭 Caracteres del userRole:', userRole.split('').map(char => char.charCodeAt(0)));
-    }
+    console.log('🎭 UserRole actual:', userRole);
   }, [userRole]);
 
   // Verificar rol del usuario
   React.useEffect(() => {
     const checkUserRole = async () => {
       try {
-        console.log('🔍 DEBUG - Frontend checkUserRole iniciado');
-        console.log('📧 Session user email:', session?.user?.email);
-        
         const response = await fetch('/api/profile/get', {
           credentials: 'same-origin',
         });
         
-        console.log('📡 Response status:', response.status);
-        console.log('📡 Response ok:', response.ok);
-        
         if (response.ok) {
           const data = await response.json();
-          console.log('📨 Data completa recibida:', data);
-          console.log('👤 data.user:', data.user);
-          console.log('👥 data.user?.role:', data.user?.role);
-          console.log('🔧 Tipo de data.user?.role:', typeof data.user?.role);
-          
           const role = data.user?.role || '';
-          console.log('✅ Rol final asignado:', role);
-          console.log('🔧 Tipo de rol final:', typeof role);
-          console.log('🚫 Es role === "admin"?', role === 'admin');
-          console.log('🚫 Es role === "suscriptor"?', role === 'suscriptor');
-          
           setUserRole(role);
-          console.log('💾 setUserRole llamado con:', role);
-        } else {
-          console.error('❌ Response no OK:', response.status);
         }
       } catch (error) {
         console.error('❌ Error al verificar rol:', error);
@@ -487,10 +461,7 @@ const SubscriberView: React.FC = () => {
     };
 
     if (session?.user) {
-      console.log('🔄 Session existe, ejecutando checkUserRole');
       checkUserRole();
-    } else {
-      console.log('⚠️ No hay sesión, no se ejecuta checkUserRole');
     }
   }, [session]);
 
@@ -1175,7 +1146,7 @@ const SubscriberView: React.FC = () => {
     <div className={styles.alertasContent}>
       <div className={styles.alertasHeader}>
         <h2 className={styles.sectionTitle}>Seguimiento de Alertas</h2>
-        {userRole === 'admin' && (
+        {session && userRole === 'admin' && (
           <button 
             className={styles.createAlertButton}
             onClick={() => setShowCreateAlert(true)}
@@ -1409,7 +1380,7 @@ const SubscriberView: React.FC = () => {
     <div className={styles.informesContent}>
       <div className={styles.informesHeader}>
         <h2 className={styles.sectionTitle}>Informes</h2>
-        {userRole === 'admin' && (
+        {session && userRole === 'admin' && (
           <button 
             className={styles.createButton}
             onClick={() => setShowCreateReportModal(true)}
@@ -1497,7 +1468,7 @@ const SubscriberView: React.FC = () => {
           <div className={styles.emptyIcon}>📄</div>
           <h3>No hay informes disponibles</h3>
           <p>Los informes y análisis aparecerán aquí cuando estén disponibles.</p>
-          {userRole === 'admin' && (
+          {session && userRole === 'admin' && (
             <div className={styles.emptyActions}>
               <p className={styles.emptyHint}>
                 Puedes crear el primer informe para comenzar.
