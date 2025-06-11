@@ -16,10 +16,29 @@ import {
   Download, 
   BarChart3,
   CheckCircle,
-  Star
+  Star,
+  Eye,
+  MessageCircle,
+  FileText,
+  RefreshCw,
+  Plus,
+  X
 } from 'lucide-react';
 import styles from '@/styles/SmartMoney.module.css';
 import { useRouter } from 'next/router';
+import ImageUploader from '@/components/ImageUploader';
+
+// Interfaces para Cloudinary
+interface CloudinaryImage {
+  public_id: string;
+  secure_url: string;
+  url: string;
+  width: number;
+  height: number;
+  format: string;
+  bytes: number;
+  caption?: string;
+}
 
 interface SmartMoneyPageProps {
   isSubscribed: boolean;
@@ -2160,7 +2179,7 @@ const SubscriberView: React.FC = () => {
   );
 };
 
-// Componente para modal de creación de informes
+// Componente para modal de creación de informes con funcionalidad de imágenes
 const CreateReportModal = ({ onClose, onSubmit, loading }: {
   onClose: () => void;
   onSubmit: (data: any) => void;
@@ -2175,6 +2194,12 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     status: 'published'
   });
 
+  // Estados para manejo de imágenes
+  const [coverImage, setCoverImage] = useState<CloudinaryImage | null>(null);
+  const [images, setImages] = useState<CloudinaryImage[]>([]);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -2185,10 +2210,19 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
 
     const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
     
-    onSubmit({
+    // Incluir imágenes en los datos del formulario
+    const submitData = {
       ...formData,
-      tags: tagsArray
-    });
+      tags: tagsArray,
+      coverImage: coverImage,
+      images: images.map((img, index) => ({
+        ...img,
+        caption: img.caption || '',
+        order: index + 1
+      }))
+    };
+    
+    onSubmit(submitData);
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -2198,11 +2232,38 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     }));
   };
 
+  // Funciones para manejo de imágenes
+  const handleCoverImageUploaded = (image: CloudinaryImage) => {
+    setCoverImage(image);
+    setUploadingCover(false);
+    console.log('✅ Imagen de portada seleccionada:', image.public_id);
+  };
+
+  const handleImageUploaded = (image: CloudinaryImage) => {
+    setImages(prev => [...prev, image]);
+    setUploadingImages(false);
+    console.log('✅ Imagen adicional agregada:', image.public_id);
+  };
+
+  const removeCoverImage = () => {
+    setCoverImage(null);
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setImages(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  const updateImageCaption = (index: number, caption: string) => {
+    setImages(prev => prev.map((img, i) => 
+      i === index ? { ...img, caption } : img
+    ));
+  };
+
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.createReportModal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Crear Nuevo Informe</h2>
+          <h2>Crear Nuevo Informe Smart Money</h2>
           <button 
             className={styles.closeModal}
             onClick={onClose}
@@ -2220,7 +2281,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               type="text"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="Título del informe"
+              placeholder="Título del informe Smart Money"
               required
               disabled={loading}
             />
@@ -2246,10 +2307,52 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               id="summary"
               value={formData.summary}
               onChange={(e) => handleInputChange('summary', e.target.value)}
-              placeholder="Breve descripción del informe"
+              placeholder="Breve descripción del análisis Smart Money"
               rows={3}
               disabled={loading}
             />
+          </div>
+
+          {/* Imagen de Portada */}
+          <div className={styles.formGroup}>
+            <label>Imagen de Portada</label>
+            {!coverImage ? (
+              <ImageUploader
+                onImageUploaded={handleCoverImageUploaded}
+                onUploadStart={() => setUploadingCover(true)}
+                onUploadProgress={() => {}}
+                onError={(error) => {
+                  console.error('Error subiendo imagen de portada:', error);
+                  alert('Error subiendo imagen: ' + error);
+                  setUploadingCover(false);
+                }}
+                maxFiles={1}
+                multiple={false}
+                buttonText="Subir Imagen de Portada"
+                className={styles.coverImageUploader}
+              />
+            ) : (
+              <div className={styles.uploadedImagePreview}>
+                <img 
+                  src={coverImage.secure_url} 
+                  alt="Imagen de portada"
+                  className={styles.previewImage}
+                />
+                <div className={styles.previewActions}>
+                  <span className={styles.imageInfo}>
+                    {coverImage.width} × {coverImage.height} | 
+                    {Math.round(coverImage.bytes / 1024)}KB
+                  </span>
+                  <button 
+                    type="button" 
+                    onClick={removeCoverImage}
+                    className={styles.removeImageButton}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -2258,11 +2361,64 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               id="content"
               value={formData.content}
               onChange={(e) => handleInputChange('content', e.target.value)}
-              placeholder="Contenido completo del informe"
+              placeholder="Contenido completo del análisis Smart Money"
               rows={8}
               required
               disabled={loading}
             />
+          </div>
+
+          {/* Imágenes Adicionales */}
+          <div className={styles.formGroup}>
+            <label>Imágenes Adicionales</label>
+            <ImageUploader
+              onImageUploaded={handleImageUploaded}
+              onUploadStart={() => setUploadingImages(true)}
+              onUploadProgress={() => {}}
+              onError={(error) => {
+                console.error('Error subiendo imagen adicional:', error);
+                alert('Error subiendo imagen: ' + error);
+                setUploadingImages(false);
+              }}
+              maxFiles={5}
+              multiple={true}
+              buttonText="Subir Imágenes Adicionales"
+              className={styles.additionalImagesUploader}
+            />
+            
+            {/* Preview de imágenes adicionales */}
+            {images.length > 0 && (
+              <div className={styles.additionalImagesPreview}>
+                <h4>Imágenes Adicionales ({images.length})</h4>
+                <div className={styles.imagesGrid}>
+                  {images.map((image, index) => (
+                    <div key={index} className={styles.imagePreviewItem}>
+                      <img 
+                        src={image.secure_url} 
+                        alt={`Imagen ${index + 1}`}
+                        className={styles.previewThumbnail}
+                      />
+                      <div className={styles.imagePreviewActions}>
+                        <button 
+                          type="button" 
+                          onClick={() => removeImage(index)}
+                          className={styles.removeImageButton}
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Descripción de la imagen..."
+                        value={image.caption || ''}
+                        onChange={(e) => updateImageCaption(index, e.target.value)}
+                        className={styles.captionInput}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -2272,7 +2428,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               type="text"
               value={formData.tags}
               onChange={(e) => handleInputChange('tags', e.target.value)}
-              placeholder="trading, análisis, mercado"
+              placeholder="smart-money, flujos, institucional"
               disabled={loading}
             />
           </div>
@@ -2302,9 +2458,9 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
             <button 
               type="submit" 
               className={styles.submitButton}
-              disabled={loading}
+              disabled={loading || uploadingCover || uploadingImages}
             >
-              {loading ? 'Creando...' : 'Crear Informe'}
+              {loading ? 'Creando...' : uploadingCover || uploadingImages ? 'Subiendo...' : 'Crear Informe'}
             </button>
           </div>
         </form>
