@@ -711,8 +711,8 @@ const SubscriberView: React.FC = () => {
   const loadInformes = async () => {
     setLoadingInformes(true);
     try {
-      // Remover el filtro type=smart-money que no existe en el enum
-      const response = await fetch('/api/reports?limit=6&featured=false', {
+      // Filtrar solo informes de Smart Money
+      const response = await fetch('/api/reports?limit=6&featured=false&category=smart-money', {
         method: 'GET',
         credentials: 'same-origin',
       });
@@ -722,18 +722,19 @@ const SubscriberView: React.FC = () => {
         const reports = data.data?.reports || [];
         
         // Log temporal para depurar
-        console.log('📊 Informes recibidos:', reports);
+        console.log('📊 Informes Smart Money recibidos:', reports);
         if (reports.length > 0) {
           console.log('📊 Estructura del primer informe:', {
             id: reports[0].id,
             _id: reports[0]._id,
             title: reports[0].title,
+            category: reports[0].category,
             keys: Object.keys(reports[0])
           });
         }
         
         setInformes(reports);
-        console.log('✅ Informes cargados:', reports.length);
+        console.log('✅ Informes Smart Money cargados:', reports.length);
       } else {
         console.error('❌ Error al cargar informes:', response.status);
       }
@@ -2246,6 +2247,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
   const [formData, setFormData] = useState({
     title: '',
     type: 'informe',
+    category: 'smart-money',
     content: '',
     summary: '',
     readTime: '',

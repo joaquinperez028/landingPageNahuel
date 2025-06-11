@@ -49,6 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       title, 
       content, 
       type, 
+      category,
       coverImage, 
       images 
     } = req.body;
@@ -63,6 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('📝 Creando nuevo informe:', {
       title,
       type,
+      category,
       hasCoverImage: !!coverImage,
       imagesCount: images?.length || 0,
       author: user.email
@@ -110,6 +112,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       content,
       author: user._id,
       type: type || 'text',
+      category: category || 'general',
       coverImage: processedCoverImage,
       images: processedImages,
       isPublished: true,

@@ -44,6 +44,11 @@ const ReportSchema = new mongoose.Schema({
     enum: ['text', 'video', 'mixed'],
     default: 'text'
   },
+  category: {
+    type: String,
+    enum: ['smart-money', 'trader-call', 'cash-flow', 'general'],
+    default: 'general'
+  },
   muxAssetId: String,
   playbackId: String,
   thumbnailUrl: String,

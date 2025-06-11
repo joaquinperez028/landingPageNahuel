@@ -24,6 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       limit = '10', 
       featured = 'false', 
       type,
+      category,
       page = '1'
     } = req.query;
 
@@ -40,6 +41,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     if (type && type !== 'all') {
       filters.type = type;
+    }
+
+    if (category && category !== 'all') {
+      filters.category = category;
     }
 
     console.log('📊 Obteniendo informes con filtros:', filters);
