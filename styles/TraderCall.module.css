@@ -3307,10 +3307,13 @@
 
 .coverImage {
   max-width: 100%;
+  max-height: 400px; /* Limitar altura máxima */
+  width: auto;
   height: auto;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
+  object-fit: cover; /* Para mantener proporciones */
 }
 
 .coverImage:hover {
@@ -3333,7 +3336,7 @@
 
 .imagesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-top: 1rem;
 }
@@ -3353,7 +3356,7 @@
 
 .additionalImage {
   width: 100%;
-  height: 200px;
+  height: 250px; /* Altura fija más pequeña */
   object-fit: cover;
   transition: transform 0.3s ease;
 }
@@ -3386,6 +3389,92 @@
   background: var(--bg-tertiary);
 }
 
+.uploadedImagePreview {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.previewImage {
+  width: 100%;
+  max-height: 200px; /* Limitar altura en preview */
+  object-fit: cover;
+  display: block;
+}
+
+.previewActions {
+  padding: 0.75rem;
+  background: var(--bg-tertiary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.imageInfo {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.removeImageButton {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.removeImageButton:hover {
+  background: #dc2626;
+}
+
+.additionalImagesPreview {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+}
+
+.additionalImagesPreview h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.imagePreviewItem {
+  position: relative;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.previewThumbnail {
+  width: 100%;
+  height: 120px; /* Altura más pequeña para thumbnails */
+  object-fit: cover;
+}
+
+.imagePreviewActions {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+}
+
+.imagePreviewActions .removeImageButton {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  padding: 0;
+}
+
 /* Responsive para imágenes */
 @media (max-width: 768px) {
   .imagesGrid {
@@ -3395,11 +3484,11 @@
   
   .reportImage {
     margin: 0 auto;
-    max-width: 400px;
+    max-width: 100%;
   }
   
   .additionalImage {
-    height: 180px;
+    height: 200px; /* Altura más pequeña en móvil */
   }
   
   .imageCaption {
@@ -3408,7 +3497,12 @@
   }
   
   .coverImage {
-    max-width: 90%;
+    max-width: 100%;
+    max-height: 300px; /* Altura más pequeña en móvil */
+  }
+
+  .previewImage {
+    max-height: 150px; /* Altura más pequeña en móvil para preview */
   }
 }
 
@@ -3422,7 +3516,7 @@
   }
   
   .additionalImage {
-    height: 150px;
+    height: 150px; /* Altura muy pequeña en móviles pequeños */
   }
   
   .imageCaption {
@@ -3431,6 +3525,15 @@
   }
   
   .coverImage {
-    max-width: 95%;
+    max-width: 100%;
+    max-height: 250px; /* Altura muy pequeña en móviles pequeños */
+  }
+
+  .previewThumbnail {
+    height: 100px; /* Altura muy pequeña para thumbnails en móvil */
+  }
+
+  .previewImage {
+    max-height: 120px; /* Altura muy pequeña en móvil para preview */
   }
 } 
