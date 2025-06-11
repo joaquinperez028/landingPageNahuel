@@ -437,24 +437,60 @@ const SubscriberView: React.FC = () => {
   const { data: session } = useSession();
   const router = useRouter();
 
+  // Debug: Logear cambios en userRole
+  React.useEffect(() => {
+    console.log('🎭 UserRole cambió a:', userRole);
+    console.log('🎭 Tipo de userRole:', typeof userRole);
+    console.log('🎭 userRole === "admin"?', userRole === 'admin');
+    console.log('🎭 userRole === "suscriptor"?', userRole === 'suscriptor');
+    console.log('🎭 userRole.length:', userRole.length);
+    if (userRole) {
+      console.log('🎭 Caracteres del userRole:', userRole.split('').map(char => char.charCodeAt(0)));
+    }
+  }, [userRole]);
+
   // Verificar rol del usuario
   React.useEffect(() => {
     const checkUserRole = async () => {
       try {
+        console.log('🔍 DEBUG - Frontend checkUserRole iniciado');
+        console.log('📧 Session user email:', session?.user?.email);
+        
         const response = await fetch('/api/profile/get', {
           credentials: 'same-origin',
         });
+        
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response ok:', response.ok);
+        
         if (response.ok) {
           const data = await response.json();
-          setUserRole(data.user?.role || '');
+          console.log('📨 Data completa recibida:', data);
+          console.log('👤 data.user:', data.user);
+          console.log('👥 data.user?.role:', data.user?.role);
+          console.log('🔧 Tipo de data.user?.role:', typeof data.user?.role);
+          
+          const role = data.user?.role || '';
+          console.log('✅ Rol final asignado:', role);
+          console.log('🔧 Tipo de rol final:', typeof role);
+          console.log('🚫 Es role === "admin"?', role === 'admin');
+          console.log('🚫 Es role === "suscriptor"?', role === 'suscriptor');
+          
+          setUserRole(role);
+          console.log('💾 setUserRole llamado con:', role);
+        } else {
+          console.error('❌ Response no OK:', response.status);
         }
       } catch (error) {
-        console.error('Error al verificar rol:', error);
+        console.error('❌ Error al verificar rol:', error);
       }
     };
 
     if (session?.user) {
+      console.log('🔄 Session existe, ejecutando checkUserRole');
       checkUserRole();
+    } else {
+      console.log('⚠️ No hay sesión, no se ejecuta checkUserRole');
     }
   }, [session]);
 
@@ -704,20 +740,34 @@ const SubscriberView: React.FC = () => {
   const loadInformes = async () => {
     setLoadingInformes(true);
     try {
-      const response = await fetch('/api/reports?limit=6&featured=false&type=smart-money', {
+      // Remover el filtro type=smart-money que no existe en el enum
+      const response = await fetch('/api/reports?limit=6&featured=false', {
         method: 'GET',
         credentials: 'same-origin',
       });
 
       if (response.ok) {
         const data = await response.json();
-        setInformes(data.data?.reports || []);
-        console.log('Informes cargados:', data.data?.reports?.length || 0);
+        const reports = data.data?.reports || [];
+        
+        // Log temporal para depurar
+        console.log('📊 Informes recibidos:', reports);
+        if (reports.length > 0) {
+          console.log('📊 Estructura del primer informe:', {
+            id: reports[0].id,
+            _id: reports[0]._id,
+            title: reports[0].title,
+            keys: Object.keys(reports[0])
+          });
+        }
+        
+        setInformes(reports);
+        console.log('✅ Informes cargados:', reports.length);
       } else {
-        console.error('Error al cargar informes:', response.status);
+        console.error('❌ Error al cargar informes:', response.status);
       }
     } catch (error) {
-      console.error('Error al cargar informes:', error);
+      console.error('❌ Error al cargar informes:', error);
     } finally {
       setLoadingInformes(false);
     }
@@ -725,17 +775,26 @@ const SubscriberView: React.FC = () => {
 
   // Función para abrir informe completo
   const openReport = async (reportId: string) => {
+    console.log('🔍 Intentando abrir informe con ID:', reportId);
+    
+    if (!reportId) {
+      console.error('❌ ID de informe es undefined o vacío');
+      alert('Error: ID del informe no válido');
+      return;
+    }
+    
     try {
       const response = await fetch(`/api/reports/${reportId}`);
       if (response.ok) {
         const data = await response.json();
         setSelectedReport(data.data.report);
+        console.log('✅ Informe cargado exitosamente:', data.data.report.title);
       } else {
-        console.error('Error al cargar informe:', response.status);
+        console.error('❌ Error al cargar informe:', response.status);
         alert('Error al cargar el informe');
       }
     } catch (error) {
-      console.error('Error al cargar informe:', error);
+      console.error('❌ Error al cargar informe:', error);
       alert('Error al cargar el informe');
     }
   };
@@ -1406,7 +1465,20 @@ const SubscriberView: React.FC = () => {
               <div className={styles.informeActions}>
                 <button 
                   className={styles.readButton}
-                  onClick={() => openReport(informe.id || informe._id)}
+                  onClick={() => {
+                    // Obtener ID más robustamente
+                    const reportId = informe._id || informe.id;
+                    console.log('🔍 Datos del informe completo:', informe);
+                    console.log('🔍 ID a usar:', reportId);
+                    
+                    if (!reportId) {
+                      console.error('❌ No se pudo obtener ID del informe');
+                      alert('Error: No se pudo obtener el ID del informe');
+                      return;
+                    }
+                    
+                    openReport(reportId);
+                  }}
                 >
                   {informe.type === 'video' ? 'Ver Video' : 'Leer Informe'}
                 </button>

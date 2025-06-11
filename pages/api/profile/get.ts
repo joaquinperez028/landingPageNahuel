@@ -22,6 +22,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Buscar el usuario en la base de datos
     let user = await User.findOne({ email: session.user.email });
     
+    console.log('🔍 DEBUG - Perfil get.ts:');
+    console.log('📧 Email de sesión:', session.user.email);
+    console.log('👤 Usuario encontrado:', user ? 'SÍ' : 'NO');
+    console.log('👤 User._id:', user?._id);
+    console.log('👤 User.email:', user?.email);
+    console.log('👥 User.role:', user?.role);
+    console.log('👥 Tipo de role:', typeof user?.role);
+    
     if (!user) {
       // Si el usuario no existe en la BD, crear uno con la información básica de la sesión
       user = new User({
@@ -33,10 +41,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       await user.save();
       console.log('✅ Usuario creado automáticamente:', user.email);
+      console.log('🆕 Nuevo usuario role:', user.role);
     }
 
-    // Crear objeto de respuesta con los datos del perfil
-    return res.status(200).json({
+    const responseData = {
       success: true,
       user: {
         id: user._id,
@@ -74,7 +82,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         suscripciones: user.suscripciones || [],
         subscriptions: user.subscriptions || []
       }
-    });
+    };
+
+    console.log('📤 Response role enviado:', responseData.user.role);
+    console.log('📤 Response profile role enviado:', responseData.profile.role);
+
+    // Crear objeto de respuesta con los datos del perfil
+    return res.status(200).json(responseData);
 
   } catch (error) {
     console.error('❌ Error al obtener perfil:', error);
