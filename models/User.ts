@@ -9,16 +9,16 @@ export interface IUser extends Document {
   phone?: string;
   address?: string;
   tarjetas: Array<{
-    numeroEnmascarado: string;
+    numero: string;
+    nombre: string;
+    vencimiento: string;
     tipo: string;
-    expiracion: Date;
   }>;
   compras: Array<{
-    itemId: string;
-    tipo: string;
     fecha: Date;
-    estado: string;
     monto: number;
+    concepto: string;
+    estado: 'pendiente' | 'completada' | 'cancelada';
   }>;
   suscripciones: Array<{
     servicio: 'TraderCall' | 'SmartMoney' | 'CashFlow';
@@ -41,6 +41,9 @@ export interface IUser extends Document {
   cuitCuil?: string;
   educacionFinanciera?: string;
   brokerPreferencia?: string;
+  googleAccessToken?: string;
+  googleRefreshToken?: string;
+  googleTokenExpiry?: number;
 }
 
 const UserSchema: Schema = new Schema({
@@ -69,16 +72,20 @@ const UserSchema: Schema = new Schema({
   phone: String,
   address: String,
   tarjetas: [{
-    numeroEnmascarado: String,
-    tipo: String,
-    expiracion: Date
+    numero: String,
+    nombre: String,
+    vencimiento: String,
+    tipo: String
   }],
   compras: [{
-    itemId: String,
-    tipo: String,
     fecha: Date,
-    estado: String,
-    monto: Number
+    monto: Number,
+    concepto: String,
+    estado: {
+      type: String,
+      enum: ['pendiente', 'completada', 'cancelada'],
+      default: 'pendiente'
+    }
   }],
   suscripciones: [{
     servicio: {
@@ -141,6 +148,9 @@ const UserSchema: Schema = new Schema({
     enum: ['bull-market', 'iol', 'portfolio-personal', 'cocos-capital', 'eco-valores', 'otros'],
     default: null,
   },
+  googleAccessToken: { type: String },
+  googleRefreshToken: { type: String },
+  googleTokenExpiry: { type: Number }
 }, {
   timestamps: true
 });

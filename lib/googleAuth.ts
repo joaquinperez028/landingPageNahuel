@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
       authorization: {
         params: {
-          scope: 'openid email profile',
+          scope: 'openid email profile https://www.googleapis.com/auth/calendar',
           prompt: 'consent',
           access_type: 'offline',
           response_type: 'code'
@@ -74,7 +74,10 @@ export const authOptions: NextAuthOptions = {
             tarjetas: [],
             compras: [],
             suscripciones: [],
-            lastLogin: new Date() // Registrar primer login
+            lastLogin: new Date(), // Registrar primer login
+            googleAccessToken: account?.access_token,
+            googleRefreshToken: account?.refresh_token,
+            googleTokenExpiry: account?.expires_at
           });
         } else {
           // Actualizar información del usuario Y el último login
@@ -83,7 +86,10 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             picture: userImageUrl,
             googleId: account?.providerAccountId,
-            lastLogin: new Date() // Actualizar último login
+            lastLogin: new Date(), // Actualizar último login
+            googleAccessToken: account?.access_token,
+            googleRefreshToken: account?.refresh_token,
+            googleTokenExpiry: account?.expires_at
           });
         }
         
@@ -94,62 +100,23 @@ export const authOptions: NextAuthOptions = {
         return true;
       }
     },
-    
-    async session({ session, token }) {
-      console.log(`🔍 SESSION callback - Email: ${session.user?.email}`);
-      console.log(`🔍 TOKEN data - Role: ${token.role}, UserId: ${token.userId}`);
-      
-      // Usar principalmente datos del token para evitar consultas excesivas a BD
-      if (session.user?.email && token) {
-        session.user.id = token.userId as string || session.user.id;
-        session.user.role = token.role as any || 'normal';
-        session.user.image = token.picture as string || session.user.image;
-        session.user.suscripciones = token.suscripciones as any || [];
-        
-        console.log(`✅ SESSION actualizada - Rol asignado: ${session.user.role}`);
+    async jwt({ token, account, user }) {
+      // Persistir el access_token y refresh_token en el token JWT
+      if (account) {
+        token.accessToken = account.access_token;
+        token.refreshToken = account.refresh_token;
+        token.expiresAt = account.expires_at;
       }
-      
-      return session;
-    },
-    
-    async jwt({ token, user, account, trigger }) {
-      console.log(`🔍 JWT callback - Email: ${token.email}, Trigger: ${trigger}`);
-      
-      // SIEMPRE verificar el rol más actualizado desde la BD para asegurar que los cambios de rol se reflejen
-      if (token.email) {
-        try {
-          const connection = await dbConnect();
-          if (connection) {
-            const dbUser = await User.findOne({ email: token.email })
-              .select('_id role picture suscripciones')
-              .lean()
-              .maxTimeMS(2000) as any;
-            
-            if (dbUser) {
-              token.userId = dbUser._id.toString();
-              token.role = dbUser.role; // SIEMPRE actualizar el rol desde BD
-              token.picture = dbUser.picture;
-              token.suscripciones = dbUser.suscripciones;
-              
-              console.log(`🔄 JWT actualizado para ${token.email} - Rol BD: ${dbUser.role} → Token: ${token.role}`);
-            } else {
-              console.log(`❌ No se encontró usuario en BD para: ${token.email}`);
-            }
-          } else {
-            console.log(`❌ No hay conexión a BD en JWT callback`);
-          }
-        } catch (error) {
-          console.error('❌ Error en JWT callback:', error);
-          // Usar valores existentes si hay error
-          token.role = token.role || 'normal';
-        }
-      }
-      
-      console.log(`🏁 JWT final - Role: ${token.role}, UserId: ${token.userId}`);
       return token;
+    },
+    async session({ session, token }) {
+      // Enviar el access_token al cliente
+      if (token.accessToken) {
+        session.accessToken = token.accessToken as string;
+      }
+      return session;
     }
   },
-
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 días
@@ -166,7 +133,6 @@ export const authOptions: NextAuthOptions = {
       }
     }
   },
-
 };
 
 // Extender el tipo de session para incluir nuestros campos personalizados
@@ -185,9 +151,13 @@ declare module 'next-auth' {
         activa: boolean;
       }>;
     };
+    accessToken?: string;
   }
   
   interface User {
     role: 'normal' | 'suscriptor' | 'admin';
+    googleAccessToken?: string;
+    googleRefreshToken?: string;
+    googleTokenExpiry?: number;
   }
 } 
