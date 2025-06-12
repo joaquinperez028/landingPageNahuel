@@ -86,7 +86,7 @@ export default async function handler(req, res) {
 
       // Determinar el tipo de usuario basado en su rol
       const userType = user.role;
-      const messageType = user.role === 'admin' ? 'admin' : 'normal';
+      const messageType = user.role === 'admin' ? 'highlight' : 'normal';
 
       // Crear el nuevo mensaje
       const newMessageData = {
