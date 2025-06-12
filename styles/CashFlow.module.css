@@ -1,8 +1,8 @@
-/* Estilos para Trader Call - Consistente con plataforma de cursos */
+/* Estilos para Cash Flow - Tema oscuro consistente */
 
 .main {
   min-height: 100vh;
-  background: #ffffff;
+  background: var(--bg-primary);
 }
 
 .container {
@@ -13,12 +13,12 @@
 
 /* Vista No Suscripto */
 .nonSubscriberView {
-  background: #ffffff;
+  background: var(--bg-primary);
 }
 
 /* Hero Section */
 .heroSection {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
   padding: 4rem 0;
   color: white;
   position: relative;
@@ -54,6 +54,7 @@
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1rem;
+  color: white;
 }
 
 .heroSubtitle {
