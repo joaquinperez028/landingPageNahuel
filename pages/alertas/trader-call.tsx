@@ -1223,27 +1223,15 @@ const SubscriberView: React.FC = () => {
         )}
       </div>
 
-      {/* Tabla de alertas */}
-      <div className={styles.alertasTable}>
-        <div className={styles.tableHeader}>
-          <span>Fecha</span>
-          <span>Símbolo</span>
-          <span>Acción</span>
-          <span>Precio Entrada</span>
-          <span>Precio Actual</span>
-          <span>Stop Loss</span>
-          <span>Take Profit</span>
-          <span>P&L</span>
-          <span>Estado</span>
-        </div>
-        
-        {/* Mostrar alertas reales filtradas */}
+      {/* Tabla de alertas mejorada */}
+      <div className={styles.alertasTableContainer}>
         {(() => {
           const filteredAlerts = getFilteredAlerts();
           
           if (loadingAlerts) {
             return (
-              <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem' }}>
+              <div className={styles.loadingState}>
+                <div className={styles.loadingSpinner}></div>
                 <span>Cargando alertas...</span>
               </div>
             );
@@ -1251,54 +1239,147 @@ const SubscriberView: React.FC = () => {
           
           if (realAlerts.length === 0) {
             return (
-              <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                <span>No hay alertas creadas aún. ¡Crea tu primera alerta!</span>
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>📊</div>
+                <h3>No hay alertas creadas aún</h3>
+                <p>¡Crea tu primera alerta para empezar el seguimiento!</p>
+                {userRole === 'admin' && (
+                  <button 
+                    className={styles.createFirstAlertButton}
+                    onClick={() => setShowCreateAlert(true)}
+                  >
+                    + Crear Primera Alerta
+                  </button>
+                )}
               </div>
             );
           }
           
           if (filteredAlerts.length === 0) {
             return (
-              <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                <span>No se encontraron alertas con los filtros aplicados.</span>
-                <br />
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>🔍</div>
+                <h3>No se encontraron alertas</h3>
+                <p>No hay alertas que coincidan con los filtros aplicados.</p>
                 <button 
+                  className={styles.clearFiltersButton}
                   onClick={clearFilters}
-                  style={{ 
-                    marginTop: '0.5rem', 
-                    background: 'none', 
-                    border: '1px solid var(--primary-color)', 
-                    color: 'var(--primary-color)', 
-                    padding: '0.25rem 0.5rem', 
-                    borderRadius: '4px', 
-                    cursor: 'pointer' 
-                  }}
                 >
-                  Limpiar filtros
+                  🗑️ Limpiar Filtros
                 </button>
               </div>
             );
           }
           
-          return filteredAlerts.map((alert) => (
-            <div key={alert.id} className={styles.tableRow}>
-              <span>{alert.date}</span>
-              <span className={styles.symbol}>{alert.symbol}</span>
-              <span className={`${styles.action} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
-                {alert.action}
-              </span>
-              <span>{alert.entryPrice}</span>
-              <span>{alert.exitPrice || alert.currentPrice}</span>
-              <span>{alert.stopLoss || '-'}</span>
-              <span>{alert.takeProfit || '-'}</span>
-              <span className={alert.profit.includes('+') ? styles.profit : styles.loss}>
-                {alert.profit}
-              </span>
-              <span className={`${styles.status} ${alert.status === 'ACTIVE' ? styles.statusActive : ''}`}>
-                {alert.status === 'ACTIVE' ? 'ACTIVA' : 'CERRADA'}
-              </span>
+          return (
+            <div className={styles.alertsGrid}>
+              {filteredAlerts.map((alert) => {
+                // Calcular información adicional para mostrar
+                const entryPrice = parseFloat(String(alert.entryPrice || '0').replace('$', ''));
+                const currentPrice = parseFloat(String(alert.currentPrice || '0').replace('$', ''));
+                const exitPrice = alert.exitPrice ? parseFloat(String(alert.exitPrice).replace('$', '')) : null;
+                const profitPercent = parseFloat(String(alert.profit || '0%').replace('%', '').replace('+', ''));
+                
+                // Calcular ganancia/pérdida en dólares
+                const priceChange = exitPrice ? (exitPrice - entryPrice) : (currentPrice - entryPrice);
+                const dollarPL = priceChange.toFixed(2);
+                
+                // Determinar color del P&L
+                const isProfit = profitPercent >= 0;
+                const pnlColor = isProfit ? 'var(--success-color)' : 'var(--error-color)';
+                
+                return (
+                  <div key={alert.id} className={styles.alertCard}>
+                    {/* Header de la alerta */}
+                    <div className={styles.alertCardHeader}>
+                      <div className={styles.alertSymbolSection}>
+                        <h3 className={styles.alertSymbolTitle}>{alert.symbol}</h3>
+                        <span className={`${styles.alertActionBadge} ${alert.action === 'BUY' ? styles.buyBadge : styles.sellBadge}`}>
+                          {alert.action}
+                        </span>
+                      </div>
+                      <div className={styles.alertStatusSection}>
+                        <span className={`${styles.statusBadge} ${alert.status === 'ACTIVE' ? styles.statusActiveBadge : styles.statusClosedBadge}`}>
+                          {alert.status === 'ACTIVE' ? '🟢 ACTIVA' : '🔴 CERRADA'}
+                        </span>
+                        <span className={styles.alertDate}>{alert.date}</span>
+                      </div>
+                    </div>
+
+                    {/* Información de precios */}
+                    <div className={styles.priceInfoGrid}>
+                      <div className={styles.priceInfo}>
+                        <span className={styles.priceLabel}>Entrada</span>
+                        <span className={styles.priceValue}>{alert.entryPrice}</span>
+                      </div>
+                      <div className={styles.priceInfo}>
+                        <span className={styles.priceLabel}>{alert.status === 'CLOSED' ? 'Salida' : 'Actual'}</span>
+                        <span className={styles.priceValue}>
+                          {alert.status === 'CLOSED' ? (alert.exitPrice || alert.currentPrice) : alert.currentPrice}
+                        </span>
+                      </div>
+                      <div className={styles.priceInfo}>
+                        <span className={styles.priceLabel}>Stop Loss</span>
+                        <span className={`${styles.priceValue} ${styles.stopLoss}`}>{alert.stopLoss || '-'}</span>
+                      </div>
+                      <div className={styles.priceInfo}>
+                        <span className={styles.priceLabel}>Take Profit</span>
+                        <span className={`${styles.priceValue} ${styles.takeProfit}`}>{alert.takeProfit || '-'}</span>
+                      </div>
+                    </div>
+
+                    {/* P&L destacado */}
+                    <div className={styles.pnlSection}>
+                      <div className={styles.pnlMain}>
+                        <span className={styles.pnlLabel}>P&L Total</span>
+                        <div className={styles.pnlValues}>
+                          <span className={styles.pnlPercent} style={{ color: pnlColor }}>
+                            {isProfit ? '+' : ''}{profitPercent.toFixed(2)}%
+                          </span>
+                          <span className={styles.pnlDollar} style={{ color: pnlColor }}>
+                            {priceChange >= 0 ? '+' : ''}${dollarPL}
+                          </span>
+                        </div>
+                      </div>
+                      {alert.status === 'CLOSED' && alert.exitReason && (
+                        <div className={styles.exitReason}>
+                          <span className={styles.exitReasonLabel}>Razón:</span>
+                          <span className={styles.exitReasonValue}>
+                            {alert.exitReason === 'MANUAL' ? '✋ Manual' : 
+                             alert.exitReason === 'TAKE_PROFIT' ? '🎯 Take Profit' : 
+                             alert.exitReason === 'STOP_LOSS' ? '🛑 Stop Loss' : alert.exitReason}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Análisis si existe */}
+                    {alert.analysis && (
+                      <div className={styles.analysisSection}>
+                        <span className={styles.analysisLabel}>💡 Análisis:</span>
+                        <p className={styles.analysisText}>{alert.analysis}</p>
+                      </div>
+                    )}
+
+                    {/* Performance visual */}
+                    <div className={styles.performanceBar}>
+                      <div className={styles.performanceTrack}>
+                        <div 
+                          className={`${styles.performanceFill} ${isProfit ? styles.profitFill : styles.lossFill}`}
+                          style={{ 
+                            width: `${Math.min(Math.abs(profitPercent) * 2, 100)}%` 
+                          }}
+                        ></div>
+                      </div>
+                      <span className={styles.performanceText}>
+                        {isProfit ? '📈' : '📉'} {Math.abs(profitPercent).toFixed(1)}% {isProfit ? 'ganancia' : 'pérdida'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ));
+          );
         })()}
       </div>
     </div>
