@@ -75,25 +75,25 @@ export default async function handler(
     // Contar total de alertas
     const total = await Alert.countDocuments(filter);
 
-    // Formatear alertas para el frontend
+    // Formatear alertas para el frontend - con validación de números
     const formattedAlerts = alerts.map((alert: any) => ({
       id: alert._id.toString(),
-      symbol: alert.symbol,
-      action: alert.action,
-      entryPrice: `$${alert.entryPrice.toFixed(2)}`,
-      currentPrice: `$${alert.currentPrice.toFixed(2)}`,
-      stopLoss: `$${alert.stopLoss.toFixed(2)}`,
-      takeProfit: `$${alert.takeProfit.toFixed(2)}`,
-      profit: `${alert.profit >= 0 ? '+' : ''}${alert.profit.toFixed(1)}%`,
-      status: alert.status,
-      date: alert.date.toISOString().split('T')[0],
-      analysis: alert.analysis,
+      symbol: alert.symbol || '',
+      action: alert.action || '',
+      entryPrice: `$${Number(alert.entryPrice || 0).toFixed(2)}`,
+      currentPrice: `$${Number(alert.currentPrice || 0).toFixed(2)}`,
+      stopLoss: `$${Number(alert.stopLoss || 0).toFixed(2)}`,
+      takeProfit: `$${Number(alert.takeProfit || 0).toFixed(2)}`,
+      profit: `${Number(alert.profit || 0) >= 0 ? '+' : ''}${Number(alert.profit || 0).toFixed(1)}%`,
+      status: alert.status || 'ACTIVE',
+      date: alert.date ? alert.date.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      analysis: alert.analysis || '',
       createdAt: alert.createdAt,
       // Campos adicionales para mostrar si está cerrada
-      exitPrice: alert.exitPrice ? `$${alert.exitPrice.toFixed(2)}` : null,
+      exitPrice: alert.exitPrice ? `$${Number(alert.exitPrice).toFixed(2)}` : null,
       exitDate: alert.exitDate?.toISOString().split('T')[0] || null,
       exitReason: alert.exitReason || null,
-      type: alert.profit >= 0 ? 'WIN' : 'LOSS' // Para alertas cerradas
+      type: Number(alert.profit || 0) >= 0 ? 'WIN' : 'LOSS' // Para alertas cerradas
     }));
 
     return res.status(200).json({

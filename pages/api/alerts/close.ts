@@ -101,21 +101,21 @@ export default async function handler(
 
     console.log('✅ Posición cerrada por usuario:', user.name || user.email, alertId);
 
-    // Formatear la respuesta para el frontend
+    // Formatear la respuesta para el frontend - con validación de números
     const alertResponse = {
       id: updatedAlert._id.toString(),
       symbol: updatedAlert.symbol,
       action: updatedAlert.action,
-      entryPrice: `$${updatedAlert.entryPrice.toFixed(2)}`,
-      exitPrice: `$${updatedAlert.exitPrice.toFixed(2)}`,
-      stopLoss: `$${updatedAlert.stopLoss.toFixed(2)}`,
-      takeProfit: `$${updatedAlert.takeProfit.toFixed(2)}`,
-      profit: `${updatedAlert.profit >= 0 ? '+' : ''}${updatedAlert.profit.toFixed(1)}%`,
+      entryPrice: `$${Number(updatedAlert.entryPrice || 0).toFixed(2)}`,
+      exitPrice: `$${Number(updatedAlert.exitPrice || 0).toFixed(2)}`,
+      stopLoss: `$${Number(updatedAlert.stopLoss || 0).toFixed(2)}`,
+      takeProfit: `$${Number(updatedAlert.takeProfit || 0).toFixed(2)}`,
+      profit: `${Number(updatedAlert.profit || 0) >= 0 ? '+' : ''}${Number(updatedAlert.profit || 0).toFixed(1)}%`,
       status: updatedAlert.status,
-      date: updatedAlert.date.toISOString().split('T')[0],
-      exitDate: updatedAlert.exitDate.toISOString().split('T')[0],
+      date: updatedAlert.date ? updatedAlert.date.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      exitDate: updatedAlert.exitDate ? updatedAlert.exitDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       exitReason: updatedAlert.exitReason,
-      analysis: updatedAlert.analysis
+      analysis: updatedAlert.analysis || ''
     };
 
     // TODO: Enviar notificación a todos los suscriptores (opcional)

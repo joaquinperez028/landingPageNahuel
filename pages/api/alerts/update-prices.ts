@@ -108,20 +108,20 @@ export default async function handler(
         
         updatedCount++;
         
-        // Formatear para respuesta
+        // Formatear para respuesta - con validación de números
         updatedAlerts.push({
           id: alert._id.toString(),
-          symbol: alert.symbol,
-          action: alert.action,
-          entryPrice: `$${alert.entryPrice.toFixed(2)}`,
-          currentPrice: `$${alert.currentPrice.toFixed(2)}`,
-          stopLoss: `$${alert.stopLoss.toFixed(2)}`,
-          takeProfit: `$${alert.takeProfit.toFixed(2)}`,
-          profit: `${alert.profit >= 0 ? '+' : ''}${alert.profit.toFixed(1)}%`,
-          status: alert.status,
-          date: alert.date.toISOString().split('T')[0],
-          analysis: alert.analysis,
-          priceChange: currentPrice - alert.entryPrice,
+          symbol: alert.symbol || '',
+          action: alert.action || '',
+          entryPrice: `$${Number(alert.entryPrice || 0).toFixed(2)}`,
+          currentPrice: `$${Number(alert.currentPrice || 0).toFixed(2)}`,
+          stopLoss: `$${Number(alert.stopLoss || 0).toFixed(2)}`,
+          takeProfit: `$${Number(alert.takeProfit || 0).toFixed(2)}`,
+          profit: `${Number(alert.profit || 0) >= 0 ? '+' : ''}${Number(alert.profit || 0).toFixed(1)}%`,
+          status: alert.status || 'ACTIVE',
+          date: alert.date ? alert.date.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          analysis: alert.analysis || '',
+          priceChange: Number(currentPrice || 0) - Number(alert.entryPrice || 0),
           marketStatus: priceData.marketStatus,
           isSimulated: priceData.isSimulated
         });
