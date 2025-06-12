@@ -1330,7 +1330,6 @@ const SubscriberView: React.FC = () => {
               
               <div className={styles.alertActions}>
                 <button className={styles.closeButton}>Cerrar Inversión</button>
-                <button className={styles.modifyButton}>Modificar</button>
               </div>
             </div>
           ))
