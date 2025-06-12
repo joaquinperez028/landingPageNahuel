@@ -71,9 +71,8 @@ export default async function handler(
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    // Obtener todas las alertas activas del usuario
+    // Obtener todas las alertas activas - REMOVIDO filtro por createdBy para que se actualicen todas las alertas
     const activeAlerts = await Alert.find({
-      createdBy: user._id,
       status: 'ACTIVE',
       tipo: 'TraderCall' // Por ahora solo TraderCall
     });

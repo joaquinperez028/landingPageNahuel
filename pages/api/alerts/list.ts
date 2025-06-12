@@ -51,9 +51,8 @@ export default async function handler(
       page = '1'
     } = req.query;
 
-    // Construir filtro
+    // Construir filtro - REMOVIDO el filtro por createdBy para que todos vean todas las alertas
     const filter: any = {
-      createdBy: user._id,
       tipo: tipo
     };
 

@@ -5,8 +5,8 @@ import Alert from '@/models/Alert';
 import User from '@/models/User';
 
 /**
- * API endpoint para manejo de alertas
- * GET: Obtener alertas (públicas o del usuario si está autenticado)
+ * API endpoint para manejo de alertas de trading
+ * GET: Obtener alertas (todas las alertas visibles para el usuario)
  * POST: Crear nueva alerta (solo admin)
  * PUT: Actualizar alerta (solo admin)
  * DELETE: Eliminar alerta (solo admin)
@@ -43,32 +43,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   try {
     const session = await getSession({ req });
-    const { tipo, activa, limit = '10', page = '1' } = req.query;
+    const { tipo, status, limit = '10', page = '1' } = req.query;
 
-    // Construir filtros
+    // Construir filtros - TODAS las alertas son visibles para todos
     const filters: any = {};
     
     if (tipo && typeof tipo === 'string') {
       filters.tipo = tipo;
     }
     
-    if (activa !== undefined) {
-      filters.activa = activa === 'true';
+    if (status && typeof status === 'string') {
+      filters.status = status;
     }
 
-    // Si el usuario no está autenticado, solo mostrar información básica
+    // Si el usuario no está autenticado, solo mostrar alertas básicas
     let projection = {};
     if (!session) {
       projection = {
-        titulo: 1,
-        descripcion: 1,
+        symbol: 1,
+        action: 1,
+        entryPrice: 1,
+        currentPrice: 1,
+        status: 1,
+        profit: 1,
+        date: 1,
         tipo: 1,
-        fechaCreacion: 1,
-        'datos.rendimiento': 1,
-        'datos.usuariosActivos': 1,
-        'datos.alertasEnviadas': 1,
-        imagenes: 1,
-        videoMux: 1
+        createdAt: 1
       };
     }
 
@@ -77,7 +77,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     const skip = (pageNum - 1) * limitNum;
 
     const alerts = await Alert.find(filters, projection)
-      .sort({ fechaCreacion: -1 })
+      .sort({ createdAt: -1 })
       .limit(limitNum)
       .skip(skip)
       .lean();
@@ -120,19 +120,19 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     }
 
     const {
-      tipo,
-      titulo,
-      descripcion,
-      datos,
-      fechaVencimiento,
-      imagenes,
-      videoMux
+      symbol,
+      action,
+      entryPrice,
+      stopLoss,
+      takeProfit,
+      analysis,
+      tipo
     } = req.body;
 
     // Validaciones básicas
-    if (!tipo || !titulo || !descripcion) {
+    if (!symbol || !action || !entryPrice || !stopLoss || !takeProfit || !tipo) {
       return res.status(400).json({ 
-        error: 'Tipo, título y descripción son obligatorios' 
+        error: 'Symbol, action, entryPrice, stopLoss, takeProfit y tipo son obligatorios' 
       });
     }
 
@@ -144,14 +144,17 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     }
 
     const nuevaAlerta = await Alert.create({
+      symbol: symbol.toUpperCase(),
+      action,
+      entryPrice,
+      currentPrice: entryPrice,
+      stopLoss,
+      takeProfit,
+      analysis: analysis || '',
       tipo,
-      titulo,
-      descripcion,
-      datos: datos || {},
-      fechaVencimiento: fechaVencimiento ? new Date(fechaVencimiento) : undefined,
-      imagenes: imagenes || [],
-      videoMux,
-      suscriptores: []
+      createdBy: user._id,
+      status: 'ACTIVE',
+      profit: 0
     });
 
     console.log('✅ Alerta creada:', nuevaAlerta._id);
