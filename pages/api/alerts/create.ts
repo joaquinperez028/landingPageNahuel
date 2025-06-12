@@ -93,19 +93,19 @@ export default async function handler(
 
     console.log('Nueva alerta creada por usuario:', user.name || user.email, newAlert._id);
 
-    // Formatear la respuesta para el frontend
+    // Formatear la respuesta para el frontend - con validación de números
     const alertResponse = {
       id: newAlert._id.toString(),
       symbol: newAlert.symbol,
       action: newAlert.action,
-      entryPrice: `$${newAlert.entryPrice.toFixed(2)}`,
-      currentPrice: `$${newAlert.currentPrice.toFixed(2)}`,
-      stopLoss: `$${newAlert.stopLoss.toFixed(2)}`,
-      takeProfit: `$${newAlert.takeProfit.toFixed(2)}`,
-      profit: `${newAlert.profit >= 0 ? '+' : ''}${newAlert.profit.toFixed(1)}%`,
+      entryPrice: `$${Number(newAlert.entryPrice || 0).toFixed(2)}`,
+      currentPrice: `$${Number(newAlert.currentPrice || 0).toFixed(2)}`,
+      stopLoss: `$${Number(newAlert.stopLoss || 0).toFixed(2)}`,
+      takeProfit: `$${Number(newAlert.takeProfit || 0).toFixed(2)}`,
+      profit: `${Number(newAlert.profit || 0) >= 0 ? '+' : ''}${Number(newAlert.profit || 0).toFixed(1)}%`,
       status: newAlert.status,
-      date: newAlert.date.toISOString().split('T')[0],
-      analysis: newAlert.analysis
+      date: newAlert.date ? newAlert.date.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      analysis: newAlert.analysis || ''
     };
 
     // TODO: Enviar notificación a todos los suscriptores (opcional)

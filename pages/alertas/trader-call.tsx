@@ -575,16 +575,20 @@ const SubscriberView: React.FC = () => {
       let type = 'alert';
       
       if (alert.status === 'ACTIVE') {
-        const currentPnL = alert.currentPrice && alert.entryPrice 
-          ? ((alert.currentPrice - alert.entryPrice) / alert.entryPrice * 100).toFixed(2)
+        const currentPrice = parseFloat(String(alert.currentPrice || '0').replace('$', ''));
+        const entryPrice = parseFloat(String(alert.entryPrice || '0').replace('$', ''));
+        const currentPnL = entryPrice > 0 
+          ? ((currentPrice - entryPrice) / entryPrice * 100).toFixed(2)
           : '0.00';
         const pnlValue = parseFloat(currentPnL);
         message = `${alert.symbol} actualizado: ${pnlValue > 0 ? '+' : ''}${currentPnL}% P&L #${alert.symbol}`;
       } else if (alert.status === 'CLOSED') {
-        const profit = alert.profit || 0;
+        const profitString = String(alert.profit || '0%').replace('%', '').replace('+', '');
+        const profit = parseFloat(profitString) || 0;
         message = `${alert.symbol} cerrado: ${profit > 0 ? '+' : ''}${profit.toFixed(2)}% ${profit > 0 ? 'ganancia' : 'pérdida'} #${alert.symbol}`;
       } else {
-        message = `Nueva alerta: ${alert.symbol} ${alert.action} a $${alert.entryPrice} #${alert.symbol}`;
+        const entryPriceFormatted = String(alert.entryPrice || '0').replace('$', '');
+        message = `Nueva alerta: ${alert.symbol} ${alert.action} a $${entryPriceFormatted} #${alert.symbol}`;
       }
 
       activities.push({
@@ -2156,7 +2160,7 @@ const SubscriberView: React.FC = () => {
             {stockPrice && (
               <div className={styles.priceDisplay}>
                 <label>Precio Actual:</label>
-                <span className={styles.currentPrice}>${stockPrice.toFixed(2)}</span>
+                <span className={styles.currentPrice}>${Number(stockPrice || 0).toFixed(2)}</span>
               </div>
             )}
 
