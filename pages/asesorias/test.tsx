@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -9,15 +9,86 @@ import Footer from '@/components/Footer';
 import DateTimePicker from '@/components/DateTimePicker';
 import styles from '@/styles/AsesoriasTest.module.css';
 
+// Genera todos los slots posibles de asesoría (cada 30 minutos de 8:00 a 22:00)
+const asesoriasSlots: string[] = Array.from({ length: (22 - 8) * 2 + 1 }, (_, i) => {
+  const hour = 8 + Math.floor(i / 2);
+  const minute = i % 2 === 0 ? '00' : '30';
+  return `${hour.toString().padStart(2, '0')}:${minute}`;
+});
+
+type TrainingSchedule = {
+  dayOfWeek: number;
+  hour: number;
+  minute: number;
+  duration: number;
+  type?: string;
+  activo: boolean;
+};
+
+function getFreeAdvisorySlots(
+  entrenamientos: TrainingSchedule[],
+  selectedDate: Date | null,
+  asesoriasSlots: string[]
+): string[] {
+  if (!selectedDate) return asesoriasSlots;
+  const dayOfWeek = selectedDate.getDay();
+  const entrenamientosHoy = entrenamientos.filter((e) => e.dayOfWeek === dayOfWeek);
+  return asesoriasSlots.filter((slot) => {
+    const [slotHour, slotMinute] = slot.split(':').map(Number);
+    return !entrenamientosHoy.some((e) => {
+      const entrenamientoStart = e.hour * 60 + e.minute;
+      const entrenamientoEnd = entrenamientoStart + e.duration;
+      const slotTime = slotHour * 60 + slotMinute;
+      return slotTime >= entrenamientoStart && slotTime < entrenamientoEnd;
+    });
+  });
+}
+
 const AsesoriasTestPage = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const [selectedDateTime, setSelectedDateTime] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [loading, setLoading] = useState(false);
+  const [trainingSchedules, setTrainingSchedules] = useState<TrainingSchedule[]>([]);
+  const [availableTimes, setAvailableTimes] = useState<string[]>(asesoriasSlots);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
+  // Obtener horarios de entrenamiento al cargar
+  useEffect(() => {
+    fetch('/api/trainings/schedule')
+      .then(res => {
+        if (!res.ok) throw new Error('Error al obtener los horarios de entrenamiento');
+        return res.json();
+      })
+      .then(data => {
+        setTrainingSchedules(data.schedules || []);
+        setFetchError(null);
+      })
+      .catch(err => {
+        setFetchError('No se pudieron cargar los horarios de entrenamiento. Intenta recargar la página.');
+        toast.error('Error al cargar horarios de entrenamiento');
+        console.error('Error al cargar horarios de entrenamiento:', err);
+      });
+  }, []);
+
+  // Actualizar horarios disponibles cuando cambia la fecha
   const handleDateTimeSelect = (date: Date) => {
     setSelectedDateTime(date);
+    setSelectedDate(date);
   };
+
+  useEffect(() => {
+    if (selectedDate) {
+      const libres = getFreeAdvisorySlots(trainingSchedules, selectedDate, asesoriasSlots);
+      setAvailableTimes(libres);
+      if (libres.length === 0) {
+        toast.error('No hay horarios disponibles para asesoría en la fecha seleccionada');
+      }
+    } else {
+      setAvailableTimes(asesoriasSlots);
+    }
+  }, [selectedDate, trainingSchedules]);
 
   const handleReservar = async () => {
     if (!session) {
@@ -48,7 +119,9 @@ const AsesoriasTestPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al crear el evento');
+        toast.error(data.error || 'Error al crear el evento');
+        console.error('Error al crear el evento:', data.error);
+        return;
       }
 
       toast.success('¡Asesoría reservada con éxito!');
@@ -56,9 +129,9 @@ const AsesoriasTestPage = () => {
       
       // Redirigir a una página de confirmación o dashboard
       router.push('/dashboard');
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al reservar la asesoría');
+    } catch (error: any) {
+      console.error('Error al reservar la asesoría:', error);
+      toast.error('Error inesperado al reservar la asesoría. Intenta nuevamente.');
     } finally {
       setLoading(false);
     }
@@ -98,16 +171,24 @@ const AsesoriasTestPage = () => {
 
             <div className={styles.booking}>
               <h3>Selecciona fecha y hora</h3>
+              {fetchError && (
+                <div style={{ color: 'red', marginBottom: 12 }}>{fetchError}</div>
+              )}
               <DateTimePicker
                 onDateTimeSelect={handleDateTimeSelect}
                 minDate={new Date()}
                 maxDate={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)} // 30 días
                 duration={60}
+                availableTimes={availableTimes}
               />
-
+              {selectedDate && availableTimes.length === 0 && (
+                <div style={{ color: 'red', marginTop: 8 }}>
+                  No hay horarios disponibles para asesoría en la fecha seleccionada. Por favor, elige otro día.
+                </div>
+              )}
               <button
                 onClick={handleReservar}
-                disabled={loading || !selectedDateTime}
+                disabled={loading || !selectedDateTime || availableTimes.length === 0}
                 className={styles.button}
               >
                 {loading ? 'Reservando...' : 'Reservar Asesoría'}

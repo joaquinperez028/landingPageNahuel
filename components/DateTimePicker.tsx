@@ -7,23 +7,28 @@ interface DateTimePickerProps {
   minDate?: Date;
   maxDate?: Date;
   duration?: number; // duración en minutos
+  availableTimes?: string[]; // NUEVO: lista de horarios disponibles ("HH:mm")
 }
 
 const DateTimePicker: React.FC<DateTimePickerProps> = ({
   onDateTimeSelect,
   minDate = new Date(),
   maxDate,
-  duration = 60
+  duration = 60,
+  availableTimes
 }) => {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
 
   // Generar opciones de hora (cada 30 minutos)
-  const timeSlots = Array.from({ length: 24 * 2 }, (_, i) => {
+  const allTimeSlots = Array.from({ length: 24 * 2 }, (_, i) => {
     const hour = Math.floor(i / 2);
     const minute = i % 2 === 0 ? '00' : '30';
     return `${hour.toString().padStart(2, '0')}:${minute}`;
   });
+
+  // Usar los horarios disponibles si se pasan, si no mostrar todos
+  const timeSlots = availableTimes && availableTimes.length > 0 ? availableTimes : allTimeSlots;
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(e.target.value);
