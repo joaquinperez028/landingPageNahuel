@@ -912,7 +912,59 @@ const SubscriberView: React.FC = () => {
   };
 
   const handleCreateAlert = async () => {
-    console.log('handleCreateAlert not implemented');
+    if (!newAlert.symbol || !stockPrice) {
+      alert('Por favor completa todos los campos obligatorios');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const response = await fetch('/api/alerts/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          tipo: 'TraderCall',
+          symbol: newAlert.symbol.toUpperCase(),
+          action: newAlert.action,
+          entryPrice: stockPrice,
+          stopLoss: parseFloat(newAlert.stopLoss),
+          takeProfit: parseFloat(newAlert.takeProfit),
+          analysis: newAlert.analysis || '',
+          date: new Date().toISOString()
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Alerta Trader Call creada:', result.alert);
+        
+        // Recargar alertas y limpiar formulario
+        await loadAlerts();
+        setNewAlert({
+          symbol: '',
+          action: 'BUY',
+          stopLoss: '',
+          takeProfit: '',
+          analysis: ''
+        });
+        setStockPrice(null);
+        setShowCreateAlert(false);
+        
+        alert('¡Alerta de Trader Call creada exitosamente!');
+      } else {
+        const error = await response.json();
+        console.error('❌ Error del servidor:', error);
+        alert(`Error: ${error.message || 'No se pudo crear la alerta'}`);
+      }
+    } catch (error) {
+      console.error('Error creating alert:', error);
+      alert('Error al crear la alerta');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderDashboard = () => (
