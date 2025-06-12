@@ -950,6 +950,47 @@ const SubscriberView: React.FC = () => {
     }
   };
 
+  // Función para cerrar inversión
+  const handleClosePosition = async (alertId: string, currentPrice: string) => {
+    if (!confirm('¿Estás seguro de que quieres cerrar esta inversión?')) {
+      return;
+    }
+
+    try {
+      const priceNumber = parseFloat(currentPrice.replace('$', ''));
+      
+      const response = await fetch('/api/alerts/close', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          alertId: alertId,
+          currentPrice: priceNumber,
+          reason: 'MANUAL'
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Inversión cerrada:', result.alert);
+        
+        // Recargar alertas para mostrar cambios
+        await loadAlerts();
+        
+        alert('¡Inversión cerrada exitosamente!');
+      } else {
+        const error = await response.json();
+        console.error('❌ Error del servidor:', error);
+        alert(`Error: ${error.message || 'No se pudo cerrar la inversión'}`);
+      }
+    } catch (error) {
+      console.error('Error closing position:', error);
+      alert('Error al cerrar la inversión');
+    }
+  };
+
   const renderDashboard = () => (
     <div className={styles.dashboardContent}>
       <h2 className={styles.sectionTitle}>Dashboard de Trabajo</h2>
@@ -1329,7 +1370,14 @@ const SubscriberView: React.FC = () => {
               </div>
               
               <div className={styles.alertActions}>
-                <button className={styles.closeButton}>Cerrar Inversión</button>
+                <button 
+                  className={styles.closeButton}
+                  onClick={() => handleClosePosition(alert.id, alert.currentPrice)}
+                  disabled={userRole !== 'admin'}
+                  title={userRole !== 'admin' ? 'Solo los administradores pueden cerrar inversiones' : 'Cerrar esta inversión'}
+                >
+                  Cerrar Inversión
+                </button>
               </div>
             </div>
           ))

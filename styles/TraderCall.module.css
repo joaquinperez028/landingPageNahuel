@@ -2390,6 +2390,17 @@
   cursor: not-allowed;
 }
 
+.closeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #6b7280;
+}
+
+.closeButton:disabled:hover {
+  background: #6b7280;
+  transform: none;
+}
+
 /* Responsive Modal */
 @media (max-width: 768px) {
   .modalOverlay {
