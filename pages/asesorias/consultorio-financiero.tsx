@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
@@ -19,36 +19,67 @@ import {
   AlertCircle
 } from 'lucide-react';
 import styles from '@/styles/ConsultorioFinanciero.module.css';
+import { useBookings } from '@/hooks/useBookings';
+
+interface Testimonio {
+  nombre: string;
+  foto: string;
+  comentario: string;
+  resultado: string;
+  rating: number;
+}
+
+interface TurnoDisponible {
+  fecha: string;
+  horarios: string[];
+  disponibles: number;
+}
+
+interface FAQ {
+  question: string;
+  answer: string;
+}
 
 interface ConsultorioPageProps {
-  testimonios: Array<{
-    nombre: string;
-    foto: string;
-    comentario: string;
-    resultado: string;
-    rating: number;
-  }>;
-  proximosTurnos: Array<{
-    fecha: string;
-    horarios: string[];
-    disponibles: number;
-  }>;
-  faqs: Array<{
-    question: string;
-    answer: string;
-  }>;
+  testimonios: Testimonio[];
+  faqs: FAQ[];
 }
 
 const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({ 
   testimonios, 
-  proximosTurnos, 
   faqs 
 }) => {
   const { data: session } = useSession();
+  const { createBooking, loading } = useBookings();
+  const [proximosTurnos, setProximosTurnos] = useState<TurnoDisponible[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [showLoginAlert, setShowLoginAlert] = useState(false);
+  const [loadingTurnos, setLoadingTurnos] = useState(true);
+
+  // Cargar turnos dinámicos al montar el componente
+  useEffect(() => {
+    loadProximosTurnos();
+  }, []);
+
+  const loadProximosTurnos = async () => {
+    try {
+      setLoadingTurnos(true);
+      const response = await fetch('/api/turnos/generate?type=advisory&maxSlotsPerDay=6');
+      const data = await response.json();
+      
+      if (response.ok) {
+        setProximosTurnos(data.turnos || []);
+      } else {
+        console.error('Error al cargar turnos:', data.error);
+      }
+    } catch (error) {
+      console.error('Error al cargar turnos:', error);
+    } finally {
+      setLoadingTurnos(false);
+    }
+  };
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -63,7 +94,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     setSelectedTime(horario);
   };
 
-  const handleSacarTurno = () => {
+  const handleSacarTurno = async () => {
     if (!session) {
       setShowLoginAlert(true);
       return;
@@ -79,9 +110,33 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       return;
     }
 
-    // Redirect to payment with selected date and time
-    const paymentUrl = `/pago/consultorio-financiero?fecha=${encodeURIComponent(selectedDate)}&hora=${encodeURIComponent(selectedTime)}`;
-    window.location.href = paymentUrl;
+    // Convertir fecha y hora seleccionada a Date
+    const turnoSeleccionado = proximosTurnos.find(t => t.fecha === selectedDate);
+    if (!turnoSeleccionado) return;
+
+    // Crear fecha aproximada (esto se puede mejorar con mejor parsing)
+    const today = new Date();
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + 1); // Aproximación temporal
+    
+    const [hour, minute] = selectedTime.split(':').map(Number);
+    targetDate.setHours(hour, minute, 0, 0);
+
+    const booking = await createBooking({
+      type: 'advisory',
+      serviceType: 'ConsultorioFinanciero',
+      startDate: targetDate.toISOString(),
+      duration: 60,
+      price: 199,
+      notes: 'Reserva desde página de Consultorio Financiero'
+    });
+
+    if (booking) {
+      // Recargar turnos para actualizar disponibilidad
+      await loadProximosTurnos();
+      setSelectedDate('');
+      setSelectedTime('');
+    }
   };
 
   const handleLogin = () => {
@@ -236,64 +291,76 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
             </motion.p>
             
             <div className={styles.calendarioContainer}>
-              {/* Selector de Fechas */}
-              <div className={styles.fechasGrid}>
-                {proximosTurnos.map((turno, index) => (
-                  <motion.div 
-                    key={index}
-                    className={`${styles.fechaCard} ${selectedDate === turno.fecha ? styles.fechaSelected : ''}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    onClick={() => handleDateSelect(turno.fecha)}
-                  >
-                    <div className={styles.fechaHeader}>
-                      <Calendar size={20} />
-                      <span className={styles.fecha}>{turno.fecha}</span>
-                    </div>
-                    <span className={styles.disponibles}>
-                      {turno.disponibles} turnos disponibles
-                    </span>
-                    <div className={styles.horariosPreview}>
-                      {turno.horarios.slice(0, 3).map((horario, idx) => (
-                        <span key={idx} className={styles.horarioChip}>{horario}</span>
-                      ))}
-                      {turno.horarios.length > 3 && (
-                        <span className={styles.horarioMas}>+{turno.horarios.length - 3}</span>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Selector de Horarios */}
-              {selectedDate && (
-                <motion.div 
-                  className={styles.horariosSection}
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h3 className={styles.horariosTitle}>
-                    Horarios disponibles para {selectedDate}
-                  </h3>
-                  <div className={styles.horariosGrid}>
-                    {proximosTurnos
-                      .find(turno => turno.fecha === selectedDate)
-                      ?.horarios.map((horario, index) => (
-                        <button
-                          key={index}
-                          className={`${styles.horarioButton} ${selectedTime === horario ? styles.horarioSelected : ''}`}
-                          onClick={() => handleTimeSelect(horario)}
-                        >
-                          <Clock size={16} />
-                          {horario}
-                        </button>
-                      ))
-                    }
+              {loadingTurnos ? (
+                <div className={styles.loadingTurnos}>
+                  <p>Cargando turnos disponibles...</p>
+                </div>
+              ) : proximosTurnos.length === 0 ? (
+                <div className={styles.noTurnos}>
+                  <p>No hay turnos disponibles en este momento. Intenta más tarde.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Selector de Fechas */}
+                  <div className={styles.fechasGrid}>
+                    {proximosTurnos.map((turno, index) => (
+                      <motion.div 
+                        key={index}
+                        className={`${styles.fechaCard} ${selectedDate === turno.fecha ? styles.fechaSelected : ''}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 }}
+                        onClick={() => handleDateSelect(turno.fecha)}
+                      >
+                        <div className={styles.fechaHeader}>
+                          <Calendar size={20} />
+                          <span className={styles.fecha}>{turno.fecha}</span>
+                        </div>
+                        <span className={styles.disponibles}>
+                          {turno.disponibles} turnos disponibles
+                        </span>
+                        <div className={styles.horariosPreview}>
+                          {turno.horarios.slice(0, 3).map((horario, idx) => (
+                            <span key={idx} className={styles.horarioChip}>{horario}</span>
+                          ))}
+                          {turno.horarios.length > 3 && (
+                            <span className={styles.horarioMas}>+{turno.horarios.length - 3}</span>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
-                </motion.div>
+
+                  {/* Selector de Horarios */}
+                  {selectedDate && (
+                    <motion.div 
+                      className={styles.horariosSection}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <h3 className={styles.horariosTitle}>
+                        Horarios disponibles para {selectedDate}
+                      </h3>
+                      <div className={styles.horariosGrid}>
+                        {proximosTurnos
+                          .find(turno => turno.fecha === selectedDate)
+                          ?.horarios.map((horario, index) => (
+                            <button
+                              key={index}
+                              className={`${styles.horarioButton} ${selectedTime === horario ? styles.horarioSelected : ''}`}
+                              onClick={() => handleTimeSelect(horario)}
+                            >
+                              <Clock size={16} />
+                              {horario}
+                            </button>
+                          ))
+                        }
+                      </div>
+                    </motion.div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -414,62 +481,21 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Datos estáticos que se mantienen
   const testimonios = [
     {
-      nombre: 'Ana Martínez',
-      foto: '/testimonios/ana-martinez.jpg',
-      comentario: 'La sesión de consultorio cambió completamente mi forma de invertir. Nahuel me ayudó a definir una estrategia clara y ahora veo resultados consistentes.',
-      resultado: '+127% en 8 meses',
+      nombre: 'María González',
+      foto: '/testimonios/maria.jpg',
+      comentario: 'La sesión fue increíblemente valiosa. Me ayudaron a reestructurar mi portafolio y ahora tengo una estrategia clara.',
+      resultado: '+35% en 6 meses',
       rating: 5
     },
     {
-      nombre: 'Carlos Rivera',
-      foto: '/testimonios/carlos-rivera.jpg',
-      comentario: 'Excelente asesoría. Me dio recomendaciones específicas que implementé inmediatamente. Mi portafolio está mucho más diversificado y rentable.',
-      resultado: '+89% en 6 meses',
+      nombre: 'Carlos Rodríguez',
+      foto: '/testimonios/carlos.jpg',
+      comentario: 'Excelente asesoramiento. Me dieron herramientas prácticas que aplico día a día en mis inversiones.',
+      resultado: '+28% en 4 meses',
       rating: 5
-    },
-    {
-      nombre: 'Sofía González',
-      foto: '/testimonios/sofia-gonzalez.jpg',
-      comentario: 'La mejor inversión que hice fue esta consulta. Nahuel me enseñó a manejar el riesgo y a maximizar mis retornos de forma inteligente.',
-      resultado: '+156% en 12 meses',
-      rating: 5
-    },
-    {
-      nombre: 'Miguel Torres',
-      foto: '/testimonios/miguel-torres.jpg',
-      comentario: 'Increíble nivel de detalle y personalización. Recibí un plan específico para mi situación que realmente funciona.',
-      resultado: '+78% en 4 meses',
-      rating: 5
-    }
-  ];
-
-  const proximosTurnos = [
-    {
-      fecha: 'Lunes 18 de Marzo',
-      horarios: ['10:00 AM', '12:00 PM', '2:00 PM', '4:00 PM', '6:00 PM'],
-      disponibles: 5
-    },
-    {
-      fecha: 'Martes 19 de Marzo',
-      horarios: ['10:00 AM', '11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM', '7:00 PM'],
-      disponibles: 6
-    },
-    {
-      fecha: 'Miércoles 20 de Marzo',
-      horarios: ['11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM'],
-      disponibles: 4
-    },
-    {
-      fecha: 'Jueves 21 de Marzo',
-      horarios: ['10:00 AM', '12:00 PM', '2:00 PM', '4:00 PM', '6:00 PM', '8:00 PM'],
-      disponibles: 6
-    },
-    {
-      fecha: 'Viernes 22 de Marzo',
-      horarios: ['10:00 AM', '12:00 PM', '2:00 PM'],
-      disponibles: 3
     }
   ];
 
@@ -481,40 +507,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     {
       question: '¿Cómo se realiza la consulta?',
       answer: 'La consulta se realiza por videollamada de Google Meet. Te enviaremos el enlace por email 24 horas antes de tu sesión agendada.'
-    },
-    {
-      question: '¿Qué necesito preparar para la sesión?',
-      answer: 'Te recomendamos tener a mano información sobre tus inversiones actuales, ingresos, gastos y objetivos financieros. Te enviaremos un formulario previo para optimizar el tiempo de la consulta.'
-    },
-    {
-      question: '¿Puedo reprogramar mi sesión?',
-      answer: 'Sí, puedes reprogramar tu sesión hasta 24 horas antes del horario agendado sin costo adicional. Para cambios con menos de 24 horas se aplica una tarifa de $25 USD.'
-    },
-    {
-      question: '¿Qué pasa después de la sesión?',
-      answer: 'Dentro de las 48 horas recibirás un documento PDF con el resumen de la sesión, recomendaciones específicas y tu plan de acción personalizado. Además, tendrás seguimiento por email durante 30 días.'
-    },
-    {
-      question: '¿Ofrecen garantía de satisfacción?',
-      answer: 'Sí, si no estás satisfecho con tu sesión, te devolvemos el 100% de tu dinero sin preguntas, siempre que lo solicites dentro de las primeras 24 horas después de la consulta.'
-    },
-    {
-      question: '¿En qué zona horaria se manejan los horarios?',
-      answer: 'Todos los horarios están en zona horaria Argentina (GMT-3). Durante la reserva puedes especificar tu zona horaria para coordinar mejor la sesión.'
-    },
-    {
-      question: '¿Puedo tener sesiones de seguimiento?',
-      answer: 'Sí, ofrecemos sesiones de seguimiento a precio reducido ($149 USD) para clientes que ya tuvieron su primera consulta. Estas sesiones son de 45 minutos y se enfocan en ajustar la estrategia.'
     }
   ];
 
   return {
     props: {
       testimonios,
-      proximosTurnos,
       faqs
     }
   };
 };
 
-export default ConsultorioFinancieroPage; 
+export default ConsultorioFinancieroPage;

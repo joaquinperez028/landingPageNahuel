@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import DateTimePicker from '@/components/DateTimePicker';
+import { useBookings } from '@/hooks/useBookings';
 import styles from '@/styles/AsesoriasTest.module.css';
 
 // Genera todos los slots posibles de asesoría (cada 30 minutos de 8:00 a 22:00)
@@ -47,30 +48,12 @@ function getFreeAdvisorySlots(
 const AsesoriasTestPage = () => {
   const { data: session } = useSession();
   const router = useRouter();
+  const { createBooking, getAvailableSlots, loading } = useBookings();
+  
   const [selectedDateTime, setSelectedDateTime] = useState<Date | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [trainingSchedules, setTrainingSchedules] = useState<TrainingSchedule[]>([]);
-  const [availableTimes, setAvailableTimes] = useState<string[]>(asesoriasSlots);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-
-  // Obtener horarios de entrenamiento al cargar
-  useEffect(() => {
-    fetch('/api/trainings/schedule')
-      .then(res => {
-        if (!res.ok) throw new Error('Error al obtener los horarios de entrenamiento');
-        return res.json();
-      })
-      .then(data => {
-        setTrainingSchedules(data.schedules || []);
-        setFetchError(null);
-      })
-      .catch(err => {
-        setFetchError('No se pudieron cargar los horarios de entrenamiento. Intenta recargar la página.');
-        toast.error('Error al cargar horarios de entrenamiento');
-        console.error('Error al cargar horarios de entrenamiento:', err);
-      });
-  }, []);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   // Actualizar horarios disponibles cuando cambia la fecha
   const handleDateTimeSelect = (date: Date) => {
@@ -80,15 +63,36 @@ const AsesoriasTestPage = () => {
 
   useEffect(() => {
     if (selectedDate) {
-      const libres = getFreeAdvisorySlots(trainingSchedules, selectedDate, asesoriasSlots);
-      setAvailableTimes(libres);
-      if (libres.length === 0) {
-        toast.error('No hay horarios disponibles para asesoría en la fecha seleccionada');
-      }
+      loadAvailableSlots();
     } else {
-      setAvailableTimes(asesoriasSlots);
+      setAvailableTimes([]);
     }
-  }, [selectedDate, trainingSchedules]);
+  }, [selectedDate]);
+
+  const loadAvailableSlots = async () => {
+    if (!selectedDate) return;
+
+    try {
+      setLoadingSlots(true);
+      const dateStr = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD
+      const slotsData = await getAvailableSlots(dateStr, 'advisory', 60);
+      
+      if (slotsData) {
+        setAvailableTimes(slotsData.availableSlots);
+        if (slotsData.availableSlots.length === 0) {
+          toast.error('No hay horarios disponibles para asesoría en la fecha seleccionada');
+        }
+      } else {
+        setAvailableTimes([]);
+      }
+    } catch (error) {
+      console.error('Error al cargar horarios:', error);
+      toast.error('Error al cargar horarios disponibles');
+      setAvailableTimes([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
 
   const handleReservar = async () => {
     if (!session) {
@@ -102,46 +106,31 @@ const AsesoriasTestPage = () => {
     }
 
     try {
-      setLoading(true);
-      const response = await fetch('/api/calendar/create-event', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          type: 'advisory',
-          name: 'Asesoría de Trading',
-          startDate: selectedDateTime.toISOString(),
-          duration: 60 // 1 hora
-        })
+      const booking = await createBooking({
+        type: 'advisory',
+        serviceType: 'ConsultorioFinanciero',
+        startDate: selectedDateTime.toISOString(),
+        duration: 60,
+        price: 199,
+        notes: 'Asesoría de Trading - Consultorio Financiero'
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        toast.error(data.error || 'Error al crear el evento');
-        console.error('Error al crear el evento:', data.error);
-        return;
+      if (booking) {
+        console.log('✅ Reserva creada:', booking);
+        // Redirigir a una página de confirmación o dashboard
+        router.push('/dashboard');
       }
-
-      toast.success('¡Asesoría reservada con éxito!');
-      console.log('Evento creado:', data.event);
-      
-      // Redirigir a una página de confirmación o dashboard
-      router.push('/dashboard');
     } catch (error: any) {
-      console.error('Error al reservar la asesoría:', error);
-      toast.error('Error inesperado al reservar la asesoría. Intenta nuevamente.');
-    } finally {
-      setLoading(false);
+      console.error('Error al reservar:', error);
+      // El error ya se maneja en el hook useBookings
     }
   };
 
   return (
     <>
       <Head>
-        <title>Reservar Asesoría - Test</title>
-        <meta name="description" content="Reserva una asesoría de trading" />
+        <title>Reservar Asesoría - Consultorio Financiero</title>
+        <meta name="description" content="Reserva una asesoría de trading personalizada" />
       </Head>
 
       <Navbar />
@@ -156,24 +145,34 @@ const AsesoriasTestPage = () => {
           
           <div className={styles.content}>
             <div className={styles.info}>
-              <h2>Asesoría de Trading</h2>
+              <h2>Consultorio Financiero</h2>
               <p>
                 Sesión personalizada de 1 hora para analizar tu estrategia de trading
-                y recibir recomendaciones personalizadas.
+                y recibir recomendaciones personalizadas de nuestros expertos.
               </p>
               <ul className={styles.features}>
-                <li>Análisis de tu estrategia actual</li>
-                <li>Recomendaciones personalizadas</li>
+                <li>Análisis completo de tu estrategia actual</li>
+                <li>Recomendaciones personalizadas según tu perfil</li>
                 <li>Resolución de dudas específicas</li>
-                <li>Plan de acción para mejorar</li>
+                <li>Plan de acción detallado para mejorar</li>
+                <li>Seguimiento por email durante 30 días</li>
+                <li>Grabación de la sesión para tu referencia</li>
               </ul>
+              <div className={styles.priceInfo}>
+                <span className={styles.price}>$199 USD</span>
+                <span className={styles.duration}>60 minutos</span>
+              </div>
             </div>
 
             <div className={styles.booking}>
               <h3>Selecciona fecha y hora</h3>
-              {fetchError && (
-                <div style={{ color: 'red', marginBottom: 12 }}>{fetchError}</div>
+              
+              {loadingSlots && (
+                <div className={styles.loadingMessage}>
+                  Cargando horarios disponibles...
+                </div>
               )}
+              
               <DateTimePicker
                 onDateTimeSelect={handleDateTimeSelect}
                 minDate={new Date()}
@@ -181,18 +180,28 @@ const AsesoriasTestPage = () => {
                 duration={60}
                 availableTimes={availableTimes}
               />
-              {selectedDate && availableTimes.length === 0 && (
-                <div style={{ color: 'red', marginTop: 8 }}>
-                  No hay horarios disponibles para asesoría en la fecha seleccionada. Por favor, elige otro día.
+              
+              {selectedDate && availableTimes.length === 0 && !loadingSlots && (
+                <div className={styles.noSlotsMessage}>
+                  No hay horarios disponibles para asesoría en la fecha seleccionada. 
+                  Por favor, elige otro día.
                 </div>
               )}
+              
               <button
                 onClick={handleReservar}
-                disabled={loading || !selectedDateTime || availableTimes.length === 0}
+                disabled={loading || loadingSlots || !selectedDateTime || availableTimes.length === 0}
                 className={styles.button}
               >
-                {loading ? 'Reservando...' : 'Reservar Asesoría'}
+                {loading ? 'Reservando...' : 'Reservar Asesoría - $199 USD'}
               </button>
+              
+              <div className={styles.bookingNote}>
+                <small>
+                  * Al confirmar la reserva se creará un evento en tu Google Calendar
+                  y recibirás un email de confirmación con los detalles.
+                </small>
+              </div>
             </div>
           </div>
         </motion.div>
