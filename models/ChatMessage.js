@@ -15,7 +15,7 @@ const ChatMessageSchema = new mongoose.Schema({
   },
   userType: {
     type: String,
-    enum: ['normal', 'subscriber', 'premium', 'admin'],
+    enum: ['normal', 'suscriptor', 'premium', 'admin'],
     default: 'normal'
   },
   message: {
