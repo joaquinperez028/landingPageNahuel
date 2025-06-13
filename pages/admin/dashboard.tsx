@@ -71,13 +71,13 @@ const useDashboardSections = () => {
     {
       id: 'schedules',
       title: 'Gestión de Horarios',
-      description: 'Creación y administración de horarios para asesoramientos y entrenamientos. Configuración de disponibilidad y slots de tiempo',
+      description: 'Envío centralizado de links de reunión para asesorías y entrenamientos programados. Lista de sesiones próximas ordenadas por proximidad para gestión eficiente.',
       icon: <Calendar size={32} />,
       color: 'from-indigo-500 to-purple-500',
       links: [
         { label: 'Horarios Asesorías', href: '/admin/asesorias-horarios', icon: <Clock size={16} /> },
         { label: 'Horarios Entrenamientos', href: '/admin/entrenamientos-horarios', icon: <Calendar size={16} /> },
-        { label: 'Configurar Disponibilidad', href: '/admin/horarios', icon: <Settings size={16} /> }
+        { label: 'Enviar Link de Reunión', href: '/admin/horarios', icon: <Settings size={16} /> }
       ]
     },
     {

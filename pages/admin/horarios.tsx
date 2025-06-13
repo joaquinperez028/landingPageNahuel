@@ -5,174 +5,134 @@ import Head from 'next/head';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Clock, 
-  Calendar,
-  Save,
-  X,
+  Send, 
+  Calendar, 
+  Clock,
+  User,
+  Mail,
+  ExternalLink,
+  CheckCircle,
   AlertCircle,
-  AlertTriangle,
-  CheckCircle
+  Users,
+  GraduationCap,
+  Building,
+  RefreshCw
 } from 'lucide-react';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import styles from '@/styles/AdminHorarios.module.css';
+import styles from '@/styles/AdminEnviarLinks.module.css';
+import { generateCircularAvatarDataURL } from '@/lib/utils';
 
-interface TrainingSchedule {
+interface UpcomingSession {
   _id: string;
-  dayOfWeek: number;
-  hour: number;
-  minute: number;
+  type: 'advisory' | 'training';
+  serviceType: string;
+  serviceName: string;
+  startDate: string;
+  endDate: string;
   duration: number;
-  type: string;
-  activo: boolean;
-  createdAt: string;
-  updatedAt: string;
+  price: number;
+  status: 'confirmed' | 'pending' | 'completed' | 'cancelled';
+  user: {
+    name: string;
+    email: string;
+    image?: string;
+  };
+  meetingLink?: string;
+  notes?: string;
+  daysUntil: number;
 }
 
-interface NewSchedule {
-  dayOfWeek: number;
-  hour: number;
-  minute: number;
-  duration: number;
-  type: string;
-  activo: boolean;
+interface SendLinkForm {
+  sessionId: string;
+  subject: string;
+  meetingLink: string;
+  customMessage: string;
 }
 
-interface ValidationResult {
-  isValid: boolean;
-  message: string;
-  conflicts: any[];
-  suggestions: string[];
-  graceMinutes: number;
-}
-
-const AdminHorariosPage = () => {
-  const [schedules, setSchedules] = useState<TrainingSchedule[]>([]);
+const AdminEnviarLinksPage = () => {
+  const [sessions, setSessions] = useState<UpcomingSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [editingSchedule, setEditingSchedule] = useState<TrainingSchedule | null>(null);
-  const [validating, setValidating] = useState(false);
-  const [validation, setValidation] = useState<ValidationResult | null>(null);
-  const [graceMinutes, setGraceMinutes] = useState(30);
-  const [formData, setFormData] = useState<NewSchedule>({
-    dayOfWeek: 1,
-    hour: 19,
-    minute: 0,
-    duration: 180,
-    type: 'intensivo',
-    activo: true
+  const [selectedSession, setSelectedSession] = useState<UpcomingSession | null>(null);
+  const [formData, setFormData] = useState<SendLinkForm>({
+    sessionId: '',
+    subject: '',
+    meetingLink: '',
+    customMessage: ''
   });
 
-  const daysOfWeek = [
-    { value: 0, label: 'Domingo' },
-    { value: 1, label: 'Lunes' },
-    { value: 2, label: 'Martes' },
-    { value: 3, label: 'Miércoles' },
-    { value: 4, label: 'Jueves' },
-    { value: 5, label: 'Viernes' },
-    { value: 6, label: 'Sábado' }
-  ];
-
-  const trainingTypes = [
-    'intensivo',
-    'fundamentals',
-    'advanced',
-    'workshop',
-    'masterclass'
-  ];
-
   useEffect(() => {
-    loadSchedules();
+    loadUpcomingSessions();
   }, []);
 
-  // Validar horario cuando cambien los datos del formulario
-  useEffect(() => {
-    if (showForm && (formData.dayOfWeek !== undefined && formData.hour !== undefined && formData.minute !== undefined && formData.duration)) {
-      validateSchedule();
-    }
-  }, [formData.dayOfWeek, formData.hour, formData.minute, formData.duration, graceMinutes, showForm]);
-
-  const loadSchedules = async () => {
+  const loadUpcomingSessions = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/trainings/schedule');
-      const data = await response.json();
+      console.log('📅 Cargando sesiones próximas...');
+      
+      const response = await fetch('/api/admin/upcoming-sessions');
       
       if (response.ok) {
-        setSchedules(data.schedules || []);
+        const data = await response.json();
+        setSessions(data.sessions || []);
+        console.log(`✅ Cargadas ${data.sessions?.length || 0} sesiones próximas`);
       } else {
-        toast.error('Error al cargar horarios');
+        console.error('❌ Error al cargar sesiones:', response.status);
+        toast.error('Error al cargar sesiones próximas');
       }
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al cargar horarios');
+      console.error('💥 Error:', error);
+      toast.error('Error de conexión');
     } finally {
       setLoading(false);
     }
   };
 
-  const validateSchedule = async () => {
-    try {
-      setValidating(true);
-      
-      const startTime = `${formData.hour.toString().padStart(2, '0')}:${formData.minute.toString().padStart(2, '0')}`;
-      const endHour = Math.floor((formData.hour * 60 + formData.minute + formData.duration) / 60);
-      const endMinute = (formData.hour * 60 + formData.minute + formData.duration) % 60;
-      const endTime = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
-
-      const response = await fetch('/api/admin/schedules/validate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          dayOfWeek: formData.dayOfWeek,
-          startTime,
-          endTime,
-          type: 'asesoria', // Tipo fijo para asesorías
-          title: formData.type,
-          graceMinutes,
-          excludeId: editingSchedule?._id // Excluir el horario actual al editar
-        })
-      });
-
-      const data = await response.json();
-      
-      if (response.ok && data.validation) {
-        setValidation(data.validation);
-      } else {
-        console.warn('Error en validación:', data);
-        setValidation(null);
-      }
-    } catch (error) {
-      console.error('Error al validar horario:', error);
-      setValidation(null);
-    } finally {
-      setValidating(false);
-    }
+  const handleSendLink = (session: UpcomingSession) => {
+    setSelectedSession(session);
+    
+    // Pre-rellenar el formulario
+    const serviceTypeText = session.type === 'advisory' ? 'Asesoría' : 'Entrenamiento';
+    const defaultSubject = `Link de reunión para tu ${serviceTypeText}: ${session.serviceName}`;
+    
+    setFormData({
+      sessionId: session._id,
+      subject: defaultSubject,
+      meetingLink: session.meetingLink || '',
+      customMessage: `Hola ${session.user.name},\n\nEspero que estés bien. Te envío el link para nuestra ${serviceTypeText.toLowerCase()} programada para el ${new Date(session.startDate).toLocaleDateString('es-AR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}.\n\n¡Nos vemos pronto!\n\nSaludos,\nNahuel`
+    });
+    
+    setShowForm(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Verificar validación antes de enviar
-    if (validation && !validation.isValid) {
-      toast.error('No se puede crear el horario debido a conflictos. Revisa las sugerencias.');
+    if (!formData.meetingLink.trim()) {
+      toast.error('El link de reunión es obligatorio');
       return;
     }
     
+    if (!formData.subject.trim()) {
+      toast.error('El asunto es obligatorio');
+      return;
+    }
+
     try {
-      const url = editingSchedule 
-        ? `/api/trainings/schedule/${editingSchedule._id}`
-        : '/api/trainings/schedule';
+      setSendingEmail(true);
       
-      const method = editingSchedule ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
+      const response = await fetch('/api/admin/send-meeting-link', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -182,89 +142,63 @@ const AdminHorariosPage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success(editingSchedule ? 'Horario actualizado' : 'Horario creado');
-        await loadSchedules();
-        resetForm();
+        toast.success('¡Link de reunión enviado exitosamente!');
+        setShowForm(false);
+        setSelectedSession(null);
+        setFormData({
+          sessionId: '',
+          subject: '',
+          meetingLink: '',
+          customMessage: ''
+        });
+        
+        // Recargar sesiones para actualizar el estado
+        loadUpcomingSessions();
       } else {
-        toast.error(data.error || 'Error al guardar horario');
+        toast.error(data.error || 'Error al enviar link de reunión');
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al guardar horario');
+      toast.error('Error al enviar email');
+    } finally {
+      setSendingEmail(false);
     }
   };
 
-  const handleEdit = (schedule: TrainingSchedule) => {
-    setEditingSchedule(schedule);
-    setFormData({
-      dayOfWeek: schedule.dayOfWeek,
-      hour: schedule.hour,
-      minute: schedule.minute,
-      duration: schedule.duration,
-      type: schedule.type,
-      activo: schedule.activo
-    });
-    setShowForm(true);
-  };
-
-  const handleDelete = async (scheduleId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este horario?')) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/trainings/schedule/${scheduleId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        toast.success('Horario eliminado');
-        await loadSchedules();
-      } else {
-        const data = await response.json();
-        toast.error(data.error || 'Error al eliminar horario');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al eliminar horario');
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed': return '#059669';
+      case 'pending': return '#d97706';
+      case 'completed': return '#64748b';
+      case 'cancelled': return '#dc2626';
+      default: return '#64748b';
     }
   };
 
-  const resetForm = () => {
-    setShowForm(false);
-    setEditingSchedule(null);
-    setValidation(null);
-    setFormData({
-      dayOfWeek: 1,
-      hour: 19,
-      minute: 0,
-      duration: 180,
-      type: 'intensivo',
-      activo: true
-    });
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'Confirmada';
+      case 'pending': return 'Pendiente';
+      case 'completed': return 'Completada';
+      case 'cancelled': return 'Cancelada';
+      default: return status;
+    }
   };
 
-  const formatTime = (hour: number, minute: number) => {
-    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-  };
-
-  const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0 && mins > 0) {
-      return `${hours}h ${mins}m`;
-    } else if (hours > 0) {
-      return `${hours}h`;
+  const getServiceIcon = (type: string, serviceType: string) => {
+    if (type === 'advisory') {
+      return <Building size={20} />;
     } else {
-      return `${mins}m`;
+      return <GraduationCap size={20} />;
     }
   };
 
   return (
     <>
       <Head>
-        <title>Gestión de Horarios - Panel Admin</title>
-        <meta name="description" content="Panel de administración para gestionar horarios de entrenamiento" />
+        <title>Enviar Links de Reunión - Admin</title>
+        <meta name="description" content="Gestión centralizada de links de reunión para asesorías y entrenamientos" />
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
 
       <Navbar />
@@ -272,282 +206,259 @@ const AdminHorariosPage = () => {
       <main className={styles.main}>
         <div className={styles.container}>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            className={styles.content}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className={styles.header}
+            transition={{ duration: 0.8 }}
           >
-            <h1 className={styles.title}>Gestión de Horarios de Entrenamiento</h1>
-            <p className={styles.subtitle}>
-              Configura los días y horarios disponibles para entrenamientos
-            </p>
-            
-            <button
-              onClick={() => setShowForm(true)}
-              className={styles.addButton}
-            >
-              <Plus size={20} />
-              Agregar Horario
-            </button>
-          </motion.div>
+            {/* Header */}
+            <div className={styles.header}>
+              <h1 className={styles.title}>Enviar Links de Reunión</h1>
+              <p className={styles.subtitle}>
+                Gestión centralizada de links de reunión para todas las sesiones próximas
+              </p>
+              <Link href="/admin/dashboard" className={styles.backLink}>
+                ← Volver al Dashboard
+              </Link>
+            </div>
 
-          {/* Formulario */}
-          {showForm && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className={styles.formOverlay}
-            >
-              <div className={styles.formContainer}>
-                <div className={styles.formHeader}>
-                  <h3>{editingSchedule ? 'Editar Horario' : 'Nuevo Horario'}</h3>
-                  <button onClick={resetForm} className={styles.closeButton}>
-                    <X size={20} />
-                  </button>
+            {/* Actions */}
+            <div className={styles.actions}>
+              <button 
+                onClick={loadUpcomingSessions}
+                className={styles.refreshButton}
+                disabled={loading}
+              >
+                <RefreshCw size={20} className={loading ? styles.spinning : ''} />
+                {loading ? 'Cargando...' : 'Actualizar'}
+              </button>
+            </div>
+
+            {/* Sessions List */}
+            <div className={styles.sessionsContainer}>
+              {loading ? (
+                <div className={styles.loading}>
+                  <div className={styles.spinner} />
+                  <p>Cargando sesiones próximas...</p>
                 </div>
-
-                <form onSubmit={handleSubmit} className={styles.form}>
-                  <div className={styles.formGrid}>
-                    <div className={styles.formGroup}>
-                      <label>Día de la semana</label>
-                      <select
-                        value={formData.dayOfWeek}
-                        onChange={(e) => setFormData({...formData, dayOfWeek: parseInt(e.target.value)})}
-                        required
-                      >
-                        {daysOfWeek.map(day => (
-                          <option key={day.value} value={day.value}>
-                            {day.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label>Hora</label>
-                      <select
-                        value={formData.hour}
-                        onChange={(e) => setFormData({...formData, hour: parseInt(e.target.value)})}
-                        required
-                      >
-                        {Array.from({length: 24}, (_, i) => (
-                          <option key={i} value={i}>
-                            {i.toString().padStart(2, '0')}:00
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label>Minutos</label>
-                      <select
-                        value={formData.minute}
-                        onChange={(e) => setFormData({...formData, minute: parseInt(e.target.value)})}
-                        required
-                      >
-                        <option value={0}>00</option>
-                        <option value={30}>30</option>
-                      </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label>Duración (minutos)</label>
-                      <input
-                        type="number"
-                        min="30"
-                        max="480"
-                        step="30"
-                        value={formData.duration}
-                        onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value)})}
-                        required
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label>Tipo de entrenamiento</label>
-                      <select
-                        value={formData.type}
-                        onChange={(e) => setFormData({...formData, type: e.target.value})}
-                        required
-                      >
-                        {trainingTypes.map(type => (
-                          <option key={type} value={type}>
-                            {type.charAt(0).toUpperCase() + type.slice(1)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label>Período de gracia (minutos)</label>
-                      <select
-                        value={graceMinutes}
-                        onChange={(e) => setGraceMinutes(parseInt(e.target.value))}
-                      >
-                        <option value={15}>15 minutos</option>
-                        <option value={30}>30 minutos</option>
-                        <option value={60}>1 hora</option>
-                        <option value={120}>2 horas</option>
-                      </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label className={styles.checkboxLabel}>
-                        <input
-                          type="checkbox"
-                          checked={formData.activo}
-                          onChange={(e) => setFormData({...formData, activo: e.target.checked})}
-                        />
-                        Activo
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Validación de conflictos */}
-                  {validating && (
-                    <div style={{ 
-                      padding: '1rem', 
-                      background: 'rgba(59, 130, 246, 0.1)', 
-                      borderRadius: '0.5rem', 
-                      marginBottom: '1rem',
-                      color: '#3b82f6'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Clock size={16} />
-                        Validando horario...
-                      </div>
-                    </div>
-                  )}
-
-                  {validation && (
-                    <div style={{ 
-                      padding: '1rem', 
-                      background: validation.isValid ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
-                      borderRadius: '0.5rem', 
-                      marginBottom: '1rem',
-                      color: validation.isValid ? '#22c55e' : '#ef4444'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        {validation.isValid ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
-                        <strong>{validation.isValid ? 'Horario disponible' : 'Conflicto detectado'}</strong>
-                      </div>
-                      <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>{validation.message}</p>
-                      
-                      {validation.suggestions.length > 0 && (
-                        <div style={{ marginTop: '0.5rem' }}>
-                          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', fontWeight: '500' }}>
-                            Horarios sugeridos:
-                          </p>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                            {validation.suggestions.map((suggestion, index) => (
-                              <button
-                                key={index}
-                                type="button"
-                                onClick={() => {
-                                  const [hour, minute] = suggestion.split(':').map(Number);
-                                  setFormData({...formData, hour, minute});
-                                }}
-                                style={{
-                                  padding: '0.25rem 0.5rem',
-                                  background: 'rgba(255, 255, 255, 0.1)',
-                                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                                  borderRadius: '0.25rem',
-                                  color: '#fff',
-                                  fontSize: '0.8rem',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                {suggestion}
-                              </button>
-                            ))}
+              ) : sessions.length === 0 ? (
+                <div className={styles.empty}>
+                  <Calendar size={48} />
+                  <h3>No hay sesiones próximas</h3>
+                  <p>No se encontraron asesorías o entrenamientos programados para los próximos días</p>
+                </div>
+              ) : (
+                <div className={styles.sessionsList}>
+                  {sessions.map((session, index) => (
+                    <motion.div
+                      key={session._id}
+                      className={styles.sessionCard}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <div className={styles.cardHeader}>
+                        <div className={styles.serviceInfo}>
+                          {getServiceIcon(session.type, session.serviceType)}
+                          <div className={styles.serviceDetails}>
+                            <h3>{session.serviceName}</h3>
+                            <span className={styles.serviceType}>
+                              {session.type === 'advisory' ? 'Asesoría' : 'Entrenamiento'}
+                            </span>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  )}
+                        
+                        <div className={styles.urgencyBadge}>
+                          {session.daysUntil === 0 ? (
+                            <span className={styles.today}>Hoy</span>
+                          ) : session.daysUntil === 1 ? (
+                            <span className={styles.tomorrow}>Mañana</span>
+                          ) : (
+                            <span className={styles.upcoming}>En {session.daysUntil} días</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={styles.cardBody}>
+                        <div className={styles.dateTimeInfo}>
+                          <div className={styles.dateTime}>
+                            <Calendar size={16} />
+                            <span>
+                              {new Date(session.startDate).toLocaleDateString('es-AR', {
+                                weekday: 'long',
+                                day: 'numeric',
+                                month: 'long'
+                              })}
+                            </span>
+                          </div>
+                          <div className={styles.dateTime}>
+                            <Clock size={16} />
+                            <span>
+                              {new Date(session.startDate).toLocaleTimeString('es-AR', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })} 
+                              ({session.duration} min)
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className={styles.userInfo}>
+                          <div className={styles.userAvatar}>
+                            <img 
+                              src={session.user.image || generateCircularAvatarDataURL(session.user.name, '#3b82f6', '#ffffff', 40)}
+                              alt={session.user.name}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = generateCircularAvatarDataURL(session.user.name, '#3b82f6', '#ffffff', 40);
+                              }}
+                            />
+                          </div>
+                          <div className={styles.userDetails}>
+                            <span className={styles.userName}>{session.user.name}</span>
+                            <span className={styles.userEmail}>{session.user.email}</span>
+                          </div>
+                        </div>
+
+                        <div className={styles.sessionMeta}>
+                          <div 
+                            className={styles.statusBadge}
+                            style={{ 
+                              backgroundColor: getStatusColor(session.status),
+                              color: 'white'
+                            }}
+                          >
+                            {getStatusText(session.status)}
+                          </div>
+                          <span className={styles.price}>${session.price} USD</span>
+                        </div>
+
+                        {session.meetingLink && (
+                          <div className={styles.existingLink}>
+                            <ExternalLink size={16} />
+                            <span>Link ya enviado</span>
+                            <CheckCircle size={16} className={styles.checkIcon} />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className={styles.cardActions}>
+                        <button
+                          onClick={() => handleSendLink(session)}
+                          className={styles.sendButton}
+                          disabled={session.status === 'cancelled'}
+                        >
+                          <Send size={16} />
+                          {session.meetingLink ? 'Reenviar Link' : 'Enviar Link'}
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Modal de Envío de Link */}
+        {showForm && selectedSession && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modalContainer}>
+              <div className={styles.modalHeader}>
+                <h3>Enviar Link de Reunión</h3>
+                <button 
+                  onClick={() => {
+                    setShowForm(false);
+                    setSelectedSession(null);
+                  }}
+                  className={styles.closeButton}
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className={styles.modalBody}>
+                <div className={styles.sessionSummary}>
+                  <h4>Sesión: {selectedSession.serviceName}</h4>
+                  <p>Cliente: {selectedSession.user.name} ({selectedSession.user.email})</p>
+                  <p>Fecha: {new Date(selectedSession.startDate).toLocaleDateString('es-AR', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</p>
+                </div>
+
+                <form onSubmit={handleSubmitForm} className={styles.form}>
+                  <div className={styles.formGroup}>
+                    <label>Asunto del Email</label>
+                    <input
+                      type="text"
+                      value={formData.subject}
+                      onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                      placeholder="Ej: Link de reunión para tu asesoría del lunes 24"
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Link de Reunión <span className={styles.required}>*</span></label>
+                    <input
+                      type="url"
+                      value={formData.meetingLink}
+                      onChange={(e) => setFormData({...formData, meetingLink: e.target.value})}
+                      placeholder="https://zoom.us/j/123456789 o https://meet.google.com/abc-defg-hij"
+                      required
+                    />
+                    <small className={styles.formHint}>
+                      Puedes usar Zoom, Google Meet, Teams, etc.
+                    </small>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Mensaje Personalizado</label>
+                    <textarea
+                      value={formData.customMessage}
+                      onChange={(e) => setFormData({...formData, customMessage: e.target.value})}
+                      rows={6}
+                      placeholder="Mensaje personalizado para el cliente..."
+                    />
+                  </div>
 
                   <div className={styles.formActions}>
-                    <button type="button" onClick={resetForm} className={styles.cancelButton}>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setShowForm(false);
+                        setSelectedSession(null);
+                      }}
+                      className={styles.cancelButton}
+                    >
                       Cancelar
                     </button>
                     <button 
                       type="submit" 
-                      className={styles.saveButton}
-                      disabled={validation ? !validation.isValid : false}
-                      style={{
-                        opacity: validation && !validation.isValid ? 0.5 : 1,
-                        cursor: validation && !validation.isValid ? 'not-allowed' : 'pointer'
-                      }}
+                      disabled={sendingEmail}
+                      className={styles.submitButton}
                     >
-                      <Save size={16} />
-                      {editingSchedule ? 'Actualizar' : 'Crear'}
+                      {sendingEmail ? (
+                        <>
+                          <RefreshCw size={16} className={styles.spinning} />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <Send size={16} />
+                          Enviar Link
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>
               </div>
-            </motion.div>
-          )}
-
-          {/* Lista de horarios */}
-          <div className={styles.schedulesContainer}>
-            {loading ? (
-              <div className={styles.loading}>Cargando horarios...</div>
-            ) : schedules.length === 0 ? (
-              <div className={styles.empty}>
-                <AlertCircle size={48} />
-                <h3>No hay horarios configurados</h3>
-                <p>Agrega el primer horario de entrenamiento para comenzar</p>
-              </div>
-            ) : (
-              <div className={styles.schedulesGrid}>
-                {schedules.map((schedule) => (
-                  <motion.div
-                    key={schedule._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`${styles.scheduleCard} ${!schedule.activo ? styles.inactive : ''}`}
-                  >
-                    <div className={styles.scheduleHeader}>
-                      <div className={styles.scheduleDay}>
-                        <Calendar size={20} />
-                        {daysOfWeek.find(d => d.value === schedule.dayOfWeek)?.label}
-                      </div>
-                      <div className={styles.scheduleActions}>
-                        <button
-                          onClick={() => handleEdit(schedule)}
-                          className={styles.editButton}
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(schedule._id)}
-                          className={styles.deleteButton}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className={styles.scheduleInfo}>
-                      <div className={styles.scheduleTime}>
-                        <Clock size={16} />
-                        {formatTime(schedule.hour, schedule.minute)}
-                      </div>
-                      <div className={styles.scheduleDuration}>
-                        Duración: {formatDuration(schedule.duration)}
-                      </div>
-                      <div className={styles.scheduleType}>
-                        Tipo: {schedule.type}
-                      </div>
-                      <div className={`${styles.scheduleStatus} ${schedule.activo ? styles.active : styles.inactive}`}>
-                        {schedule.activo ? 'Activo' : 'Inactivo'}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </main>
 
       <Footer />
@@ -556,22 +467,39 @@ const AdminHorariosPage = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-  const verification = await verifyAdminAccess(context);
+  console.log('🔍 [ENVIAR-LINKS] Verificando acceso de admin...');
   
-  if (!verification.isAdmin) {
+  try {
+    const verification = await verifyAdminAccess(context);
+    
+    if (!verification.isAdmin) {
+      console.log('❌ [ENVIAR-LINKS] Acceso denegado');
+      return {
+        redirect: {
+          destination: verification.redirectTo || '/',
+          permanent: false,
+        },
+      };
+    }
+
+    console.log('✅ [ENVIAR-LINKS] Acceso confirmado');
+    
+    return {
+      props: {
+        user: verification.user,
+      },
+    };
+
+  } catch (error) {
+    console.error('💥 [ENVIAR-LINKS] Error:', error);
+    
     return {
       redirect: {
-        destination: verification.redirectTo || '/',
+        destination: '/api/auth/signin',
         permanent: false,
       },
     };
   }
-
-  return {
-    props: {
-      user: verification.user,
-    },
-  };
 };
 
-export default AdminHorariosPage; 
+export default AdminEnviarLinksPage; 

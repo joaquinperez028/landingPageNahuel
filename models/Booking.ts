@@ -13,6 +13,7 @@ export interface IBooking extends Document {
   googleEventId?: string; // Solo evento del admin
   price?: number;
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  meetingLink?: string; // Link de reunión (Zoom, Meet, etc.)
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -75,6 +76,10 @@ const BookingSchema: Schema = new Schema({
     enum: ['pending', 'paid', 'failed', 'refunded'],
     default: 'pending',
     index: true
+  },
+  meetingLink: {
+    type: String,
+    maxlength: 500
   },
   notes: {
     type: String,
