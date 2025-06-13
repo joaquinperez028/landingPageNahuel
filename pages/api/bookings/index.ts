@@ -5,6 +5,11 @@ import dbConnect from '@/lib/mongodb';
 import Booking from '@/models/Booking';
 import { z } from 'zod';
 import { createTrainingEvent, createAdvisoryEvent } from '@/lib/googleCalendar';
+import { 
+  sendTrainingConfirmationEmail, 
+  sendAdvisoryConfirmationEmail, 
+  sendAdminNotificationEmail 
+} from '@/lib/emailNotifications';
 
 // Schema de validación para crear reservas
 const createBookingSchema = z.object({
@@ -109,10 +114,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         paymentStatus: price ? 'pending' : 'paid'
       });
 
-      // Crear evento en Google Calendar
+      // Definir nombre del evento
+      const eventName = serviceType || (type === 'training' ? 'Entrenamiento de Trading' : 'Asesoría Financiera');
+
+      // Crear evento solo en el calendario del admin
       try {
         let googleEvent;
-        const eventName = serviceType || (type === 'training' ? 'Entrenamiento de Trading' : 'Asesoría Financiera');
         
         if (type === 'training') {
           googleEvent = await createTrainingEvent(userEmail, eventName, startDateTime, duration);
@@ -129,6 +136,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } catch (calendarError) {
         console.error('⚠️ Error al crear evento en Google Calendar:', calendarError);
         // No fallar la reserva si el calendario falla
+      }
+
+      // Enviar emails de confirmación
+      try {
+        const dateStr = startDateTime.toLocaleDateString('es-ES', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        const timeStr = startDateTime.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        if (type === 'training') {
+          await sendTrainingConfirmationEmail(userEmail, userName, {
+            type: eventName,
+            date: dateStr,
+            time: timeStr,
+            duration
+          });
+        } else {
+          await sendAdvisoryConfirmationEmail(userEmail, userName, {
+            type: eventName,
+            date: dateStr,
+            time: timeStr,
+            duration,
+            price
+          });
+        }
+
+        // Notificar al admin
+        await sendAdminNotificationEmail({
+          userEmail,
+          userName,
+          type,
+          serviceType: eventName,
+          date: dateStr,
+          time: timeStr,
+          duration,
+          price
+        });
+
+      } catch (emailError) {
+        console.error('⚠️ Error al enviar emails:', emailError);
+        // No fallar la reserva si el email falla
       }
 
       console.log('✅ Reserva creada exitosamente:', newBooking._id);

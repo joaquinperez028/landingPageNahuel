@@ -10,8 +10,7 @@ export interface IBooking extends Document {
   endDate: Date;
   duration: number; // en minutos
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
-  googleEventId?: string;
-  userGoogleEventId?: string;
+  googleEventId?: string; // Solo evento del admin
   price?: number;
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   notes?: string;
@@ -65,10 +64,7 @@ const BookingSchema: Schema = new Schema({
     index: true
   },
   googleEventId: {
-    type: String // ID del evento en el calendario del admin
-  },
-  userGoogleEventId: {
-    type: String // ID del evento en el calendario del usuario
+    type: String // Solo ID del evento en el calendario del admin
   },
   price: {
     type: Number,

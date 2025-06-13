@@ -198,8 +198,8 @@ const AsesoriasTestPage = () => {
               
               <div className={styles.bookingNote}>
                 <small>
-                  * Al confirmar la reserva se creará un evento en tu Google Calendar
-                  y recibirás un email de confirmación con los detalles.
+                  * Al confirmar la reserva recibirás un email de confirmación con todos los detalles.
+                  El evento se agregará automáticamente al calendario del administrador.
                 </small>
               </div>
             </div>

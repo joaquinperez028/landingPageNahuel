@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from './googleAuth';
+import { authOptions } from '@/lib/googleAuth';
 import User from '@/models/User';
 import dbConnect from './mongodb';
 
@@ -83,73 +83,139 @@ export async function createCalendarEvent(userEmail: string, event: CalendarEven
 }
 
 /**
- * Crea un evento para un entrenamiento
- * @param userEmail Email del usuario
- * @param trainingName Nombre del entrenamiento
- * @param startDate Fecha y hora de inicio
- * @param duration Duración en minutos
- * @returns El evento creado
+ * Crea un evento en el calendario del administrador para un entrenamiento
  */
 export async function createTrainingEvent(
   userEmail: string,
   trainingName: string,
   startDate: Date,
-  duration: number
+  durationMinutes: number = 180
 ) {
-  const endDate = new Date(startDate.getTime() + duration * 60000);
+  try {
+    console.log('📅 Creando evento de entrenamiento en calendario del admin');
 
-  const event: CalendarEvent = {
-    summary: `Entrenamiento: ${trainingName}`,
-    description: `Entrenamiento de ${trainingName} con ${userEmail}`,
-    start: {
-      dateTime: startDate.toISOString(),
-      timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo'
-    },
-    end: {
-      dateTime: endDate.toISOString(),
-      timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo'
-    },
-    attendees: [
-      { email: userEmail },
-      { email: process.env.ADMIN_EMAIL || '' }
-    ]
-  };
+    // Usar las credenciales del admin para crear el evento
+    const auth = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    );
 
-  return createCalendarEvent(userEmail, event);
+    // Configurar tokens del admin (estos deberían estar en variables de entorno)
+    auth.setCredentials({
+      access_token: process.env.ADMIN_GOOGLE_ACCESS_TOKEN,
+      refresh_token: process.env.ADMIN_GOOGLE_REFRESH_TOKEN,
+    });
+
+    const calendar = google.calendar({ version: 'v3', auth });
+    
+    const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
+
+    const event = {
+      summary: `${trainingName} - ${userEmail}`,
+      description: `Entrenamiento de trading reservado por: ${userEmail}\n\nTipo: ${trainingName}\nDuración: ${durationMinutes} minutos`,
+      start: {
+        dateTime: startDate.toISOString(),
+        timeZone: 'America/Montevideo',
+      },
+      end: {
+        dateTime: endDate.toISOString(),
+        timeZone: 'America/Montevideo',
+      },
+      attendees: [
+        {
+          email: userEmail,
+          responseStatus: 'needsAction'
+        }
+      ],
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method: 'email', minutes: 24 * 60 }, // 24 horas antes
+          { method: 'popup', minutes: 30 }, // 30 minutos antes
+        ],
+      },
+    };
+
+    const response = await calendar.events.insert({
+      calendarId: 'primary',
+      requestBody: event,
+    });
+
+    console.log('✅ Evento de entrenamiento creado en calendario del admin:', response.data.id);
+    return response.data;
+
+  } catch (error) {
+    console.error('❌ Error al crear evento de entrenamiento:', error);
+    throw error;
+  }
 }
 
 /**
- * Crea un evento para una asesoría
- * @param userEmail Email del usuario
- * @param advisoryType Tipo de asesoría
- * @param startDate Fecha y hora de inicio
- * @param duration Duración en minutos
- * @returns El evento creado
+ * Crea un evento en el calendario del administrador para una asesoría
  */
 export async function createAdvisoryEvent(
   userEmail: string,
-  advisoryType: string,
+  advisoryName: string,
   startDate: Date,
-  duration: number
+  durationMinutes: number = 60
 ) {
-  const endDate = new Date(startDate.getTime() + duration * 60000);
+  try {
+    console.log('📅 Creando evento de asesoría en calendario del admin');
 
-  const event: CalendarEvent = {
-    summary: `Asesoría: ${advisoryType}`,
-    description: `Asesoría de ${advisoryType} con ${userEmail}`,
-    start: {
-      dateTime: startDate.toISOString(),
-      timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo'
-    },
-    end: {
-      dateTime: endDate.toISOString(),
-      timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo'
-    },
-    attendees: [
-      { email: userEmail },
-      { email: process.env.ADMIN_EMAIL || '' }
-    ]
-  };
+    // Usar las credenciales del admin para crear el evento
+    const auth = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    );
 
-  return createCalendarEvent(userEmail, event);
+    // Configurar tokens del admin
+    auth.setCredentials({
+      access_token: process.env.ADMIN_GOOGLE_ACCESS_TOKEN,
+      refresh_token: process.env.ADMIN_GOOGLE_REFRESH_TOKEN,
+    });
+
+    const calendar = google.calendar({ version: 'v3', auth });
+    
+    const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
+
+    const event = {
+      summary: `${advisoryName} - ${userEmail}`,
+      description: `Asesoría financiera reservada por: ${userEmail}\n\nTipo: ${advisoryName}\nDuración: ${durationMinutes} minutos\n\nLink de reunión: [Se enviará por email]`,
+      start: {
+        dateTime: startDate.toISOString(),
+        timeZone: 'America/Montevideo',
+      },
+      end: {
+        dateTime: endDate.toISOString(),
+        timeZone: 'America/Montevideo',
+      },
+      attendees: [
+        {
+          email: userEmail,
+          responseStatus: 'needsAction'
+        }
+      ],
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method: 'email', minutes: 24 * 60 }, // 24 horas antes
+          { method: 'popup', minutes: 30 }, // 30 minutos antes
+        ],
+      },
+    };
+
+    const response = await calendar.events.insert({
+      calendarId: 'primary',
+      requestBody: event,
+    });
+
+    console.log('✅ Evento de asesoría creado en calendario del admin:', response.data.id);
+    return response.data;
+
+  } catch (error) {
+    console.error('❌ Error al crear evento de asesoría:', error);
+    throw error;
+  }
 } 
