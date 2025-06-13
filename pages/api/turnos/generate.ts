@@ -165,9 +165,17 @@ async function getAvailableSlotsForDate(
   const endOfDay = new Date(targetDate);
   endOfDay.setHours(23, 59, 59, 999);
 
+  console.log(`🔍 Buscando reservas existentes para ${targetDate.toDateString()}`);
+  console.log(`📅 Rango: ${startOfDay.toISOString()} - ${endOfDay.toISOString()}`);
+
   const existingBookings = await Booking.find({
     status: { $in: ['pending', 'confirmed'] },
     startDate: { $gte: startOfDay, $lte: endOfDay }
+  });
+
+  console.log(`📋 Reservas encontradas: ${existingBookings.length}`);
+  existingBookings.forEach((booking, index) => {
+    console.log(`  ${index + 1}. ${booking.userEmail} - ${booking.startDate.toISOString()} (${booking.type}/${booking.serviceType})`);
   });
 
   if (type === 'training') {
@@ -237,20 +245,33 @@ async function getAvailableSlotsForDate(
         slotStart.setHours(slotHour, slotMinute, 0, 0);
         const slotEnd = new Date(slotStart.getTime() + 60 * 60000); // Asesoría dura 60 minutos
         
-        const hasConflict = existingBookings.some(booking => {
+        const conflictingBookings = existingBookings.filter(booking => {
           const bookingStart = new Date(booking.startDate);
           const bookingEnd = new Date(booking.endDate);
           
           // Verificar si hay solapamiento entre el slot y la reserva existente
-          return (
+          const hasOverlap = (
             (slotStart >= bookingStart && slotStart < bookingEnd) ||
             (slotEnd > bookingStart && slotEnd <= bookingEnd) ||
             (slotStart <= bookingStart && slotEnd >= bookingEnd)
           );
+
+          if (hasOverlap) {
+            console.log(`🔍 Conflicto detectado para slot ${slot}:`);
+            console.log(`  Slot: ${slotStart.toISOString()} - ${slotEnd.toISOString()}`);
+            console.log(`  Reserva: ${bookingStart.toISOString()} - ${bookingEnd.toISOString()}`);
+            console.log(`  Usuario: ${booking.userEmail}, Tipo: ${booking.type}/${booking.serviceType}`);
+          }
+
+          return hasOverlap;
         });
         
+        const hasConflict = conflictingBookings.length > 0;
+        
         if (hasConflict) {
-          console.log(`🚫 Slot ${slot} excluido por conflicto con reserva existente`);
+          console.log(`🚫 Slot de asesoría ${slot} excluido por ${conflictingBookings.length} conflicto(s)`);
+        } else {
+          console.log(`✅ Slot de asesoría ${slot} disponible`);
         }
         
         return !hasConflict;

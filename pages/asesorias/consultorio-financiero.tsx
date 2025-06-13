@@ -70,10 +70,20 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       setLoadingTurnos(true);
       console.log('🔄 Cargando turnos para Consultorio Financiero...');
       
-      const url = '/api/turnos/generate?type=advisory&advisoryType=ConsultorioFinanciero&maxSlotsPerDay=6';
+      // Agregar timestamp para evitar caché
+      const timestamp = new Date().getTime();
+      const url = `/api/turnos/generate?type=advisory&advisoryType=ConsultorioFinanciero&maxSlotsPerDay=6&_t=${timestamp}`;
       console.log('📡 URL de la API:', url);
       
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        // Forzar recarga sin caché
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       console.log('📊 Status de respuesta:', response.status);
       
       const data = await response.json();
@@ -170,10 +180,39 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     const booking = await createBooking(bookingData);
 
     if (booking) {
-      // Recargar turnos para actualizar disponibilidad
+      console.log('✅ Reserva creada exitosamente, recargando turnos...');
+      
+      // Actualizar inmediatamente la UI removiendo el turno reservado
+      setProximosTurnos(prevTurnos => 
+        prevTurnos.map(turno => {
+          if (turno.fecha === selectedDate) {
+            const horariosActualizados = turno.horarios.filter(h => h !== selectedTime);
+            return {
+              ...turno,
+              horarios: horariosActualizados,
+              disponibles: horariosActualizados.length
+            };
+          }
+          return turno;
+        }).filter(turno => turno.disponibles > 0) // Remover días sin turnos disponibles
+      );
+      
+      // Esperar un momento para que la base de datos se actualice
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Recargar turnos para actualizar disponibilidad desde el servidor
       await loadProximosTurnos();
       setSelectedDate('');
       setSelectedTime('');
+      console.log('🔄 Turnos recargados después de la reserva');
+      
+      // Mostrar mensaje de éxito
+      alert(`¡Reserva confirmada para ${selectedDate} a las ${selectedTime}! 
+      
+Recibirás un email de confirmación con todos los detalles.
+El evento se ha agregado al calendario del administrador.`);
+    } else {
+      console.log('❌ Error al crear la reserva');
     }
   };
 
