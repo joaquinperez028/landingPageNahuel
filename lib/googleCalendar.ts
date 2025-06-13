@@ -63,6 +63,31 @@ async function getAdminCalendarClient() {
 }
 
 /**
+ * Obtiene el ID de calendario correcto, probando primero el configurado y luego 'primary'
+ */
+async function getCorrectCalendarId(calendar: any): Promise<string> {
+  const configuredId = process.env.GOOGLE_CALENDAR_ID;
+  
+  // Si no hay ID configurado, usar primary directamente
+  if (!configuredId || configuredId === 'primary') {
+    console.log('🎯 Usando calendario principal (primary)');
+    return 'primary';
+  }
+  
+  // Probar acceso al calendario configurado
+  try {
+    console.log(`🧪 Probando acceso al calendario: ${configuredId}`);
+    await calendar.calendars.get({ calendarId: configuredId });
+    console.log(`✅ Calendario ${configuredId} accesible`);
+    return configuredId;
+  } catch (error: any) {
+    console.log(`⚠️ No se puede acceder a ${configuredId}:`, error.message);
+    console.log('🔄 Fallback a calendario principal (primary)');
+    return 'primary';
+  }
+}
+
+/**
  * Crea un evento en el calendario del administrador para un entrenamiento
  */
 export async function createTrainingEvent(
@@ -116,11 +141,11 @@ export async function createTrainingEvent(
     };
 
     console.log('📤 Enviando evento de entrenamiento a Google Calendar API...');
-    console.log('🎯 Calendar ID:', process.env.GOOGLE_CALENDAR_ID || 'primary');
+    console.log('🎯 Calendar ID:', await getCorrectCalendarId(calendar));
     console.log('📋 Resumen del evento:', event.summary);
 
     const response = await calendar.events.insert({
-      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+      calendarId: await getCorrectCalendarId(calendar),
       requestBody: event,
     });
 
@@ -195,11 +220,11 @@ export async function createAdvisoryEvent(
     };
 
     console.log('📤 Enviando evento a Google Calendar API...');
-    console.log('🎯 Calendar ID:', process.env.GOOGLE_CALENDAR_ID || 'primary');
+    console.log('🎯 Calendar ID:', await getCorrectCalendarId(calendar));
     console.log('📋 Resumen del evento:', event.summary);
 
     const response = await calendar.events.insert({
-      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+      calendarId: await getCorrectCalendarId(calendar),
       requestBody: event,
     });
 
