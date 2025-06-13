@@ -46,6 +46,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const futureLimit = new Date(now);
     futureLimit.setDate(now.getDate() + days);
 
+    console.log('🔍 Rango de fechas:', {
+      desde: now.toISOString(),
+      hasta: futureLimit.toISOString()
+    });
+
     // Construir filtro para la consulta
     const filter: any = {
       startDate: { 
@@ -62,13 +67,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       filter.status = { $in: ['confirmed', 'pending'] };
     }
 
-    // Obtener reservas con información del usuario
+    console.log('🔍 Filtro de consulta:', filter);
+
+    // Obtener reservas SIN populate para evitar errores
     const bookings = await Booking.find(filter)
-      .populate('user', 'name email image')
       .sort({ startDate: 1 })
       .lean();
 
-    console.log(`📊 Encontradas ${bookings.length} sesiones próximas`);
+    console.log(`📊 Encontradas ${bookings.length} sesiones próximas en BD`);
+
+    if (bookings.length > 0) {
+      console.log('📋 Primeras 3 reservas encontradas:');
+      bookings.slice(0, 3).forEach((booking, index) => {
+        console.log(`  ${index + 1}. ID: ${booking._id}`);
+        console.log(`     Usuario: ${booking.userName} (${booking.userEmail})`);
+        console.log(`     Tipo: ${booking.type} - ${booking.serviceType}`);
+        console.log(`     Fecha: ${booking.startDate}`);
+        console.log(`     Estado: ${booking.status}`);
+      });
+    }
 
     // Transformar datos para el frontend
     const sessions = bookings.map((booking: any) => {
@@ -89,6 +106,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         case 'TradingFundamentals':
           serviceName = 'Trading Fundamentals';
           break;
+        case 'AdvancedStrategies':
+          serviceName = 'Estrategias Avanzadas';
+          break;
         case 'DowJones':
           serviceName = 'Dow Jones - Estrategias Avanzadas';
           break;
@@ -107,9 +127,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         price: booking.price || 0,
         status: booking.status,
         user: {
-          name: booking.user?.name || 'Usuario sin nombre',
-          email: booking.user?.email || 'Sin email',
-          image: booking.user?.image || null
+          name: booking.userName || 'Usuario sin nombre',
+          email: booking.userEmail || 'Sin email',
+          image: null // No tenemos imagen en el booking directo
         },
         meetingLink: booking.meetingLink || null,
         notes: booking.notes || null,

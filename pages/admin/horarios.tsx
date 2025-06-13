@@ -391,6 +391,20 @@ const AdminEnviarLinksPage = () => {
 
                 <form onSubmit={handleSubmitForm} className={styles.form}>
                   <div className={styles.formGroup}>
+                    <label>Destinatario <span className={styles.required}>*</span></label>
+                    <input
+                      type="email"
+                      value={selectedSession.user.email}
+                      readOnly
+                      className={styles.readOnlyField}
+                      title="Email del cliente - No modificable"
+                    />
+                    <small className={styles.formHint}>
+                      ✅ Email del cliente confirmado - No se puede modificar
+                    </small>
+                  </div>
+
+                  <div className={styles.formGroup}>
                     <label>Asunto del Email</label>
                     <input
                       type="text"
@@ -449,7 +463,7 @@ const AdminEnviarLinksPage = () => {
                       ) : (
                         <>
                           <Send size={16} />
-                          Enviar Link
+                          Enviar Link a {selectedSession.user.name}
                         </>
                       )}
                     </button>

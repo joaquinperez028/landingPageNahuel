@@ -474,6 +474,19 @@
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
 }
 
+.readOnlyField {
+  background-color: #f8fafc !important;
+  border: 2px solid #e2e8f0 !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+  font-weight: 500;
+}
+
+.readOnlyField:focus {
+  border-color: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
 .formGroup textarea {
   resize: vertical;
   min-height: 120px;
