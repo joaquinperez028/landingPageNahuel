@@ -76,10 +76,14 @@ export async function createTrainingEvent(
 
     const calendar = await getAdminCalendarClient();
     const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
+    
+    // Crear ID único para evitar conflictos con eventos existentes
+    const uniqueId = Date.now().toString();
+    const formattedDate = startDate.toLocaleDateString('es-ES');
 
     const event = {
-      summary: `${trainingName} - ${userEmail}`,
-      description: `Entrenamiento de trading reservado por: ${userEmail}\n\nTipo: ${trainingName}\nDuración: ${durationMinutes} minutos`,
+      summary: `${trainingName} - ${userEmail} - ${formattedDate} (${uniqueId})`,
+      description: `Entrenamiento de trading reservado por: ${userEmail}\n\nTipo: ${trainingName}\nDuración: ${durationMinutes} minutos\n\nID único: ${uniqueId}`,
       start: {
         dateTime: startDate.toISOString(),
         timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo',
@@ -101,7 +105,18 @@ export async function createTrainingEvent(
           { method: 'popup', minutes: 30 }, // 30 minutos antes
         ],
       },
+      extendedProperties: {
+        private: {
+          bookingType: 'training',
+          uniqueId: uniqueId,
+          userEmail: userEmail,
+          createdAt: new Date().toISOString()
+        }
+      }
     };
+
+    console.log('📤 Enviando evento de entrenamiento a Google Calendar API...');
+    console.log('📋 Resumen del evento:', event.summary);
 
     const response = await calendar.events.insert({
       calendarId: 'primary',
@@ -138,10 +153,15 @@ export async function createAdvisoryEvent(
 
     const calendar = await getAdminCalendarClient();
     const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
+    
+    // Crear ID único para evitar conflictos con eventos existentes
+    const uniqueId = Date.now().toString();
+    const formattedDate = startDate.toLocaleDateString('es-ES');
+    const formattedTime = startDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
     const event = {
-      summary: `${advisoryName} - ${userEmail}`,
-      description: `Asesoría financiera reservada por: ${userEmail}\n\nTipo: ${advisoryName}\nDuración: ${durationMinutes} minutos\n\nLink de reunión: [Se enviará por email]`,
+      summary: `${advisoryName} - ${userEmail} - ${formattedDate} ${formattedTime} (${uniqueId})`,
+      description: `Asesoría financiera reservada por: ${userEmail}\n\nTipo: ${advisoryName}\nDuración: ${durationMinutes} minutos\n\nFecha: ${formattedDate} a las ${formattedTime}\nID único: ${uniqueId}\n\nLink de reunión: [Se enviará por email]`,
       start: {
         dateTime: startDate.toISOString(),
         timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo',
@@ -163,10 +183,19 @@ export async function createAdvisoryEvent(
           { method: 'popup', minutes: 30 }, // 30 minutos antes
         ],
       },
+      extendedProperties: {
+        private: {
+          bookingType: 'advisory',
+          uniqueId: uniqueId,
+          userEmail: userEmail,
+          createdAt: new Date().toISOString()
+        }
+      }
     };
 
     console.log('📤 Enviando evento a Google Calendar API...');
     console.log('🎯 Calendar ID: primary');
+    console.log('📋 Resumen del evento:', event.summary);
 
     const response = await calendar.events.insert({
       calendarId: 'primary',
