@@ -125,22 +125,64 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     const turnoSeleccionado = proximosTurnos.find(t => t.fecha === selectedDate);
     if (!turnoSeleccionado) return;
 
-    // Crear fecha aproximada (esto se puede mejorar con mejor parsing)
+    // Crear la fecha correcta basada en la selección del usuario
+    // Necesitamos convertir el formato "Lun 23 Jun" a una fecha real
     const today = new Date();
-    const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() + 1); // Aproximación temporal
+    const currentYear = today.getFullYear();
     
+    // Mapear nombres de meses
+    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    
+    // Parsear la fecha seleccionada (formato: "Lun 23 Jun")
+    const dateParts = selectedDate.split(' ');
+    const day = parseInt(dateParts[1]);
+    const monthName = dateParts[2];
+    const monthIndex = monthNames.indexOf(monthName);
+    
+    if (monthIndex === -1) {
+      alert('Error: Formato de fecha inválido');
+      return;
+    }
+    
+    // Crear la fecha objetivo
+    const targetDate = new Date(currentYear, monthIndex, day);
+    
+    // Si la fecha es anterior a hoy, asumir que es del próximo año
+    if (targetDate < today) {
+      targetDate.setFullYear(currentYear + 1);
+    }
+    
+    // Agregar la hora seleccionada
     const [hour, minute] = selectedTime.split(':').map(Number);
     targetDate.setHours(hour, minute, 0, 0);
 
-    const booking = await createBooking({
-      type: 'advisory',
-      serviceType: 'ConsultorioFinanciero',
+    console.log('🔍 DEBUGGING FRONTEND:');
+    console.log('📅 Fecha seleccionada por usuario:', selectedDate);
+    console.log('🕐 Hora seleccionada por usuario:', selectedTime);
+    console.log('📆 Fecha objetivo creada:', targetDate);
+    console.log('🌍 Fecha objetivo ISO:', targetDate.toISOString());
+    console.log('🇺🇾 Fecha objetivo local:', targetDate.toLocaleString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'America/Montevideo'
+    }));
+
+    const bookingData = {
+      type: 'advisory' as const,
+      serviceType: 'ConsultorioFinanciero' as const,
       startDate: targetDate.toISOString(),
       duration: 60,
       price: 199,
       notes: 'Reserva desde página de Consultorio Financiero'
-    });
+    };
+
+    console.log('📤 Datos que se envían a la API:', bookingData);
+
+    const booking = await createBooking(bookingData);
 
     if (booking) {
       // Recargar turnos para actualizar disponibilidad
