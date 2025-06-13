@@ -24,10 +24,11 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
       authorization: {
         params: {
-          scope: 'openid email profile https://www.googleapis.com/auth/calendar',
-          prompt: 'consent',
-          access_type: 'offline',
+          // Solo permisos básicos - SIN calendario
+          scope: 'openid email profile',
+          prompt: 'select_account', // Cambiar de 'consent' a 'select_account' para ser menos invasivo
           response_type: 'code'
+          // Eliminamos access_type: 'offline' ya que no necesitamos refresh tokens para usuarios normales
         },
       },
     }),
@@ -63,7 +64,7 @@ export const authOptions: NextAuthOptions = {
         console.log('🖼️ URL de imagen final:', userImageUrl);
         
         if (!existingUser) {
-          // Crear nuevo usuario
+          // Crear nuevo usuario - SIN tokens de Google para usuarios normales
           console.log('👤 Creando nuevo usuario:', user.email);
           existingUser = await User.create({
             googleId: account?.providerAccountId,
@@ -75,21 +76,17 @@ export const authOptions: NextAuthOptions = {
             compras: [],
             suscripciones: [],
             lastLogin: new Date(), // Registrar primer login
-            googleAccessToken: account?.access_token,
-            googleRefreshToken: account?.refresh_token,
-            googleTokenExpiry: account?.expires_at
+            // NO guardamos tokens de Google para usuarios normales
           });
         } else {
-          // Actualizar información del usuario Y el último login
+          // Actualizar información del usuario Y el último login - SIN tokens
           console.log('👤 Actualizando usuario existente y último login:', user.email);
           await User.findByIdAndUpdate(existingUser._id, {
             name: user.name,
             picture: userImageUrl,
             googleId: account?.providerAccountId,
             lastLogin: new Date(), // Actualizar último login
-            googleAccessToken: account?.access_token,
-            googleRefreshToken: account?.refresh_token,
-            googleTokenExpiry: account?.expires_at
+            // NO actualizamos tokens de Google para usuarios normales
           });
         }
         
@@ -101,19 +98,13 @@ export const authOptions: NextAuthOptions = {
       }
     },
     async jwt({ token, account, user }) {
-      // Persistir el access_token y refresh_token en el token JWT
-      if (account) {
-        token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
-        token.expiresAt = account.expires_at;
-      }
+      // NO persistimos tokens de Google para usuarios normales
+      // Solo información básica del usuario
       return token;
     },
     async session({ session, token }) {
-      // Enviar el access_token al cliente
-      if (token.accessToken) {
-        session.accessToken = token.accessToken as string;
-      }
+      // Solo devolvemos información básica del usuario
+      // NO incluimos access tokens
       return session;
     }
   },
@@ -151,13 +142,11 @@ declare module 'next-auth' {
         activa: boolean;
       }>;
     };
-    accessToken?: string;
+    // Eliminamos accessToken ya que no lo necesitamos para usuarios normales
   }
   
   interface User {
     role: 'normal' | 'suscriptor' | 'admin';
-    googleAccessToken?: string;
-    googleRefreshToken?: string;
-    googleTokenExpiry?: number;
+    // Eliminamos campos de Google tokens para usuarios normales
   }
 } 

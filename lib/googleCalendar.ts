@@ -1,15 +1,11 @@
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/googleAuth';
-import User from '@/models/User';
-import dbConnect from './mongodb';
 
-// Configuración del cliente OAuth2
-const oauth2Client = new OAuth2Client(
+// Configuración del cliente OAuth2 para el admin
+const adminOAuth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  process.env.NEXTAUTH_URL + '/api/auth/callback/google'
+  process.env.GOOGLE_REDIRECT_URI
 );
 
 interface CalendarEvent {
@@ -29,55 +25,20 @@ interface CalendarEvent {
 }
 
 /**
- * Obtiene el cliente de Calendar configurado con el token de acceso del usuario
- * @param userEmail Email del usuario
- * @returns Cliente de Calendar configurado
+ * Obtiene el cliente de Calendar configurado con tokens de administrador
+ * @returns Cliente de Calendar configurado para el admin
  */
-async function getCalendarClient(userEmail: string) {
+async function getAdminCalendarClient() {
   try {
-    await dbConnect();
-    const user = await User.findOne({ email: userEmail });
-    
-    if (!user?.googleAccessToken) {
-      throw new Error('No se encontró token de acceso para el usuario');
-    }
-
-    oauth2Client.setCredentials({
-      access_token: user.googleAccessToken,
-      refresh_token: user.googleRefreshToken,
-      expiry_date: user.googleTokenExpiry
+    // Configurar tokens del admin
+    adminOAuth2Client.setCredentials({
+      access_token: process.env.ADMIN_GOOGLE_ACCESS_TOKEN,
+      refresh_token: process.env.ADMIN_GOOGLE_REFRESH_TOKEN,
     });
 
-    return google.calendar({ version: 'v3', auth: oauth2Client });
+    return google.calendar({ version: 'v3', auth: adminOAuth2Client });
   } catch (error) {
-    console.error('Error al obtener cliente de Calendar:', error);
-    throw error;
-  }
-}
-
-/**
- * Crea un evento en Google Calendar
- * @param userEmail Email del usuario
- * @param event Datos del evento a crear
- * @returns El evento creado
- */
-export async function createCalendarEvent(userEmail: string, event: CalendarEvent) {
-  try {
-    const calendar = await getCalendarClient(userEmail);
-    
-    const response = await calendar.events.insert({
-      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
-      requestBody: {
-        ...event,
-        reminders: {
-          useDefault: true
-        }
-      }
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error('Error al crear evento en Google Calendar:', error);
+    console.error('❌ Error al obtener cliente de Calendar del admin:', error);
     throw error;
   }
 }
@@ -94,21 +55,7 @@ export async function createTrainingEvent(
   try {
     console.log('📅 Creando evento de entrenamiento en calendario del admin');
 
-    // Usar las credenciales del admin para crear el evento
-    const auth = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      process.env.GOOGLE_REDIRECT_URI
-    );
-
-    // Configurar tokens del admin (estos deberían estar en variables de entorno)
-    auth.setCredentials({
-      access_token: process.env.ADMIN_GOOGLE_ACCESS_TOKEN,
-      refresh_token: process.env.ADMIN_GOOGLE_REFRESH_TOKEN,
-    });
-
-    const calendar = google.calendar({ version: 'v3', auth });
-    
+    const calendar = await getAdminCalendarClient();
     const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
 
     const event = {
@@ -116,11 +63,11 @@ export async function createTrainingEvent(
       description: `Entrenamiento de trading reservado por: ${userEmail}\n\nTipo: ${trainingName}\nDuración: ${durationMinutes} minutos`,
       start: {
         dateTime: startDate.toISOString(),
-        timeZone: 'America/Montevideo',
+        timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo',
       },
       end: {
         dateTime: endDate.toISOString(),
-        timeZone: 'America/Montevideo',
+        timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo',
       },
       attendees: [
         {
@@ -138,7 +85,7 @@ export async function createTrainingEvent(
     };
 
     const response = await calendar.events.insert({
-      calendarId: 'primary',
+      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
       requestBody: event,
     });
 
@@ -163,21 +110,7 @@ export async function createAdvisoryEvent(
   try {
     console.log('📅 Creando evento de asesoría en calendario del admin');
 
-    // Usar las credenciales del admin para crear el evento
-    const auth = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      process.env.GOOGLE_REDIRECT_URI
-    );
-
-    // Configurar tokens del admin
-    auth.setCredentials({
-      access_token: process.env.ADMIN_GOOGLE_ACCESS_TOKEN,
-      refresh_token: process.env.ADMIN_GOOGLE_REFRESH_TOKEN,
-    });
-
-    const calendar = google.calendar({ version: 'v3', auth });
-    
+    const calendar = await getAdminCalendarClient();
     const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
 
     const event = {
@@ -185,11 +118,11 @@ export async function createAdvisoryEvent(
       description: `Asesoría financiera reservada por: ${userEmail}\n\nTipo: ${advisoryName}\nDuración: ${durationMinutes} minutos\n\nLink de reunión: [Se enviará por email]`,
       start: {
         dateTime: startDate.toISOString(),
-        timeZone: 'America/Montevideo',
+        timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo',
       },
       end: {
         dateTime: endDate.toISOString(),
-        timeZone: 'America/Montevideo',
+        timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo',
       },
       attendees: [
         {
@@ -207,7 +140,7 @@ export async function createAdvisoryEvent(
     };
 
     const response = await calendar.events.insert({
-      calendarId: 'primary',
+      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
       requestBody: event,
     });
 
