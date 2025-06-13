@@ -216,59 +216,61 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
           </div>
         </section>
 
-        {/* Testimonios Carrusel */}
-        <section className={styles.testimoniosSection}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Testimonios
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Resultados reales de clientes que transformaron sus finanzas
-            </motion.p>
-            
-            <div className={styles.testimoniosCarousel}>
-              <Carousel 
-                items={testimonios.map((testimonio, index) => (
-                  <div key={index} className={styles.testimonioCard}>
-                    <div className={styles.testimonioHeader}>
-                      <img 
-                        src={testimonio.foto} 
-                        alt={testimonio.nombre}
-                        className={styles.testimonioFoto}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://via.placeholder.com/80x80/3b82f6/ffffff?text=${testimonio.nombre.charAt(0)}`;
-                        }}
-                      />
-                      <div className={styles.testimonioInfo}>
-                        <h4 className={styles.testimonioNombre}>{testimonio.nombre}</h4>
-                        <div className={styles.testimonioRating}>
-                          {[...Array(testimonio.rating)].map((_, i) => (
-                            <Star key={i} size={16} fill="currentColor" />
-                          ))}
+        {/* Testimonios Carrusel - Solo mostrar si hay testimonios */}
+        {testimonios && testimonios.length > 0 && (
+          <section className={styles.testimoniosSection}>
+            <div className={styles.container}>
+              <motion.h2 
+                className={styles.sectionTitle}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+              >
+                Testimonios
+              </motion.h2>
+              <motion.p 
+                className={styles.sectionDescription}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+              >
+                Resultados reales de clientes que transformaron sus finanzas
+              </motion.p>
+              
+              <div className={styles.testimoniosCarousel}>
+                <Carousel 
+                  items={testimonios.map((testimonio, index) => (
+                    <div key={index} className={styles.testimonioCard}>
+                      <div className={styles.testimonioHeader}>
+                        <img 
+                          src={testimonio.foto} 
+                          alt={testimonio.nombre}
+                          className={styles.testimonioFoto}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = `https://via.placeholder.com/80x80/3b82f6/ffffff?text=${testimonio.nombre.charAt(0)}`;
+                          }}
+                        />
+                        <div className={styles.testimonioInfo}>
+                          <h4 className={styles.testimonioNombre}>{testimonio.nombre}</h4>
+                          <div className={styles.testimonioRating}>
+                            {[...Array(testimonio.rating)].map((_, i) => (
+                              <Star key={i} size={16} fill="currentColor" />
+                            ))}
+                          </div>
+                          <span className={styles.testimonioResultado}>{testimonio.resultado}</span>
                         </div>
-                        <span className={styles.testimonioResultado}>{testimonio.resultado}</span>
                       </div>
+                      <p className={styles.testimonioComentario}>"{testimonio.comentario}"</p>
                     </div>
-                    <p className={styles.testimonioComentario}>"{testimonio.comentario}"</p>
-                  </div>
-                ))}
-                autoplay={true}
-                showDots={true}
-                className={styles.testimoniosCarouselWrapper}
-              />
+                  ))}
+                  autoplay={true}
+                  showDots={true}
+                  className={styles.testimoniosCarouselWrapper}
+                />
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Próximos Turnos */}
         <section className={styles.turnosSection}>
@@ -416,63 +418,65 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
           </div>
         </section>
 
-        {/* Preguntas Frecuentes */}
-        <section className={styles.faqSection}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Preguntas Frecuentes
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Resolvemos las dudas más comunes sobre el Consultorio Financiero
-            </motion.p>
-            
-            <div className={styles.faqContainer}>
-              {faqs.map((faq, index) => (
-                <motion.div 
-                  key={index}
-                  className={styles.faqItem}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <button 
-                    className={styles.faqQuestion}
-                    onClick={() => toggleFaq(index)}
+        {/* Preguntas Frecuentes - Solo mostrar si hay FAQs */}
+        {faqs && faqs.length > 0 && (
+          <section className={styles.faqSection}>
+            <div className={styles.container}>
+              <motion.h2 
+                className={styles.sectionTitle}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+              >
+                Preguntas Frecuentes
+              </motion.h2>
+              <motion.p 
+                className={styles.sectionDescription}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+              >
+                Resolvemos las dudas más comunes sobre el Consultorio Financiero
+              </motion.p>
+              
+              <div className={styles.faqContainer}>
+                {faqs.map((faq, index) => (
+                  <motion.div 
+                    key={index}
+                    className={styles.faqItem}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
                   >
-                    <span>{faq.question}</span>
-                    {openFaq === index ? 
-                      <ChevronUp size={20} /> : 
-                      <ChevronDown size={20} />
-                    }
-                  </button>
-                  
-                  {openFaq === index && (
-                    <motion.div 
-                      className={styles.faqAnswer}
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3 }}
+                    <button 
+                      className={styles.faqQuestion}
+                      onClick={() => toggleFaq(index)}
                     >
-                      <p>{faq.answer}</p>
-                    </motion.div>
-                  )}
-                </motion.div>
-              ))}
+                      <span>{faq.question}</span>
+                      {openFaq === index ? 
+                        <ChevronUp size={20} /> : 
+                        <ChevronDown size={20} />
+                      }
+                    </button>
+                    
+                    {openFaq === index && (
+                      <motion.div 
+                        className={styles.faqAnswer}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <p>{faq.answer}</p>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </main>
 
       <Footer />
@@ -481,41 +485,46 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  // Datos estáticos que se mantienen
-  const testimonios = [
-    {
-      nombre: 'María González',
-      foto: '/testimonios/maria.jpg',
-      comentario: 'La sesión fue increíblemente valiosa. Me ayudaron a reestructurar mi portafolio y ahora tengo una estrategia clara.',
-      resultado: '+35% en 6 meses',
-      rating: 5
-    },
-    {
-      nombre: 'Carlos Rodríguez',
-      foto: '/testimonios/carlos.jpg',
-      comentario: 'Excelente asesoramiento. Me dieron herramientas prácticas que aplico día a día en mis inversiones.',
-      resultado: '+28% en 4 meses',
-      rating: 5
+  try {
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    
+    // Cargar testimonios específicos para consultorio financiero
+    const testimoniosResponse = await fetch(`${baseUrl}/api/testimonials?servicio=consultorio`);
+    let testimonios: Testimonio[] = [];
+    
+    if (testimoniosResponse.ok) {
+      const testimoniosData = await testimoniosResponse.json();
+      testimonios = testimoniosData.testimonials || [];
     }
-  ];
 
-  const faqs = [
-    {
-      question: '¿Qué incluye exactamente la sesión de 60 minutos?',
-      answer: 'La sesión incluye: análisis completo de tu situación financiera actual, evaluación de tu perfil de riesgo, recomendaciones específicas de inversión, plan de acción detallado y seguimiento por email durante 30 días.'
-    },
-    {
-      question: '¿Cómo se realiza la consulta?',
-      answer: 'La consulta se realiza por videollamada de Google Meet. Te enviaremos el enlace por email 24 horas antes de tu sesión agendada.'
+    // Cargar FAQs específicas para consultorio financiero
+    const faqsResponse = await fetch(`${baseUrl}/api/faqs?categoria=consultorio`);
+    let faqs: FAQ[] = [];
+    
+    if (faqsResponse.ok) {
+      const faqsData = await faqsResponse.json();
+      faqs = faqsData.faqs || [];
     }
-  ];
 
-  return {
-    props: {
-      testimonios,
-      faqs
-    }
-  };
+    console.log(`✅ Cargados ${testimonios.length} testimonios y ${faqs.length} FAQs para consultorio`);
+
+    return {
+      props: {
+        testimonios,
+        faqs
+      }
+    };
+  } catch (error) {
+    console.error('❌ Error al cargar datos del consultorio:', error);
+    
+    // En caso de error, retornar arrays vacíos
+    return {
+      props: {
+        testimonios: [],
+        faqs: []
+      }
+    };
+  }
 };
 
 export default ConsultorioFinancieroPage;

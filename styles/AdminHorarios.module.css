@@ -1,0 +1,353 @@
+.main {
+  min-height: calc(100vh - 200px);
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #b0b0b0;
+  margin-bottom: 2rem;
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #00ff88;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.addButton:hover {
+  background: #00cc6a;
+  transform: translateY(-2px);
+}
+
+/* Formulario Modal */
+.formOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.formContainer {
+  background: #2d2d2d;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.formHeader h3 {
+  color: #fff;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: #b0b0b0;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.form {
+  color: #fff;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+.formGroup select,
+.formGroup input {
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.formGroup select:focus,
+.formGroup input:focus {
+  outline: none;
+  border-color: #00ff88;
+  box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: #b0b0b0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancelButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #00ff88;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.saveButton:hover {
+  background: #00cc6a;
+}
+
+/* Lista de horarios */
+.schedulesContainer {
+  margin-top: 2rem;
+}
+
+.loading {
+  text-align: center;
+  color: #00ff88;
+  font-size: 1.1rem;
+  padding: 2rem;
+}
+
+.empty {
+  text-align: center;
+  color: #b0b0b0;
+  padding: 3rem 1rem;
+}
+
+.empty svg {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.empty h3 {
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.schedulesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.scheduleCard {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.8rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.scheduleCard:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.scheduleCard.inactive {
+  opacity: 0.6;
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.scheduleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.scheduleDay {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #00ff88;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.scheduleActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton,
+.deleteButton {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.editButton {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.editButton:hover {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.deleteButton {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.deleteButton:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.scheduleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scheduleTime {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.scheduleDuration,
+.scheduleType {
+  color: #e0e0e0;
+  font-size: 0.9rem;
+}
+
+.scheduleStatus {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.scheduleStatus.active {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.scheduleStatus.inactive {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .formActions {
+    flex-direction: column;
+  }
+  
+  .schedulesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .scheduleHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+} 

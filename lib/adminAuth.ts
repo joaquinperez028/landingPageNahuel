@@ -4,77 +4,83 @@ import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import { GetServerSidePropsContext } from 'next';
 
-export interface AdminVerificationResult {
-  isValid: boolean;
+interface AdminVerificationResult {
   isAdmin: boolean;
   user?: any;
   redirectTo?: string;
 }
 
 /**
- * Verifica si el usuario actual es administrador
- * Para usar en getServerSideProps
+ * Verifica si el usuario actual tiene permisos de administrador
  */
 export async function verifyAdminAccess(context: GetServerSidePropsContext): Promise<AdminVerificationResult> {
   try {
-    console.log('🔍 [ADMIN AUTH] Iniciando verificación...');
-    
-    // Obtener sesión usando getServerSession (más confiable que getSession)
     const session = await getServerSession(context.req, context.res, authOptions);
     
-    console.log('🔍 [ADMIN AUTH] Sesión obtenida:', {
-      hasSession: !!session,
-      hasUser: !!session?.user,
-      email: session?.user?.email,
-      role: session?.user?.role
-    });
-    
-    if (!session || !session.user?.email) {
-      console.log('❌ [ADMIN AUTH] No hay sesión válida - redirigiendo a login');
+    if (!session?.user?.email) {
       return {
-        isValid: false,
         isAdmin: false,
         redirectTo: '/api/auth/signin'
       };
     }
 
-    console.log('✅ [ADMIN AUTH] Sesión encontrada para:', session.user.email);
-    console.log('👤 [ADMIN AUTH] Rol en sesión:', session.user.role);
+    // Lista de emails de administradores
+    // TODO: Mover esto a variables de entorno o base de datos
+    const adminEmails = [
+      process.env.ADMIN_EMAIL,
+      'admin@lozanonahuel.com',
+      'nahuel@lozanonahuel.com'
+    ].filter(Boolean);
 
-    // Verificar rol directamente de la sesión
-    const isAdmin = session.user.role === 'admin';
-    
+    const isAdmin = adminEmails.includes(session.user.email);
+
     if (!isAdmin) {
-      console.log('❌ [ADMIN AUTH] Usuario no es admin según sesión - redirigiendo a home');
       return {
-        isValid: true,
         isAdmin: false,
-        redirectTo: '/'
+        redirectTo: '/',
+        user: session.user
       };
     }
 
-    console.log('✅ [ADMIN AUTH] Usuario ES admin - acceso permitido');
     return {
-      isValid: true,
       isAdmin: true,
-      user: {
-        _id: session.user.id,
-        name: session.user.name,
-        email: session.user.email,
-        role: session.user.role
-      }
+      user: session.user
     };
 
   } catch (error) {
-    console.error('💥 [ADMIN AUTH] Error en verificación:', error);
-    
-    // En caso de error, redirigir a home por seguridad
+    console.error('Error verificando acceso de admin:', error);
     return {
-      isValid: false,
       isAdmin: false,
       redirectTo: '/'
     };
   }
+}
+
+/**
+ * Middleware para proteger rutas de API de administrador
+ */
+export function requireAdmin(handler: any) {
+  return async (req: any, res: any) => {
+    const session = await getServerSession(req, res, authOptions);
+    
+    if (!session?.user?.email) {
+      return res.status(401).json({ error: 'No autorizado' });
+    }
+
+    const adminEmails = [
+      process.env.ADMIN_EMAIL,
+      'admin@lozanonahuel.com',
+      'nahuel@lozanonahuel.com'
+    ].filter(Boolean);
+
+    const isAdmin = adminEmails.includes(session.user.email);
+
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de administrador.' });
+    }
+
+    return handler(req, res);
+  };
 }
 
 /**
