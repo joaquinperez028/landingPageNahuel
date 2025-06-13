@@ -44,27 +44,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('📧 Enviando link de reunión para sesión:', sessionId);
 
-    // Buscar la reserva con información del usuario
-    const booking = await Booking.findById(sessionId).populate('user', 'name email');
+    // Buscar la reserva SIN populate (usar datos directos del booking)
+    const booking = await Booking.findById(sessionId);
     
     if (!booking) {
       return res.status(404).json({ error: 'Sesión no encontrada' });
     }
 
-    if (!booking.user) {
-      return res.status(400).json({ error: 'Usuario no encontrado para esta sesión' });
+    if (!booking.userEmail || !booking.userName) {
+      return res.status(400).json({ error: 'Información del usuario incompleta en la reserva' });
     }
+
+    console.log('👤 Datos del usuario:', {
+      email: booking.userEmail,
+      name: booking.userName
+    });
 
     // Verificar que tenemos las variables de entorno necesarias
     const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
+    const smtpPass = process.env.SMTP_PASSWORD; // Cambiado de SMTP_PASS a SMTP_PASSWORD
     const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
     const smtpPort = parseInt(process.env.SMTP_PORT || '587');
 
     if (!smtpUser || !smtpPass) {
       console.error('❌ Variables de SMTP no configuradas');
+      console.error('SMTP_USER:', !!smtpUser);
+      console.error('SMTP_PASSWORD:', !!smtpPass);
       return res.status(500).json({ error: 'Configuración de email no disponible' });
     }
+
+    console.log('📧 Configuración SMTP:', {
+      host: smtpHost,
+      port: smtpPort,
+      user: smtpUser,
+      hasPassword: !!smtpPass
+    });
 
     // Configurar el transportador de email
     const transporter = nodemailer.createTransport({
@@ -100,7 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Crear el contenido del email
     const emailContent = createEmailTemplate({
-      userName: booking.user.name,
+      userName: booking.userName,
       sessionInfo,
       meetingLink,
       customMessage: customMessage || ''
@@ -112,18 +126,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         name: 'Nahuel Lozano',
         address: smtpUser
       },
-      to: booking.user.email,
+      to: booking.userEmail,
       subject: subject,
       html: emailContent,
       text: createTextContent({
-        userName: booking.user.name,
+        userName: booking.userName,
         sessionInfo,
         meetingLink,
         customMessage: customMessage || ''
       })
     };
 
-    console.log('📤 Enviando email a:', booking.user.email);
+    console.log('📤 Enviando email a:', booking.userEmail);
     
     await transporter.sendMail(mailOptions);
 
@@ -137,7 +151,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ 
       success: true,
       message: 'Link de reunión enviado exitosamente',
-      sentTo: booking.user.email,
+      sentTo: booking.userEmail,
       sessionId: booking._id
     });
 
