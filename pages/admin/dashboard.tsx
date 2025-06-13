@@ -20,7 +20,9 @@ import {
   Download,
   Plus,
   Search,
-  Filter
+  Filter,
+  Calendar,
+  Clock
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -64,6 +66,18 @@ const useDashboardSections = () => {
         { label: 'Lista de Usuarios', href: '/admin/users', icon: <Users size={16} /> },
         { label: 'Usuarios Activos', href: '/admin/users/active', icon: <UserCheck size={16} /> },
         { label: 'Gestión de Roles', href: '/admin/users/roles', icon: <Settings size={16} /> }
+      ]
+    },
+    {
+      id: 'schedules',
+      title: 'Gestión de Horarios',
+      description: 'Creación y administración de horarios para asesoramientos y entrenamientos. Configuración de disponibilidad y slots de tiempo',
+      icon: <Calendar size={32} />,
+      color: 'from-indigo-500 to-purple-500',
+      links: [
+        { label: 'Horarios Asesorías', href: '/admin/asesorias-horarios', icon: <Clock size={16} /> },
+        { label: 'Horarios Entrenamientos', href: '/admin/entrenamientos-horarios', icon: <Calendar size={16} /> },
+        { label: 'Configurar Disponibilidad', href: '/admin/horarios', icon: <Settings size={16} /> }
       ]
     },
     {
@@ -329,6 +343,10 @@ export default function AdminDashboardPage() {
                 <Link href="/admin/users" className={`${styles.quickActionCard} ${styles.users}`}>
                   <Plus size={24} />
                   <span>Gestionar Usuarios</span>
+                </Link>
+                <Link href="/admin/asesorias-horarios" className={`${styles.quickActionCard} ${styles.schedules}`}>
+                  <Calendar size={24} />
+                  <span>Crear Horarios</span>
                 </Link>
                 <Link href="/admin/billing/export" className={`${styles.quickActionCard} ${styles.export}`}>
                   <Download size={24} />

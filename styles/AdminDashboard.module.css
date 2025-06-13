@@ -433,6 +433,10 @@
   background: linear-gradient(135deg, #10b981, #059669);
 }
 
+.schedules .sectionIcon {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
 .database .sectionIcon {
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);
 }
