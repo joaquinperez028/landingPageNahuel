@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSession, signIn } from 'next-auth/react';
 import { GetServerSideProps } from 'next';
 import { toast } from 'react-hot-toast';
+import { generateCircularAvatarDataURL } from '@/lib/utils';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
@@ -502,7 +503,7 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
                           alt={testimonial.name}
                           className={styles.testimonioFoto}
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = `https://via.placeholder.com/80x80/8b5cf6/ffffff?text=${testimonial.name.charAt(0)}`;
+                            (e.target as HTMLImageElement).src = generateCircularAvatarDataURL(testimonial.name, '#8b5cf6', '#ffffff', 80);
                           }}
                         />
                         <div className={styles.testimonioInfo}>

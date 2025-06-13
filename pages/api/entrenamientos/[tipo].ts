@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import connectDB from '@/lib/mongodb';
 import Training from '@/models/Training';
+import { generateCircularAvatarDataURL } from '@/lib/utils';
 
 /**
  * API endpoint para obtener información de entrenamientos por tipo
@@ -163,7 +164,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           role: "Trader Independiente",
           content: "El programa me dio las bases sólidas que necesitaba. En 6 meses pasé de novato a trader consistente.",
           rating: 5,
-          image: "https://via.placeholder.com/80x80/3b82f6/ffffff?text=CM",
+          image: generateCircularAvatarDataURL("Carlos Mendoza", "#3b82f6", "#ffffff", 80),
           results: "+85% rentabilidad anual"
         },
         {
@@ -171,7 +172,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           role: "Inversora",
           content: "Metodología clara y práctica. Los conceptos se explican de forma muy entendible.",
           rating: 5,
-          image: "https://via.placeholder.com/80x80/10b981/ffffff?text=AG",
+          image: generateCircularAvatarDataURL("Ana García", "#10b981", "#ffffff", 80),
           results: "Portfolio diversificado exitoso"
         }
       ],
@@ -181,7 +182,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           role: "Trader Profesional",
           content: "Las estrategias institucionales revolucionaron mi trading. Resultados excepcionales.",
           rating: 5,
-          image: "https://via.placeholder.com/80x80/8b5cf6/ffffff?text=RS",
+          image: generateCircularAvatarDataURL("Roberto Silva", "#8b5cf6", "#ffffff", 80),
           results: "+240% rentabilidad anual"
         },
         {
@@ -189,7 +190,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           role: "Fund Manager",
           content: "Técnicas de nivel institucional que realmente funcionan en mercados reales.",
           rating: 5,
-          image: "https://via.placeholder.com/80x80/f59e0b/ffffff?text=ML",
+          image: generateCircularAvatarDataURL("María López", "#f59e0b", "#ffffff", 80),
           results: "Gestión de $2M+ exitosa"
         }
       ]

@@ -3,6 +3,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
 import { useSession, signIn } from 'next-auth/react';
+import { toast } from 'react-hot-toast';
+import { generateCircularAvatarDataURL } from '@/lib/utils';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
@@ -283,7 +285,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                           alt={testimonio.nombre}
                           className={styles.testimonioFoto}
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = `https://via.placeholder.com/80x80/3b82f6/ffffff?text=${testimonio.nombre.charAt(0)}`;
+                            (e.target as HTMLImageElement).src = generateCircularAvatarDataURL(testimonio.nombre, '#3b82f6', '#ffffff', 80);
                           }}
                         />
                         <div className={styles.testimonioInfo}>

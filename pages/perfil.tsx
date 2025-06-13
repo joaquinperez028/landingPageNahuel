@@ -3,6 +3,8 @@ import { getSession, useSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'react-hot-toast';
+import { generateCircularAvatarDataURL } from '@/lib/utils';
 import { 
   User, 
   ShoppingBag, 
@@ -394,9 +396,9 @@ export default function PerfilPage() {
                           <span className={styles.label}>Avatar:</span>
                           <span className={styles.value}>
                             <img 
-                              src={userProfile?.image || `https://via.placeholder.com/40x40/3b82f6/ffffff?text=${userProfile?.name?.charAt(0) || 'U'}`}
-                              alt="Avatar"
-                              className={styles.avatarSmall}
+                              src={userProfile?.image || generateCircularAvatarDataURL(userProfile?.name || 'Usuario', '#3b82f6', '#ffffff', 120)}
+                              alt="Foto de perfil"
+                              className={styles.profileImage}
                             />
                           </span>
                         </div>
