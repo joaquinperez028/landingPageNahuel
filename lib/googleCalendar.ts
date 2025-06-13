@@ -116,10 +116,11 @@ export async function createTrainingEvent(
     };
 
     console.log('📤 Enviando evento de entrenamiento a Google Calendar API...');
+    console.log('🎯 Calendar ID:', process.env.GOOGLE_CALENDAR_ID || 'primary');
     console.log('📋 Resumen del evento:', event.summary);
 
     const response = await calendar.events.insert({
-      calendarId: 'primary',
+      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
       requestBody: event,
     });
 
@@ -194,11 +195,11 @@ export async function createAdvisoryEvent(
     };
 
     console.log('📤 Enviando evento a Google Calendar API...');
-    console.log('🎯 Calendar ID: primary');
+    console.log('🎯 Calendar ID:', process.env.GOOGLE_CALENDAR_ID || 'primary');
     console.log('📋 Resumen del evento:', event.summary);
 
     const response = await calendar.events.insert({
-      calendarId: 'primary',
+      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
       requestBody: event,
     });
 
