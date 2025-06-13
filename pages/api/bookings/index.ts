@@ -206,6 +206,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Enviar emails de confirmación
       try {
+        console.log('📧 Iniciando envío de emails de confirmación...');
+        console.log('🔑 Variables de email disponibles:', {
+          hasSmtpUser: !!process.env.SMTP_USER,
+          hasSmtpPassword: !!process.env.SMTP_PASSWORD,
+          smtpUser: process.env.SMTP_USER,
+          adminEmail: process.env.ADMIN_EMAIL
+        });
+        
         const dateStr = startDateTime.toLocaleDateString('es-ES', {
           weekday: 'long',
           year: 'numeric',
@@ -217,14 +225,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           minute: '2-digit'
         });
 
+        console.log('📅 Datos formateados para emails:', {
+          userEmail,
+          userName,
+          type,
+          eventName,
+          dateStr,
+          timeStr,
+          duration,
+          price
+        });
+
         if (type === 'training') {
+          console.log('🏋️ Enviando email de confirmación de entrenamiento...');
           await sendTrainingConfirmationEmail(userEmail, userName, {
             type: eventName,
             date: dateStr,
             time: timeStr,
             duration
           });
+          console.log('✅ Email de entrenamiento enviado');
         } else {
+          console.log('💼 Enviando email de confirmación de asesoría...');
           await sendAdvisoryConfirmationEmail(userEmail, userName, {
             type: eventName,
             date: dateStr,
@@ -232,9 +254,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             duration,
             price
           });
+          console.log('✅ Email de asesoría enviado');
         }
 
         // Notificar al admin
+        console.log('👨‍💼 Enviando notificación al admin...');
         await sendAdminNotificationEmail({
           userEmail,
           userName,
@@ -245,9 +269,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           duration,
           price
         });
+        console.log('✅ Notificación al admin enviada');
 
-      } catch (emailError) {
-        console.error('⚠️ Error al enviar emails:', emailError);
+      } catch (emailError: any) {
+        console.error('❌ Error detallado al enviar emails:', {
+          error: emailError?.message || 'Error desconocido',
+          stack: emailError?.stack,
+          code: emailError?.code,
+          response: emailError?.response
+        });
         // No fallar la reserva si el email falla
       }
 
