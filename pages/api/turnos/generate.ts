@@ -2,11 +2,13 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/mongodb';
 import Booking from '@/models/Booking';
 import TrainingSchedule from '@/models/TrainingSchedule';
+import AdvisorySchedule from '@/models/AdvisorySchedule';
 import { z } from 'zod';
 
 // Schema de validación
 const generateTurnosSchema = z.object({
   type: z.enum(['training', 'advisory']).optional(),
+  advisoryType: z.enum(['ConsultorioFinanciero', 'CuentaAsesorada']).optional(),
   days: z.number().min(1).max(60).default(30), // Próximos X días
   maxSlotsPerDay: z.number().min(1).max(20).default(6)
 });
@@ -16,6 +18,8 @@ interface TurnoData {
   horarios: string[];
   disponibles: number;
   type?: 'training' | 'advisory';
+  advisoryType?: 'ConsultorioFinanciero' | 'CuentaAsesorada';
+  price?: number;
 }
 
 /**
@@ -41,48 +45,91 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    const { type, days, maxSlotsPerDay } = validationResult.data;
+    const { type, advisoryType, days, maxSlotsPerDay } = validationResult.data;
     const turnos: TurnoData[] = [];
     const today = new Date();
 
-    // Obtener horarios de entrenamiento configurados
-    const trainingSchedules = await TrainingSchedule.find({ activo: true });
+    // Obtener horarios configurados según el tipo
+    let trainingSchedules: any[] = [];
+    let advisorySchedules: any[] = [];
+
+    if (!type || type === 'training') {
+      trainingSchedules = await TrainingSchedule.find({ activo: true });
+    }
+
+    if (!type || type === 'advisory') {
+      const advisoryFilter: any = { activo: true };
+      if (advisoryType) {
+        advisoryFilter.type = advisoryType;
+      }
+      advisorySchedules = await AdvisorySchedule.find(advisoryFilter);
+    }
 
     // Generar turnos para los próximos días
     for (let i = 1; i <= days; i++) {
       const targetDate = new Date(today);
       targetDate.setDate(today.getDate() + i);
       
-      // Saltar fines de semana si no hay entrenamientos configurados
+      // Saltar fines de semana si no hay horarios configurados
       const dayOfWeek = targetDate.getDay();
       if (dayOfWeek === 0 || dayOfWeek === 6) {
-        const hasWeekendTraining = trainingSchedules.some(ts => ts.dayOfWeek === dayOfWeek);
-        if (!hasWeekendTraining && type === 'training') continue;
+        const hasWeekendSchedule = 
+          trainingSchedules.some(ts => ts.dayOfWeek === dayOfWeek) ||
+          advisorySchedules.some(as => as.dayOfWeek === dayOfWeek);
+        if (!hasWeekendSchedule) continue;
       }
 
-      const dateStr = targetDate.toISOString().split('T')[0];
-      
-      // Obtener slots disponibles para este día
-      const availableSlots = await getAvailableSlotsForDate(
-        targetDate, 
-        type, 
-        trainingSchedules
-      );
+      // Obtener slots disponibles para entrenamientos
+      if (!type || type === 'training') {
+        const trainingSlots = await getAvailableSlotsForDate(
+          targetDate, 
+          'training', 
+          trainingSchedules,
+          []
+        );
 
-      if (availableSlots.length > 0) {
-        // Limitar número de slots mostrados
-        const limitedSlots = availableSlots.slice(0, maxSlotsPerDay);
-        
-        turnos.push({
-          fecha: formatDateForDisplay(targetDate),
-          horarios: limitedSlots,
-          disponibles: limitedSlots.length,
-          type
-        });
+        if (trainingSlots.length > 0) {
+          const limitedSlots = trainingSlots.slice(0, maxSlotsPerDay);
+          
+          turnos.push({
+            fecha: formatDateForDisplay(targetDate),
+            horarios: limitedSlots,
+            disponibles: limitedSlots.length,
+            type: 'training'
+          });
+        }
+      }
+
+      // Obtener slots disponibles para asesorías
+      if (!type || type === 'advisory') {
+        const advisorySlots = await getAvailableSlotsForDate(
+          targetDate, 
+          'advisory', 
+          trainingSchedules,
+          advisorySchedules,
+          advisoryType
+        );
+
+        if (advisorySlots.length > 0) {
+          const limitedSlots = advisorySlots.slice(0, maxSlotsPerDay);
+          
+          // Obtener precio de la asesoría
+          const daySchedules = advisorySchedules.filter(as => as.dayOfWeek === dayOfWeek);
+          const price = daySchedules.length > 0 ? daySchedules[0].price : undefined;
+          
+          turnos.push({
+            fecha: formatDateForDisplay(targetDate),
+            horarios: limitedSlots,
+            disponibles: limitedSlots.length,
+            type: 'advisory',
+            advisoryType: advisoryType,
+            price: price
+          });
+        }
       }
 
       // Limitar número total de días con turnos
-      if (turnos.length >= 10) break;
+      if (turnos.length >= 15) break;
     }
 
     console.log(`✅ Generados ${turnos.length} días con turnos disponibles`);
@@ -90,7 +137,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ 
       turnos,
       generatedAt: new Date().toISOString(),
-      type: type || 'all'
+      type: type || 'all',
+      advisoryType: advisoryType || 'all'
     });
 
   } catch (error) {
@@ -104,22 +152,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
  */
 async function getAvailableSlotsForDate(
   targetDate: Date, 
-  type?: 'training' | 'advisory',
-  trainingSchedules: any[] = []
+  type: 'training' | 'advisory',
+  trainingSchedules: any[] = [],
+  advisorySchedules: any[] = [],
+  advisoryType?: 'ConsultorioFinanciero' | 'CuentaAsesorada'
 ): Promise<string[]> {
   const dayOfWeek = targetDate.getDay();
-  const duration = 90; // Duración estándar en minutos
-
-  // Generar todos los slots posibles del día
-  const allSlots: string[] = [];
-  for (let hour = 8; hour <= 21; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-      const slotEndTime = hour * 60 + minute + duration;
-      if (slotEndTime <= 22 * 60) {
-        allSlots.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
-      }
-    }
-  }
 
   // Obtener reservas existentes para esta fecha
   const startOfDay = new Date(targetDate);
@@ -132,72 +170,97 @@ async function getAvailableSlotsForDate(
     startDate: { $gte: startOfDay, $lte: endOfDay }
   });
 
-  // Filtrar slots disponibles
-  const availableSlots = allSlots.filter(slot => {
-    const [slotHour, slotMinute] = slot.split(':').map(Number);
-    const slotStartMinutes = slotHour * 60 + slotMinute;
-    const slotEndMinutes = slotStartMinutes + duration;
+  if (type === 'training') {
+    // Para entrenamientos, usar la lógica existente
+    const trainingSlots = trainingSchedules
+      .filter(training => training.dayOfWeek === dayOfWeek)
+      .map(training => {
+        const hour = training.hour.toString().padStart(2, '0');
+        const minute = training.minute.toString().padStart(2, '0');
+        return `${hour}:${minute}`;
+      })
+      .filter(slot => {
+        // Verificar que no haya conflicto con reservas existentes
+        const [slotHour, slotMinute] = slot.split(':').map(Number);
+        const slotStart = new Date(targetDate);
+        slotStart.setHours(slotHour, slotMinute, 0, 0);
+        
+        return !existingBookings.some(booking => {
+          const bookingStart = booking.startDate.getTime();
+          const bookingEnd = booking.endDate.getTime();
+          const slotTime = slotStart.getTime();
+          
+          return slotTime >= bookingStart && slotTime < bookingEnd;
+        });
+      });
 
-    // Verificar conflicto con entrenamientos configurados
-    const conflictsWithTraining = trainingSchedules.some(training => {
-      if (training.dayOfWeek !== dayOfWeek) return false;
-      
-      const trainingStart = training.hour * 60 + training.minute;
-      const trainingEnd = trainingStart + training.duration;
-      
-      return (
-        (slotStartMinutes >= trainingStart && slotStartMinutes < trainingEnd) ||
-        (slotEndMinutes > trainingStart && slotEndMinutes <= trainingEnd) ||
-        (slotStartMinutes <= trainingStart && slotEndMinutes >= trainingEnd)
-      );
-    });
+    return trainingSlots;
+  }
 
-    if (conflictsWithTraining && type !== 'training') return false;
-
-    // Verificar conflicto con reservas existentes
-    const conflictsWithBooking = existingBookings.some(booking => {
-      const bookingStart = booking.startDate.getTime();
-      const bookingEnd = booking.endDate.getTime();
-      
-      const slotStart = new Date(targetDate);
-      slotStart.setHours(slotHour, slotMinute, 0, 0);
-      const slotEnd = new Date(slotStart.getTime() + duration * 60000);
-
-      return (
-        (slotStart.getTime() >= bookingStart && slotStart.getTime() < bookingEnd) ||
-        (slotEnd.getTime() > bookingStart && slotEnd.getTime() <= bookingEnd) ||
-        (slotStart.getTime() <= bookingStart && slotEnd.getTime() >= bookingEnd)
-      );
-    });
-
-    if (conflictsWithBooking) return false;
-
-    // Si es para entrenamientos, solo mostrar slots que coincidan con horarios configurados
-    if (type === 'training') {
-      return trainingSchedules.some(training => 
-        training.dayOfWeek === dayOfWeek &&
-        training.hour === slotHour && 
-        training.minute === slotMinute
-      );
+  if (type === 'advisory') {
+    // Para asesorías, usar horarios específicos de asesorías
+    let relevantSchedules = advisorySchedules.filter(advisory => advisory.dayOfWeek === dayOfWeek);
+    
+    if (advisoryType) {
+      relevantSchedules = relevantSchedules.filter(advisory => advisory.type === advisoryType);
     }
 
-    return true;
-  });
+    const advisorySlots = relevantSchedules
+      .map(advisory => {
+        const hour = advisory.hour.toString().padStart(2, '0');
+        const minute = advisory.minute.toString().padStart(2, '0');
+        return `${hour}:${minute}`;
+      })
+      .filter(slot => {
+        // Verificar que no haya conflicto con reservas existentes
+        const [slotHour, slotMinute] = slot.split(':').map(Number);
+        const slotStart = new Date(targetDate);
+        slotStart.setHours(slotHour, slotMinute, 0, 0);
+        
+        return !existingBookings.some(booking => {
+          const bookingStart = booking.startDate.getTime();
+          const bookingEnd = booking.endDate.getTime();
+          const slotTime = slotStart.getTime();
+          
+          return slotTime >= bookingStart && slotTime < bookingEnd;
+        });
+      })
+      .filter(slot => {
+        // Verificar que no haya conflicto con entrenamientos
+        const [slotHour, slotMinute] = slot.split(':').map(Number);
+        const slotStartMinutes = slotHour * 60 + slotMinute;
+        const slotEndMinutes = slotStartMinutes + 60; // Asesorías duran 60 minutos
 
-  return availableSlots;
+        return !trainingSchedules.some(training => {
+          if (training.dayOfWeek !== dayOfWeek) return false;
+          
+          const trainingStart = training.hour * 60 + training.minute;
+          const trainingEnd = trainingStart + training.duration;
+          
+          return (
+            (slotStartMinutes >= trainingStart && slotStartMinutes < trainingEnd) ||
+            (slotEndMinutes > trainingStart && slotEndMinutes <= trainingEnd) ||
+            (slotStartMinutes <= trainingStart && slotEndMinutes >= trainingEnd)
+          );
+        });
+      });
+
+    return advisorySlots;
+  }
+
+  return [];
 }
 
 /**
- * Formatea fecha para mostrar en español
+ * Formatea una fecha para mostrar
  */
 function formatDateForDisplay(date: Date): string {
-  const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-  const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
   
   const dayName = days[date.getDay()];
   const day = date.getDate();
   const month = months[date.getMonth()];
   
-  return `${dayName} ${day} de ${month}`;
+  return `${dayName} ${day} ${month}`;
 } 
