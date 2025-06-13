@@ -9,8 +9,8 @@ import { z } from 'zod';
 const generateTurnosSchema = z.object({
   type: z.enum(['training', 'advisory']).optional(),
   advisoryType: z.enum(['ConsultorioFinanciero', 'CuentaAsesorada']).optional(),
-  days: z.number().min(1).max(60).default(30), // Próximos X días
-  maxSlotsPerDay: z.number().min(1).max(20).default(6)
+  days: z.string().transform(val => parseInt(val) || 30).pipe(z.number().min(1).max(60)).optional().default("30"),
+  maxSlotsPerDay: z.string().transform(val => parseInt(val) || 6).pipe(z.number().min(1).max(20)).optional().default("6")
 });
 
 interface TurnoData {

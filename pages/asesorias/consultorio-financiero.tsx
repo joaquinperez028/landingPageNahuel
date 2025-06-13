@@ -66,16 +66,27 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   const loadProximosTurnos = async () => {
     try {
       setLoadingTurnos(true);
-      const response = await fetch('/api/turnos/generate?type=advisory&maxSlotsPerDay=6');
+      console.log('🔄 Cargando turnos para Consultorio Financiero...');
+      
+      const url = '/api/turnos/generate?type=advisory&advisoryType=ConsultorioFinanciero&maxSlotsPerDay=6';
+      console.log('📡 URL de la API:', url);
+      
+      const response = await fetch(url);
+      console.log('📊 Status de respuesta:', response.status);
+      
       const data = await response.json();
+      console.log('📅 Respuesta de turnos:', data);
       
       if (response.ok) {
-        setProximosTurnos(data.turnos || []);
+        const turnos = data.turnos || [];
+        setProximosTurnos(turnos);
+        console.log(`✅ Cargados ${turnos.length} días con turnos disponibles`);
+        console.log('📋 Turnos cargados:', turnos);
       } else {
-        console.error('Error al cargar turnos:', data.error);
+        console.error('❌ Error al cargar turnos:', data.error);
       }
     } catch (error) {
-      console.error('Error al cargar turnos:', error);
+      console.error('❌ Error al cargar turnos:', error);
     } finally {
       setLoadingTurnos(false);
     }
