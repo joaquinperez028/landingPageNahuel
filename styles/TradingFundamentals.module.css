@@ -69,10 +69,46 @@
   margin-bottom: 2rem;
 }
 
+/* Hero Pricing */
+.heroPricing {
+  margin: 2rem 0;
+}
+
+.priceCard {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  text-align: center;
+}
+
+.priceAmount {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #06b6d4;
+  margin-bottom: 0.5rem;
+}
+
+.priceDescription {
+  display: block;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.5rem;
+}
+
+.priceIncludes {
+  display: block;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .heroFeatures {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .heroFeature {
@@ -85,6 +121,34 @@
 .heroFeature svg {
   color: #06b6d4;
   flex-shrink: 0;
+}
+
+/* Hero Actions */
+.heroActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.enrollButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.enrollButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
 }
 
 .heroVideo {
@@ -159,6 +223,148 @@
   backdrop-filter: blur(10px);
 }
 
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContainer {
+  background: white;
+  border-radius: 1rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+}
+
+.modalHeader h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+  color: #ef4444;
+}
+
+/* Enrollment Form */
+.enrollForm {
+  padding: 2rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background: #e5e7eb;
+}
+
+.submitButton {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Metrics Section */
 .metricsSection {
   padding: 6rem 0;
@@ -198,11 +404,9 @@
   padding: 2rem;
   border-radius: 1rem;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
   border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
 }
 
 .metricCard::before {
@@ -212,10 +416,10 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   opacity: 0;
   transition: opacity 0.3s ease;
-  z-index: 1;
+  border-radius: 1rem;
 }
 
 .metricCard:hover::before {
@@ -223,20 +427,20 @@
 }
 
 .metricCard:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 .metricIcon {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 80px;
   height: 80px;
-  border-radius: 50%;
+  margin: 0 auto 1.5rem;
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 50%;
   color: white;
-  margin-bottom: 1.5rem;
   position: relative;
   z-index: 2;
 }
@@ -253,189 +457,84 @@
 .metricLabel {
   color: #64748b;
   font-size: 1rem;
-  margin: 0;
+  font-weight: 500;
   position: relative;
   z-index: 2;
-}
-
-/* Testimonials Section */
-.testimonialsSection {
-  padding: 6rem 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-}
-
-.carouselContainer {
-  max-width: 800px;
-  margin: 3rem auto 0;
-}
-
-.testimonialCard {
-  background: white;
-  border-radius: 1.5rem;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-  margin: 0 1rem;
-}
-
-.testimonialHeader {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.testimonialImage {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #e2e8f0;
-}
-
-.testimonialInfo {
-  flex: 1;
-}
-
-.testimonialName {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 0.25rem 0;
-}
-
-.testimonialRole {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin: 0 0 0.5rem 0;
-}
-
-.testimonialRating {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.testimonialContent {
-  position: relative;
-}
-
-.quoteIcon {
-  color: #3b82f6;
-  margin-bottom: 1rem;
-}
-
-.testimonialText {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #374151;
-  margin-bottom: 1rem;
-  font-style: italic;
-}
-
-.testimonialResults {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  padding: 1rem;
-  border-radius: 0.75rem;
-  border-left: 4px solid #3b82f6;
-  color: #1e293b;
-  font-size: 0.875rem;
 }
 
 /* Program Section */
 .programSection {
   padding: 6rem 0;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+}
+
+.programGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.moduleCard {
   background: white;
-}
-
-.programTimeline {
-  max-width: 900px;
-  margin: 4rem auto 0;
+  border-radius: 1rem;
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
   position: relative;
+  overflow: hidden;
 }
 
-.programTimeline::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  transform: translateX(-50%);
+.moduleCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-.programModule {
-  position: relative;
-  margin-bottom: 4rem;
+.moduleHeader {
   display: flex;
-  align-items: center;
-}
-
-.programModule:nth-child(odd) {
-  justify-content: flex-end;
-}
-
-.programModule:nth-child(odd) .moduleContent {
-  margin-right: 3rem;
-  text-align: right;
-}
-
-.programModule:nth-child(even) .moduleContent {
-  margin-left: 3rem;
-  text-align: left;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
 }
 
 .moduleNumber {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 80px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
-  border-radius: 50%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.moduleMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  text-align: right;
+}
+
+.moduleDuration {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-weight: 700;
+  gap: 0.5rem;
+  color: #64748b;
   font-size: 0.875rem;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-  z-index: 2;
 }
 
-.moduleContent {
-  background: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-  max-width: 400px;
-  position: relative;
+.moduleLessons {
+  color: #64748b;
+  font-size: 0.875rem;
 }
 
-.moduleTitle {
-  font-size: 1.25rem;
-  font-weight: 700;
+.moduleContent h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #1e293b;
   margin-bottom: 1rem;
-}
-
-.moduleInfo {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  color: #64748b;
-}
-
-.moduleInfo span {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.moduleInfo svg {
-  color: #3b82f6;
 }
 
 .moduleDescription {
@@ -445,12 +544,10 @@
 }
 
 .moduleTopics h4 {
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: #374151;
   margin-bottom: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .moduleTopics ul {
@@ -460,121 +557,111 @@
 }
 
 .moduleTopics li {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
+  padding: 0.5rem 0;
   color: #64748b;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+  padding-left: 1.5rem;
 }
 
-.moduleTopics svg {
-  color: #059669;
-  flex-shrink: 0;
+.moduleTopics li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #3b82f6;
+  font-weight: 600;
 }
 
-/* Upcoming Section */
-.upcomingSection {
+.moduleTopics li:last-child {
+  border-bottom: none;
+}
+
+/* Testimonios Section */
+.testimoniosSection {
   padding: 6rem 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: white;
 }
 
-.trainingGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+.testimoniosCarousel {
+  position: relative;
   margin-top: 3rem;
 }
 
-.trainingOption {
+.testimoniosCarouselWrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.testimonioCard {
   background: white;
   border-radius: 1rem;
   padding: 2rem;
-  border: 2px solid #e2e8f0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
+  border: 1px solid #e2e8f0;
+  margin: 0 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.trainingOption:hover {
-  border-color: #3b82f6;
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
-}
-
-.trainingOption.selected {
-  border-color: #3b82f6;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-}
-
-.trainingDate {
+.testimonioHeader {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.trainingDate svg {
-  color: #3b82f6;
+.testimonioFoto {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e2e8f0;
 }
 
-.trainingDate h4 {
+.testimonioInfo {
+  flex: 1;
+}
+
+.testimonioNombre {
   font-size: 1.125rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #1e293b;
-  margin: 0;
+  margin-bottom: 0.25rem;
 }
 
-.trainingDate p {
-  font-size: 0.875rem;
+.testimonioRole {
   color: #64748b;
-  margin: 0;
-}
-
-.trainingDetails {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.trainingType {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 2rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.trainingSpots {
   font-size: 0.875rem;
-  color: #64748b;
+  margin-bottom: 0.5rem;
 }
 
-.selectedBadge {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: #059669;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+.testimonioRating {
   display: flex;
-  align-items: center;
   gap: 0.25rem;
+  color: #fbbf24;
+  margin-bottom: 0.5rem;
 }
 
-/* Enroll Section */
-.enrollSection {
+.testimonioResultado {
+  color: #059669;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.testimonioComentario {
+  font-style: italic;
+  color: #374151;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* CTA Section */
+.ctaSection {
   padding: 6rem 0;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   position: relative;
   overflow: hidden;
 }
 
-.enrollSection::before {
+.ctaSection::before {
   content: '';
   position: absolute;
   top: 0;
@@ -583,165 +670,154 @@
   bottom: 0;
   background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   opacity: 0.1;
-  z-index: 1;
 }
 
-.enrollCard {
+.ctaContent {
   position: relative;
   z-index: 2;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 2rem;
-  padding: 4rem;
   text-align: center;
-  max-width: 600px;
+  color: white;
+  max-width: 800px;
   margin: 0 auto;
 }
 
-.enrollContent {
-  color: white;
-}
-
-.enrollTitle {
-  font-size: 2.5rem;
+.ctaTitle {
+  font-size: 3rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.enrollDescription {
+.ctaDescription {
   font-size: 1.125rem;
-  line-height: 1.7;
+  line-height: 1.6;
   color: rgba(255, 255, 255, 0.9);
   margin-bottom: 2rem;
 }
 
-.enrollPrice {
-  margin-bottom: 2rem;
+.ctaPrice {
+  margin: 2rem 0;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
 }
 
-.priceLabel {
+.ctaPriceAmount {
   display: block;
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.price {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 700;
-  color: white;
+  color: #06b6d4;
+  margin-bottom: 0.5rem;
 }
 
-.enrollButton {
+.ctaPriceDescription {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+}
+
+.ctaButton {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1.25rem 3rem;
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
+  padding: 1.25rem 2.5rem;
   border: none;
-  border-radius: 1rem;
-  font-size: 1.125rem;
+  border-radius: 0.75rem;
+  font-size: 1.25rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-decoration: none;
-  margin-bottom: 1rem;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  margin-top: 2rem;
 }
 
-.enrollButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
 }
 
-.enrollNote {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.875rem;
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* Mobile Responsive */
+/* Responsive Design */
 @media (max-width: 768px) {
   .heroContent {
     grid-template-columns: 1fr;
     gap: 2rem;
     text-align: center;
   }
-  
+
   .heroTitle {
     font-size: 2.5rem;
   }
-  
+
   .heroSubtitle {
     font-size: 1.25rem;
   }
-  
+
   .placeholderIcon {
     font-size: 3rem;
   }
-  
+
   .placeholderTitle {
     font-size: 1.25rem;
   }
-  
+
   .placeholderText {
     font-size: 0.875rem;
   }
-  
+
   .metricsGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
   }
-  
-  .programTimeline::before {
-    left: 2rem;
-  }
-  
-  .programModule {
-    justify-content: flex-start !important;
-  }
-  
-  .programModule .moduleContent {
-    margin-left: 5rem !important;
-    margin-right: 0 !important;
-    text-align: left !important;
-    max-width: none;
-  }
-  
-  .moduleNumber {
-    left: 2rem !important;
-    transform: translateY(-50%) !important;
-    top: 2rem;
-  }
-  
-  .trainingGrid {
+
+  .programGrid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
   }
-  
-  .enrollCard {
-    padding: 2rem;
-    margin: 0 1rem;
+
+  .moduleHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
   }
-  
-  .enrollTitle {
-    font-size: 2rem;
+
+  .moduleMeta {
+    align-items: flex-start;
+    text-align: left;
   }
-  
+
   .sectionTitle {
     font-size: 2rem;
   }
-  
-  .container {
-    padding: 0 1rem;
+
+  .ctaTitle {
+    font-size: 2rem;
+  }
+
+  .modalContainer {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+
+  .modalHeader {
+    padding: 1rem 1.5rem;
+  }
+
+  .enrollForm {
+    padding: 1.5rem;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .submitButton {
+    width: 100%;
   }
 }
 
@@ -749,41 +825,37 @@
   .heroSection {
     padding: 4rem 0 2rem;
   }
-  
+
   .heroTitle {
     font-size: 2rem;
   }
-  
+
   .heroSubtitle {
     font-size: 1.125rem;
   }
-  
+
   .placeholderIcon {
     font-size: 2.5rem;
   }
-  
+
   .placeholderTitle {
     font-size: 1.125rem;
   }
-  
+
   .placeholderText {
-    font-size: 0.8rem;
+    font-size: 0.875rem;
   }
-  
-  .enrollCard {
-    padding: 1.5rem;
-  }
-  
-  .enrollTitle {
+
+  .ctaTitle {
     font-size: 1.75rem;
   }
-  
-  .enrollButton {
-    padding: 1rem 2rem;
-    font-size: 1rem;
-  }
-  
-  .price {
+
+  .priceAmount,
+  .ctaPriceAmount {
     font-size: 2rem;
+  }
+
+  .container {
+    padding: 0 0.75rem;
   }
 } 
