@@ -98,13 +98,39 @@ export const authOptions: NextAuthOptions = {
       }
     },
     async jwt({ token, account, user }) {
-      // NO persistimos tokens de Google para usuarios normales
-      // Solo información básica del usuario
+      // Cargar información del usuario desde la base de datos
+      if (token.email) {
+        try {
+          await dbConnect();
+          const dbUser = await User.findOne({ email: token.email });
+          
+          if (dbUser) {
+            console.log('🔑 JWT: Cargando rol desde BD:', dbUser.role, 'para:', token.email);
+            token.role = dbUser.role;
+            token.id = dbUser._id.toString();
+            token.suscripciones = dbUser.suscripciones || [];
+          } else {
+            console.log('⚠️ JWT: Usuario no encontrado en BD:', token.email);
+            token.role = 'normal';
+          }
+        } catch (error) {
+          console.error('❌ Error cargando usuario en JWT:', error);
+          token.role = 'normal';
+        }
+      }
+      
       return token;
     },
     async session({ session, token }) {
-      // Solo devolvemos información básica del usuario
-      // NO incluimos access tokens
+      // Incluir información del usuario en la sesión
+      if (session.user && token) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as 'normal' | 'suscriptor' | 'admin';
+        session.user.suscripciones = token.suscripciones as any[] || [];
+        
+        console.log('📋 SESSION: Usuario:', session.user.email, 'Rol:', session.user.role);
+      }
+      
       return session;
     }
   },
