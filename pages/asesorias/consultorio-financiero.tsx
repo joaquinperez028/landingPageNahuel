@@ -121,17 +121,46 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       return;
     }
 
-    // Convertir fecha y hora seleccionada a Date
+    // Encontrar el turno seleccionado para obtener más información
     const turnoSeleccionado = proximosTurnos.find(t => t.fecha === selectedDate);
-    if (!turnoSeleccionado) return;
+    if (!turnoSeleccionado) {
+      alert('Error: No se pudo encontrar el turno seleccionado');
+      return;
+    }
 
-    // Crear fecha aproximada (esto se puede mejorar con mejor parsing)
+    // Crear la fecha correcta basada en la selección del usuario
+    // Necesitamos convertir el formato "Lun 16 Jun" a una fecha real
     const today = new Date();
-    const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() + 1); // Aproximación temporal
+    const currentYear = today.getFullYear();
     
+    // Mapear nombres de meses
+    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    
+    // Parsear la fecha seleccionada (formato: "Lun 16 Jun")
+    const dateParts = selectedDate.split(' ');
+    const day = parseInt(dateParts[1]);
+    const monthName = dateParts[2];
+    const monthIndex = monthNames.indexOf(monthName);
+    
+    if (monthIndex === -1) {
+      alert('Error: Formato de fecha inválido');
+      return;
+    }
+    
+    // Crear la fecha objetivo
+    const targetDate = new Date(currentYear, monthIndex, day);
+    
+    // Si la fecha es anterior a hoy, asumir que es del próximo año
+    if (targetDate < today) {
+      targetDate.setFullYear(currentYear + 1);
+    }
+    
+    // Agregar la hora seleccionada
     const [hour, minute] = selectedTime.split(':').map(Number);
     targetDate.setHours(hour, minute, 0, 0);
+
+    console.log('📅 Fecha objetivo creada:', targetDate);
+    console.log('🕐 Hora seleccionada:', selectedTime);
 
     const booking = await createBooking({
       type: 'advisory',
@@ -139,7 +168,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       startDate: targetDate.toISOString(),
       duration: 60,
       price: 199,
-      notes: 'Reserva desde página de Consultorio Financiero'
+      notes: `Reserva desde página de Consultorio Financiero - ${selectedDate} a las ${selectedTime}`
     });
 
     if (booking) {
