@@ -67,6 +67,33 @@ a {
   --gradient-accent: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
 }
 
+/* Variables CSS globales para consistencia */
+:root {
+  --primary-color: #00ff88;
+  --primary-dark: #00cc6a;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #808080;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-radius: 0.75rem;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Container utilities */
 .container {
   max-width: var(--container-max-width);

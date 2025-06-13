@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
 import { verifyAdminAccess } from '@/lib/adminAuth';
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BarChart3, 
@@ -39,81 +39,9 @@ interface DashboardStats {
   recentActivity: any[];
 }
 
-export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalUsers: 0,
-    adminUsers: 0,
-    suscriptorUsers: 0,
-    normalUsers: 0,
-    totalNotifications: 0,
-    activeNotifications: 0,
-    recentActivity: []
-  });
-  const [loading, setLoading] = useState(true);
-  const [fixingLogins, setFixingLogins] = useState(false);
-
-  // Cargar estadísticas del dashboard
-  const fetchDashboardStats = async () => {
-    try {
-      setLoading(true);
-      console.log('📊 Dashboard - Cargando estadísticas...');
-      const response = await fetch('/api/admin/dashboard/stats');
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Dashboard - Estadísticas cargadas:', data);
-        setStats(data);
-      } else {
-        console.error('❌ Dashboard - Error al cargar estadísticas:', response.status);
-      }
-    } catch (error) {
-      console.error('💥 Dashboard - Error al cargar estadísticas:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Función para corregir fechas de último login
-  const fixLoginDates = async () => {
-    try {
-      setFixingLogins(true);
-      console.log('🔧 Iniciando corrección de fechas de login...');
-      
-      const response = await fetch('/api/admin/users/fix-login-dates', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Corrección completada:', data);
-        
-        // Mostrar resultado
-        if (data.updated > 0) {
-          alert(`✅ Se actualizaron ${data.updated} usuarios con fechas de último login`);
-          // Recargar estadísticas
-          fetchDashboardStats();
-        } else {
-          alert('ℹ️ Todos los usuarios ya tienen fecha de último login configurada');
-        }
-      } else {
-        console.error('❌ Error en corrección:', response.status);
-        alert('❌ Error al corregir fechas de login');
-      }
-    } catch (error) {
-      console.error('💥 Error al corregir fechas:', error);
-      alert('💥 Error al corregir fechas de login');
-    } finally {
-      setFixingLogins(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
-  const dashboardSections = [
+// Memoizar las secciones del dashboard para evitar re-renders innecesarios
+const useDashboardSections = () => {
+  return useMemo(() => [
     {
       id: 'control',
       title: 'Sala de Control',
@@ -162,13 +90,141 @@ export default function AdminDashboardPage() {
         { label: 'Historial', href: '/admin/billing/history', icon: <Activity size={16} /> }
       ]
     }
-  ];
+  ], []);
+};
+
+export default function AdminDashboardPage() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalUsers: 0,
+    adminUsers: 0,
+    suscriptorUsers: 0,
+    normalUsers: 0,
+    totalNotifications: 0,
+    activeNotifications: 0,
+    recentActivity: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [fixingLogins, setFixingLogins] = useState(false);
+
+  const dashboardSections = useDashboardSections();
+
+  // Optimizar la función de fetch con useCallback
+  const fetchDashboardStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      console.log('📊 Dashboard - Cargando estadísticas...');
+      
+      // Usar AbortController para cancelar requests si el componente se desmonta
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+      
+      const response = await fetch('/api/admin/dashboard/stats', {
+        signal: controller.signal,
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Dashboard - Estadísticas cargadas:', data);
+        setStats(data);
+      } else {
+        console.error('❌ Dashboard - Error al cargar estadísticas:', response.status);
+        // Mostrar datos por defecto en caso de error
+        setStats(prev => ({ ...prev }));
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError') {
+        console.error('💥 Dashboard - Error al cargar estadísticas:', error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Optimizar la función de corrección de logins
+  const fixLoginDates = useCallback(async () => {
+    try {
+      setFixingLogins(true);
+      console.log('🔧 Iniciando corrección de fechas de login...');
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos para esta operación
+      
+      const response = await fetch('/api/admin/users/fix-login-dates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Corrección completada:', data);
+        
+        if (data.updated > 0) {
+          alert(`✅ Se actualizaron ${data.updated} usuarios con fechas de último login`);
+          // Recargar estadísticas
+          fetchDashboardStats();
+        } else {
+          alert('ℹ️ Todos los usuarios ya tienen fecha de último login configurada');
+        }
+      } else {
+        console.error('❌ Error en corrección:', response.status);
+        alert('❌ Error al corregir fechas de login');
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError') {
+        console.error('💥 Error al corregir fechas:', error);
+        alert('💥 Error al corregir fechas de login');
+      }
+    } finally {
+      setFixingLogins(false);
+    }
+  }, [fetchDashboardStats]);
+
+  useEffect(() => {
+    fetchDashboardStats();
+  }, [fetchDashboardStats]);
+
+  // Memoizar las estadísticas para evitar re-renders
+  const statsCards = useMemo(() => [
+    {
+      icon: <Users size={24} className={styles.iconBlue} />,
+      value: stats.totalUsers,
+      label: 'Total Usuarios'
+    },
+    {
+      icon: <UserCheck size={24} className={styles.iconGreen} />,
+      value: stats.adminUsers,
+      label: 'Administradores'
+    },
+    {
+      icon: <Bell size={24} className={styles.iconPurple} />,
+      value: stats.activeNotifications,
+      label: 'Notificaciones Activas'
+    },
+    {
+      icon: <TrendingUp size={24} className={styles.iconAmber} />,
+      value: stats.suscriptorUsers,
+      label: 'Suscriptores'
+    }
+  ], [stats]);
 
   return (
     <>
       <Head>
         <title>Dashboard Administrador - Nahuel Lozano</title>
         <meta name="description" content="Panel de administración principal" />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="preload" href="/api/admin/dashboard/stats" as="fetch" crossOrigin="anonymous" />
       </Head>
 
       <Navbar />
@@ -207,42 +263,23 @@ export default function AdminDashboardPage() {
 
             {/* Quick Stats */}
             <div className={styles.statsGrid}>
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  <Users size={24} className={styles.iconBlue} />
-                </div>
-                <div className={styles.statInfo}>
-                  <h3>{loading ? '...' : stats.totalUsers}</h3>
-                  <p>Total Usuarios</p>
-                </div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  <UserCheck size={24} className={styles.iconGreen} />
-                </div>
-                <div className={styles.statInfo}>
-                  <h3>{loading ? '...' : stats.adminUsers}</h3>
-                  <p>Administradores</p>
-                </div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  <Bell size={24} className={styles.iconPurple} />
-                </div>
-                <div className={styles.statInfo}>
-                  <h3>{loading ? '...' : stats.activeNotifications}</h3>
-                  <p>Notificaciones Activas</p>
-                </div>
-              </div>
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  <TrendingUp size={24} className={styles.iconAmber} />
-                </div>
-                <div className={styles.statInfo}>
-                  <h3>{loading ? '...' : stats.suscriptorUsers}</h3>
-                  <p>Suscriptores</p>
-                </div>
-              </div>
+              {statsCards.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  className={styles.statCard}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <div className={styles.statIcon}>
+                    {stat.icon}
+                  </div>
+                  <div className={styles.statInfo}>
+                    <h3>{loading ? '...' : stat.value}</h3>
+                    <p>{stat.label}</p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
 
             {/* Main Dashboard Sections */}
@@ -338,7 +375,13 @@ export default function AdminDashboardPage() {
                   </div>
                 ) : (
                   stats.recentActivity.map((activity, index) => (
-                    <div key={index} className={styles.activityItem}>
+                    <motion.div 
+                      key={index} 
+                      className={styles.activityItem}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
                       <div className={styles.activityIcon}>
                         <Activity size={16} />
                       </div>
@@ -346,7 +389,7 @@ export default function AdminDashboardPage() {
                         <p className={styles.activityText}>{activity.description}</p>
                         <span className={styles.activityTime}>{activity.time}</span>
                       </div>
-                    </div>
+                    </motion.div>
                   ))
                 )}
               </div>
