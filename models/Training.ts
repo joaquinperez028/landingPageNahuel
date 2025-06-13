@@ -113,7 +113,6 @@ const trainingSchema = new Schema<TrainingDocument>({
 });
 
 // Índices para optimizar consultas
-trainingSchema.index({ tipo: 1 });
 trainingSchema.index({ activo: 1 });
 trainingSchema.index({ 'solicitudes.email': 1 });
 trainingSchema.index({ 'solicitudes.estado': 1 });
