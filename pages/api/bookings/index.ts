@@ -119,22 +119,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Crear evento solo en el calendario del admin
       try {
+        console.log('📅 Intentando crear evento en Google Calendar...');
+        console.log('🔑 Variables de entorno disponibles:', {
+          hasAdminAccessToken: !!process.env.ADMIN_GOOGLE_ACCESS_TOKEN,
+          hasAdminRefreshToken: !!process.env.ADMIN_GOOGLE_REFRESH_TOKEN,
+          hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
+          hasGoogleClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+          calendarId: process.env.GOOGLE_CALENDAR_ID,
+          timezone: process.env.GOOGLE_CALENDAR_TIMEZONE
+        });
+        
         let googleEvent;
         
         if (type === 'training') {
+          console.log('🏋️ Creando evento de entrenamiento...');
           googleEvent = await createTrainingEvent(userEmail, eventName, startDateTime, duration);
         } else {
+          console.log('💼 Creando evento de asesoría...');
           googleEvent = await createAdvisoryEvent(userEmail, eventName, startDateTime, duration);
         }
 
         // Actualizar la reserva con el ID del evento de Google
         if (googleEvent?.id) {
+          console.log('✅ Evento creado exitosamente con ID:', googleEvent.id);
           await Booking.findByIdAndUpdate(newBooking._id, {
             googleEventId: googleEvent.id
           });
+        } else {
+          console.log('⚠️ Evento creado pero sin ID');
         }
-      } catch (calendarError) {
-        console.error('⚠️ Error al crear evento en Google Calendar:', calendarError);
+      } catch (calendarError: any) {
+        console.error('❌ Error detallado al crear evento en Google Calendar:', {
+          error: calendarError?.message || 'Error desconocido',
+          stack: calendarError?.stack,
+          code: calendarError?.code,
+          status: calendarError?.status
+        });
         // No fallar la reserva si el calendario falla
       }
 

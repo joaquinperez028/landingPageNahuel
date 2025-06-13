@@ -185,13 +185,32 @@ async function getAvailableSlotsForDate(
         const slotStart = new Date(targetDate);
         slotStart.setHours(slotHour, slotMinute, 0, 0);
         
-        return !existingBookings.some(booking => {
-          const bookingStart = booking.startDate.getTime();
-          const bookingEnd = booking.endDate.getTime();
-          const slotTime = slotStart.getTime();
+        // Encontrar la duración del entrenamiento
+        const training = trainingSchedules.find(t => 
+          t.dayOfWeek === dayOfWeek && 
+          t.hour === slotHour && 
+          t.minute === slotMinute
+        );
+        const duration = training ? training.duration : 180; // Default 3 horas
+        const slotEnd = new Date(slotStart.getTime() + duration * 60000);
+        
+        const hasConflict = existingBookings.some(booking => {
+          const bookingStart = new Date(booking.startDate);
+          const bookingEnd = new Date(booking.endDate);
           
-          return slotTime >= bookingStart && slotTime < bookingEnd;
+          // Verificar si hay solapamiento entre el slot y la reserva existente
+          return (
+            (slotStart >= bookingStart && slotStart < bookingEnd) ||
+            (slotEnd > bookingStart && slotEnd <= bookingEnd) ||
+            (slotStart <= bookingStart && slotEnd >= bookingEnd)
+          );
         });
+        
+        if (hasConflict) {
+          console.log(`🚫 Slot de entrenamiento ${slot} excluido por conflicto con reserva existente`);
+        }
+        
+        return !hasConflict;
       });
 
     return trainingSlots;
@@ -216,14 +235,25 @@ async function getAvailableSlotsForDate(
         const [slotHour, slotMinute] = slot.split(':').map(Number);
         const slotStart = new Date(targetDate);
         slotStart.setHours(slotHour, slotMinute, 0, 0);
+        const slotEnd = new Date(slotStart.getTime() + 60 * 60000); // Asesoría dura 60 minutos
         
-        return !existingBookings.some(booking => {
-          const bookingStart = booking.startDate.getTime();
-          const bookingEnd = booking.endDate.getTime();
-          const slotTime = slotStart.getTime();
+        const hasConflict = existingBookings.some(booking => {
+          const bookingStart = new Date(booking.startDate);
+          const bookingEnd = new Date(booking.endDate);
           
-          return slotTime >= bookingStart && slotTime < bookingEnd;
+          // Verificar si hay solapamiento entre el slot y la reserva existente
+          return (
+            (slotStart >= bookingStart && slotStart < bookingEnd) ||
+            (slotEnd > bookingStart && slotEnd <= bookingEnd) ||
+            (slotStart <= bookingStart && slotEnd >= bookingEnd)
+          );
         });
+        
+        if (hasConflict) {
+          console.log(`🚫 Slot ${slot} excluido por conflicto con reserva existente`);
+        }
+        
+        return !hasConflict;
       })
       .filter(slot => {
         // Verificar que no haya conflicto con entrenamientos
