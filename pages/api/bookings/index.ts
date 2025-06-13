@@ -70,6 +70,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const startDateTime = new Date(startDate);
       const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
 
+      console.log('🔍 Datos de la nueva reserva:', {
+        userEmail,
+        type,
+        serviceType,
+        startDate: startDateTime.toISOString(),
+        endDate: endDateTime.toISOString(),
+        duration,
+        startDateFormatted: startDateTime.toLocaleString('es-ES', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'America/Montevideo'
+        })
+      });
+
       // Verificar que no haya conflictos de horario (bloqueo de 90 minutos)
       const conflictingBookings = await Booking.find({
         status: { $in: ['pending', 'confirmed'] },
@@ -92,9 +110,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ]
       });
 
+      console.log(`🔍 Reservas conflictivas encontradas: ${conflictingBookings.length}`);
+      
       if (conflictingBookings.length > 0) {
+        console.log('❌ Detalles de reservas conflictivas:');
+        conflictingBookings.forEach((booking, index) => {
+          console.log(`  ${index + 1}. ID: ${booking._id}`);
+          console.log(`     Usuario: ${booking.userEmail}`);
+          console.log(`     Tipo: ${booking.type} - ${booking.serviceType}`);
+          console.log(`     Inicio: ${booking.startDate.toISOString()}`);
+          console.log(`     Fin: ${booking.endDate.toISOString()}`);
+          console.log(`     Formateado: ${booking.startDate.toLocaleString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'America/Montevideo'
+          })}`);
+        });
+        
         return res.status(409).json({ 
-          error: 'Horario no disponible. Ya existe una reserva en ese período.' 
+          error: 'Horario no disponible. Ya existe una reserva en ese período.',
+          conflictingBookings: conflictingBookings.map(b => ({
+            id: b._id,
+            userEmail: b.userEmail,
+            startDate: b.startDate,
+            endDate: b.endDate,
+            type: b.type,
+            serviceType: b.serviceType
+          }))
         });
       }
 
