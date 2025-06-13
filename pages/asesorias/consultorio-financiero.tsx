@@ -156,31 +156,14 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     const [hour, minute] = selectedTime.split(':').map(Number);
     targetDate.setHours(hour, minute, 0, 0);
 
-    console.log('🔍 DEBUGGING FRONTEND:');
-    console.log('📅 Fecha seleccionada por usuario:', selectedDate);
-    console.log('🕐 Hora seleccionada por usuario:', selectedTime);
-    console.log('📆 Fecha objetivo creada:', targetDate);
-    console.log('🌍 Fecha objetivo ISO:', targetDate.toISOString());
-    console.log('🇺🇾 Fecha objetivo local:', targetDate.toLocaleString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: 'America/Montevideo'
-    }));
-
     const bookingData = {
       type: 'advisory' as const,
       serviceType: 'ConsultorioFinanciero' as const,
       startDate: targetDate.toISOString(),
       duration: 60,
       price: 199,
-      notes: 'Reserva desde página de Consultorio Financiero'
+      notes: `Reserva desde página de Consultorio Financiero - ${selectedDate} a las ${selectedTime}`
     };
-
-    console.log('📤 Datos que se envían a la API:', bookingData);
 
     const booking = await createBooking(bookingData);
 
