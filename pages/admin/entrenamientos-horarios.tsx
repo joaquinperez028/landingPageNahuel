@@ -13,12 +13,16 @@ import {
   X,
   Users,
   BookOpen,
-  Settings
+  Settings,
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import styles from '@/styles/AdminHorarios.module.css';
+import { toast } from 'react-hot-toast';
 
 interface TrainingSchedule {
   _id: string;
@@ -45,6 +49,14 @@ interface ScheduleFormData {
   isActive: boolean;
 }
 
+interface ValidationResult {
+  isValid: boolean;
+  message: string;
+  conflicts: any[];
+  suggestions: string[];
+  graceMinutes: number;
+}
+
 const DAYS_OF_WEEK = [
   'Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'
 ];
@@ -59,6 +71,9 @@ export default function EntrenamientosHorariosPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<TrainingSchedule | null>(null);
+  const [validating, setValidating] = useState(false);
+  const [validation, setValidation] = useState<ValidationResult | null>(null);
+  const [graceMinutes, setGraceMinutes] = useState(30);
   const [formData, setFormData] = useState<ScheduleFormData>({
     title: '',
     description: '',
@@ -91,9 +106,58 @@ export default function EntrenamientosHorariosPage() {
     }
   }, []);
 
+  // Validar horario cuando cambien los datos del formulario
+  useEffect(() => {
+    if (showForm && formData.startTime && formData.endTime && formData.dayOfWeek !== undefined) {
+      validateSchedule();
+    }
+  }, [formData.dayOfWeek, formData.startTime, formData.endTime, graceMinutes, showForm]);
+
+  const validateSchedule = async () => {
+    try {
+      setValidating(true);
+
+      const response = await fetch('/api/admin/schedules/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          dayOfWeek: formData.dayOfWeek,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          type: 'entrenamiento',
+          title: formData.title || formData.type,
+          graceMinutes,
+          excludeId: editingSchedule?._id
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.validation) {
+        setValidation(data.validation);
+      } else {
+        console.warn('Error en validación:', data);
+        setValidation(null);
+      }
+    } catch (error) {
+      console.error('Error al validar horario:', error);
+      setValidation(null);
+    } finally {
+      setValidating(false);
+    }
+  };
+
   // Crear o actualizar horario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificar validación antes de enviar
+    if (validation && !validation.isValid) {
+      toast.error('No se puede crear el horario debido a conflictos. Revisa las sugerencias.');
+      return;
+    }
     
     try {
       console.log('💾 Guardando horario...', formData);
@@ -133,15 +197,15 @@ export default function EntrenamientosHorariosPage() {
           isActive: true
         });
         
-        alert('✅ Horario guardado exitosamente');
+        toast.success('✅ Horario guardado exitosamente');
       } else {
         const errorData = await response.json();
         console.error('❌ Error al guardar:', errorData);
-        alert(`❌ Error: ${errorData.message || 'No se pudo guardar el horario'}`);
+        toast.error(`❌ Error: ${errorData.message || 'No se pudo guardar el horario'}`);
       }
     } catch (error) {
       console.error('💥 Error al guardar horario:', error);
-      alert('💥 Error al guardar el horario');
+      toast.error('💥 Error al guardar el horario');
     }
   };
 
@@ -161,14 +225,14 @@ export default function EntrenamientosHorariosPage() {
       if (response.ok) {
         console.log('✅ Horario eliminado');
         fetchSchedules();
-        alert('✅ Horario eliminado exitosamente');
+        toast.success('✅ Horario eliminado exitosamente');
       } else {
         console.error('❌ Error al eliminar horario');
-        alert('❌ Error al eliminar el horario');
+        toast.error('❌ Error al eliminar el horario');
       }
     } catch (error) {
       console.error('💥 Error al eliminar horario:', error);
-      alert('💥 Error al eliminar el horario');
+      toast.error('💥 Error al eliminar el horario');
     }
   };
 
@@ -207,6 +271,25 @@ export default function EntrenamientosHorariosPage() {
   useEffect(() => {
     fetchSchedules();
   }, [fetchSchedules]);
+
+  const applySuggestion = (suggestion: string) => {
+    // Calcular duración actual
+    const currentStart = formData.startTime.split(':').map(Number);
+    const currentEnd = formData.endTime.split(':').map(Number);
+    const currentDuration = (currentEnd[0] * 60 + currentEnd[1]) - (currentStart[0] * 60 + currentStart[1]);
+    
+    // Aplicar nueva hora de inicio
+    const [newHour, newMinute] = suggestion.split(':').map(Number);
+    const newEndMinutes = newHour * 60 + newMinute + currentDuration;
+    const newEndHour = Math.floor(newEndMinutes / 60);
+    const newEndMin = newEndMinutes % 60;
+    
+    setFormData({
+      ...formData,
+      startTime: suggestion,
+      endTime: `${newEndHour.toString().padStart(2, '0')}:${newEndMin.toString().padStart(2, '0')}`
+    });
+  };
 
   return (
     <>
@@ -336,6 +419,19 @@ export default function EntrenamientosHorariosPage() {
                           required
                         />
                       </div>
+
+                      <div className={styles.formGroup}>
+                        <label>Período de gracia (minutos)</label>
+                        <select
+                          value={graceMinutes}
+                          onChange={(e) => setGraceMinutes(parseInt(e.target.value))}
+                        >
+                          <option value={15}>15 minutos</option>
+                          <option value={30}>30 minutos</option>
+                          <option value={60}>1 hora</option>
+                          <option value={120}>2 horas</option>
+                        </select>
+                      </div>
                     </div>
 
                     <div className={styles.formGroup}>
@@ -349,11 +445,79 @@ export default function EntrenamientosHorariosPage() {
                       </label>
                     </div>
 
+                    {/* Validación de conflictos */}
+                    {validating && (
+                      <div style={{ 
+                        padding: '1rem', 
+                        background: 'rgba(59, 130, 246, 0.1)', 
+                        borderRadius: '0.5rem', 
+                        marginBottom: '1rem',
+                        color: '#3b82f6'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <Clock size={16} />
+                          Validando horario...
+                        </div>
+                      </div>
+                    )}
+
+                    {validation && (
+                      <div style={{ 
+                        padding: '1rem', 
+                        background: validation.isValid ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
+                        borderRadius: '0.5rem', 
+                        marginBottom: '1rem',
+                        color: validation.isValid ? '#22c55e' : '#ef4444'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          {validation.isValid ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
+                          <strong>{validation.isValid ? 'Horario disponible' : 'Conflicto detectado'}</strong>
+                        </div>
+                        <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>{validation.message}</p>
+                        
+                        {validation.suggestions.length > 0 && (
+                          <div style={{ marginTop: '0.5rem' }}>
+                            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', fontWeight: '500' }}>
+                              Horarios sugeridos:
+                            </p>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                              {validation.suggestions.map((suggestion, index) => (
+                                <button
+                                  key={index}
+                                  type="button"
+                                  onClick={() => applySuggestion(suggestion)}
+                                  style={{
+                                    padding: '0.25rem 0.5rem',
+                                    background: 'rgba(255, 255, 255, 0.1)',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    borderRadius: '0.25rem',
+                                    color: '#fff',
+                                    fontSize: '0.8rem',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  {suggestion}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className={styles.formActions}>
                       <button type="button" onClick={handleCancel} className={styles.cancelButton}>
                         Cancelar
                       </button>
-                      <button type="submit" className={styles.saveButton}>
+                      <button 
+                        type="submit" 
+                        className={styles.saveButton}
+                        disabled={validation ? !validation.isValid : false}
+                        style={{
+                          opacity: validation && !validation.isValid ? 0.5 : 1,
+                          cursor: validation && !validation.isValid ? 'not-allowed' : 'pointer'
+                        }}
+                      >
                         <Save size={16} />
                         {editingSchedule ? 'Actualizar' : 'Crear'} Horario
                       </button>

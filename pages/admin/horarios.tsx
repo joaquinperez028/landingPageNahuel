@@ -12,7 +12,9 @@ import {
   Calendar,
   Save,
   X,
-  AlertCircle
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -39,11 +41,22 @@ interface NewSchedule {
   activo: boolean;
 }
 
+interface ValidationResult {
+  isValid: boolean;
+  message: string;
+  conflicts: any[];
+  suggestions: string[];
+  graceMinutes: number;
+}
+
 const AdminHorariosPage = () => {
   const [schedules, setSchedules] = useState<TrainingSchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<TrainingSchedule | null>(null);
+  const [validating, setValidating] = useState(false);
+  const [validation, setValidation] = useState<ValidationResult | null>(null);
+  const [graceMinutes, setGraceMinutes] = useState(30);
   const [formData, setFormData] = useState<NewSchedule>({
     dayOfWeek: 1,
     hour: 19,
@@ -75,6 +88,13 @@ const AdminHorariosPage = () => {
     loadSchedules();
   }, []);
 
+  // Validar horario cuando cambien los datos del formulario
+  useEffect(() => {
+    if (showForm && (formData.dayOfWeek !== undefined && formData.hour !== undefined && formData.minute !== undefined && formData.duration)) {
+      validateSchedule();
+    }
+  }, [formData.dayOfWeek, formData.hour, formData.minute, formData.duration, graceMinutes, showForm]);
+
   const loadSchedules = async () => {
     try {
       setLoading(true);
@@ -94,8 +114,55 @@ const AdminHorariosPage = () => {
     }
   };
 
+  const validateSchedule = async () => {
+    try {
+      setValidating(true);
+      
+      const startTime = `${formData.hour.toString().padStart(2, '0')}:${formData.minute.toString().padStart(2, '0')}`;
+      const endHour = Math.floor((formData.hour * 60 + formData.minute + formData.duration) / 60);
+      const endMinute = (formData.hour * 60 + formData.minute + formData.duration) % 60;
+      const endTime = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
+
+      const response = await fetch('/api/admin/schedules/validate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          dayOfWeek: formData.dayOfWeek,
+          startTime,
+          endTime,
+          type: 'asesoria', // Tipo fijo para asesorías
+          title: formData.type,
+          graceMinutes,
+          excludeId: editingSchedule?._id // Excluir el horario actual al editar
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.validation) {
+        setValidation(data.validation);
+      } else {
+        console.warn('Error en validación:', data);
+        setValidation(null);
+      }
+    } catch (error) {
+      console.error('Error al validar horario:', error);
+      setValidation(null);
+    } finally {
+      setValidating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificar validación antes de enviar
+    if (validation && !validation.isValid) {
+      toast.error('No se puede crear el horario debido a conflictos. Revisa las sugerencias.');
+      return;
+    }
     
     try {
       const url = editingSchedule 
@@ -166,6 +233,7 @@ const AdminHorariosPage = () => {
   const resetForm = () => {
     setShowForm(false);
     setEditingSchedule(null);
+    setValidation(null);
     setFormData({
       dayOfWeek: 1,
       hour: 19,
@@ -310,6 +378,19 @@ const AdminHorariosPage = () => {
                     </div>
 
                     <div className={styles.formGroup}>
+                      <label>Período de gracia (minutos)</label>
+                      <select
+                        value={graceMinutes}
+                        onChange={(e) => setGraceMinutes(parseInt(e.target.value))}
+                      >
+                        <option value={15}>15 minutos</option>
+                        <option value={30}>30 minutos</option>
+                        <option value={60}>1 hora</option>
+                        <option value={120}>2 horas</option>
+                      </select>
+                    </div>
+
+                    <div className={styles.formGroup}>
                       <label className={styles.checkboxLabel}>
                         <input
                           type="checkbox"
@@ -321,11 +402,82 @@ const AdminHorariosPage = () => {
                     </div>
                   </div>
 
+                  {/* Validación de conflictos */}
+                  {validating && (
+                    <div style={{ 
+                      padding: '1rem', 
+                      background: 'rgba(59, 130, 246, 0.1)', 
+                      borderRadius: '0.5rem', 
+                      marginBottom: '1rem',
+                      color: '#3b82f6'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Clock size={16} />
+                        Validando horario...
+                      </div>
+                    </div>
+                  )}
+
+                  {validation && (
+                    <div style={{ 
+                      padding: '1rem', 
+                      background: validation.isValid ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
+                      borderRadius: '0.5rem', 
+                      marginBottom: '1rem',
+                      color: validation.isValid ? '#22c55e' : '#ef4444'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                        {validation.isValid ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
+                        <strong>{validation.isValid ? 'Horario disponible' : 'Conflicto detectado'}</strong>
+                      </div>
+                      <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>{validation.message}</p>
+                      
+                      {validation.suggestions.length > 0 && (
+                        <div style={{ marginTop: '0.5rem' }}>
+                          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', fontWeight: '500' }}>
+                            Horarios sugeridos:
+                          </p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            {validation.suggestions.map((suggestion, index) => (
+                              <button
+                                key={index}
+                                type="button"
+                                onClick={() => {
+                                  const [hour, minute] = suggestion.split(':').map(Number);
+                                  setFormData({...formData, hour, minute});
+                                }}
+                                style={{
+                                  padding: '0.25rem 0.5rem',
+                                  background: 'rgba(255, 255, 255, 0.1)',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                  borderRadius: '0.25rem',
+                                  color: '#fff',
+                                  fontSize: '0.8rem',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {suggestion}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className={styles.formActions}>
                     <button type="button" onClick={resetForm} className={styles.cancelButton}>
                       Cancelar
                     </button>
-                    <button type="submit" className={styles.saveButton}>
+                    <button 
+                      type="submit" 
+                      className={styles.saveButton}
+                      disabled={validation ? !validation.isValid : false}
+                      style={{
+                        opacity: validation && !validation.isValid ? 0.5 : 1,
+                        cursor: validation && !validation.isValid ? 'not-allowed' : 'pointer'
+                      }}
+                    >
                       <Save size={16} />
                       {editingSchedule ? 'Actualizar' : 'Crear'}
                     </button>

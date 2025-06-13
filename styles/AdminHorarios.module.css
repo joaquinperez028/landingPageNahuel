@@ -124,7 +124,7 @@
 .formGroup select,
 .formGroup input {
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.5rem;
   color: #fff;
@@ -136,6 +136,18 @@
   outline: none;
   border-color: #00ff88;
   box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.formGroup select {
+  background: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}
+
+.formGroup select option {
+  background: #1a1a1a;
+  color: #fff;
+  padding: 0.5rem;
 }
 
 .checkboxLabel {
