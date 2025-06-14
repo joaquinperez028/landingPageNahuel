@@ -6,7 +6,7 @@ alwaysApply: true
 *Reglas para Cursor AI:*
 
 1. *Variables de entorno siempre en el servidor*
-   – Nunca hardcodeés claves o URLs sensibles en el código cliente.
+   – Nunca hardcodeés claves o URLs sensibles en el código cliente..
    – Usá process.env.NOMBRE_VARIABLE o equivalente para acceder a las variables (MongoDB, Google, MUX, mercadopago, etc.).
    – Para cada variable, definí un nombre claro (MONGODB_URI, GOOGLE_CLIENT_ID, MUX_TOKEN_SECRET, etc.) y documentá en un .env.example las que se necesitan.
 
