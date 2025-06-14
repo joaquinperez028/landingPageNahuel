@@ -556,23 +556,23 @@
 
 /* Módulos impares (1,3,5,7,9) - DEBAJO de la línea */
 .roadmapModule:nth-child(odd) {
-  padding-top: 90px;
+  margin-top: 90px;
 }
 
 .roadmapModule:nth-child(odd)::before {
-  height: 90px;
-  top: -90px;
+  height: 45px;
+  top: -45px;
   bottom: auto;
 }
 
 /* Módulos pares (2,4,6,8,10) - ARRIBA de la línea */
 .roadmapModule:nth-child(even) {
-  padding-bottom: 90px;
+  margin-bottom: 90px;
 }
 
 .roadmapModule:nth-child(even)::before {
-  height: 90px;
-  bottom: -90px;
+  height: 45px;
+  bottom: -45px;
   top: auto;
 }
 
