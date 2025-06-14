@@ -429,61 +429,61 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
             
             <div className={styles.roadmapWrapper}>
               <div className={styles.roadmapTimeline}>
-                <div className={styles.roadmapModule}>
+                <div className={`${styles.roadmapModule} ${styles.roadmapModuleBottom}`}>
                   <div className={styles.roadmapCircle}>
                     <span className={styles.roadmapModuleText}>MODULO 1</span>
                   </div>
                 </div>
                 
-                <div className={styles.roadmapModule}>
+                <div className={`${styles.roadmapModule} ${styles.roadmapModuleTop}`}>
                   <div className={styles.roadmapCircle}>
                     <span className={styles.roadmapModuleText}>MODULO 2</span>
                   </div>
                 </div>
                 
-                <div className={styles.roadmapModule}>
+                <div className={`${styles.roadmapModule} ${styles.roadmapModuleBottom}`}>
                   <div className={styles.roadmapCircle}>
                     <span className={styles.roadmapModuleText}>MODULO 3</span>
                   </div>
                 </div>
                 
-                <div className={styles.roadmapModule}>
+                <div className={`${styles.roadmapModule} ${styles.roadmapModuleTop}`}>
                   <div className={styles.roadmapCircle}>
                     <span className={styles.roadmapModuleText}>MODULO 4</span>
                   </div>
                 </div>
                 
-                <div className={styles.roadmapModule}>
+                <div className={`${styles.roadmapModule} ${styles.roadmapModuleBottom}`}>
                   <div className={styles.roadmapCircle}>
                     <span className={styles.roadmapModuleText}>MODULO 5</span>
                   </div>
                 </div>
                 
-                <div className={styles.roadmapModule}>
+                <div className={`${styles.roadmapModule} ${styles.roadmapModuleTop}`}>
                   <div className={styles.roadmapCircle}>
                     <span className={styles.roadmapModuleText}>MODULO 6</span>
                   </div>
                 </div>
                 
-                <div className={styles.roadmapModule}>
+                <div className={`${styles.roadmapModule} ${styles.roadmapModuleBottom}`}>
                   <div className={styles.roadmapCircle}>
                     <span className={styles.roadmapModuleText}>MODULO 7</span>
                   </div>
                 </div>
                 
-                <div className={styles.roadmapModule}>
+                <div className={`${styles.roadmapModule} ${styles.roadmapModuleTop}`}>
                   <div className={styles.roadmapCircle}>
                     <span className={styles.roadmapModuleText}>MODULO 8</span>
                   </div>
                 </div>
                 
-                <div className={styles.roadmapModule}>
+                <div className={`${styles.roadmapModule} ${styles.roadmapModuleBottom}`}>
                   <div className={styles.roadmapCircle}>
                     <span className={styles.roadmapModuleText}>MODULO 9</span>
                   </div>
                 </div>
                 
-                <div className={styles.roadmapModule}>
+                <div className={`${styles.roadmapModule} ${styles.roadmapModuleTop}`}>
                   <div className={styles.roadmapCircle}>
                     <span className={styles.roadmapModuleText}>MODULO 10</span>
                   </div>
