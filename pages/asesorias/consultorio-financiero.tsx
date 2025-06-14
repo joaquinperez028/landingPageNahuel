@@ -97,9 +97,10 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       setLoadingTurnos(true);
       console.log('🔄 Cargando turnos para Consultorio Financiero...');
       
-      // Agregar timestamp para evitar caché
+      // Agregar múltiples parámetros anti-caché
       const timestamp = new Date().getTime();
-      const url = `/api/turnos/generate?type=advisory&advisoryType=ConsultorioFinanciero&maxSlotsPerDay=6&_t=${timestamp}`;
+      const cacheBreaker = Math.random().toString(36).substring(7);
+      const url = `/api/turnos/generate?type=advisory&advisoryType=ConsultorioFinanciero&maxSlotsPerDay=6&_t=${timestamp}&cb=${cacheBreaker}&force=${Date.now()}`;
       console.log('📡 URL de la API:', url);
       
       const response = await fetch(url, {
@@ -108,24 +109,41 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
-          'Expires': '0'
+          'Expires': '0',
+          'X-Requested-At': new Date().toISOString()
         }
       });
       console.log('📊 Status de respuesta:', response.status);
       
       const data = await response.json();
-      console.log('📅 Respuesta de turnos:', data);
+      console.log('📅 Respuesta completa del servidor:', data);
       
       if (response.ok) {
         const turnos = data.turnos || [];
-        setProximosTurnos(turnos);
-        console.log(`✅ Cargados ${turnos.length} días con turnos disponibles`);
-        console.log('📋 Turnos cargados:', turnos);
+        
+        // Filtro adicional en el frontend para asegurar que solo se muestren días con turnos
+        const turnosValidos = turnos.filter((turno: any) => {
+          const esValido = turno.horarios && Array.isArray(turno.horarios) && turno.horarios.length > 0;
+          if (!esValido) {
+            console.log(`🚫 Filtrando día ${turno.fecha} - sin horarios válidos`);
+          }
+          return esValido;
+        });
+        
+        console.log(`✅ Turnos después del filtro: ${turnosValidos.length} días válidos de ${turnos.length} recibidos`);
+        console.log('📋 Turnos válidos:', turnosValidos);
+        
+        setProximosTurnos(turnosValidos);
+        
+        // Limpiar estado de disponibilidad para forzar re-verificación
+        setAvailabilityStatus({});
       } else {
         console.error('❌ Error al cargar turnos:', data.error);
+        setProximosTurnos([]);
       }
     } catch (error) {
       console.error('❌ Error al cargar turnos:', error);
+      setProximosTurnos([]);
     } finally {
       setLoadingTurnos(false);
     }

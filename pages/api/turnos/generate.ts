@@ -115,12 +115,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           advisoryType
         );
 
+        console.log(`📊 Fecha ${formatDateForDisplay(targetDate)}: ${advisorySlots.length} slots disponibles`);
+        
+        // SOLO agregar días que tengan turnos realmente disponibles
         if (advisorySlots.length > 0) {
           const limitedSlots = advisorySlots.slice(0, maxSlotsPerDay);
           
           // Obtener precio de la asesoría
           const daySchedules = advisorySchedules.filter(as => as.dayOfWeek === dayOfWeek);
           const price = daySchedules.length > 0 ? daySchedules[0].price : undefined;
+          
+          console.log(`✅ Agregando día ${formatDateForDisplay(targetDate)} con ${limitedSlots.length} turnos`);
           
           turnos.push({
             fecha: formatDateForDisplay(targetDate),
@@ -130,6 +135,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             advisoryType: advisoryType,
             price: price
           });
+        } else {
+          console.log(`🚫 Día ${formatDateForDisplay(targetDate)} excluido - sin turnos disponibles`);
         }
       }
 
@@ -139,13 +146,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`✅ Generados ${turnos.length} días con turnos disponibles`);
 
+    // Headers agresivos de no-cache
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+    res.setHeader('X-Timestamp', Date.now().toString());
+
     return res.status(200).json({ 
       turnos,
       generatedAt: new Date().toISOString(),
       timestamp: Date.now(),
       type: type || 'all',
       advisoryType: advisoryType || 'all',
-      cacheBreaker: Math.random().toString(36).substring(7)
+      cacheBreaker: Math.random().toString(36).substring(7),
+      totalDaysWithSlots: turnos.length,
+      debug: {
+        requestTime: new Date().toISOString(),
+        totalBookingsFound: 'check logs'
+      }
     });
 
   } catch (error) {
@@ -257,20 +276,30 @@ async function getAvailableSlotsForDate(
           const bookingEnd = new Date(booking.endDate);
           
           // Verificar si hay solapamiento entre el slot y la reserva existente
+          // Usar comparación más estricta para evitar falsos negativos
           const hasOverlap = (
-            (slotStart >= bookingStart && slotStart < bookingEnd) ||
-            (slotEnd > bookingStart && slotEnd <= bookingEnd) ||
-            (slotStart <= bookingStart && slotEnd >= bookingEnd)
+            (slotStart.getTime() >= bookingStart.getTime() && slotStart.getTime() < bookingEnd.getTime()) ||
+            (slotEnd.getTime() > bookingStart.getTime() && slotEnd.getTime() <= bookingEnd.getTime()) ||
+            (slotStart.getTime() <= bookingStart.getTime() && slotEnd.getTime() >= bookingEnd.getTime())
           );
 
-          if (hasOverlap) {
-            console.log(`🔍 Conflicto detectado para slot ${slot}:`);
+          // También verificar si es exactamente el mismo horario
+          const exactMatch = (
+            slotStart.getTime() === bookingStart.getTime() ||
+            Math.abs(slotStart.getTime() - bookingStart.getTime()) < 60000 // Diferencia menor a 1 minuto
+          );
+
+          const hasConflict = hasOverlap || exactMatch;
+
+          if (hasConflict) {
+            console.log(`🔍 CONFLICTO DETECTADO para slot ${slot}:`);
             console.log(`  Slot: ${slotStart.toISOString()} - ${slotEnd.toISOString()}`);
             console.log(`  Reserva: ${bookingStart.toISOString()} - ${bookingEnd.toISOString()}`);
             console.log(`  Usuario: ${booking.userEmail}, Tipo: ${booking.type}/${booking.serviceType}`);
+            console.log(`  Status: ${booking.status}`);
           }
 
-          return hasOverlap;
+          return hasConflict;
         });
         
         const hasConflict = conflictingBookings.length > 0;
