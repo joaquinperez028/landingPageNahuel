@@ -298,8 +298,29 @@ async function getAvailableSlotsForDate(
 
     console.log(`📋 Horarios configurados para ${advisoryType} en día ${dayOfWeek}: ${relevantSchedules.length}`);
     relevantSchedules.forEach(schedule => {
-      console.log(`  - ${schedule.hour}:${schedule.minute.toString().padStart(2, '0')}`);
+      console.log(`  - ${schedule.hour}:${schedule.minute.toString().padStart(2, '0')} (maxBookingsPerDay: ${schedule.maxBookingsPerDay || 'sin límite'})`);
     });
+
+    // VERIFICACIÓN CRÍTICA: Verificar límite de reservas por día
+    console.log(`📊 Reservas existentes para el día: ${bookingsForDay.length}`);
+    
+    // Si hay horarios con límite por día, verificar ese límite primero
+    const hasMaxBookingsPerDay = relevantSchedules.some(schedule => schedule.maxBookingsPerDay && schedule.maxBookingsPerDay > 0);
+    
+    if (hasMaxBookingsPerDay) {
+      const maxBookingsAllowed = Math.min(...relevantSchedules.filter(s => s.maxBookingsPerDay).map(s => s.maxBookingsPerDay));
+      console.log(`🚨 LÍMITE DE RESERVAS POR DÍA DETECTADO: ${maxBookingsAllowed} máximo`);
+      console.log(`📊 Reservas actuales para este día: ${bookingsForDay.length}`);
+      
+      if (bookingsForDay.length >= maxBookingsAllowed) {
+        console.log(`🚫 DÍA COMPLETO - Se alcanzó el límite de ${maxBookingsAllowed} reservas por día`);
+        console.log(`📋 Reservas existentes:`);
+        bookingsForDay.forEach((booking, index) => {
+          console.log(`  ${index + 1}. ${booking.userEmail} - ${new Date(booking.startDate).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`);
+        });
+        return []; // NO HAY SLOTS DISPONIBLES
+      }
+    }
 
     const advisorySlots = relevantSchedules
       .map(advisory => {
@@ -308,7 +329,7 @@ async function getAvailableSlotsForDate(
         return `${hour}:${minute}`;
       })
       .filter(slot => {
-        // VERIFICACIÓN CRÍTICA: Verificar que no haya conflicto con reservas existentes
+        // VERIFICACIÓN ADICIONAL: Verificar que no haya conflicto con reservas existentes por hora específica
         const [slotHour, slotMinute] = slot.split(':').map(Number);
         const slotStart = new Date(targetDate);
         slotStart.setHours(slotHour, slotMinute, 0, 0);
@@ -316,7 +337,7 @@ async function getAvailableSlotsForDate(
         console.log(`🔍 Verificando slot ${slot} para fecha ${targetDate.toDateString()}`);
         console.log(`📅 Slot datetime: ${slotStart.toISOString()}`);
         
-        // BUSCAR CONFLICTOS EXACTOS
+        // BUSCAR CONFLICTOS EXACTOS POR HORA
         const conflictingBookings = bookingsForDay.filter(booking => {
           const bookingStart = new Date(booking.startDate);
           
@@ -346,7 +367,7 @@ async function getAvailableSlotsForDate(
         if (hasConflict) {
           console.log(`🚫 SLOT ${slot} EXCLUIDO - ${conflictingBookings.length} conflicto(s) encontrado(s)`);
         } else {
-          console.log(`✅ SLOT ${slot} DISPONIBLE - sin conflictos`);
+          console.log(`✅ SLOT ${slot} DISPONIBLE - sin conflictos por hora`);
         }
         
         return !hasConflict;
