@@ -567,12 +567,12 @@
 
 /* Módulos de ARRIBA (2,4,6,8,10) */
 .roadmapModuleTop {
-  margin-bottom: 140px;
+  margin-bottom: 180px;
 }
 
 .roadmapModuleTop::before {
-  height: 70px;
-  bottom: -70px;
+  height: 90px;
+  bottom: -90px;
   top: auto;
 }
 
@@ -665,7 +665,7 @@
   }
   
   .roadmapModuleTop {
-    margin-bottom: 100px;
+    margin-bottom: 130px;
   }
   
   .roadmapModuleBottom::before {
@@ -674,8 +674,8 @@
   }
   
   .roadmapModuleTop::before {
-    height: 50px;
-    bottom: -50px;
+    height: 65px;
+    bottom: -65px;
   }
 }
 
