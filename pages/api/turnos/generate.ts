@@ -210,18 +210,25 @@ async function getAvailableSlotsForDate(
     });
   }
 
-  // CONSULTA DIRECTA Y SIMPLE - buscar reservas para este día específico
+  // BUSCAR TODAS LAS RESERVAS DE CONSULTORIO FINANCIERO
   const existingBookings = await Booking.find({
-    $and: [
-      { status: { $in: ['pending', 'confirmed'] } },
-      { serviceType: 'ConsultorioFinanciero' },
-      { startDate: { $gte: startOfDay, $lt: endOfDay } }
-    ]
+    serviceType: 'ConsultorioFinanciero',
+    status: { $in: ['pending', 'confirmed'] }
   }).lean();
+  
+  // Filtrar las del día específico
+  const bookingsForDay = existingBookings.filter(booking => {
+    const bookingDate = new Date(booking.startDate);
+    return bookingDate.getFullYear() === targetDate.getFullYear() &&
+           bookingDate.getMonth() === targetDate.getMonth() &&
+           bookingDate.getDate() === targetDate.getDate();
+  });
 
-  console.log(`📋 Reservas encontradas para el día específico: ${existingBookings.length}`);
-  existingBookings.forEach((booking, index) => {
-    console.log(`  ${index + 1}. ${booking.userEmail} - ${booking.startDate.toISOString()} (${booking.type}/${booking.serviceType}) - Status: ${booking.status}`);
+  console.log(`📋 Total reservas de Consultorio Financiero: ${existingBookings.length}`);
+  console.log(`📋 Reservas para el día ${targetDate.toDateString()}: ${bookingsForDay.length}`);
+  
+  bookingsForDay.forEach((booking, index) => {
+    console.log(`  ${index + 1}. ${booking.userEmail} - ${new Date(booking.startDate).toISOString()} - Status: ${booking.status}`);
   });
 
   // También buscar reservas de Consultorio Financiero específicamente
@@ -302,8 +309,8 @@ async function getAvailableSlotsForDate(
         slotStart.setHours(slotHour, slotMinute, 0, 0);
         const slotEnd = new Date(slotStart.getTime() + 60 * 60000); // Asesoría dura 60 minutos
         
-        // VERIFICACIÓN SIMPLE Y DIRECTA
-        const conflictingBookings = existingBookings.filter(booking => {
+        // VERIFICACIÓN SIMPLE Y DIRECTA - usar bookingsForDay en lugar de existingBookings
+        const conflictingBookings = bookingsForDay.filter(booking => {
           const bookingStart = new Date(booking.startDate);
           
           // COMPARACIÓN DIRECTA: mismo día y misma hora

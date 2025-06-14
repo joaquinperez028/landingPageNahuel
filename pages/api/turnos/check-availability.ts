@@ -63,13 +63,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const endOfDay = new Date(targetDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const existingBookings = await Booking.find({
-      $and: [
-        { status: { $in: ['pending', 'confirmed'] } },
-        { serviceType: 'ConsultorioFinanciero' },
-        { startDate: { $gte: startOfDay, $lt: endOfDay } }
-      ]
+    // BUSCAR TODAS LAS RESERVAS DE CONSULTORIO FINANCIERO
+    const allBookings = await Booking.find({
+      serviceType: 'ConsultorioFinanciero',
+      status: { $in: ['pending', 'confirmed'] }
     }).lean();
+    
+    console.log(`📋 [CHECK-AVAILABILITY] Total reservas de Consultorio Financiero: ${allBookings.length}`);
+    
+    // Filtrar las del día específico
+    const existingBookings = allBookings.filter(booking => {
+      const bookingDate = new Date(booking.startDate);
+      return bookingDate.getFullYear() === targetDate.getFullYear() &&
+             bookingDate.getMonth() === targetDate.getMonth() &&
+             bookingDate.getDate() === targetDate.getDate();
+    });
 
     console.log(`📋 [CHECK-AVAILABILITY] Reservas encontradas para el día: ${existingBookings.length}`);
     

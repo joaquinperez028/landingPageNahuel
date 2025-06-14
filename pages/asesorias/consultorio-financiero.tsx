@@ -131,7 +131,13 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
         });
         
         console.log(`✅ Turnos después del filtro: ${turnosValidos.length} días válidos de ${turnos.length} recibidos`);
-        console.log('📋 Turnos válidos:', turnosValidos);
+        
+        // VERIFICACIÓN ADICIONAL: Si no hay turnos válidos, mostrar mensaje
+        if (turnosValidos.length === 0) {
+          console.log('⚠️ NO HAY TURNOS DISPONIBLES');
+        } else {
+          console.log('📋 Turnos válidos:', turnosValidos);
+        }
         
         setProximosTurnos(turnosValidos);
         
