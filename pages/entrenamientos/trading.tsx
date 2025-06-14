@@ -407,6 +407,102 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
           </div>
         </section>
 
+        {/* Roadmap de Aprendizaje */}
+        <section className={styles.roadmapSection}>
+          <div className={styles.roadmapContainer}>
+            <motion.h2 
+              className={styles.sectionTitle}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              Roadmap de Aprendizaje
+            </motion.h2>
+            <motion.p 
+              className={styles.sectionDescription}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              Progresión estructurada en 10 módulos diseñados para llevarte de principiante a trader avanzado
+            </motion.p>
+            
+            <div className={styles.roadmapWrapper}>
+              <div className={styles.roadmapTimeline}>
+                <div className={styles.roadmapModule}>
+                  <div className={styles.roadmapCircle}>
+                    <span className={styles.roadmapModuleText}>Módulo 1</span>
+                  </div>
+                  <h3 className={styles.roadmapModuleTitle}>Fundamentos del Trading</h3>
+                </div>
+                
+                <div className={styles.roadmapModule}>
+                  <div className={styles.roadmapCircle}>
+                    <span className={styles.roadmapModuleText}>Módulo 2</span>
+                  </div>
+                  <h3 className={styles.roadmapModuleTitle}>Análisis Técnico Básico</h3>
+                </div>
+                
+                <div className={styles.roadmapModule}>
+                  <div className={styles.roadmapCircle}>
+                    <span className={styles.roadmapModuleText}>Módulo 3</span>
+                  </div>
+                  <h3 className={styles.roadmapModuleTitle}>Gestión de Riesgo</h3>
+                </div>
+                
+                <div className={styles.roadmapModule}>
+                  <div className={styles.roadmapCircle}>
+                    <span className={styles.roadmapModuleText}>Módulo 4</span>
+                  </div>
+                  <h3 className={styles.roadmapModuleTitle}>Psicología del Trading</h3>
+                </div>
+                
+                <div className={styles.roadmapModule}>
+                  <div className={styles.roadmapCircle}>
+                    <span className={styles.roadmapModuleText}>Módulo 5</span>
+                  </div>
+                  <h3 className={styles.roadmapModuleTitle}>Estrategias de Entrada</h3>
+                </div>
+                
+                <div className={styles.roadmapModule}>
+                  <div className={styles.roadmapCircle}>
+                    <span className={styles.roadmapModuleText}>Módulo 6</span>
+                  </div>
+                  <h3 className={styles.roadmapModuleTitle}>Análisis Fundamental</h3>
+                </div>
+                
+                <div className={styles.roadmapModule}>
+                  <div className={styles.roadmapCircle}>
+                    <span className={styles.roadmapModuleText}>Módulo 7</span>
+                  </div>
+                  <h3 className={styles.roadmapModuleTitle}>Trading Avanzado</h3>
+                </div>
+                
+                <div className={styles.roadmapModule}>
+                  <div className={styles.roadmapCircle}>
+                    <span className={styles.roadmapModuleText}>Módulo 8</span>
+                  </div>
+                  <h3 className={styles.roadmapModuleTitle}>Automatización</h3>
+                </div>
+                
+                <div className={styles.roadmapModule}>
+                  <div className={styles.roadmapCircle}>
+                    <span className={styles.roadmapModuleText}>Módulo 9</span>
+                  </div>
+                  <h3 className={styles.roadmapModuleTitle}>Portfolio Management</h3>
+                </div>
+                
+                <div className={styles.roadmapModule}>
+                  <div className={styles.roadmapCircle}>
+                    <span className={styles.roadmapModuleText}>Módulo 10</span>
+                  </div>
+                  <h3 className={styles.roadmapModuleTitle}>Trading Profesional</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Programa Detallado */}
         <section className={styles.programSection}>
           <div className={styles.container}>

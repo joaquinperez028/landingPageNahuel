@@ -462,6 +462,211 @@
   z-index: 2;
 }
 
+/* Roadmap Section */
+.roadmapSection {
+  padding: 6rem 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.roadmapContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.roadmapWrapper {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  padding: 4rem 0;
+}
+
+.roadmapTimeline {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Línea horizontal principal */
+.roadmapTimeline::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.roadmapModule {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+/* Línea vertical que conecta el módulo con la línea principal */
+.roadmapModule::before {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 80px;
+  background: #334155;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+/* Módulos impares (debajo) */
+.roadmapModule:nth-child(odd) {
+  margin-top: 120px;
+}
+
+.roadmapModule:nth-child(odd)::before {
+  top: -80px;
+}
+
+/* Módulos pares (arriba) */
+.roadmapModule:nth-child(even) {
+  margin-bottom: 120px;
+}
+
+.roadmapModule:nth-child(even)::before {
+  bottom: -80px;
+  top: auto;
+}
+
+.roadmapCircle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #475569;
+  box-shadow: 0 4px 20px rgba(30, 41, 59, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 3;
+  margin-bottom: 1rem;
+}
+
+.roadmapCircle:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(30, 41, 59, 0.4);
+  border-color: #06b6d4;
+}
+
+.roadmapModuleText {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.roadmapModuleTitle {
+  text-align: center;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 1rem;
+  max-width: 120px;
+  line-height: 1.3;
+}
+
+/* Módulos pares - título arriba del círculo */
+.roadmapModule:nth-child(even) .roadmapModuleTitle {
+  order: -1;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+/* Módulos impares - título debajo del círculo */
+.roadmapModule:nth-child(odd) .roadmapModuleTitle {
+  margin-top: 0;
+}
+
+/* Animaciones */
+.roadmapModule {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.roadmapModule:nth-child(1) { animation-delay: 0.1s; }
+.roadmapModule:nth-child(2) { animation-delay: 0.2s; }
+.roadmapModule:nth-child(3) { animation-delay: 0.3s; }
+.roadmapModule:nth-child(4) { animation-delay: 0.4s; }
+.roadmapModule:nth-child(5) { animation-delay: 0.5s; }
+.roadmapModule:nth-child(6) { animation-delay: 0.6s; }
+.roadmapModule:nth-child(7) { animation-delay: 0.7s; }
+.roadmapModule:nth-child(8) { animation-delay: 0.8s; }
+.roadmapModule:nth-child(9) { animation-delay: 0.9s; }
+.roadmapModule:nth-child(10) { animation-delay: 1.0s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive para roadmap */
+@media (max-width: 768px) {
+  .roadmapWrapper {
+    padding: 2rem 0;
+  }
+  
+  .roadmapTimeline {
+    min-width: 800px;
+  }
+  
+  .roadmapCircle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .roadmapModuleText {
+    font-size: 0.75rem;
+  }
+  
+  .roadmapModuleTitle {
+    font-size: 0.875rem;
+    max-width: 100px;
+  }
+  
+  .roadmapModule::before {
+    height: 60px;
+  }
+  
+  .roadmapModule:nth-child(odd) {
+    margin-top: 80px;
+  }
+  
+  .roadmapModule:nth-child(even) {
+    margin-bottom: 80px;
+  }
+  
+  .roadmapModule:nth-child(odd)::before {
+    top: -60px;
+  }
+  
+  .roadmapModule:nth-child(even)::before {
+    bottom: -60px;
+  }
+}
+
 /* Program Section */
 .programSection {
   padding: 6rem 0;
