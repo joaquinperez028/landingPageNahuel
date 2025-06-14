@@ -59,6 +59,8 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [showLoginAlert, setShowLoginAlert] = useState(false);
   const [loadingTurnos, setLoadingTurnos] = useState(true);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [reservedSlot, setReservedSlot] = useState<{date: string, time: string} | null>(null);
 
   // Cargar turnos dinámicos al montar el componente
   useEffect(() => {
@@ -198,19 +200,27 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       );
       
       // Esperar un momento para que la base de datos se actualice
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Recargar turnos para actualizar disponibilidad desde el servidor
-      await loadProximosTurnos();
+      // Invalidar caché de Vercel
+      try {
+        await fetch('/api/turnos/invalidate-cache', { method: 'POST' });
+      } catch (error) {
+        console.log('⚠️ Error al invalidar caché:', error);
+      }
+      
+      // Recargar turnos múltiples veces para asegurar sincronización
+      for (let i = 0; i < 3; i++) {
+        await loadProximosTurnos();
+        if (i < 2) await new Promise(resolve => setTimeout(resolve, 1000));
+      }
       setSelectedDate('');
       setSelectedTime('');
       console.log('🔄 Turnos recargados después de la reserva');
       
-      // Mostrar mensaje de éxito
-      alert(`¡Reserva confirmada para ${selectedDate} a las ${selectedTime}! 
-      
-Recibirás un email de confirmación con todos los detalles.
-El evento se ha agregado al calendario del administrador.`);
+      // Guardar datos de la reserva y mostrar modal de éxito
+      setReservedSlot({ date: selectedDate, time: selectedTime });
+      setShowSuccessModal(true);
     } else {
       console.log('❌ Error al crear la reserva');
     }
@@ -555,6 +565,67 @@ El evento se ha agregado al calendario del administrador.`);
           </section>
         )}
       </main>
+
+      {/* Modal de Éxito */}
+      {showSuccessModal && (
+        <div className={styles.modalOverlay}>
+          <motion.div 
+            className={styles.successModal}
+            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <div className={styles.modalHeader}>
+              <div className={styles.successIcon}>✅</div>
+              <h2 className={styles.modalTitle}>¡Reserva Confirmada!</h2>
+            </div>
+            
+            <div className={styles.modalContent}>
+              <div className={styles.reservationDetails}>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>📅 Fecha:</span>
+                  <span className={styles.detailValue}>{reservedSlot?.date}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>🕐 Hora:</span>
+                  <span className={styles.detailValue}>{reservedSlot?.time}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>💼 Servicio:</span>
+                  <span className={styles.detailValue}>Consultorio Financiero</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>💰 Precio:</span>
+                  <span className={styles.detailValue}>$199 USD</span>
+                </div>
+              </div>
+              
+              <div className={styles.modalInfo}>
+                <div className={styles.infoBox}>
+                  <h4>📧 Próximos pasos:</h4>
+                  <ul>
+                    <li>Recibirás un email de confirmación con todos los detalles</li>
+                    <li>El evento se agregó al calendario del administrador</li>
+                    <li>Te contactaremos 24 horas antes con el link de la reunión</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className={styles.modalActions}>
+              <button 
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  setReservedSlot(null);
+                }}
+                className={styles.modalButton}
+              >
+                Entendido
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       <Footer />
     </>

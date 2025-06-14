@@ -27,6 +27,11 @@ interface TurnoData {
  * GET: Genera turnos disponibles para los próximos días
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Configurar headers para evitar caché en Vercel
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  
   await dbConnect();
 
   if (req.method !== 'GET') {
@@ -137,8 +142,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ 
       turnos,
       generatedAt: new Date().toISOString(),
+      timestamp: Date.now(),
       type: type || 'all',
-      advisoryType: advisoryType || 'all'
+      advisoryType: advisoryType || 'all',
+      cacheBreaker: Math.random().toString(36).substring(7)
     });
 
   } catch (error) {
