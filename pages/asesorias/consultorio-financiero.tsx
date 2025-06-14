@@ -79,6 +79,19 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     return () => clearInterval(interval);
   }, [loading, loadingTurnos]);
 
+  // Verificar disponibilidad cuando se selecciona un turno
+  useEffect(() => {
+    if (selectedTime && selectedDate) {
+      // Verificar disponibilidad en tiempo real
+      checkRealTimeAvailability(selectedDate, selectedTime);
+    }
+  }, [selectedTime, selectedDate]);
+
+  // Limpiar estado de disponibilidad cuando cambian los turnos
+  useEffect(() => {
+    setAvailabilityStatus({});
+  }, [proximosTurnos]);
+
   const loadProximosTurnos = async () => {
     try {
       setLoadingTurnos(true);
@@ -131,12 +144,61 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     setSelectedTime(horario);
   };
 
+  // Estado para verificación de disponibilidad en tiempo real
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  const [availabilityStatus, setAvailabilityStatus] = useState<{[key: string]: boolean}>({});
+
   // Verificar si el horario seleccionado sigue disponible
   const isSelectedTimeStillAvailable = () => {
-    if (!selectedDate || !selectedTime) return false;
+    if (!selectedDate || !selectedTime) return true; // Si no hay selección, no mostrar error
     
+    const key = `${selectedDate}-${selectedTime}`;
+    
+    // Si tenemos un estado de disponibilidad específico, usarlo
+    if (availabilityStatus.hasOwnProperty(key)) {
+      return availabilityStatus[key];
+    }
+    
+    // Fallback: verificar en la lista de turnos
     const turnoSeleccionado = proximosTurnos.find(t => t.fecha === selectedDate);
     return turnoSeleccionado?.horarios.includes(selectedTime) || false;
+  };
+
+  // Función para verificar disponibilidad en tiempo real
+  const checkRealTimeAvailability = async (fecha: string, horario: string) => {
+    const key = `${fecha}-${horario}`;
+    setIsCheckingAvailability(true);
+    
+    try {
+      const response = await fetch('/api/turnos/check-availability', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fecha,
+          horario,
+          tipo: 'advisory',
+          servicioTipo: 'ConsultorioFinanciero'
+        })
+      });
+
+      const data = await response.json();
+      
+      setAvailabilityStatus(prev => ({
+        ...prev,
+        [key]: data.available
+      }));
+
+      console.log(`🔍 Verificación en tiempo real: ${fecha} ${horario} - ${data.available ? 'Disponible' : 'No disponible'}`);
+      
+      return data.available;
+    } catch (error) {
+      console.error('❌ Error al verificar disponibilidad:', error);
+      return true; // En caso de error, asumir que está disponible
+    } finally {
+      setIsCheckingAvailability(false);
+    }
   };
 
   const handleSacarTurno = async () => {
@@ -249,10 +311,13 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       // Si es un error de conflicto (409), recargar turnos para mostrar disponibilidad actualizada
       if (error.message?.includes('Horario no disponible') || error.message?.includes('409')) {
         console.log('🔄 Recargando turnos debido a conflicto...');
+        
+        // Recargar turnos inmediatamente
         await loadProximosTurnos();
         
-        // Limpiar selección para que el usuario elija otro horario
-        setSelectedTime('');
+        // El mensaje de error ya se mostró en el hook useBookings
+        // Ahora el sistema mostrará automáticamente el mensaje rojo porque el turno ya no estará disponible
+        console.log('⚠️ Turno ya no disponible, la UI se actualizará automáticamente');
       }
     }
   };
@@ -508,7 +573,8 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                 </p>
                 
                 {session ? (
-                  selectedTime && !isSelectedTimeStillAvailable() ? (
+                  // Solo mostrar mensaje de error si hay un turno seleccionado Y no está disponible
+                  selectedTime && selectedDate && !isSelectedTimeStillAvailable() ? (
                     <div className={styles.turnoNoDisponible}>
                       <span>❌ Este horario ya no está disponible</span>
                       <button 
@@ -525,7 +591,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                     <button 
                       className={styles.sacarTurnoButton}
                       onClick={handleSacarTurno}
-                      disabled={loading || !selectedDate || !selectedTime || !isSelectedTimeStillAvailable()}
+                      disabled={loading || !selectedDate || !selectedTime}
                     >
                       {loading ? 'Procesando...' : 'Confirmar y Pagar'}
                       {!loading && <ArrowRight size={20} />}
