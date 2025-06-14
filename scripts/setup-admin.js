@@ -10,7 +10,7 @@ try {
 // Conectar a MongoDB
 const connectDB = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/landingPageNahuel';
+    const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://Tortu:Las40org@landingpagenahuel.pdccomn.mongodb.net/?retryWrites=true&w=majority&appName=landingPageNahuel';
     await mongoose.connect(mongoUri);
     console.log('✅ Conectado a MongoDB');
   } catch (error) {

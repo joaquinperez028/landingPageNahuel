@@ -15,26 +15,23 @@ interface AdminVerificationResult {
  */
 export async function verifyAdminAccess(context: GetServerSidePropsContext): Promise<AdminVerificationResult> {
   try {
+    console.log('🔍 [ADMIN AUTH] Verificando acceso de administrador...');
+    
     const session = await getServerSession(context.req, context.res, authOptions);
     
     if (!session?.user?.email) {
+      console.log('❌ [ADMIN AUTH] No hay sesión válida');
       return {
         isAdmin: false,
         redirectTo: '/api/auth/signin'
       };
     }
 
-    // Lista de emails de administradores
-    // TODO: Mover esto a variables de entorno o base de datos
-    const adminEmails = [
-      process.env.ADMIN_EMAIL,
-      'admin@lozanonahuel.com',
-      'nahuel@lozanonahuel.com'
-    ].filter(Boolean);
+    console.log('👤 [ADMIN AUTH] Usuario:', session.user.email, 'Rol en sesión:', session.user.role);
 
-    const isAdmin = adminEmails.includes(session.user.email);
-
-    if (!isAdmin) {
+    // Usar el rol de la sesión ya que JWT siempre consulta la BD
+    if (session.user.role !== 'admin') {
+      console.log('❌ [ADMIN AUTH] Usuario no es admin. Rol actual:', session.user.role);
       return {
         isAdmin: false,
         redirectTo: '/',
@@ -42,13 +39,14 @@ export async function verifyAdminAccess(context: GetServerSidePropsContext): Pro
       };
     }
 
+    console.log('✅ [ADMIN AUTH] Acceso de admin confirmado para:', session.user.email);
     return {
       isAdmin: true,
       user: session.user
     };
 
   } catch (error) {
-    console.error('Error verificando acceso de admin:', error);
+    console.error('💥 [ADMIN AUTH] Error verificando acceso de admin:', error);
     return {
       isAdmin: false,
       redirectTo: '/'
@@ -61,24 +59,24 @@ export async function verifyAdminAccess(context: GetServerSidePropsContext): Pro
  */
 export function requireAdmin(handler: any) {
   return async (req: any, res: any) => {
+    console.log('🔍 [REQUIRE ADMIN] Verificando permisos...');
+    
     const session = await getServerSession(req, res, authOptions);
     
     if (!session?.user?.email) {
+      console.log('❌ [REQUIRE ADMIN] No hay sesión válida');
       return res.status(401).json({ error: 'No autorizado' });
     }
 
-    const adminEmails = [
-      process.env.ADMIN_EMAIL,
-      'admin@lozanonahuel.com',
-      'nahuel@lozanonahuel.com'
-    ].filter(Boolean);
+    console.log('👤 [REQUIRE ADMIN] Usuario:', session.user.email, 'Rol:', session.user.role);
 
-    const isAdmin = adminEmails.includes(session.user.email);
-
-    if (!isAdmin) {
+    // Usar el rol de la sesión ya que JWT siempre consulta la BD
+    if (session.user.role !== 'admin') {
+      console.log('❌ [REQUIRE ADMIN] Usuario no es admin. Rol actual:', session.user.role);
       return res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de administrador.' });
     }
 
+    console.log('✅ [REQUIRE ADMIN] Acceso confirmado para:', session.user.email);
     return handler(req, res);
   };
 }
