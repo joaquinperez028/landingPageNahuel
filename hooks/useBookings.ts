@@ -75,7 +75,14 @@ export function useBookings() {
 
       if (!response.ok) {
         if (response.status === 409) {
-          toast.error('Horario no disponible. Por favor selecciona otro horario.');
+          toast.error('❌ Ese turno no se encuentra disponible, por favor seleccionar otro!', {
+            duration: 4000,
+            style: {
+              background: '#ef4444',
+              color: 'white',
+              fontWeight: '600'
+            }
+          });
         } else {
           toast.error(data.error || 'Error al crear la reserva');
         }

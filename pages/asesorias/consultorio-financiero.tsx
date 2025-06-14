@@ -67,6 +67,18 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     loadProximosTurnos();
   }, []);
 
+  // Verificar disponibilidad automáticamente cada 30 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!loading && !loadingTurnos) {
+        console.log('🔄 Verificación automática de disponibilidad...');
+        loadProximosTurnos();
+      }
+    }, 30000); // 30 segundos
+
+    return () => clearInterval(interval);
+  }, [loading, loadingTurnos]);
+
   const loadProximosTurnos = async () => {
     try {
       setLoadingTurnos(true);
@@ -117,6 +129,14 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
 
   const handleTimeSelect = (horario: string) => {
     setSelectedTime(horario);
+  };
+
+  // Verificar si el horario seleccionado sigue disponible
+  const isSelectedTimeStillAvailable = () => {
+    if (!selectedDate || !selectedTime) return false;
+    
+    const turnoSeleccionado = proximosTurnos.find(t => t.fecha === selectedDate);
+    return turnoSeleccionado?.horarios.includes(selectedTime) || false;
   };
 
   const handleSacarTurno = async () => {
@@ -179,50 +199,61 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       notes: `Reserva desde página de Consultorio Financiero - ${selectedDate} a las ${selectedTime}`
     };
 
-    const booking = await createBooking(bookingData);
+    try {
+      const booking = await createBooking(bookingData);
 
-    if (booking) {
-      console.log('✅ Reserva creada exitosamente, recargando turnos...');
-      
-      // Actualizar inmediatamente la UI removiendo el turno reservado
-      setProximosTurnos(prevTurnos => 
-        prevTurnos.map(turno => {
-          if (turno.fecha === selectedDate) {
-            const horariosActualizados = turno.horarios.filter(h => h !== selectedTime);
-            return {
-              ...turno,
-              horarios: horariosActualizados,
-              disponibles: horariosActualizados.length
-            };
-          }
-          return turno;
-        }).filter(turno => turno.disponibles > 0) // Remover días sin turnos disponibles
-      );
-      
-      // Esperar un momento para que la base de datos se actualice
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Invalidar caché de Vercel
-      try {
-        await fetch('/api/turnos/invalidate-cache', { method: 'POST' });
-      } catch (error) {
-        console.log('⚠️ Error al invalidar caché:', error);
+      if (booking) {
+        console.log('✅ Reserva creada exitosamente, recargando turnos...');
+        
+        // Actualizar inmediatamente la UI removiendo el turno reservado
+        setProximosTurnos(prevTurnos => 
+          prevTurnos.map(turno => {
+            if (turno.fecha === selectedDate) {
+              const horariosActualizados = turno.horarios.filter(h => h !== selectedTime);
+              return {
+                ...turno,
+                horarios: horariosActualizados,
+                disponibles: horariosActualizados.length
+              };
+            }
+            return turno;
+          }).filter(turno => turno.disponibles > 0) // Remover días sin turnos disponibles
+        );
+        
+        // Esperar un momento para que la base de datos se actualice
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Invalidar caché de Vercel
+        try {
+          await fetch('/api/turnos/invalidate-cache', { method: 'POST' });
+        } catch (error) {
+          console.log('⚠️ Error al invalidar caché:', error);
+        }
+        
+        // Recargar turnos múltiples veces para asegurar sincronización
+        for (let i = 0; i < 3; i++) {
+          await loadProximosTurnos();
+          if (i < 2) await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        setSelectedDate('');
+        setSelectedTime('');
+        console.log('🔄 Turnos recargados después de la reserva');
+        
+        // Guardar datos de la reserva y mostrar modal de éxito
+        setReservedSlot({ date: selectedDate, time: selectedTime });
+        setShowSuccessModal(true);
       }
+    } catch (error: any) {
+      console.log('❌ Error al crear la reserva:', error);
       
-      // Recargar turnos múltiples veces para asegurar sincronización
-      for (let i = 0; i < 3; i++) {
+      // Si es un error de conflicto (409), recargar turnos para mostrar disponibilidad actualizada
+      if (error.message?.includes('Horario no disponible') || error.message?.includes('409')) {
+        console.log('🔄 Recargando turnos debido a conflicto...');
         await loadProximosTurnos();
-        if (i < 2) await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Limpiar selección para que el usuario elija otro horario
+        setSelectedTime('');
       }
-      setSelectedDate('');
-      setSelectedTime('');
-      console.log('🔄 Turnos recargados después de la reserva');
-      
-      // Guardar datos de la reserva y mostrar modal de éxito
-      setReservedSlot({ date: selectedDate, time: selectedTime });
-      setShowSuccessModal(true);
-    } else {
-      console.log('❌ Error al crear la reserva');
     }
   };
 
@@ -477,14 +508,29 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                 </p>
                 
                 {session ? (
-                  <button 
-                    className={styles.sacarTurnoButton}
-                    onClick={handleSacarTurno}
-                    disabled={!selectedDate || !selectedTime}
-                  >
-                    Confirmar y Pagar
-                    <ArrowRight size={20} />
-                  </button>
+                  selectedTime && !isSelectedTimeStillAvailable() ? (
+                    <div className={styles.turnoNoDisponible}>
+                      <span>❌ Este horario ya no está disponible</span>
+                      <button 
+                        onClick={() => {
+                          setSelectedTime('');
+                          loadProximosTurnos();
+                        }}
+                        className={styles.recargarButton}
+                      >
+                        🔄 Actualizar turnos
+                      </button>
+                    </div>
+                  ) : (
+                    <button 
+                      className={styles.sacarTurnoButton}
+                      onClick={handleSacarTurno}
+                      disabled={loading || !selectedDate || !selectedTime || !isSelectedTimeStillAvailable()}
+                    >
+                      {loading ? 'Procesando...' : 'Confirmar y Pagar'}
+                      {!loading && <ArrowRight size={20} />}
+                    </button>
+                  )
                 ) : (
                   <div className={styles.loginRequired}>
                     <div className={styles.loginMessage}>
