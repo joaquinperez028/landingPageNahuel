@@ -478,7 +478,10 @@
   position: relative;
   width: 100%;
   overflow-x: auto;
-  padding: 6rem 0;
+  padding: 4rem 0 6rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .roadmapTimeline {
@@ -487,19 +490,18 @@
   justify-content: space-between;
   align-items: center;
   min-width: 1200px;
-  margin: 0 auto;
   height: 300px;
 }
 
-/* Rombo de inicio */
+/* Rombo de inicio a la izquierda */
 .roadmapTimeline::before {
   content: '';
   position: absolute;
   top: 50%;
-  left: 1%;
+  left: -30px;
   width: 12px;
   height: 12px;
-  background: #334155;
+  background: #333333;
   transform: translateY(-50%) rotate(45deg);
   z-index: 2;
 }
@@ -509,25 +511,25 @@
   content: '';
   position: absolute;
   top: 50%;
-  left: 3%;
-  right: 8%;
-  height: 4px;
-  background: #334155;
+  left: -20px;
+  right: -30px;
+  height: 2px;
+  background: #333333;
   transform: translateY(-50%);
   z-index: 1;
 }
 
-/* Flecha al final */
+/* Flecha al final a la derecha */
 .roadmapWrapper::after {
   content: '';
   position: absolute;
   top: 50%;
-  right: 3%;
+  right: calc(50% - 620px);
   width: 0;
   height: 0;
-  border-left: 16px solid #334155;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
+  border-left: 12px solid #333333;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
   transform: translateY(-50%);
   z-index: 2;
 }
@@ -537,17 +539,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 2;
+  z-index: 3;
   flex: 1;
 }
 
-/* Línea vertical que conecta el módulo con la línea principal */
+/* Línea vertical que conecta cada círculo con la línea principal */
 .roadmapModule::before {
   content: '';
   position: absolute;
-  width: 3px;
-  height: 100px;
-  background: #334155;
+  width: 1px;
+  height: 80px;
+  background: #333333;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
@@ -555,74 +557,53 @@
 
 /* Módulos impares (1,3,5,7,9) - DEBAJO de la línea */
 .roadmapModule:nth-child(odd) {
-  align-self: flex-end;
-  padding-top: 150px;
+  padding-top: 80px;
 }
 
 .roadmapModule:nth-child(odd)::before {
-  top: -100px;
-}
-
-.roadmapModule:nth-child(odd) .roadmapModuleTitle {
-  margin-top: 1rem;
-  margin-bottom: 0;
+  top: -80px;
 }
 
 /* Módulos pares (2,4,6,8,10) - ARRIBA de la línea */
 .roadmapModule:nth-child(even) {
-  align-self: flex-start;
-  padding-bottom: 150px;
+  padding-bottom: 80px;
 }
 
 .roadmapModule:nth-child(even)::before {
-  bottom: -100px;
+  bottom: -80px;
   top: auto;
 }
 
-.roadmapModule:nth-child(even) .roadmapModuleTitle {
-  order: -1;
-  margin-bottom: 1rem;
-  margin-top: 0;
-}
-
 .roadmapCircle {
-  width: 100px;
-  height: 100px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #2a2a2a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #404040;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #404040;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   position: relative;
   z-index: 3;
 }
 
 .roadmapCircle:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   border-color: #00FFAB;
 }
 
 .roadmapModuleText {
   color: #00FFAB;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   text-align: center;
   line-height: 1.2;
-}
-
-.roadmapModuleTitle {
-  text-align: center;
-  color: #1e293b;
-  font-weight: 600;
-  font-size: 1rem;
-  max-width: 140px;
-  line-height: 1.3;
 }
 
 /* Animaciones */
@@ -656,12 +637,16 @@
 /* Responsive para roadmap */
 @media (max-width: 768px) {
   .roadmapWrapper {
-    padding: 4rem 0;
+    padding: 2rem 0 4rem;
   }
   
   .roadmapTimeline {
-    min-width: 800px;
-    height: 250px;
+    min-width: 900px;
+    height: 240px;
+  }
+  
+  .roadmapWrapper::after {
+    right: calc(50% - 460px);
   }
   
   .roadmapCircle {
@@ -670,32 +655,51 @@
   }
   
   .roadmapModuleText {
-    font-size: 0.75rem;
-  }
-  
-  .roadmapModuleTitle {
-    font-size: 0.875rem;
-    max-width: 100px;
+    font-size: 0.65rem;
   }
   
   .roadmapModule::before {
-    height: 80px;
+    height: 60px;
   }
   
   .roadmapModule:nth-child(odd) {
-    padding-top: 120px;
+    padding-top: 60px;
   }
   
   .roadmapModule:nth-child(even) {
-    padding-bottom: 120px;
+    padding-bottom: 60px;
   }
   
   .roadmapModule:nth-child(odd)::before {
-    top: -80px;
+    top: -60px;
   }
   
   .roadmapModule:nth-child(even)::before {
-    bottom: -80px;
+    bottom: -60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .roadmapContainer {
+    padding: 0 1rem;
+  }
+  
+  .roadmapTimeline {
+    min-width: 800px;
+    height: 200px;
+  }
+  
+  .roadmapWrapper::after {
+    right: calc(50% - 410px);
+  }
+  
+  .roadmapCircle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .roadmapModuleText {
+    font-size: 0.6rem;
   }
 }
 

@@ -431,72 +431,62 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
               <div className={styles.roadmapTimeline}>
                 <div className={styles.roadmapModule}>
                   <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>Módulo 1</span>
+                    <span className={styles.roadmapModuleText}>MODULO 1</span>
                   </div>
-                  <h3 className={styles.roadmapModuleTitle}>Fundamentos del Trading</h3>
                 </div>
                 
                 <div className={styles.roadmapModule}>
                   <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>Módulo 2</span>
+                    <span className={styles.roadmapModuleText}>MODULO 2</span>
                   </div>
-                  <h3 className={styles.roadmapModuleTitle}>Análisis Técnico Básico</h3>
                 </div>
                 
                 <div className={styles.roadmapModule}>
                   <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>Módulo 3</span>
+                    <span className={styles.roadmapModuleText}>MODULO 3</span>
                   </div>
-                  <h3 className={styles.roadmapModuleTitle}>Gestión de Riesgo</h3>
                 </div>
                 
                 <div className={styles.roadmapModule}>
                   <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>Módulo 4</span>
+                    <span className={styles.roadmapModuleText}>MODULO 4</span>
                   </div>
-                  <h3 className={styles.roadmapModuleTitle}>Psicología del Trading</h3>
                 </div>
                 
                 <div className={styles.roadmapModule}>
                   <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>Módulo 5</span>
+                    <span className={styles.roadmapModuleText}>MODULO 5</span>
                   </div>
-                  <h3 className={styles.roadmapModuleTitle}>Estrategias de Entrada</h3>
                 </div>
                 
                 <div className={styles.roadmapModule}>
                   <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>Módulo 6</span>
+                    <span className={styles.roadmapModuleText}>MODULO 6</span>
                   </div>
-                  <h3 className={styles.roadmapModuleTitle}>Análisis Fundamental</h3>
                 </div>
                 
                 <div className={styles.roadmapModule}>
                   <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>Módulo 7</span>
+                    <span className={styles.roadmapModuleText}>MODULO 7</span>
                   </div>
-                  <h3 className={styles.roadmapModuleTitle}>Trading Avanzado</h3>
                 </div>
                 
                 <div className={styles.roadmapModule}>
                   <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>Módulo 8</span>
+                    <span className={styles.roadmapModuleText}>MODULO 8</span>
                   </div>
-                  <h3 className={styles.roadmapModuleTitle}>Automatización</h3>
                 </div>
                 
                 <div className={styles.roadmapModule}>
                   <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>Módulo 9</span>
+                    <span className={styles.roadmapModuleText}>MODULO 9</span>
                   </div>
-                  <h3 className={styles.roadmapModuleTitle}>Portfolio Management</h3>
                 </div>
                 
                 <div className={styles.roadmapModule}>
                   <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>Módulo 10</span>
+                    <span className={styles.roadmapModuleText}>MODULO 10</span>
                   </div>
-                  <h3 className={styles.roadmapModuleTitle}>Trading Profesional</h3>
                 </div>
               </div>
             </div>
