@@ -188,10 +188,13 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     setIsCheckingAvailability(true);
     
     try {
+      console.log(`🔍 Verificando disponibilidad: ${fecha} ${horario}`);
+      
       const response = await fetch('/api/turnos/check-availability', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
         },
         body: JSON.stringify({
           fecha,
@@ -201,19 +204,26 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
         })
       });
 
+      if (!response.ok) {
+        console.error(`❌ Error en verificación: ${response.status}`);
+        return false; // Si hay error, asumir que NO está disponible
+      }
+
       const data = await response.json();
+      
+      console.log(`📊 Respuesta de verificación:`, data);
       
       setAvailabilityStatus(prev => ({
         ...prev,
         [key]: data.available
       }));
 
-      console.log(`🔍 Verificación en tiempo real: ${fecha} ${horario} - ${data.available ? 'Disponible' : 'No disponible'}`);
+      console.log(`🔍 Verificación en tiempo real: ${fecha} ${horario} - ${data.available ? '✅ Disponible' : '❌ NO DISPONIBLE'}`);
       
       return data.available;
     } catch (error) {
       console.error('❌ Error al verificar disponibilidad:', error);
-      return true; // En caso de error, asumir que está disponible
+      return false; // En caso de error, asumir que NO está disponible
     } finally {
       setIsCheckingAvailability(false);
     }

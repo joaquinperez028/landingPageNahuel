@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Fecha y horario son requeridos' });
     }
 
-    console.log(`🔍 Verificando disponibilidad: ${fecha} ${horario} (${tipo}/${servicioTipo})`);
+    console.log(`🔍 [CHECK-AVAILABILITY] Verificando disponibilidad: ${fecha} ${horario} (${tipo}/${servicioTipo})`);
 
     // Parsear la fecha (formato: "Lun 16 Jun")
     let targetDate: Date;
@@ -71,7 +71,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ]
     }).lean();
 
-    console.log(`📋 Reservas encontradas para el día: ${existingBookings.length}`);
+    console.log(`📋 [CHECK-AVAILABILITY] Reservas encontradas para el día: ${existingBookings.length}`);
+    
+    if (existingBookings.length > 0) {
+      console.log(`📋 [CHECK-AVAILABILITY] Detalles de reservas encontradas:`);
+      existingBookings.forEach((booking, index) => {
+        console.log(`  ${index + 1}. ${booking.userEmail} - ${new Date(booking.startDate).toISOString()} - Status: ${booking.status} - Tipo: ${booking.serviceType}`);
+      });
+    }
 
     // VERIFICACIÓN DIRECTA Y SIMPLE
     const conflictingBookings = existingBookings.filter(booking => {
@@ -86,28 +93,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         bookingStart.getMinutes() === slotStart.getMinutes()
       );
 
-      if (exactMatch) {
-        console.log(`🚫 CONFLICTO EXACTO con reserva de ${booking.userEmail}`);
-        console.log(`  Slot: ${slotStart.toISOString()}`);
-        console.log(`  Reserva: ${bookingStart.toISOString()}`);
-      }
+             if (exactMatch) {
+         console.log(`🚫 [CHECK-AVAILABILITY] CONFLICTO EXACTO con reserva de ${booking.userEmail}`);
+         console.log(`  Slot solicitado: ${slotStart.toISOString()}`);
+         console.log(`  Reserva existente: ${bookingStart.toISOString()}`);
+         console.log(`  Comparación: ${bookingStart.getFullYear()}/${bookingStart.getMonth()}/${bookingStart.getDate()} ${bookingStart.getHours()}:${bookingStart.getMinutes()}`);
+         console.log(`  vs ${slotStart.getFullYear()}/${slotStart.getMonth()}/${slotStart.getDate()} ${slotStart.getHours()}:${slotStart.getMinutes()}`);
+       }
 
-      return exactMatch;
-    });
+       return exactMatch;
+     });
 
-    const isAvailable = conflictingBookings.length === 0;
+     const isAvailable = conflictingBookings.length === 0;
 
-    console.log(`${isAvailable ? '✅' : '❌'} Turno ${fecha} ${horario} ${isAvailable ? 'disponible' : 'NO disponible'}`);
+     console.log(`${isAvailable ? '✅' : '❌'} [CHECK-AVAILABILITY] RESULTADO: Turno ${fecha} ${horario} ${isAvailable ? 'DISPONIBLE' : 'NO DISPONIBLE'}`);
+     console.log(`📊 [CHECK-AVAILABILITY] Conflictos encontrados: ${conflictingBookings.length}`);
 
-    return res.status(200).json({
-      available: isAvailable,
-      fecha,
-      horario,
-      conflicts: conflictingBookings.length,
-      message: isAvailable 
-        ? 'Turno disponible' 
-        : `Turno no disponible - ${conflictingBookings.length} conflicto(s) encontrado(s)`
-    });
+     return res.status(200).json({
+       available: isAvailable,
+       fecha,
+       horario,
+       conflicts: conflictingBookings.length,
+       message: isAvailable 
+         ? 'Turno disponible' 
+         : `Turno no disponible - ${conflictingBookings.length} conflicto(s) encontrado(s)`,
+       debug: {
+         slotRequested: slotStart.toISOString(),
+         totalBookings: existingBookings.length,
+         conflictingBookings: conflictingBookings.length,
+         timestamp: new Date().toISOString()
+       }
+     });
 
   } catch (error) {
     console.error('❌ Error al verificar disponibilidad:', error);
