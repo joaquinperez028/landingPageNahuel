@@ -92,7 +92,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const conflictingBookings = existingBookings.filter(booking => {
       const bookingStart = new Date(booking.startDate);
       
-      // COMPARACIÓN EXACTA: mismo día y misma hora
+      // COMPARACIÓN EXACTA: mismo año, mes, día, hora y minuto
       const exactMatch = (
         bookingStart.getFullYear() === slotStart.getFullYear() &&
         bookingStart.getMonth() === slotStart.getMonth() &&
@@ -101,16 +101,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         bookingStart.getMinutes() === slotStart.getMinutes()
       );
 
-             if (exactMatch) {
-         console.log(`🚫 [CHECK-AVAILABILITY] CONFLICTO EXACTO con reserva de ${booking.userEmail}`);
-         console.log(`  Slot solicitado: ${slotStart.toISOString()}`);
-         console.log(`  Reserva existente: ${bookingStart.toISOString()}`);
-         console.log(`  Comparación: ${bookingStart.getFullYear()}/${bookingStart.getMonth()}/${bookingStart.getDate()} ${bookingStart.getHours()}:${bookingStart.getMinutes()}`);
-         console.log(`  vs ${slotStart.getFullYear()}/${slotStart.getMonth()}/${slotStart.getDate()} ${slotStart.getHours()}:${slotStart.getMinutes()}`);
-       }
+      if (exactMatch) {
+        console.log(`🚫 [CHECK-AVAILABILITY] CONFLICTO EXACTO con reserva de ${booking.userEmail}`);
+        console.log(`  Slot solicitado: ${slotStart.toISOString()}`);
+        console.log(`  Reserva existente: ${bookingStart.toISOString()}`);
+        console.log(`  Usuario: ${booking.userEmail}, Status: ${booking.status}, Tipo: ${booking.serviceType}`);
+        console.log(`  Comparación detallada:`);
+        console.log(`    Reserva: ${bookingStart.getFullYear()}/${bookingStart.getMonth()}/${bookingStart.getDate()} ${bookingStart.getHours()}:${bookingStart.getMinutes()}`);
+        console.log(`    Slot:    ${slotStart.getFullYear()}/${slotStart.getMonth()}/${slotStart.getDate()} ${slotStart.getHours()}:${slotStart.getMinutes()}`);
+      }
 
-       return exactMatch;
-     });
+      return exactMatch;
+    });
 
      const isAvailable = conflictingBookings.length === 0;
 

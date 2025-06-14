@@ -296,6 +296,11 @@ async function getAvailableSlotsForDate(
       relevantSchedules = relevantSchedules.filter(advisory => advisory.type === advisoryType);
     }
 
+    console.log(`📋 Horarios configurados para ${advisoryType} en día ${dayOfWeek}: ${relevantSchedules.length}`);
+    relevantSchedules.forEach(schedule => {
+      console.log(`  - ${schedule.hour}:${schedule.minute.toString().padStart(2, '0')}`);
+    });
+
     const advisorySlots = relevantSchedules
       .map(advisory => {
         const hour = advisory.hour.toString().padStart(2, '0');
@@ -303,18 +308,20 @@ async function getAvailableSlotsForDate(
         return `${hour}:${minute}`;
       })
       .filter(slot => {
-        // Verificar que no haya conflicto con reservas existentes
+        // VERIFICACIÓN CRÍTICA: Verificar que no haya conflicto con reservas existentes
         const [slotHour, slotMinute] = slot.split(':').map(Number);
         const slotStart = new Date(targetDate);
         slotStart.setHours(slotHour, slotMinute, 0, 0);
-        const slotEnd = new Date(slotStart.getTime() + 60 * 60000); // Asesoría dura 60 minutos
         
-        // VERIFICACIÓN SIMPLE Y DIRECTA - usar bookingsForDay en lugar de existingBookings
+        console.log(`🔍 Verificando slot ${slot} para fecha ${targetDate.toDateString()}`);
+        console.log(`📅 Slot datetime: ${slotStart.toISOString()}`);
+        
+        // BUSCAR CONFLICTOS EXACTOS
         const conflictingBookings = bookingsForDay.filter(booking => {
           const bookingStart = new Date(booking.startDate);
           
-          // COMPARACIÓN DIRECTA: mismo día y misma hora
-          const sameDateTime = (
+          // COMPARACIÓN EXACTA: mismo año, mes, día, hora y minuto
+          const exactMatch = (
             bookingStart.getFullYear() === slotStart.getFullYear() &&
             bookingStart.getMonth() === slotStart.getMonth() &&
             bookingStart.getDate() === slotStart.getDate() &&
@@ -322,46 +329,31 @@ async function getAvailableSlotsForDate(
             bookingStart.getMinutes() === slotStart.getMinutes()
           );
 
-          if (sameDateTime) {
+          if (exactMatch) {
             console.log(`🚫 CONFLICTO EXACTO ENCONTRADO para slot ${slot}:`);
-            console.log(`  Slot: ${slotStart.toISOString()}`);
-            console.log(`  Reserva: ${bookingStart.toISOString()}`);
+            console.log(`  Slot solicitado: ${slotStart.toISOString()}`);
+            console.log(`  Reserva existente: ${bookingStart.toISOString()}`);
             console.log(`  Usuario: ${booking.userEmail}`);
             console.log(`  Status: ${booking.status}`);
+            console.log(`  Tipo: ${booking.serviceType}`);
           }
 
-          return sameDateTime;
+          return exactMatch;
         });
         
         const hasConflict = conflictingBookings.length > 0;
         
         if (hasConflict) {
-          console.log(`🚫 Slot de asesoría ${slot} excluido por ${conflictingBookings.length} conflicto(s)`);
+          console.log(`🚫 SLOT ${slot} EXCLUIDO - ${conflictingBookings.length} conflicto(s) encontrado(s)`);
         } else {
-          console.log(`✅ Slot de asesoría ${slot} disponible`);
+          console.log(`✅ SLOT ${slot} DISPONIBLE - sin conflictos`);
         }
         
         return !hasConflict;
-      })
-      .filter(slot => {
-        // Verificar que no haya conflicto con entrenamientos
-        const [slotHour, slotMinute] = slot.split(':').map(Number);
-        const slotStartMinutes = slotHour * 60 + slotMinute;
-        const slotEndMinutes = slotStartMinutes + 60; // Asesorías duran 60 minutos
-
-        return !trainingSchedules.some(training => {
-          if (training.dayOfWeek !== dayOfWeek) return false;
-          
-          const trainingStart = training.hour * 60 + training.minute;
-          const trainingEnd = trainingStart + training.duration;
-          
-          return (
-            (slotStartMinutes >= trainingStart && slotStartMinutes < trainingEnd) ||
-            (slotEndMinutes > trainingStart && slotEndMinutes <= trainingEnd) ||
-            (slotStartMinutes <= trainingStart && slotEndMinutes >= trainingEnd)
-          );
-        });
       });
+
+    console.log(`📊 Resultado final para ${targetDate.toDateString()}: ${advisorySlots.length} slots disponibles de ${relevantSchedules.length} configurados`);
+    console.log(`📋 Slots disponibles: [${advisorySlots.join(', ')}]`);
 
     return advisorySlots;
   }
