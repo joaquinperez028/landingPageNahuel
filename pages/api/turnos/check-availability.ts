@@ -19,9 +19,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`🔍 Verificando disponibilidad: ${fecha} ${horario} (${tipo}/${servicioTipo})`);
 
-    // Parsear la fecha
-    const [day, month, year] = fecha.split('/').map(Number);
-    const targetDate = new Date(year, month - 1, day);
+    // Parsear la fecha (formato: "Lun 16 Jun")
+    let targetDate: Date;
+    
+    if (fecha.includes('/')) {
+      // Formato: "16/06/2025"
+      const [day, month, year] = fecha.split('/').map(Number);
+      targetDate = new Date(year, month - 1, day);
+    } else {
+      // Formato: "Lun 16 Jun"
+      const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      const dateParts = fecha.split(' ');
+      const day = parseInt(dateParts[1]);
+      const monthName = dateParts[2];
+      const monthIndex = monthNames.indexOf(monthName);
+      
+      if (monthIndex === -1) {
+        return res.status(400).json({ error: 'Formato de fecha inválido' });
+      }
+      
+      const currentYear = new Date().getFullYear();
+      targetDate = new Date(currentYear, monthIndex, day);
+      
+      // Si la fecha es anterior a hoy, asumir que es del próximo año
+      if (targetDate < new Date()) {
+        targetDate.setFullYear(currentYear + 1);
+      }
+    }
+    
+    console.log(`📅 Fecha parseada: ${targetDate.toISOString()}`);
     
     // Parsear el horario
     const [hour, minute] = horario.split(':').map(Number);

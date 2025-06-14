@@ -117,26 +117,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         console.log(`📊 Fecha ${formatDateForDisplay(targetDate)}: ${advisorySlots.length} slots disponibles`);
         
-        // SOLO agregar días que tengan turnos realmente disponibles
+        // CRÍTICO: SOLO agregar días que tengan turnos realmente disponibles
         if (advisorySlots.length > 0) {
           const limitedSlots = advisorySlots.slice(0, maxSlotsPerDay);
           
-          // Obtener precio de la asesoría
-          const daySchedules = advisorySchedules.filter(as => as.dayOfWeek === dayOfWeek);
-          const price = daySchedules.length > 0 ? daySchedules[0].price : undefined;
-          
-          console.log(`✅ Agregando día ${formatDateForDisplay(targetDate)} con ${limitedSlots.length} turnos`);
-          
-          turnos.push({
-            fecha: formatDateForDisplay(targetDate),
-            horarios: limitedSlots,
-            disponibles: limitedSlots.length,
-            type: 'advisory',
-            advisoryType: advisoryType,
-            price: price
-          });
+          // DOBLE VERIFICACIÓN: Asegurar que los slots no estén vacíos
+          if (limitedSlots.length > 0) {
+            // Obtener precio de la asesoría
+            const daySchedules = advisorySchedules.filter(as => as.dayOfWeek === dayOfWeek);
+            const price = daySchedules.length > 0 ? daySchedules[0].price : undefined;
+            
+            console.log(`✅ AGREGANDO día ${formatDateForDisplay(targetDate)} con ${limitedSlots.length} turnos: [${limitedSlots.join(', ')}]`);
+            
+            turnos.push({
+              fecha: formatDateForDisplay(targetDate),
+              horarios: limitedSlots,
+              disponibles: limitedSlots.length,
+              type: 'advisory',
+              advisoryType: advisoryType,
+              price: price
+            });
+          } else {
+            console.log(`🚫 Día ${formatDateForDisplay(targetDate)} excluido - limitedSlots vacío`);
+          }
         } else {
-          console.log(`🚫 Día ${formatDateForDisplay(targetDate)} excluido - sin turnos disponibles`);
+          console.log(`🚫 Día ${formatDateForDisplay(targetDate)} EXCLUIDO - sin turnos disponibles (advisorySlots.length = 0)`);
         }
       }
 
@@ -194,14 +199,36 @@ async function getAvailableSlotsForDate(
   console.log(`🔍 Buscando reservas existentes para ${targetDate.toDateString()}`);
   console.log(`📅 Rango: ${startOfDay.toISOString()} - ${endOfDay.toISOString()}`);
 
+  // Buscar TODAS las reservas primero para debugging
+  const allBookings = await Booking.find({});
+  console.log(`🗂️ TOTAL de reservas en la base de datos: ${allBookings.length}`);
+  
+  if (allBookings.length > 0) {
+    console.log('📋 Todas las reservas:');
+    allBookings.forEach((booking, index) => {
+      console.log(`  ${index + 1}. ${booking.userEmail} - ${booking.startDate.toISOString()} - Status: ${booking.status} - Tipo: ${booking.type}/${booking.serviceType}`);
+    });
+  }
+
   const existingBookings = await Booking.find({
     status: { $in: ['pending', 'confirmed'] },
     startDate: { $gte: startOfDay, $lte: endOfDay }
   });
 
-  console.log(`📋 Reservas encontradas: ${existingBookings.length}`);
+  console.log(`📋 Reservas encontradas para el día específico: ${existingBookings.length}`);
   existingBookings.forEach((booking, index) => {
-    console.log(`  ${index + 1}. ${booking.userEmail} - ${booking.startDate.toISOString()} (${booking.type}/${booking.serviceType})`);
+    console.log(`  ${index + 1}. ${booking.userEmail} - ${booking.startDate.toISOString()} (${booking.type}/${booking.serviceType}) - Status: ${booking.status}`);
+  });
+
+  // También buscar reservas de Consultorio Financiero específicamente
+  const consultorioBookings = await Booking.find({
+    status: { $in: ['pending', 'confirmed'] },
+    serviceType: 'ConsultorioFinanciero'
+  });
+  
+  console.log(`🏥 Reservas de Consultorio Financiero en total: ${consultorioBookings.length}`);
+  consultorioBookings.forEach((booking, index) => {
+    console.log(`  ${index + 1}. ${booking.userEmail} - ${booking.startDate.toISOString()} - Status: ${booking.status}`);
   });
 
   if (type === 'training') {
