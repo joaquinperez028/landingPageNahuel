@@ -478,7 +478,7 @@
   position: relative;
   width: 100%;
   overflow-x: auto;
-  padding: 4rem 0;
+  padding: 6rem 0;
 }
 
 .roadmapTimeline {
@@ -488,17 +488,33 @@
   align-items: center;
   min-width: 1200px;
   margin: 0 auto;
+  height: 300px;
 }
 
-/* Línea horizontal principal */
+/* Línea horizontal principal con flecha */
 .roadmapTimeline::before {
   content: '';
   position: absolute;
   top: 50%;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+  left: 2%;
+  right: 8%;
+  height: 4px;
+  background: #334155;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+/* Flecha al final */
+.roadmapTimeline::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 2%;
+  width: 0;
+  height: 0;
+  border-left: 15px solid #334155;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
   transform: translateY(-50%);
   z-index: 1;
 }
@@ -509,68 +525,82 @@
   flex-direction: column;
   align-items: center;
   z-index: 2;
+  flex: 1;
 }
 
 /* Línea vertical que conecta el módulo con la línea principal */
 .roadmapModule::before {
   content: '';
   position: absolute;
-  width: 2px;
-  height: 80px;
+  width: 3px;
+  height: 100px;
   background: #334155;
-  top: 50%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
 }
 
-/* Módulos impares (debajo) */
+/* Módulos impares (1,3,5,7,9) - DEBAJO de la línea */
 .roadmapModule:nth-child(odd) {
-  margin-top: 120px;
+  align-self: flex-end;
+  padding-top: 150px;
 }
 
 .roadmapModule:nth-child(odd)::before {
-  top: -80px;
+  top: -100px;
 }
 
-/* Módulos pares (arriba) */
+.roadmapModule:nth-child(odd) .roadmapModuleTitle {
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+/* Módulos pares (2,4,6,8,10) - ARRIBA de la línea */
 .roadmapModule:nth-child(even) {
-  margin-bottom: 120px;
+  align-self: flex-start;
+  padding-bottom: 150px;
 }
 
 .roadmapModule:nth-child(even)::before {
-  bottom: -80px;
+  bottom: -100px;
   top: auto;
 }
 
+.roadmapModule:nth-child(even) .roadmapModuleTitle {
+  order: -1;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
 .roadmapCircle {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid #475569;
+  border: 3px solid #4a5568;
   box-shadow: 0 4px 20px rgba(30, 41, 59, 0.3);
   transition: all 0.3s ease;
   position: relative;
   z-index: 3;
-  margin-bottom: 1rem;
 }
 
 .roadmapCircle:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 30px rgba(30, 41, 59, 0.4);
-  border-color: #06b6d4;
+  border-color: #10b981;
 }
 
 .roadmapModuleText {
   color: #10b981;
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 1rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .roadmapModuleTitle {
@@ -578,20 +608,8 @@
   color: #1e293b;
   font-weight: 600;
   font-size: 1rem;
-  max-width: 120px;
+  max-width: 140px;
   line-height: 1.3;
-}
-
-/* Módulos pares - título arriba del círculo */
-.roadmapModule:nth-child(even) .roadmapModuleTitle {
-  order: -1;
-  margin-bottom: 1rem;
-  margin-top: 0;
-}
-
-/* Módulos impares - título debajo del círculo */
-.roadmapModule:nth-child(odd) .roadmapModuleTitle {
-  margin-top: 0;
 }
 
 /* Animaciones */
@@ -625,16 +643,17 @@
 /* Responsive para roadmap */
 @media (max-width: 768px) {
   .roadmapWrapper {
-    padding: 2rem 0;
+    padding: 4rem 0;
   }
   
   .roadmapTimeline {
     min-width: 800px;
+    height: 250px;
   }
   
   .roadmapCircle {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
   }
   
   .roadmapModuleText {
@@ -647,23 +666,23 @@
   }
   
   .roadmapModule::before {
-    height: 60px;
+    height: 80px;
   }
   
   .roadmapModule:nth-child(odd) {
-    margin-top: 80px;
+    padding-top: 120px;
   }
   
   .roadmapModule:nth-child(even) {
-    margin-bottom: 80px;
+    padding-bottom: 120px;
   }
   
   .roadmapModule:nth-child(odd)::before {
-    top: -60px;
+    top: -80px;
   }
   
   .roadmapModule:nth-child(even)::before {
-    bottom: -60px;
+    bottom: -80px;
   }
 }
 
