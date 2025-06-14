@@ -465,7 +465,7 @@
 /* Roadmap Section */
 .roadmapSection {
   padding: 6rem 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: #ffffff;
 }
 
 .roadmapContainer {
@@ -491,12 +491,25 @@
   height: 300px;
 }
 
-/* Línea horizontal principal con flecha */
+/* Rombo de inicio */
 .roadmapTimeline::before {
   content: '';
   position: absolute;
   top: 50%;
-  left: 2%;
+  left: 1%;
+  width: 12px;
+  height: 12px;
+  background: #334155;
+  transform: translateY(-50%) rotate(45deg);
+  z-index: 2;
+}
+
+/* Línea horizontal principal */
+.roadmapTimeline::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 3%;
   right: 8%;
   height: 4px;
   background: #334155;
@@ -505,18 +518,18 @@
 }
 
 /* Flecha al final */
-.roadmapTimeline::after {
+.roadmapWrapper::after {
   content: '';
   position: absolute;
   top: 50%;
-  right: 2%;
+  right: 3%;
   width: 0;
   height: 0;
-  border-left: 15px solid #334155;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
+  border-left: 16px solid #334155;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
   transform: translateY(-50%);
-  z-index: 1;
+  z-index: 2;
 }
 
 .roadmapModule {
@@ -576,27 +589,27 @@
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid #4a5568;
-  box-shadow: 0 4px 20px rgba(30, 41, 59, 0.3);
+  border: 2px solid #404040;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   position: relative;
   z-index: 3;
 }
 
 .roadmapCircle:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(30, 41, 59, 0.4);
-  border-color: #10b981;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  border-color: #00FFAB;
 }
 
 .roadmapModuleText {
-  color: #10b981;
+  color: #00FFAB;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.9rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   text-align: center;
