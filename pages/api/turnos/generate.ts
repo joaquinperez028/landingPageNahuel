@@ -210,10 +210,14 @@ async function getAvailableSlotsForDate(
     });
   }
 
+  // CONSULTA DIRECTA Y SIMPLE - buscar reservas para este día específico
   const existingBookings = await Booking.find({
-    status: { $in: ['pending', 'confirmed'] },
-    startDate: { $gte: startOfDay, $lte: endOfDay }
-  });
+    $and: [
+      { status: { $in: ['pending', 'confirmed'] } },
+      { serviceType: 'ConsultorioFinanciero' },
+      { startDate: { $gte: startOfDay, $lt: endOfDay } }
+    ]
+  }).lean();
 
   console.log(`📋 Reservas encontradas para el día específico: ${existingBookings.length}`);
   existingBookings.forEach((booking, index) => {
@@ -298,35 +302,28 @@ async function getAvailableSlotsForDate(
         slotStart.setHours(slotHour, slotMinute, 0, 0);
         const slotEnd = new Date(slotStart.getTime() + 60 * 60000); // Asesoría dura 60 minutos
         
+        // VERIFICACIÓN SIMPLE Y DIRECTA
         const conflictingBookings = existingBookings.filter(booking => {
           const bookingStart = new Date(booking.startDate);
-          const bookingEnd = new Date(booking.endDate);
           
-          // Verificar si hay solapamiento entre el slot y la reserva existente
-          // Usar comparación más estricta para evitar falsos negativos
-          const hasOverlap = (
-            (slotStart.getTime() >= bookingStart.getTime() && slotStart.getTime() < bookingEnd.getTime()) ||
-            (slotEnd.getTime() > bookingStart.getTime() && slotEnd.getTime() <= bookingEnd.getTime()) ||
-            (slotStart.getTime() <= bookingStart.getTime() && slotEnd.getTime() >= bookingEnd.getTime())
+          // COMPARACIÓN DIRECTA: mismo día y misma hora
+          const sameDateTime = (
+            bookingStart.getFullYear() === slotStart.getFullYear() &&
+            bookingStart.getMonth() === slotStart.getMonth() &&
+            bookingStart.getDate() === slotStart.getDate() &&
+            bookingStart.getHours() === slotStart.getHours() &&
+            bookingStart.getMinutes() === slotStart.getMinutes()
           );
 
-          // También verificar si es exactamente el mismo horario
-          const exactMatch = (
-            slotStart.getTime() === bookingStart.getTime() ||
-            Math.abs(slotStart.getTime() - bookingStart.getTime()) < 60000 // Diferencia menor a 1 minuto
-          );
-
-          const hasConflict = hasOverlap || exactMatch;
-
-          if (hasConflict) {
-            console.log(`🔍 CONFLICTO DETECTADO para slot ${slot}:`);
-            console.log(`  Slot: ${slotStart.toISOString()} - ${slotEnd.toISOString()}`);
-            console.log(`  Reserva: ${bookingStart.toISOString()} - ${bookingEnd.toISOString()}`);
-            console.log(`  Usuario: ${booking.userEmail}, Tipo: ${booking.type}/${booking.serviceType}`);
+          if (sameDateTime) {
+            console.log(`🚫 CONFLICTO EXACTO ENCONTRADO para slot ${slot}:`);
+            console.log(`  Slot: ${slotStart.toISOString()}`);
+            console.log(`  Reserva: ${bookingStart.toISOString()}`);
+            console.log(`  Usuario: ${booking.userEmail}`);
             console.log(`  Status: ${booking.status}`);
           }
 
-          return hasConflict;
+          return sameDateTime;
         });
         
         const hasConflict = conflictingBookings.length > 0;

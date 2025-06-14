@@ -64,30 +64,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     endOfDay.setHours(23, 59, 59, 999);
 
     const existingBookings = await Booking.find({
-      status: { $in: ['pending', 'confirmed'] },
-      startDate: { $gte: startOfDay, $lte: endOfDay }
-    });
+      $and: [
+        { status: { $in: ['pending', 'confirmed'] } },
+        { serviceType: 'ConsultorioFinanciero' },
+        { startDate: { $gte: startOfDay, $lt: endOfDay } }
+      ]
+    }).lean();
 
     console.log(`📋 Reservas encontradas para el día: ${existingBookings.length}`);
 
-    // Verificar conflictos
+    // VERIFICACIÓN DIRECTA Y SIMPLE
     const conflictingBookings = existingBookings.filter(booking => {
       const bookingStart = new Date(booking.startDate);
-      const bookingEnd = new Date(booking.endDate);
       
-      // Verificar si hay solapamiento
-      const hasOverlap = (
-        (slotStart >= bookingStart && slotStart < bookingEnd) ||
-        (slotEnd > bookingStart && slotEnd <= bookingEnd) ||
-        (slotStart <= bookingStart && slotEnd >= bookingEnd)
+      // COMPARACIÓN EXACTA: mismo día y misma hora
+      const exactMatch = (
+        bookingStart.getFullYear() === slotStart.getFullYear() &&
+        bookingStart.getMonth() === slotStart.getMonth() &&
+        bookingStart.getDate() === slotStart.getDate() &&
+        bookingStart.getHours() === slotStart.getHours() &&
+        bookingStart.getMinutes() === slotStart.getMinutes()
       );
 
-      if (hasOverlap) {
-        console.log(`🚫 Conflicto detectado con reserva de ${booking.userEmail}`);
-        console.log(`  Reserva: ${bookingStart.toISOString()} - ${bookingEnd.toISOString()}`);
+      if (exactMatch) {
+        console.log(`🚫 CONFLICTO EXACTO con reserva de ${booking.userEmail}`);
+        console.log(`  Slot: ${slotStart.toISOString()}`);
+        console.log(`  Reserva: ${bookingStart.toISOString()}`);
       }
 
-      return hasOverlap;
+      return exactMatch;
     });
 
     const isAvailable = conflictingBookings.length === 0;
