@@ -661,21 +661,21 @@
   }
   
   .roadmapModule:nth-child(odd) {
-    padding-top: 70px;
+    margin-top: 70px;
   }
   
   .roadmapModule:nth-child(even) {
-    padding-bottom: 70px;
+    margin-bottom: 70px;
   }
   
   .roadmapModule:nth-child(odd)::before {
-    height: 70px;
-    top: -70px;
+    height: 35px;
+    top: -35px;
   }
   
   .roadmapModule:nth-child(even)::before {
-    height: 70px;
-    bottom: -70px;
+    height: 35px;
+    bottom: -35px;
   }
 }
 
