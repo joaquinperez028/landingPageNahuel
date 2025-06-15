@@ -571,8 +571,8 @@
 }
 
 .roadmapModuleTop::before {
-  height: 120px;
-  bottom: -120px;
+  height: 240px;
+  bottom: -240px;
   top: auto;
 }
 
@@ -674,8 +674,8 @@
   }
   
   .roadmapModuleTop::before {
-    height: 85px;
-    bottom: -85px;
+    height: 170px;
+    bottom: -170px;
   }
 }
 
