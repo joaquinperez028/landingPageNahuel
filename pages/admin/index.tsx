@@ -13,7 +13,8 @@ import {
   BarChart3,
   Clock,
   FileText,
-  ArrowRight
+  ArrowRight,
+  Globe
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -25,6 +26,13 @@ interface AdminDashboardProps {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const adminSections = [
+    {
+      title: 'Configuración del Sitio',
+      description: 'Configura el video principal, secciones y elementos del landing page',
+      icon: <Globe size={32} />,
+      href: '/admin/site-config',
+      color: '#7c3aed'
+    },
     {
       title: 'Gestión de Horarios',
       description: 'Configura los días y horarios disponibles para entrenamientos',
@@ -128,6 +136,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             <div className={styles.statsGrid}>
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>
+                  <Globe size={24} />
+                </div>
+                <div className={styles.statContent}>
+                  <h4>Configuración del Sitio</h4>
+                  <p>Configura el video de YouTube y secciones del landing</p>
+                  <Link href="/admin/site-config" className={styles.statLink}>
+                    Configurar sitio →
+                  </Link>
+                </div>
+              </div>
+
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>
                   <Calendar size={24} />
                 </div>
                 <div className={styles.statContent}>
@@ -148,19 +169,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                   <p>Revisa las últimas reservas de clientes</p>
                   <Link href="/admin/reservas" className={styles.statLink}>
                     Ver reservas →
-                  </Link>
-                </div>
-              </div>
-
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  <FileText size={24} />
-                </div>
-                <div className={styles.statContent}>
-                  <h4>Contenido del Sitio</h4>
-                  <p>Actualiza testimonios y FAQs</p>
-                  <Link href="/admin/testimonios" className={styles.statLink}>
-                    Gestionar contenido →
                   </Link>
                 </div>
               </div>

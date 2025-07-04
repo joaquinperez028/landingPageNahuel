@@ -4,30 +4,73 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, TrendingUp, Users, Shield, Star, X } from 'lucide-react';
+import { ChevronRight, TrendingUp, Users, Shield, Star, X, BookOpen, Clock, Award } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
-import VideoPlayerMux from '@/components/VideoPlayerMux';
+import YouTubePlayer from '@/components/YouTubePlayer';
 import styles from '@/styles/Home.module.css';
-import MuxPlayer from '@mux/mux-player-react';
+
+interface Training {
+  _id: string;
+  tipo: string;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  duracion: number;
+  contenido: {
+    modulos: number;
+    lecciones: number;
+    certificacion: boolean;
+    nivelAcceso: string;
+  };
+  metricas: {
+    rentabilidad: number;
+    estudiantesActivos: number;
+    entrenamientosRealizados: number;
+    satisfaccion: number;
+  };
+  activo: boolean;
+}
+
+interface SiteConfig {
+  heroVideo: {
+    youtubeId: string;
+    title: string;
+    description: string;
+    thumbnail?: string;
+    autoplay: boolean;
+    muted: boolean;
+    loop: boolean;
+  };
+  servicios: {
+    orden: number;
+    visible: boolean;
+  };
+  cursos: {
+    orden: number;
+    visible: boolean;
+    destacados: Training[];
+  };
+}
 
 interface HomeProps {
   /** @param session - Sesión del usuario autenticado */
   session: any;
+  siteConfig: SiteConfig;
+  entrenamientos: Training[];
 }
 
 /**
  * Página principal del sitio web de Nahuel Lozano
  */
-export default function Home({ session }: HomeProps) {
+export default function Home({ session, siteConfig, entrenamientos }: HomeProps) {
   console.log('🏠 Renderizando página principal');
   
   const [showPopup, setShowPopup] = useState(false);
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
-  const [muxPlayerLoaded, setMuxPlayerLoaded] = useState(true);
 
   // Mostrar popup después de 3 segundos si no está logueado
   useEffect(() => {
@@ -226,47 +269,23 @@ export default function Home({ session }: HomeProps) {
                     </>
                   ) : (
                     <button onClick={() => signIn('google')} className="btn btn-primary btn-lg">
-                      Comenzá a Aprender
+                      Comenzá ahora
                       <ChevronRight size={20} />
                     </button>
                   )}
                 </div>
               </div>
 
-              {/* Video de Presentación, Explicación y Finalidad */}
+              {/* Video de Presentación con YouTube */}
               <div className={styles.heroVideo}>
-                {muxPlayerLoaded ? (
-                  <MuxPlayer
-                    streamType="on-demand"
-                    playbackId="presentacion-nahuel-lozano" // Video pantalla completa y reproducción automática
-                    metadataVideoTitle="Presentación Nahuel Lozano"
-                    metadataViewerUserId="anonymous"
-                    primaryColor="#667eea"
-                    secondaryColor="#764ba2"
-                    autoPlay="muted"
-                    loop
-                    muted
-                    onError={(error) => {
-                      console.log('Error en video MUX:', error);
-                      // En caso de error, ocultar el video player
-                      setMuxPlayerLoaded(false);
-                    }}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
-                ) : (
-                  // Fallback: gradiente animado
-                  <div className={styles.videoFallback}>
-                    <div className={styles.gradientBackground}></div>
-                    <div className={styles.fallbackText}>
-                      <h3>Bienvenido al Trading Profesional</h3>
-                      <p>Video de presentación no disponible</p>
-                    </div>
-                  </div>
-                )}
+                <YouTubePlayer
+                  videoId={siteConfig.heroVideo.youtubeId}
+                  title={siteConfig.heroVideo.title}
+                  autoplay={siteConfig.heroVideo.autoplay}
+                  muted={siteConfig.heroVideo.muted}
+                  loop={siteConfig.heroVideo.loop}
+                  className={styles.heroVideoPlayer}
+                />
               </div>
             </motion.div>
           </div>
@@ -355,46 +374,136 @@ export default function Home({ session }: HomeProps) {
         </section>
 
         {/* Servicios Section */}
-        <section className={styles.servicios}>
-          <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <div className={styles.sectionHeader}>
-                <h2>Nuestros Servicios</h2>
-                <p>Herramientas y conocimiento para potenciar tus inversiones</p>
-              </div>
+        {siteConfig.servicios.visible && (
+          <section className={styles.servicios}>
+            <div className="container">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <div className={styles.sectionHeader}>
+                  <h2>Nuestros Servicios</h2>
+                  <p>Herramientas y conocimiento para potenciar tus inversiones</p>
+                </div>
 
-              <div className={styles.serviciosGrid}>
-                {servicios.map((servicio, index) => (
-                  <motion.div
-                    key={servicio.titulo}
-                    className={styles.servicioCard}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    whileHover={{ y: -5 }}
-                  >
-                    <div className={styles.servicioHeader}>
-                      {servicio.icono}
-                      <h3>{servicio.titulo}</h3>
-                    </div>
-                    <p className={styles.servicioDescription}>{servicio.descripcion}</p>
-                    <div className={styles.servicioPrecio}>{servicio.precio}</div>
-                    <Link href={servicio.href} className="btn btn-primary">
-                      Conocer más
-                      <ChevronRight size={16} />
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </section>
+                <div className={styles.serviciosGrid}>
+                  {servicios.map((servicio, index) => (
+                    <motion.div
+                      key={servicio.titulo}
+                      className={styles.servicioCard}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      whileHover={{ y: -5 }}
+                    >
+                      <div className={styles.servicioHeader}>
+                        {servicio.icono}
+                        <h3>{servicio.titulo}</h3>
+                      </div>
+                      <p className={styles.servicioDescription}>{servicio.descripcion}</p>
+                      <div className={styles.servicioPrecio}>{servicio.precio}</div>
+                      <Link href={servicio.href} className="btn btn-primary">
+                        Conocer más
+                        <ChevronRight size={16} />
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </section>
+        )}
+
+        {/* Cursos Section - NUEVA SECCIÓN */}
+        {siteConfig.cursos.visible && (
+          <section className={styles.cursos}>
+            <div className="container">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <div className={styles.sectionHeader}>
+                  <h2>Cursos Destacados</h2>
+                  <p>Aprende trading con los mejores entrenamientos del mercado</p>
+                </div>
+
+                <div className={styles.cursosGrid}>
+                  {entrenamientos.filter(e => e.activo).map((curso, index) => (
+                    <motion.div
+                      key={curso._id}
+                      className={styles.cursoCard}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      viewport={{ once: true }}
+                      whileHover={{ y: -5 }}
+                    >
+                      <div className={styles.cursoHeader}>
+                        <div className={styles.cursoIcon}>
+                          <BookOpen size={24} />
+                        </div>
+                        <div className={styles.cursoMeta}>
+                          <span className={styles.cursoNivel}>{curso.contenido.nivelAcceso}</span>
+                          <span className={styles.cursoRating}>
+                            <Star size={16} fill="currentColor" />
+                            {curso.metricas.satisfaccion.toFixed(1)}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <h3 className={styles.cursoTitulo}>{curso.nombre}</h3>
+                      <p className={styles.cursoDescripcion}>{curso.descripcion}</p>
+                      
+                      <div className={styles.cursoStats}>
+                        <div className={styles.cursoStat}>
+                          <Clock size={16} />
+                          <span>{curso.duracion} horas</span>
+                        </div>
+                        <div className={styles.cursoStat}>
+                          <Users size={16} />
+                          <span>{curso.metricas.estudiantesActivos} estudiantes</span>
+                        </div>
+                        <div className={styles.cursoStat}>
+                          <Award size={16} />
+                          <span>{curso.contenido.modulos} módulos</span>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.cursoFooter}>
+                        <div className={styles.cursoPrecio}>
+                          <span className={styles.cursoMoneda}>$</span>
+                          <span className={styles.cursoPrecioNum}>{curso.precio}</span>
+                        </div>
+                        <Link href={`/entrenamientos/${curso.tipo.toLowerCase()}`} className="btn btn-primary">
+                          Ver Curso
+                          <ChevronRight size={16} />
+                        </Link>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                
+                <motion.div
+                  className={styles.cursosAction}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  viewport={{ once: true }}
+                >
+                  <Link href="/entrenamientos" className="btn btn-outline btn-lg">
+                    Ver todos los cursos
+                    <ChevronRight size={20} />
+                  </Link>
+                </motion.div>
+              </motion.div>
+            </div>
+          </section>
+        )}
 
         {/* Testimonios Section */}
         <section className={styles.testimonios}>
@@ -556,9 +665,30 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const session = await getSession(context);
     console.log('✅ Sesión obtenida:', session ? 'Usuario autenticado' : 'Usuario no autenticado');
     
+    // Obtener configuración del sitio
+    const siteConfigResponse = await fetch(`${process.env.NEXTAUTH_URL}/api/site-config`);
+    const siteConfig = siteConfigResponse.ok ? await siteConfigResponse.json() : {
+      heroVideo: {
+        youtubeId: 'dQw4w9WgXcQ',
+        title: 'Video de Presentación',
+        description: 'Conoce más sobre nuestros servicios de trading',
+        autoplay: true,
+        muted: true,
+        loop: true
+      },
+      servicios: { orden: 1, visible: true },
+      cursos: { orden: 2, visible: true, destacados: [] }
+    };
+
+    // Obtener entrenamientos activos
+    const entrenamientosResponse = await fetch(`${process.env.NEXTAUTH_URL}/api/entrenamientos`);
+    const entrenamientos = entrenamientosResponse.ok ? await entrenamientosResponse.json() : [];
+    
     return {
       props: {
         session: session || null,
+        siteConfig,
+        entrenamientos: entrenamientos.filter((e: Training) => e.activo) || []
       },
     };
   } catch (error) {
@@ -567,6 +697,19 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         session: null,
+        siteConfig: {
+          heroVideo: {
+            youtubeId: 'dQw4w9WgXcQ',
+            title: 'Video de Presentación',
+            description: 'Conoce más sobre nuestros servicios de trading',
+            autoplay: true,
+            muted: true,
+            loop: true
+          },
+          servicios: { orden: 1, visible: true },
+          cursos: { orden: 2, visible: true, destacados: [] }
+        },
+        entrenamientos: []
       },
     };
   }
