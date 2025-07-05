@@ -21,37 +21,54 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
       entryPrice: alert.entryPrice
     });
 
-    // Determinar el tipo de suscripción basado en el tipo de alerta
-    let subscriptionType = 'alertas_trader'; // por defecto
-    let alertType = 'TraderCall';
+    // Determinar el servicio basado en el tipo de alerta
+    let serviceType = alert.tipo; // 'TraderCall', 'SmartMoney', 'CashFlow'
     
-    if (alert.tipo === 'SmartMoney') {
-      subscriptionType = 'alertas_smart';
-      alertType = 'SmartMoney';
-    } else if (alert.tipo === 'CashFlow') {
-      subscriptionType = 'alertas_cashflow';
-      alertType = 'CashFlow';
-    }
+    console.log('🔔 [ALERT NOTIFICATION] Tipo de servicio:', serviceType);
 
-    console.log('🔔 [ALERT NOTIFICATION] Tipo de suscripción determinado:', subscriptionType);
+    // Buscar usuarios con suscripciones activas al servicio específico
+    const subscribedUsers = await User.find({
+      $or: [
+        {
+          // Buscar en campo 'suscripciones'
+          'suscripciones': {
+            $elemMatch: {
+              servicio: serviceType,
+              activa: true,
+              fechaVencimiento: { $gte: new Date() }
+            }
+          }
+        },
+        {
+          // Buscar en campo 'subscriptions'
+          'subscriptions': {
+            $elemMatch: {
+              tipo: serviceType,
+              activa: true,
+              $or: [
+                { fechaFin: { $gte: new Date() } },
+                { fechaFin: { $exists: false } }
+              ]
+            }
+          }
+        }
+      ]
+    }, 'email name');
 
-    // Verificar usuarios suscritos ANTES de crear la notificación
-    const subscribedUsers = await UserSubscription.find({
-      [`subscriptions.${subscriptionType}`]: true
-    });
-
-    console.log('👥 [ALERT NOTIFICATION] Usuarios suscritos encontrados:', subscribedUsers.length);
+    console.log('👥 [ALERT NOTIFICATION] Usuarios suscritos al servicio encontrados:', subscribedUsers.length);
     
     if (subscribedUsers.length === 0) {
-      console.log('⚠️ [ALERT NOTIFICATION] No hay usuarios suscritos al tipo:', subscriptionType);
+      console.log('⚠️ [ALERT NOTIFICATION] No hay usuarios suscritos al servicio:', serviceType);
       
-      // Mostrar estadísticas de suscripciones para debugging
-      const allSubscriptions = await UserSubscription.find({});
-      console.log('📊 [ALERT NOTIFICATION] Total usuarios con suscripciones configuradas:', allSubscriptions.length);
-      
-      for (const sub of allSubscriptions.slice(0, 3)) {
-        console.log('📊 [ALERT NOTIFICATION] Usuario:', sub.userEmail, 'suscripciones:', sub.subscriptions);
-      }
+      // Mostrar estadísticas para debugging
+      const totalUsers = await User.countDocuments();
+      const usersWithSubscriptions = await User.countDocuments({
+        $or: [
+          { 'suscripciones.0': { $exists: true } },
+          { 'subscriptions.0': { $exists: true } }
+        ]
+      });
+      console.log('📊 [ALERT NOTIFICATION] Total usuarios:', totalUsers, 'con suscripciones:', usersWithSubscriptions);
       
       return;
     }
@@ -65,7 +82,7 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
     if (template) {
       // Usar plantilla con variables dinámicas
       const variables = {
-        alertType,
+        alertType: serviceType,
         symbol: alert.symbol,
         action: alert.action,
         price: alert.entryPrice?.toString() || 'N/A',
@@ -96,7 +113,7 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
       console.log('🎨 [ALERT NOTIFICATION] Usando notificación manual (sin plantilla)');
       // Crear notificación manual si no hay plantilla
       notification = {
-        title: `🚨 Nueva Alerta ${alertType}`,
+        title: `🚨 Nueva Alerta ${serviceType}`,
         message: `${alert.action} ${alert.symbol} en $${alert.entryPrice}. TP: $${alert.takeProfit}, SL: $${alert.stopLoss}`,
         type: 'alerta',
         priority: 'high',
@@ -117,12 +134,12 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
 
     console.log('📧 [ALERT NOTIFICATION] Enviando notificación:', {
       title: notification.title,
-      subscriptionType,
+      serviceType: serviceType,
       shouldSendEmail: true
     });
 
-    // Enviar notificación a usuarios suscritos (incluyendo emails)
-    const result = await sendNotificationToSubscribers(notification, subscriptionType, true);
+    // Enviar notificación directamente a usuarios suscritos al servicio
+    const result = await sendNotificationToServiceSubscribers(notification, subscribedUsers, true);
     
     console.log(`✅ [ALERT NOTIFICATION] Resultado final: ${result.sent} usuarios notificados, ${result.emailsSent} emails enviados, ${result.failed} fallos`);
 
@@ -150,22 +167,70 @@ export async function createReportNotification(report: any): Promise<void> {
       author: report.author
     });
 
-    // Verificar usuarios suscritos a actualizaciones
-    const subscribedUsers = await UserSubscription.find({
-      'subscriptions.notificaciones_actualizaciones': true
-    });
+    // Mapear categoría del informe al tipo de servicio
+    let serviceType = 'TraderCall'; // por defecto
+    
+    if (report.category === 'trader-call') {
+      serviceType = 'TraderCall';
+    } else if (report.category === 'smart-money') {
+      serviceType = 'SmartMoney';
+    } else if (report.category === 'cash-flow') {
+      serviceType = 'CashFlow';
+    }
 
-    console.log('👥 [REPORT NOTIFICATION] Usuarios suscritos a actualizaciones:', subscribedUsers.length);
+    console.log('📰 [REPORT NOTIFICATION] Tipo de servicio determinado:', serviceType, 'para categoría:', report.category);
+
+    // Buscar usuarios con suscripciones activas al servicio específico
+    const subscribedUsers = await User.find({
+      $or: [
+        {
+          // Buscar en campo 'suscripciones'
+          'suscripciones': {
+            $elemMatch: {
+              servicio: serviceType,
+              activa: true,
+              fechaVencimiento: { $gte: new Date() }
+            }
+          }
+        },
+        {
+          // Buscar en campo 'subscriptions'
+          'subscriptions': {
+            $elemMatch: {
+              tipo: serviceType,
+              activa: true,
+              $or: [
+                { fechaFin: { $gte: new Date() } },
+                { fechaFin: { $exists: false } }
+              ]
+            }
+          }
+        }
+      ]
+    }, 'email name');
+
+    console.log('👥 [REPORT NOTIFICATION] Usuarios suscritos al servicio encontrados:', subscribedUsers.length);
     
     if (subscribedUsers.length === 0) {
-      console.log('⚠️ [REPORT NOTIFICATION] No hay usuarios suscritos a actualizaciones');
+      console.log('⚠️ [REPORT NOTIFICATION] No hay usuarios suscritos al servicio:', serviceType);
+      
+      // Mostrar estadísticas para debugging
+      const totalUsers = await User.countDocuments();
+      const usersWithSubscriptions = await User.countDocuments({
+        $or: [
+          { 'suscripciones.0': { $exists: true } },
+          { 'subscriptions.0': { $exists: true } }
+        ]
+      });
+      console.log('📊 [REPORT NOTIFICATION] Total usuarios:', totalUsers, 'con suscripciones:', usersWithSubscriptions);
+      
       return;
     }
 
     // Crear notificación para informe
     const notification = {
-      title: `📰 Nuevo Informe: ${report.title}`,
-      message: `Se ha publicado un nuevo informe de análisis. ${report.content.substring(0, 100)}...`,
+      title: `📰 Nuevo Informe ${serviceType}: ${report.title}`,
+      message: `Se ha publicado un nuevo informe de análisis para ${serviceType}. ${report.content.substring(0, 100)}...`,
       type: 'actualizacion',
       priority: 'medium',
       icon: '📰',
@@ -177,18 +242,19 @@ export async function createReportNotification(report: any): Promise<void> {
         reportTitle: report.title,
         reportType: report.type,
         reportCategory: report.category,
+        serviceType: serviceType,
         automatic: true
       }
     };
 
     console.log('📧 [REPORT NOTIFICATION] Enviando notificación:', {
       title: notification.title,
-      subscriptionType: 'notificaciones_actualizaciones',
+      serviceType: serviceType,
       shouldSendEmail: true
     });
 
-    // Enviar notificación a usuarios suscritos (incluyendo emails)
-    const result = await sendNotificationToSubscribers(notification, 'notificaciones_actualizaciones', true);
+    // Enviar notificación directamente a usuarios suscritos al servicio
+    const result = await sendNotificationToServiceSubscribers(notification, subscribedUsers, true);
     
     console.log(`✅ [REPORT NOTIFICATION] Resultado final: ${result.sent} usuarios notificados, ${result.emailsSent} emails enviados, ${result.failed} fallos`);
 
@@ -202,11 +268,11 @@ export async function createReportNotification(report: any): Promise<void> {
 }
 
 /**
- * Envía notificación a usuarios suscritos
+ * Envía notificación a usuarios suscritos a un servicio específico
  */
-export async function sendNotificationToSubscribers(
+export async function sendNotificationToServiceSubscribers(
   notification: any, 
-  subscriptionType?: string, 
+  subscribedUsers: any[], 
   shouldSendEmail: boolean = true
 ): Promise<{
   sent: number;
@@ -217,43 +283,7 @@ export async function sendNotificationToSubscribers(
   try {
     await dbConnect();
 
-    // Determinar el tipo de suscripción basado en el tipo de notificación
-    let targetSubscriptionType = subscriptionType || 'notificaciones_sistema';
-    
-    // Mapear tipos de notificación a tipos de suscripción
-    switch (notification.type) {
-      case 'alerta':
-        targetSubscriptionType = 'notificaciones_alertas';
-        break;
-      case 'promocion':
-        targetSubscriptionType = 'notificaciones_promociones';
-        break;
-      case 'actualizacion':
-        targetSubscriptionType = 'notificaciones_actualizaciones';
-        break;
-      case 'sistema':
-      default:
-        targetSubscriptionType = 'notificaciones_sistema';
-        break;
-    }
-
-    // Buscar usuarios suscritos
-    const subscriptions = await UserSubscription.find({
-      [`subscriptions.${targetSubscriptionType}`]: true
-    });
-
-    if (subscriptions.length === 0) {
-      console.log('📧 No hay usuarios suscritos para este tipo de notificación');
-      return {
-        sent: 0,
-        failed: 0,
-        emailsSent: 0,
-        errors: []
-      };
-    }
-
-    const userEmails = subscriptions.map(sub => sub.userEmail);
-    console.log(`📧 Enviando notificación a ${userEmails.length} usuarios suscritos`);
+    console.log(`📧 Enviando notificación a ${subscribedUsers.length} usuarios suscritos al servicio`);
 
     let notificationsSent = 0;
     let notificationsFailed = 0;
@@ -261,11 +291,8 @@ export async function sendNotificationToSubscribers(
     const errors: string[] = [];
 
     // Crear notificaciones en la base de datos
-    for (const email of userEmails) {
+    for (const user of subscribedUsers) {
       try {
-        const user = await User.findOne({ email });
-        if (!user) continue;
-
         // Crear notificación
         const notificationDoc = new Notification({
           userId: user._id,
@@ -289,14 +316,14 @@ export async function sendNotificationToSubscribers(
           if (emailSuccess) {
             emailsSent++;
           } else {
-            errors.push(`Error enviando email a ${email}`);
+            errors.push(`Error enviando email a ${user.email}`);
           }
         }
 
       } catch (error) {
-        console.error(`❌ Error creando notificación para ${email}:`, error);
+        console.error(`❌ Error creando notificación para ${user.email}:`, error);
         notificationsFailed++;
-        errors.push(`Error para ${email}: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+        errors.push(`Error para ${user.email}: ${error instanceof Error ? error.message : 'Error desconocido'}`);
       }
     }
 
@@ -310,7 +337,7 @@ export async function sendNotificationToSubscribers(
     };
 
   } catch (error) {
-    console.error('❌ Error en sendNotificationToSubscribers:', error);
+    console.error('❌ Error en sendNotificationToServiceSubscribers:', error);
     return {
       sent: 0,
       failed: 1,
