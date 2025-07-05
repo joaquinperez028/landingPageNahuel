@@ -295,89 +295,7 @@ export default function Home({ session, siteConfig, entrenamientos }: HomeProps)
           </div>
         </section>
 
-        {/* Empresas que confiaron en mí */}
-        <section className={styles.empresas}>
-          <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h2 className={styles.empresasTitle}>Empresas que confiaron en mí</h2>
-              <Carousel 
-                items={empresasLogos.map((empresa, index) => {
-                  const empresaNombres = [
-                    'Bull Market Brokers',
-                    'TradingView', 
-                    'DólarHoy',
-                    'Inviu',
-                    'Balanz',
-                    'Inversiones Andinas',
-                    'Forbes Argentina'
-                  ];
-                  
-                  return (
-                    <div key={empresa} className={styles.empresaLogo}>
-                      <img 
-                        src={empresa} 
-                        alt={empresaNombres[index]}
-                        onError={(e) => {
-                          // En lugar de via.placeholder.com usar un data URL inline
-                          const canvas = document.createElement('canvas');
-                          canvas.width = 150;
-                          canvas.height = 80;
-                          const ctx = canvas.getContext('2d');
-                          if (ctx) {
-                            ctx.fillStyle = '#e2e8f0';
-                            ctx.fillRect(0, 0, 150, 80);
-                            ctx.fillStyle = '#64748b';
-                            ctx.font = '12px Arial';
-                            ctx.textAlign = 'center';
-                            ctx.fillText(empresaNombres[index], 75, 45);
-                            (e.target as HTMLImageElement).src = canvas.toDataURL();
-                          }
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-                autoplay={true}
-                showDots={false}
-                className={styles.empresasCarousel}
-              />
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Números con datos actualizables - Exactos del spreadsheet */}
-        <section className={styles.stats}>
-          <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <div className={styles.statsGrid}>
-                <div className={styles.statItem}>
-                  <h3 className={styles.statNumber}>7</h3>
-                  <p className={styles.statLabel}>Años trabajando con el mercado</p>
-                </div>
-                <div className={styles.statItem}>
-                  <h3 className={styles.statNumber}>+1,500</h3>
-                  <p className={styles.statLabel}>Alumnos</p>
-                </div>
-                <div className={styles.statItem}>
-                  <h3 className={styles.statNumber}>+300</h3>
-                  <p className={styles.statLabel}>Horas de formación</p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Servicios Section */}
+        {/* Servicios Section - INMEDIATAMENTE DESPUÉS DEL HERO */}
         {(siteConfig?.servicios?.visible !== false) && (
           <section className={styles.servicios}>
             <div className="container">
@@ -421,7 +339,7 @@ export default function Home({ session, siteConfig, entrenamientos }: HomeProps)
           </section>
         )}
 
-        {/* Cursos Section */}
+        {/* Cursos Section - DESPUÉS DE LOS SERVICIOS */}
         {(siteConfig?.cursos?.visible !== false) && entrenamientos.length > 0 && (
           <section className={styles.cursos}>
             <div className="container">
@@ -508,6 +426,88 @@ export default function Home({ session, siteConfig, entrenamientos }: HomeProps)
             </div>
           </section>
         )}
+
+        {/* Empresas que confiaron en mí */}
+        <section className={styles.empresas}>
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <h2 className={styles.empresasTitle}>Empresas que confiaron en mí</h2>
+              <Carousel 
+                items={empresasLogos.map((empresa, index) => {
+                  const empresaNombres = [
+                    'Bull Market Brokers',
+                    'TradingView', 
+                    'DólarHoy',
+                    'Inviu',
+                    'Balanz',
+                    'Inversiones Andinas',
+                    'Forbes Argentina'
+                  ];
+                  
+                  return (
+                    <div key={empresa} className={styles.empresaLogo}>
+                      <img 
+                        src={empresa} 
+                        alt={empresaNombres[index]}
+                        onError={(e) => {
+                          // En lugar de via.placeholder.com usar un data URL inline
+                          const canvas = document.createElement('canvas');
+                          canvas.width = 150;
+                          canvas.height = 80;
+                          const ctx = canvas.getContext('2d');
+                          if (ctx) {
+                            ctx.fillStyle = '#e2e8f0';
+                            ctx.fillRect(0, 0, 150, 80);
+                            ctx.fillStyle = '#64748b';
+                            ctx.font = '12px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(empresaNombres[index], 75, 45);
+                            (e.target as HTMLImageElement).src = canvas.toDataURL();
+                          }
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+                autoplay={true}
+                showDots={false}
+                className={styles.empresasCarousel}
+              />
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Números con datos actualizables - Exactos del spreadsheet */}
+        <section className={styles.stats}>
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className={styles.statsGrid}>
+                <div className={styles.statItem}>
+                  <h3 className={styles.statNumber}>7</h3>
+                  <p className={styles.statLabel}>Años trabajando con el mercado</p>
+                </div>
+                <div className={styles.statItem}>
+                  <h3 className={styles.statNumber}>+1,500</h3>
+                  <p className={styles.statLabel}>Alumnos</p>
+                </div>
+                <div className={styles.statItem}>
+                  <h3 className={styles.statNumber}>+300</h3>
+                  <p className={styles.statLabel}>Horas de formación</p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
 
         {/* Testimonios Section */}
         <section className={styles.testimonios}>
