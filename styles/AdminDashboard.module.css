@@ -425,6 +425,10 @@
 }
 
 /* Gradientes para secciones */
+.siteconfig .sectionIcon {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
 .control .sectionIcon {
   background: linear-gradient(135deg, #3b82f6, #06b6d4);
 }
@@ -434,11 +438,15 @@
 }
 
 .schedules .sectionIcon {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #6366f1, #4338ca);
+}
+
+.courses .sectionIcon {
+  background: linear-gradient(135deg, #10b981, #059669);
 }
 
 .database .sectionIcon {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: linear-gradient(135deg, #a855f7, #9333ea);
 }
 
 .billing .sectionIcon {

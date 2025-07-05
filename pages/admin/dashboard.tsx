@@ -45,6 +45,18 @@ interface DashboardStats {
 const useDashboardSections = () => {
   return useMemo(() => [
     {
+      id: 'siteconfig',
+      title: 'Configuración del Sitio',
+      description: 'Configura el video principal de YouTube, secciones del landing page y elementos visuales del sitio web.',
+      icon: <Settings size={32} />,
+      color: 'from-violet-500 to-purple-500',
+      links: [
+        { label: 'Configurar Video', href: '/admin/site-config', icon: <Settings size={16} /> },
+        { label: 'Gestionar Secciones', href: '/admin/site-config', icon: <FileText size={16} /> },
+        { label: 'Ver Landing', href: '/', icon: <TrendingUp size={16} /> }
+      ]
+    },
+    {
       id: 'control',
       title: 'Sala de Control',
       description: 'Datos de seguimiento, cantidad de usuarios, actividad, control de pagos, gestión de comunidad, creación de contenido',
@@ -78,6 +90,18 @@ const useDashboardSections = () => {
         { label: 'Horarios Asesorías', href: '/admin/asesorias-horarios', icon: <Clock size={16} /> },
         { label: 'Horarios Entrenamientos', href: '/admin/entrenamientos-horarios', icon: <Calendar size={16} /> },
         { label: 'Enviar Link de Reunión', href: '/admin/horarios', icon: <Settings size={16} /> }
+      ]
+    },
+    {
+      id: 'courses',
+      title: 'Tarjetas de Cursos',
+      description: 'Gestiona las tarjetas de cursos personalizadas que aparecen en la sección "Cursos Destacados" del landing page. Crea, edita y administra enlaces a cursos específicos.',
+      icon: <FileText size={32} />,
+      color: 'from-emerald-500 to-teal-500',
+      links: [
+        { label: 'Gestionar Tarjetas', href: '/admin/course-cards', icon: <FileText size={16} /> },
+        { label: 'Nueva Tarjeta', href: '/admin/course-cards', icon: <Plus size={16} /> },
+        { label: 'Ver Landing', href: '/', icon: <TrendingUp size={16} /> }
       ]
     },
     {
@@ -336,6 +360,10 @@ export default function AdminDashboardPage() {
             <div className={styles.quickActions}>
               <h2 className={styles.quickActionsTitle}>Acciones Rápidas</h2>
               <div className={styles.quickActionsGrid}>
+                <Link href="/admin/site-config" className={`${styles.quickActionCard} ${styles.siteconfig}`}>
+                  <Settings size={24} />
+                  <span>Configurar Sitio</span>
+                </Link>
                 <Link href="/admin/notifications" className={`${styles.quickActionCard} ${styles.notifications}`}>
                   <Bell size={24} />
                   <span>Nueva Notificación</span>
@@ -343,6 +371,10 @@ export default function AdminDashboardPage() {
                 <Link href="/admin/users" className={`${styles.quickActionCard} ${styles.users}`}>
                   <Plus size={24} />
                   <span>Gestionar Usuarios</span>
+                </Link>
+                <Link href="/admin/course-cards" className={`${styles.quickActionCard} ${styles.courses}`}>
+                  <FileText size={24} />
+                  <span>Tarjetas de Cursos</span>
                 </Link>
                 <Link href="/admin/asesorias-horarios" className={`${styles.quickActionCard} ${styles.schedules}`}>
                   <Calendar size={24} />
