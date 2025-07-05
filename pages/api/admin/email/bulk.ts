@@ -48,12 +48,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       buttonUrl
     } = req.body;
 
-    console.log('📋 [BULK EMAIL] Datos extraídos:', {
-      recipientType,
+    // Manejar diferentes formatos de datos del frontend
+    // El frontend puede enviar 'recipients' o 'recipientType'
+    let finalRecipientType = recipientType;
+    let finalRecipients = recipients;
+    
+    // Si recipients es un string, entonces es el tipo de destinatario
+    if (typeof recipients === 'string' && !recipientType) {
+      finalRecipientType = recipients;
+      finalRecipients = [];
+    }
+    
+    // Si recipients es un array, entonces es personalizado
+    if (Array.isArray(recipients) && !recipientType) {
+      finalRecipientType = 'custom';
+      finalRecipients = recipients;
+    }
+    
+    console.log('📋 [BULK EMAIL] Datos extraídos y corregidos:', {
+      originalRecipientType: recipientType,
+      originalRecipients: recipients,
+      finalRecipientType,
+      finalRecipients: Array.isArray(finalRecipients) ? finalRecipients : 'N/A',
       subject: subject?.substring(0, 50) + '...',
       message: message?.substring(0, 50) + '...',
       emailType,
-      recipientsLength: recipients?.length || 0,
       hasOffer: !!offer,
       hasButtonText: !!buttonText,
       hasButtonUrl: !!buttonUrl
@@ -68,38 +87,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
       return res.status(400).json({ error: 'Asunto y mensaje son requeridos' });
     }
+    
+    if (!finalRecipientType) {
+      console.error('❌ [BULK EMAIL] Tipo de destinatario no especificado');
+      return res.status(400).json({ error: 'Tipo de destinatario es requerido' });
+    }
+    
     console.log('✅ [BULK EMAIL] Validación de datos requeridos completada');
 
     let targetEmails: string[] = [];
 
-    console.log('👥 [BULK EMAIL] Determinando destinatarios para tipo:', recipientType);
+    console.log('👥 [BULK EMAIL] Determinando destinatarios para tipo:', finalRecipientType);
 
     // Determinar destinatarios
-    if (recipientType === 'all') {
+    if (finalRecipientType === 'all') {
       console.log('👥 [BULK EMAIL] Obteniendo todos los usuarios...');
       const allUsers = await User.find({}, 'email');
       targetEmails = allUsers.map(user => user.email);
       console.log('👥 [BULK EMAIL] Usuarios encontrados:', allUsers.length);
-    } else if (recipientType === 'custom' && recipients) {
+    } else if (finalRecipientType === 'custom' && finalRecipients) {
       console.log('👥 [BULK EMAIL] Validando emails personalizados...');
       // Validar emails individuales
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      targetEmails = recipients.filter((email: string) => emailRegex.test(email));
-      console.log('👥 [BULK EMAIL] Emails válidos de la lista personalizada:', targetEmails.length, 'de', recipients.length);
-    } else if (recipientType === 'subscribers') {
+      targetEmails = finalRecipients.filter((email: string) => emailRegex.test(email));
+      console.log('👥 [BULK EMAIL] Emails válidos de la lista personalizada:', targetEmails.length, 'de', finalRecipients.length);
+    } else if (finalRecipientType === 'subscribers') {
       console.log('👥 [BULK EMAIL] Obteniendo solo suscriptores...');
       // Solo usuarios suscriptores
       const subscribers = await User.find({ role: 'suscriptor' }, 'email');
       targetEmails = subscribers.map(user => user.email);
       console.log('👥 [BULK EMAIL] Suscriptores encontrados:', subscribers.length);
-    } else if (recipientType === 'admins') {
+    } else if (finalRecipientType === 'admins') {
       console.log('👥 [BULK EMAIL] Obteniendo solo administradores...');
       // Solo administradores
       const admins = await User.find({ role: 'admin' }, 'email');
       targetEmails = admins.map(user => user.email);
       console.log('👥 [BULK EMAIL] Administradores encontrados:', admins.length);
     } else {
-      console.error('❌ [BULK EMAIL] Tipo de destinatario no válido:', recipientType);
+      console.error('❌ [BULK EMAIL] Tipo de destinatario no válido:', finalRecipientType);
+      return res.status(400).json({ error: `Tipo de destinatario no válido: ${finalRecipientType}` });
     }
 
     console.log('👥 [BULK EMAIL] Total de emails objetivo:', targetEmails.length);
