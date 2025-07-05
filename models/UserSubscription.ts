@@ -72,7 +72,7 @@ const UserSubscriptionSchema = new mongoose.Schema({
 });
 
 // Índices
-UserSubscriptionSchema.index({ userEmail: 1 });
+// UserSubscriptionSchema.index({ userEmail: 1 }); // ELIMINADO - ya existe con unique: true
 UserSubscriptionSchema.index({ 
   'subscriptions.alertas_trader': 1,
   'subscriptions.alertas_smart': 1,

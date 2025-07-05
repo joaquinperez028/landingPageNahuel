@@ -48,6 +48,6 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
 });
 
 // Asegurar que solo existe una configuración
-siteConfigSchema.index({ _id: 1 }, { unique: true });
+// siteConfigSchema.index({ _id: 1 }, { unique: true }); // ELIMINADO - redundante, MongoDB ya indexa _id automáticamente
 
 export default mongoose.models.SiteConfig || mongoose.model<SiteConfigDocument>('SiteConfig', siteConfigSchema); 

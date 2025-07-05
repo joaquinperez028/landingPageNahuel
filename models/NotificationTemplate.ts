@@ -112,7 +112,7 @@ const NotificationTemplateSchema = new mongoose.Schema({
 });
 
 // Índices
-NotificationTemplateSchema.index({ name: 1 });
+// NotificationTemplateSchema.index({ name: 1 }); // ELIMINADO - ya existe con unique: true
 NotificationTemplateSchema.index({ type: 1, isActive: 1 });
 NotificationTemplateSchema.index({ createdBy: 1 });
 
