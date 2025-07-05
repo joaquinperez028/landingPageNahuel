@@ -34,6 +34,12 @@ interface TurnoData {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const startTime = Date.now();
   
+  // TEMPORAL: Limpiar caché para aplicar correcciones inmediatamente
+  if (req.query.clearCache === 'true') {
+    cache.clear();
+    console.log('🧹 Caché limpiado manualmente');
+  }
+  
   // Headers optimizados para caché selectivo
   res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=60'); // Cache 30s en cliente, 60s en CDN
   
@@ -90,14 +96,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const endDate = new Date(today);
     endDate.setDate(today.getDate() + days);
     
+    // CORREGIDO: Obtener TODAS las reservas sin filtrar por serviceType
+    // porque un horario ocupado es ocupado sin importar el tipo de servicio
+    // (Mismo comportamiento que check-availability y bookings APIs)
     const existingBookings = await Booking.find({
       status: { $in: ['pending', 'confirmed'] },
       startDate: { 
         $gte: today,
         $lte: endDate 
-      },
-      ...(advisoryType && { serviceType: advisoryType })
+      }
     }, 'startDate endDate serviceType').lean();
+    
+    console.log(`🔍 Reservas existentes encontradas: ${existingBookings.length}`);
 
     // **OPTIMIZACIÓN 3: Pre-procesar reservas por fecha para acceso O(1)**
     const bookingsByDate = new Map<string, any[]>();
@@ -265,6 +275,7 @@ async function processDateSlots(
 
 /**
  * Obtiene slots de asesorías de forma optimizada
+ * CORREGIDO: Usa la misma lógica de rangos superpuestos que check-availability
  */
 function getAdvisorySlotsOptimized(
   dayOfWeek: number,
@@ -286,12 +297,25 @@ function getAdvisorySlotsOptimized(
   daySchedules.forEach(schedule => {
     const slotTime = `${schedule.hour.toString().padStart(2, '0')}:${schedule.minute.toString().padStart(2, '0')}`;
     
-    // Verificar si el slot está ocupado
+    // CORREGIDO: Crear fechas completas para verificar rangos superpuestos (60 minutos)
+    const slotDate = new Date();
+    slotDate.setHours(schedule.hour, schedule.minute, 0, 0);
+    const slotEndDate = new Date(slotDate.getTime() + 60 * 60000); // 60 minutos después
+    
+    // CORREGIDO: Verificar si el slot se superpone con alguna reserva existente
     const isOccupied = dayBookings.some(booking => {
-      const bookingHour = new Date(booking.startDate).getHours();
-      const bookingMinute = new Date(booking.startDate).getMinutes();
-      const bookingTime = `${bookingHour.toString().padStart(2, '0')}:${bookingMinute.toString().padStart(2, '0')}`;
-      return bookingTime === slotTime;
+      const bookingStart = new Date(booking.startDate);
+      const bookingEnd = new Date(booking.endDate);
+      
+      // Usar la misma lógica de rangos superpuestos que check-availability
+      return (
+        // Nueva reserva empieza durante una existente
+        (slotDate >= bookingStart && slotDate < bookingEnd) ||
+        // Nueva reserva termina durante una existente  
+        (slotEndDate > bookingStart && slotEndDate <= bookingEnd) ||
+        // Nueva reserva contiene una existente
+        (slotDate <= bookingStart && slotEndDate >= bookingEnd)
+      );
     });
 
     if (!isOccupied && !availableSlots.includes(slotTime)) {
@@ -304,6 +328,7 @@ function getAdvisorySlotsOptimized(
 
 /**
  * Obtiene slots de entrenamientos de forma optimizada
+ * CORREGIDO: Usa la misma lógica de rangos superpuestos que check-availability
  */
 function getTrainingSlotsOptimized(
   dayOfWeek: number,
@@ -323,12 +348,27 @@ function getTrainingSlotsOptimized(
   daySchedules.forEach(schedule => {
     const slotTime = `${schedule.hour.toString().padStart(2, '0')}:${schedule.minute.toString().padStart(2, '0')}`;
     
-    // Verificar si el slot está ocupado
+    // CORREGIDO: Crear fechas completas para verificar rangos superpuestos 
+    // Usar duración del schedule o 60 minutos por defecto
+    const slotDate = new Date();
+    slotDate.setHours(schedule.hour, schedule.minute, 0, 0);
+    const duration = schedule.duration || 60; // Usar duración del schedule o 60 min por defecto
+    const slotEndDate = new Date(slotDate.getTime() + duration * 60000);
+    
+    // CORREGIDO: Verificar si el slot se superpone con alguna reserva existente
     const isOccupied = dayBookings.some(booking => {
-      const bookingHour = new Date(booking.startDate).getHours();
-      const bookingMinute = new Date(booking.startDate).getMinutes();
-      const bookingTime = `${bookingHour.toString().padStart(2, '0')}:${bookingMinute.toString().padStart(2, '0')}`;
-      return bookingTime === slotTime;
+      const bookingStart = new Date(booking.startDate);
+      const bookingEnd = new Date(booking.endDate);
+      
+      // Usar la misma lógica de rangos superpuestos que check-availability
+      return (
+        // Nueva reserva empieza durante una existente
+        (slotDate >= bookingStart && slotDate < bookingEnd) ||
+        // Nueva reserva termina durante una existente  
+        (slotEndDate > bookingStart && slotEndDate <= bookingEnd) ||
+        // Nueva reserva contiene una existente
+        (slotDate <= bookingStart && slotEndDate >= bookingEnd)
+      );
     });
 
     if (!isOccupied && !availableSlots.includes(slotTime)) {
