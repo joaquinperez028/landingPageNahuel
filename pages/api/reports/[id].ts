@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Verificar autenticación
     const session = await getServerSession(req, res, authOptions);
     if (!session?.user?.email) {
-      return res.status(401).json({ message: 'No autorizado' });
+      return res.status(401).json({ message: 'No autorizado.' });
     }
 
     await dbConnect();
