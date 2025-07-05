@@ -512,11 +512,11 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                       rel="noopener noreferrer"
                       className="btn btn-outline btn-lg"
                     >
-                      Ver todos los cursos
+                      Plataforma de cursos
                       <ChevronRight size={20} />
                     </a>
                   ) : (
-                    <Link href="/entrenamientos" className="btn btn-outline btn-lg">
+                    <Link href="https://plataformacursos.lozanonahuel.com/cursos" className="btn btn-outline btn-lg">
                       Ver todos los cursos
                       <ChevronRight size={20} />
                     </Link>
