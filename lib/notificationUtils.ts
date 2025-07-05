@@ -742,4 +742,123 @@ export async function diagnoseNotificationSystem(): Promise<{
       alertSubscribers: { trader: 0, smart: 0, cashflow: 0 }
     };
   }
+}
+
+/**
+ * Envía notificación a usuarios suscritos (función original para notificaciones manuales)
+ */
+export async function sendNotificationToSubscribers(
+  notification: any, 
+  subscriptionType?: string, 
+  shouldSendEmail: boolean = true
+): Promise<{
+  sent: number;
+  failed: number;
+  emailsSent: number;
+  errors: string[];
+}> {
+  try {
+    await dbConnect();
+
+    // Determinar el tipo de suscripción basado en el tipo de notificación
+    let targetSubscriptionType = subscriptionType || 'notificaciones_sistema';
+    
+    // Mapear tipos de notificación a tipos de suscripción
+    switch (notification.type) {
+      case 'alerta':
+        targetSubscriptionType = 'notificaciones_alertas';
+        break;
+      case 'promocion':
+        targetSubscriptionType = 'notificaciones_promociones';
+        break;
+      case 'actualizacion':
+        targetSubscriptionType = 'notificaciones_actualizaciones';
+        break;
+      case 'sistema':
+      default:
+        targetSubscriptionType = 'notificaciones_sistema';
+        break;
+    }
+
+    // Buscar usuarios suscritos
+    const subscriptions = await UserSubscription.find({
+      [`subscriptions.${targetSubscriptionType}`]: true
+    });
+
+    if (subscriptions.length === 0) {
+      console.log('📧 No hay usuarios suscritos para este tipo de notificación');
+      return {
+        sent: 0,
+        failed: 0,
+        emailsSent: 0,
+        errors: []
+      };
+    }
+
+    const userEmails = subscriptions.map(sub => sub.userEmail);
+    console.log(`📧 Enviando notificación a ${userEmails.length} usuarios suscritos`);
+
+    let notificationsSent = 0;
+    let notificationsFailed = 0;
+    let emailsSent = 0;
+    const errors: string[] = [];
+
+    // Crear notificaciones en la base de datos
+    for (const email of userEmails) {
+      try {
+        const user = await User.findOne({ email });
+        if (!user) continue;
+
+        // Crear notificación
+        const notificationDoc = new Notification({
+          userId: user._id,
+          title: notification.title,
+          message: notification.message,
+          type: notification.type,
+          priority: notification.priority || 'medium',
+          icon: notification.icon || '📧',
+          actionUrl: notification.actionUrl,
+          actionText: notification.actionText,
+          isAutomatic: notification.isAutomatic || false,
+          metadata: notification.metadata || {}
+        });
+
+        await notificationDoc.save();
+        notificationsSent++;
+
+        // Enviar email si está habilitado
+        if (shouldSendEmail) {
+          const emailSuccess = await sendEmailNotification(user, notificationDoc);
+          if (emailSuccess) {
+            emailsSent++;
+          } else {
+            errors.push(`Error enviando email a ${email}`);
+          }
+        }
+
+      } catch (error) {
+        console.error(`❌ Error creando notificación para ${email}:`, error);
+        notificationsFailed++;
+        errors.push(`Error para ${email}: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      }
+    }
+
+    console.log(`📊 Notificaciones enviadas: ${notificationsSent}, fallidas: ${notificationsFailed}, emails: ${emailsSent}`);
+
+    return {
+      sent: notificationsSent,
+      failed: notificationsFailed,
+      emailsSent,
+      errors
+    };
+
+  } catch (error) {
+    console.error('❌ Error en sendNotificationToSubscribers:', error);
+    return {
+      sent: 0,
+      failed: 1,
+      emailsSent: 0,
+      errors: [error instanceof Error ? error.message : 'Error desconocido']
+    };
+  }
 } 
