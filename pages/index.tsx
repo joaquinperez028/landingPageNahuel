@@ -33,6 +33,21 @@ interface Training {
   activo: boolean;
 }
 
+interface CourseCard {
+  _id: string;
+  titulo: string;
+  descripcion: string;
+  precio: string;
+  urlDestino: string;
+  imagen?: string;
+  destacado: boolean;
+  activo: boolean;
+  orden: number;
+  categoria?: string;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+}
+
 interface SiteConfig {
   heroVideo: {
     youtubeId: string;
@@ -59,12 +74,13 @@ interface HomeProps {
   session: any;
   siteConfig: SiteConfig;
   entrenamientos: Training[];
+  courseCards: CourseCard[];
 }
 
 /**
  * Página principal del sitio web de Nahuel Lozano
  */
-export default function Home({ session, siteConfig, entrenamientos }: HomeProps) {
+export default function Home({ session, siteConfig, entrenamientos, courseCards }: HomeProps) {
   console.log('🏠 Renderizando página principal');
   console.log('🔧 siteConfig:', siteConfig);
   console.log('🎯 servicios visible:', siteConfig?.servicios?.visible);
@@ -150,21 +166,32 @@ export default function Home({ session, siteConfig, entrenamientos }: HomeProps)
       descripcion: 'Recibe señales precisas en tiempo real para maximizar tus inversiones',
       icono: <TrendingUp className={styles.serviceIcon} />,
       href: '/alertas',
-      precio: 'Desde $99/mes'
+      precio: 'Desde $99/mes',
+      external: false
     },
     {
       titulo: 'Entrenamientos',
       descripcion: 'Aprende las estrategias más efectivas del mercado financiero',
       icono: <Users className={styles.serviceIcon} />,
       href: '/entrenamientos',
-      precio: 'Desde $299'
+      precio: 'Desde $299',
+      external: false
     },
     {
       titulo: 'Asesorías',
       descripcion: 'Consultoría personalizada para optimizar tu portafolio',
       icono: <Shield className={styles.serviceIcon} />,
       href: '/asesorias',
-      precio: 'Desde $199/sesión'
+      precio: 'Desde $199/sesión',
+      external: false
+    },
+    {
+      titulo: 'Cursos',
+      descripcion: 'Accede a nuestra plataforma completa de cursos especializados',
+      icono: <BookOpen className={styles.serviceIcon} />,
+      href: 'https://plataformacursos.lozanonahuel.com/',
+      precio: 'Ver precios',
+      external: true
     }
   ];
 
@@ -327,10 +354,22 @@ export default function Home({ session, siteConfig, entrenamientos }: HomeProps)
                       </div>
                       <p className={styles.servicioDescription}>{servicio.descripcion}</p>
                       <div className={styles.servicioPrecio}>{servicio.precio}</div>
-                      <Link href={servicio.href} className="btn btn-primary">
-                        Conocer más
-                        <ChevronRight size={16} />
-                      </Link>
+                      {servicio.external ? (
+                        <a 
+                          href={servicio.href} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="btn btn-primary"
+                        >
+                          Conocer más
+                          <ChevronRight size={16} />
+                        </a>
+                      ) : (
+                        <Link href={servicio.href} className="btn btn-primary">
+                          Conocer más
+                          <ChevronRight size={16} />
+                        </Link>
+                      )}
                     </motion.div>
                   ))}
                 </div>
@@ -340,7 +379,7 @@ export default function Home({ session, siteConfig, entrenamientos }: HomeProps)
         )}
 
         {/* Cursos Section - DESPUÉS DE LOS SERVICIOS */}
-        {(siteConfig?.cursos?.visible !== false) && entrenamientos.length > 0 && (
+        {(siteConfig?.cursos?.visible !== false) && (courseCards.length > 0 || entrenamientos.length > 0) && (
           <section className={styles.cursos}>
             <div className="container">
               <motion.div
@@ -355,59 +394,108 @@ export default function Home({ session, siteConfig, entrenamientos }: HomeProps)
                 </div>
 
                 <div className={styles.cursosGrid}>
-                  {entrenamientos.filter(e => e.activo).map((curso, index) => (
-                    <motion.div
-                      key={curso._id}
-                      className={styles.cursoCard}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      whileHover={{ y: -5 }}
-                    >
-                      <div className={styles.cursoHeader}>
-                        <div className={styles.cursoIcon}>
-                          <BookOpen size={24} />
+                  {/* Mostrar tarjetas personalizadas si existen */}
+                  {courseCards.length > 0 ? (
+                    courseCards.filter(card => card.activo && card.destacado).map((card, index) => (
+                      <motion.div
+                        key={card._id}
+                        className={styles.cursoCard}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: index * 0.1 }}
+                        viewport={{ once: true }}
+                        whileHover={{ y: -5 }}
+                      >
+                        <div className={styles.cursoHeader}>
+                          <div className={styles.cursoIcon}>
+                            <BookOpen size={24} />
+                          </div>
+                          <div className={styles.cursoMeta}>
+                            {card.categoria && (
+                              <span className={styles.cursoNivel}>{card.categoria}</span>
+                            )}
+                            <span className={styles.cursoRating}>
+                              <Star size={16} fill="currentColor" />
+                              Destacado
+                            </span>
+                          </div>
                         </div>
-                        <div className={styles.cursoMeta}>
-                          <span className={styles.cursoNivel}>{curso.contenido.nivelAcceso}</span>
-                          <span className={styles.cursoRating}>
-                            <Star size={16} fill="currentColor" />
-                            {curso.metricas.satisfaccion.toFixed(1)}
-                          </span>
+                        
+                        <h3 className={styles.cursoTitulo}>{card.titulo}</h3>
+                        <p className={styles.cursoDescripcion}>{card.descripcion}</p>
+                        
+                        <div className={styles.cursoFooter}>
+                          <div className={styles.cursoPrecio}>
+                            <span className={styles.cursoPrecioText}>{card.precio}</span>
+                          </div>
+                          <a 
+                            href={card.urlDestino} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="btn btn-primary"
+                          >
+                            Ver Curso
+                            <ChevronRight size={16} />
+                          </a>
                         </div>
-                      </div>
-                      
-                      <h3 className={styles.cursoTitulo}>{curso.nombre}</h3>
-                      <p className={styles.cursoDescripcion}>{curso.descripcion}</p>
-                      
-                      <div className={styles.cursoStats}>
-                        <div className={styles.cursoStat}>
-                          <Clock size={16} />
-                          <span>{curso.duracion} horas</span>
+                      </motion.div>
+                    ))
+                  ) : (
+                    /* Mostrar entrenamientos por defecto si no hay tarjetas personalizadas */
+                    entrenamientos.filter(e => e.activo).map((curso, index) => (
+                      <motion.div
+                        key={curso._id}
+                        className={styles.cursoCard}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: index * 0.1 }}
+                        viewport={{ once: true }}
+                        whileHover={{ y: -5 }}
+                      >
+                        <div className={styles.cursoHeader}>
+                          <div className={styles.cursoIcon}>
+                            <BookOpen size={24} />
+                          </div>
+                          <div className={styles.cursoMeta}>
+                            <span className={styles.cursoNivel}>{curso.contenido.nivelAcceso}</span>
+                            <span className={styles.cursoRating}>
+                              <Star size={16} fill="currentColor" />
+                              {curso.metricas.satisfaccion.toFixed(1)}
+                            </span>
+                          </div>
                         </div>
-                        <div className={styles.cursoStat}>
-                          <Users size={16} />
-                          <span>{curso.metricas.estudiantesActivos} estudiantes</span>
+                        
+                        <h3 className={styles.cursoTitulo}>{curso.nombre}</h3>
+                        <p className={styles.cursoDescripcion}>{curso.descripcion}</p>
+                        
+                        <div className={styles.cursoStats}>
+                          <div className={styles.cursoStat}>
+                            <Clock size={16} />
+                            <span>{curso.duracion} horas</span>
+                          </div>
+                          <div className={styles.cursoStat}>
+                            <Users size={16} />
+                            <span>{curso.metricas.estudiantesActivos} estudiantes</span>
+                          </div>
+                          <div className={styles.cursoStat}>
+                            <Award size={16} />
+                            <span>{curso.contenido.modulos} módulos</span>
+                          </div>
                         </div>
-                        <div className={styles.cursoStat}>
-                          <Award size={16} />
-                          <span>{curso.contenido.modulos} módulos</span>
+                        
+                        <div className={styles.cursoFooter}>
+                          <div className={styles.cursoPrecio}>
+                            <span className={styles.cursoMoneda}>$</span>
+                            <span className={styles.cursoPrecioNum}>{curso.precio}</span>
+                          </div>
+                          <Link href={`/entrenamientos/${curso.tipo.toLowerCase()}`} className="btn btn-primary">
+                            Ver Curso
+                            <ChevronRight size={16} />
+                          </Link>
                         </div>
-                      </div>
-                      
-                      <div className={styles.cursoFooter}>
-                        <div className={styles.cursoPrecio}>
-                          <span className={styles.cursoMoneda}>$</span>
-                          <span className={styles.cursoPrecioNum}>{curso.precio}</span>
-                        </div>
-                        <Link href={`/entrenamientos/${curso.tipo.toLowerCase()}`} className="btn btn-primary">
-                          Ver Curso
-                          <ChevronRight size={16} />
-                        </Link>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    ))
+                  )}
                 </div>
                 
                 <motion.div
@@ -417,10 +505,22 @@ export default function Home({ session, siteConfig, entrenamientos }: HomeProps)
                   transition={{ duration: 0.6, delay: 0.3 }}
                   viewport={{ once: true }}
                 >
-                  <Link href="/entrenamientos" className="btn btn-outline btn-lg">
-                    Ver todos los cursos
-                    <ChevronRight size={20} />
-                  </Link>
+                  {courseCards.length > 0 ? (
+                    <a 
+                      href="https://plataformacursos.lozanonahuel.com/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="btn btn-outline btn-lg"
+                    >
+                      Ver todos los cursos
+                      <ChevronRight size={20} />
+                    </a>
+                  ) : (
+                    <Link href="/entrenamientos" className="btn btn-outline btn-lg">
+                      Ver todos los cursos
+                      <ChevronRight size={20} />
+                    </Link>
+                  )}
                 </motion.div>
               </motion.div>
             </div>
@@ -730,6 +830,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     let siteConfig = defaultSiteConfig;
     let entrenamientos = defaultEntrenamientos;
+    let courseCards: CourseCard[] = [];
 
     // Intentar obtener datos reales solo si estamos en el servidor con URL válida
     if (process.env.NEXTAUTH_URL) {
@@ -749,6 +850,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             entrenamientos = entrenamientosData.filter((e: Training) => e.activo);
           }
         }
+
+        // Obtener tarjetas de cursos personalizadas
+        const courseCardsResponse = await fetch(`${process.env.NEXTAUTH_URL}/api/course-cards?destacados=true&activos=true`);
+        if (courseCardsResponse.ok) {
+          const courseCardsData = await courseCardsResponse.json();
+          if (Array.isArray(courseCardsData)) {
+            courseCards = courseCardsData;
+          }
+        }
       } catch (apiError) {
         console.log('⚠️ Error al obtener datos de APIs, usando valores por defecto:', apiError);
       }
@@ -758,7 +868,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       props: {
         session: session || null,
         siteConfig,
-        entrenamientos
+        entrenamientos,
+        courseCards
       },
     };
   } catch (error) {
@@ -801,7 +912,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             },
             activo: true
           }
-        ]
+        ],
+        courseCards: []
       },
     };
   }

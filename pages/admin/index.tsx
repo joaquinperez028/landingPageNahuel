@@ -34,6 +34,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       color: '#7c3aed'
     },
     {
+      title: 'Tarjetas de Cursos',
+      description: 'Gestiona las tarjetas de cursos personalizadas que aparecen en el landing',
+      icon: <FileText size={32} />,
+      href: '/admin/course-cards',
+      color: '#059669'
+    },
+    {
       title: 'Gestión de Horarios',
       description: 'Configura los días y horarios disponibles para entrenamientos',
       icon: <Calendar size={32} />,
@@ -143,6 +150,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                   <p>Configura el video de YouTube y secciones del landing</p>
                   <Link href="/admin/site-config" className={styles.statLink}>
                     Configurar sitio →
+                  </Link>
+                </div>
+              </div>
+
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>
+                  <FileText size={24} />
+                </div>
+                <div className={styles.statContent}>
+                  <h4>Tarjetas de Cursos</h4>
+                  <p>Gestiona las tarjetas personalizadas de cursos</p>
+                  <Link href="/admin/course-cards" className={styles.statLink}>
+                    Gestionar cursos →
                   </Link>
                 </div>
               </div>
