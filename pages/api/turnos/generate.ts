@@ -229,6 +229,7 @@ async function processDateSlots(
   if (type === 'advisory' || !type) {
     const availableSlots = getAdvisorySlotsOptimized(
       dayOfWeek,
+      targetDate,
       advisorySchedules,
       dayBookings,
       advisoryType
@@ -254,6 +255,7 @@ async function processDateSlots(
   if (type === 'training' || !type) {
     const availableSlots = getTrainingSlotsOptimized(
       dayOfWeek,
+      targetDate,
       trainingSchedules,
       dayBookings
     );
@@ -275,10 +277,11 @@ async function processDateSlots(
 
 /**
  * Obtiene slots de asesorías de forma optimizada
- * CORREGIDO: Usa la misma lógica de rangos superpuestos que check-availability
+ * CORREGIDO: Usa la targetDate específica en lugar de new Date()
  */
 function getAdvisorySlotsOptimized(
   dayOfWeek: number,
+  targetDate: Date,
   advisorySchedules: any[],
   dayBookings: any[],
   advisoryType?: string
@@ -297,12 +300,12 @@ function getAdvisorySlotsOptimized(
   daySchedules.forEach(schedule => {
     const slotTime = `${schedule.hour.toString().padStart(2, '0')}:${schedule.minute.toString().padStart(2, '0')}`;
     
-    // CORREGIDO: Crear fechas completas para verificar rangos superpuestos (60 minutos)
-    const slotDate = new Date();
+    // 🔥 CORREGIDO: Usar targetDate específica en lugar de new Date()
+    const slotDate = new Date(targetDate);
     slotDate.setHours(schedule.hour, schedule.minute, 0, 0);
     const slotEndDate = new Date(slotDate.getTime() + 60 * 60000); // 60 minutos después
     
-    // CORREGIDO: Verificar si el slot se superpone con alguna reserva existente
+    // Verificar si el slot se superpone con alguna reserva existente
     const isOccupied = dayBookings.some(booking => {
       const bookingStart = new Date(booking.startDate);
       const bookingEnd = new Date(booking.endDate);
@@ -328,10 +331,11 @@ function getAdvisorySlotsOptimized(
 
 /**
  * Obtiene slots de entrenamientos de forma optimizada
- * CORREGIDO: Usa la misma lógica de rangos superpuestos que check-availability
+ * CORREGIDO: Usa la targetDate específica en lugar de new Date()
  */
 function getTrainingSlotsOptimized(
   dayOfWeek: number,
+  targetDate: Date,
   trainingSchedules: any[],
   dayBookings: any[]
 ): string[] {
@@ -348,14 +352,13 @@ function getTrainingSlotsOptimized(
   daySchedules.forEach(schedule => {
     const slotTime = `${schedule.hour.toString().padStart(2, '0')}:${schedule.minute.toString().padStart(2, '0')}`;
     
-    // CORREGIDO: Crear fechas completas para verificar rangos superpuestos 
-    // Usar duración del schedule o 60 minutos por defecto
-    const slotDate = new Date();
+    // 🔥 CORREGIDO: Usar targetDate específica en lugar de new Date()
+    const slotDate = new Date(targetDate);
     slotDate.setHours(schedule.hour, schedule.minute, 0, 0);
     const duration = schedule.duration || 60; // Usar duración del schedule o 60 min por defecto
     const slotEndDate = new Date(slotDate.getTime() + duration * 60000);
     
-    // CORREGIDO: Verificar si el slot se superpone con alguna reserva existente
+    // Verificar si el slot se superpone con alguna reserva existente
     const isOccupied = dayBookings.some(booking => {
       const bookingStart = new Date(booking.startDate);
       const bookingEnd = new Date(booking.endDate);
