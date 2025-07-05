@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../lib/googleAuth';
 import dbConnect from '../../../lib/mongodb';
 import Report from '../../../models/Report';
+import User from '../../../models/User';
 import { getCloudinaryImageUrl } from '../../../lib/cloudinary';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

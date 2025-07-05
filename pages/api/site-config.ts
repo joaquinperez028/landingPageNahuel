@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
 import dbConnect from '@/lib/mongodb';
 import SiteConfig from '@/models/SiteConfig';
+import Training from '@/models/Training';
 import { verifyAdminAPI } from '@/lib/adminAuth';
 
 /**
