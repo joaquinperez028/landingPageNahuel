@@ -1,8 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { verifyAdminAPI } from '@/lib/adminAuth';
-import { sendBulkEmails, createEmailTemplate } from '@/lib/smtp';
-import connectDB from '@/lib/mongodb';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/googleAuth';
+import { sendBulkEmails, createEmailTemplate, createPromotionalEmailTemplate } from '@/lib/emailService';
 import User from '@/models/User';
+import dbConnect from '@/lib/mongodb';
 
 /**
  * API para envío masivo de emails
@@ -11,99 +12,152 @@ import User from '@/models/User';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   console.log('📧 [API] Bulk Email - método:', req.method);
   
-  await connectDB();
-
-  // Verificar autenticación y permisos de admin
-  const adminCheck = await verifyAdminAPI(req, res);
-  if (!adminCheck.isAdmin) {
-    return res.status(401).json({ error: adminCheck.error || 'No autorizado' });
-  }
-
-  console.log(`✅ [API] Admin verificado para envío masivo: ${adminCheck.user?.email}`);
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
   try {
-    const { subject, message, recipients } = req.body;
-
-    // Validar datos de entrada
-    if (!subject || !message || !recipients) {
-      return res.status(400).json({ 
-        error: 'Faltan campos requeridos: subject, message, recipients' 
-      });
+    // Verificar autenticación de admin
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.user?.email) {
+      return res.status(401).json({ error: 'No autenticado' });
     }
 
-    console.log(`📧 Iniciando envío masivo con filtro: ${recipients}`);
+    // Conectar a la base de datos
+    await dbConnect();
 
-    // Obtener emails según el filtro seleccionado
-    let userQuery: any = {};
+    // Verificar que el usuario sea admin
+    const user = await User.findOne({ email: session.user.email });
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'No tienes permisos de administrador' });
+    }
+
+    const { 
+      recipients, 
+      recipientType, 
+      subject, 
+      message, 
+      emailType = 'general',
+      offer,
+      expiryDate,
+      buttonText,
+      buttonUrl
+    } = req.body;
+
+    // Validaciones
+    if (!subject || !message) {
+      return res.status(400).json({ error: 'Asunto y mensaje son requeridos' });
+    }
+
+    let targetEmails: string[] = [];
+
+    // Determinar destinatarios
+    if (recipientType === 'all') {
+      const allUsers = await User.find({}, 'email');
+      targetEmails = allUsers.map(user => user.email);
+    } else if (recipientType === 'custom' && recipients) {
+      // Validar emails individuales
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      targetEmails = recipients.filter((email: string) => emailRegex.test(email));
+    } else if (recipientType === 'subscribers') {
+      // Solo usuarios suscriptores
+      const subscribers = await User.find({ role: 'suscriptor' }, 'email');
+      targetEmails = subscribers.map(user => user.email);
+    } else if (recipientType === 'admins') {
+      // Solo administradores
+      const admins = await User.find({ role: 'admin' }, 'email');
+      targetEmails = admins.map(user => user.email);
+    }
+
+    if (targetEmails.length === 0) {
+      return res.status(400).json({ error: 'No se encontraron destinatarios válidos' });
+    }
+
+    console.log(`📧 Preparando envío masivo a ${targetEmails.length} destinatarios`);
+
+    // Crear HTML del email basado en el tipo
+    let emailHtml: string;
     
-    switch (recipients) {
-      case 'suscriptores':
-        userQuery = { role: 'suscriptor' };
+    switch (emailType) {
+      case 'promotional':
+        emailHtml = createPromotionalEmailTemplate({
+          title: subject,
+          content: message,
+          offer,
+          expiryDate,
+          buttonText,
+          buttonUrl
+        });
         break;
-      case 'admins':
-        userQuery = { role: 'admin' };
+      
+      case 'alert':
+        emailHtml = createEmailTemplate({
+          title: `🚨 ${subject}`,
+          content: `
+            <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+              <h3 style="color: #92400e; margin-top: 0;">⚠️ Alerta Importante</h3>
+              <p style="margin: 0; color: #92400e;">
+                ${message}
+              </p>
+            </div>
+          `,
+          buttonText,
+          buttonUrl
+        });
         break;
-      case 'all':
-      default:
-        userQuery = {}; // Todos los usuarios
+
+      case 'newsletter':
+        emailHtml = createEmailTemplate({
+          title: `📰 ${subject}`,
+          content: `
+            <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 20px 0;">
+              <h3 style="color: #1e3a8a; margin-top: 0;">📧 Newsletter</h3>
+              <div style="color: #1e3a8a;">
+                ${message.split('\n').map((paragraph: string) => 
+                  paragraph.trim() ? `<p style="margin: 0 0 12px 0;">${paragraph}</p>` : ''
+                ).join('')}
+              </div>
+            </div>
+          `,
+          buttonText,
+          buttonUrl
+        });
         break;
+
+      default: // general
+        emailHtml = createEmailTemplate({
+          title: subject,
+          content: message,
+          buttonText,
+          buttonUrl
+        });
     }
-
-    // Obtener usuarios que coincidan con el filtro
-    const users = await User.find(userQuery)
-      .select('email name')
-      .where('email').ne(null).ne('');
-
-    if (users.length === 0) {
-      return res.status(400).json({
-        error: 'No se encontraron usuarios para el filtro seleccionado'
-      });
-    }
-
-    console.log(`📊 Usuarios encontrados: ${users.length}`);
-
-    // Preparar lista de emails
-    const emailList = users.map(user => user.email).filter(Boolean);
-
-    // Crear HTML del email usando la plantilla
-    const emailHTML = createEmailTemplate({
-      title: subject,
-      content: message.replace(/\n/g, '<br>'), // Convertir saltos de línea a HTML
-      buttonText: 'Visitar Plataforma',
-      buttonUrl: 'https://lozanonahuel.vercel.app'
-    });
 
     // Enviar emails masivos
     const results = await sendBulkEmails({
-      recipients: emailList,
+      recipients: targetEmails,
       subject,
-      html: emailHTML,
-      from: process.env.ADMIN_EMAIL
+      html: emailHtml
     });
 
-    console.log(`📧 Envío completado: ${results.sent}/${emailList.length} exitosos`);
+    console.log(`📊 Envío masivo completado: ${results.sent} enviados, ${results.failed} fallidos`);
 
-    // Responder con resultados
     return res.status(200).json({
       success: true,
-      sentCount: results.sent,
-      failedCount: results.failed,
-      totalRecipients: emailList.length,
-      errors: results.errors.length > 0 ? results.errors.slice(0, 5) : [], // Máximo 5 errores
-      message: `Email enviado exitosamente a ${results.sent} de ${emailList.length} usuarios`
+      message: `Emails enviados exitosamente a ${results.sent} destinatarios`,
+      results: {
+        sent: results.sent,
+        failed: results.failed,
+        total: targetEmails.length,
+        errors: results.errors
+      }
     });
 
   } catch (error) {
-    console.error('💥 Error en envío masivo:', error);
-    
+    console.error('❌ Error en envío masivo:', error);
     return res.status(500).json({
-      success: false,
-      error: 'Error interno del servidor al enviar emails',
-      details: error instanceof Error ? error.message : String(error)
+      error: 'Error interno del servidor',
+      message: error instanceof Error ? error.message : 'Error desconocido'
     });
   }
 } 

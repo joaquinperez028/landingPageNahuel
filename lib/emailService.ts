@@ -61,6 +61,7 @@ interface EmailOptions {
   subject: string;
   html: string;
   text?: string;
+  from?: string;
 }
 
 /**
@@ -85,7 +86,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     // Configurar email
     const mailOptions = {
       from: {
-        name: process.env.EMAIL_FROM_NAME || 'Nahuel Lozano Trading',
+        name: options.from || process.env.EMAIL_FROM_NAME || 'Nahuel Lozano Trading',
         address: process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'noreply@lozanonahuel.com'
       },
       to: options.to,
@@ -121,6 +122,64 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     
     return false;
   }
+}
+
+/**
+ * Envío masivo de emails
+ */
+export async function sendBulkEmails({
+  recipients,
+  subject,
+  html,
+  from
+}: {
+  recipients: string[];
+  subject: string;
+  html: string;
+  from?: string;
+}): Promise<{
+  sent: number;
+  failed: number;
+  errors: string[];
+}> {
+  const results = {
+    sent: 0,
+    failed: 0,
+    errors: [] as string[]
+  };
+
+  console.log(`📧 Iniciando envío masivo a ${recipients.length} destinatarios...`);
+
+  // Enviar emails en lotes para evitar sobrecargar el servidor SMTP
+  const batchSize = 5;
+  for (let i = 0; i < recipients.length; i += batchSize) {
+    const batch = recipients.slice(i, i + batchSize);
+    
+    const batchPromises = batch.map(async (email) => {
+      const success = await sendEmail({ to: email, subject, html, from });
+      
+      if (success) {
+        results.sent++;
+      } else {
+        results.failed++;
+        results.errors.push(`${email}: Error en envío`);
+      }
+      
+      return success;
+    });
+
+    // Esperar que se complete el lote actual
+    await Promise.all(batchPromises);
+    
+    // Pausa pequeña entre lotes para no sobrecargar el servidor SMTP
+    if (i + batchSize < recipients.length) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+
+  console.log(`📊 Envío masivo completado: ${results.sent} enviados, ${results.failed} fallidos`);
+  
+  return results;
 }
 
 /**
@@ -169,8 +228,288 @@ export function getEmailServiceStatus(): {
   };
 }
 
+// PLANTILLAS DE EMAIL CONSOLIDADAS
+
 /**
- * Plantilla base para emails de alertas
+ * Plantilla base para todos los emails
+ */
+export function createEmailTemplate({
+  title,
+  content,
+  buttonText,
+  buttonUrl
+}: {
+  title: string;
+  content: string;
+  buttonText?: string;
+  buttonUrl?: string;
+}): string {
+  return `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${title}</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                line-height: 1.6;
+                color: #2d3748;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                margin: 0;
+                padding: 20px;
+                min-height: 100vh;
+            }
+            
+            .email-container {
+                max-width: 600px;
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            
+            .header {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                padding: 40px 30px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .header h1 {
+                color: #00ff88;
+                margin: 0 0 8px 0;
+                font-size: 32px;
+                font-weight: 700;
+                letter-spacing: -0.025em;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .header .subtitle {
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 16px;
+                font-weight: 500;
+                margin: 0;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .content {
+                padding: 40px 30px;
+            }
+            
+            .content h2 {
+                color: #1a202c;
+                font-size: 28px;
+                font-weight: 700;
+                margin: 0 0 20px 0;
+                text-align: center;
+            }
+            
+            .message-content {
+                color: #4a5568;
+                font-size: 16px;
+                line-height: 1.8;
+                margin-bottom: 30px;
+            }
+            
+            .message-content p {
+                margin: 0 0 16px 0;
+            }
+            
+            .cta-section {
+                text-align: center;
+                margin: 30px 0;
+            }
+            
+            .cta-button {
+                display: inline-block;
+                background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+                color: #000;
+                text-decoration: none;
+                padding: 16px 32px;
+                border-radius: 50px;
+                font-weight: 700;
+                font-size: 16px;
+                letter-spacing: 0.025em;
+                transition: all 0.3s ease;
+                box-shadow: 0 8px 15px rgba(0, 255, 136, 0.3);
+            }
+            
+            .cta-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 20px rgba(0, 255, 136, 0.4);
+            }
+            
+            .divider {
+                height: 1px;
+                background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
+                margin: 30px 0;
+            }
+            
+            .footer {
+                background: #f8fafc;
+                padding: 30px;
+                text-align: center;
+                border-top: 1px solid #e2e8f0;
+            }
+            
+            .footer p {
+                color: #64748b;
+                font-size: 14px;
+                margin: 0 0 10px 0;
+            }
+            
+            .social-links {
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+                margin: 20px 0;
+            }
+            
+            .social-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 48px;
+                height: 48px;
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 50%;
+                font-size: 18px;
+                transition: all 0.3s ease;
+            }
+            
+            .social-link:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3);
+            }
+            
+            .disclaimer {
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 1px solid #e2e8f0;
+            }
+            
+            .disclaimer p {
+                font-size: 12px;
+                color: #9ca3af;
+                margin: 0 0 8px 0;
+            }
+            
+            .disclaimer a {
+                color: #3b82f6;
+                text-decoration: none;
+            }
+            
+            @media only screen and (max-width: 600px) {
+                body {
+                    padding: 10px;
+                }
+                
+                .header {
+                    padding: 30px 20px;
+                }
+                
+                .header h1 {
+                    font-size: 24px;
+                }
+                
+                .content {
+                    padding: 30px 20px;
+                }
+                
+                .content h2 {
+                    font-size: 22px;
+                }
+                
+                .cta-button {
+                    padding: 14px 28px;
+                    font-size: 14px;
+                }
+                
+                .social-links {
+                    gap: 12px;
+                }
+                
+                .social-link {
+                    width: 44px;
+                    height: 44px;
+                    font-size: 16px;
+                }
+                
+                .footer {
+                    padding: 25px 20px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <h1>Nahuel Lozano</h1>
+                <p class="subtitle">Trading & Investment Platform</p>
+            </div>
+            
+            <div class="content">
+                <h2>${title}</h2>
+                <div class="message-content">
+                    ${content.split('\n').map(paragraph => 
+                        paragraph.trim() ? `<p>${paragraph}</p>` : ''
+                    ).join('')}
+                </div>
+                
+                ${buttonText && buttonUrl ? `
+                    <div class="cta-section">
+                        <a href="${buttonUrl}" class="cta-button">${buttonText}</a>
+                    </div>
+                ` : ''}
+                
+                <div class="divider"></div>
+                
+                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <p style="margin: 0; color: #4a5568; font-size: 14px;">
+                        <strong>💡 Consejo:</strong> Mantente actualizado con las últimas estrategias de trading y análisis de mercado visitando nuestra plataforma regularmente.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p><strong>Este email fue enviado desde la plataforma de Nahuel Lozano</strong></p>
+                <p>Tu fuente confiable para estrategias de trading e inversión</p>
+                
+                <div class="social-links">
+                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}" class="social-link" title="Sitio Web">🌐</a>
+                    <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}" class="social-link" title="Email">📧</a>
+                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/alertas" class="social-link" title="Alertas">📊</a>
+                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/recursos" class="social-link" title="Recursos">📚</a>
+                </div>
+                
+                <div class="disclaimer">
+                    <p>Si tienes preguntas, contáctanos en: <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}">${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}</a></p>
+                    <p>© ${new Date().getFullYear()} Nahuel Lozano Trading Platform. Todos los derechos reservados.</p>
+                    <p>Este email fue enviado porque eres parte de nuestra comunidad de trading. Si no deseas recibir más emails, <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil">puedes gestionar tus preferencias aquí</a>.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+}
+
+/**
+ * Plantilla para emails de alertas de trading
  */
 export function generateAlertEmailTemplate(
   notification: any, 
@@ -182,124 +521,338 @@ export function generateAlertEmailTemplate(
       ${notification.actionText || 'Ver Alerta'}
     </a>` : '';
 
-  return `
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${notification.title}</title>
-      <style>
-        @media only screen and (max-width: 600px) {
-          .container { width: 100% !important; padding: 10px !important; }
-          .header { padding: 20px !important; }
-          .content { padding: 15px !important; }
-        }
-      </style>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa; line-height: 1.6;">
-      <div class="container" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-        
-        <!-- Header -->
-        <div class="header" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 0;">
-          <h1 style="margin: 0; font-size: 32px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-            ${notification.icon} ${notification.title}
-          </h1>
-          <p style="margin: 10px 0 0; font-size: 16px; opacity: 0.9; font-weight: 500;">
-            Nueva Alerta de Trading Disponible
-          </p>
-        </div>
-        
-        <!-- Content -->
-        <div class="content" style="padding: 30px; background-color: #ffffff;">
-          
-          <!-- Greeting -->
-          <div style="margin-bottom: 25px;">
-            <h2 style="margin: 0 0 10px; font-size: 20px; color: #1e293b; font-weight: 600;">
-              ¡Hola ${user.name || user.email.split('@')[0]}! 👋
-            </h2>
-            <p style="margin: 0; font-size: 16px; color: #64748b;">
-              Tienes una nueva alerta de trading disponible en tu cuenta.
-            </p>
+  const alertDetails = notification.metadata ? `
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+      <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+        ${notification.metadata.alertSymbol ? `
+          <div style="text-align: center; min-width: 80px;">
+            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Símbolo</div>
+            <div style="font-size: 16px; color: #1e293b; font-weight: 700;">${notification.metadata.alertSymbol}</div>
           </div>
-          
-          <!-- Alert Details -->
-          <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin: 25px 0; border-left: 4px solid #00ff88;">
-            <h3 style="margin: 0 0 15px; font-size: 18px; color: #1e293b; font-weight: 600;">
-              📊 Detalles de la Alerta
-            </h3>
-            <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6;">
-              ${notification.message}
-            </p>
-            
-            ${notification.metadata ? `
-              <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
-                  ${notification.metadata.alertSymbol ? `
-                    <div style="text-align: center; min-width: 80px;">
-                      <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Símbolo</div>
-                      <div style="font-size: 16px; color: #1e293b; font-weight: 700;">${notification.metadata.alertSymbol}</div>
-                    </div>
-                  ` : ''}
-                  ${notification.metadata.alertAction ? `
-                    <div style="text-align: center; min-width: 80px;">
-                      <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Acción</div>
-                      <div style="font-size: 16px; color: ${notification.metadata.alertAction === 'BUY' ? '#22c55e' : '#ef4444'}; font-weight: 700;">${notification.metadata.alertAction}</div>
-                    </div>
-                  ` : ''}
-                  ${notification.metadata.alertPrice ? `
-                    <div style="text-align: center; min-width: 80px;">
-                      <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Precio</div>
-                      <div style="font-size: 16px; color: #1e293b; font-weight: 700;">$${notification.metadata.alertPrice}</div>
-                    </div>
-                  ` : ''}
-                </div>
-              </div>
-            ` : ''}
+        ` : ''}
+        ${notification.metadata.alertAction ? `
+          <div style="text-align: center; min-width: 80px;">
+            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Acción</div>
+            <div style="font-size: 16px; color: ${notification.metadata.alertAction === 'BUY' ? '#22c55e' : '#ef4444'}; font-weight: 700;">${notification.metadata.alertAction}</div>
           </div>
-          
-          <!-- Action Button -->
-          <div style="text-align: center; margin: 30px 0;">
-            ${actionButton}
+        ` : ''}
+        ${notification.metadata.alertPrice ? `
+          <div style="text-align: center; min-width: 80px;">
+            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Precio</div>
+            <div style="font-size: 16px; color: #1e293b; font-weight: 700;">$${notification.metadata.alertPrice}</div>
           </div>
-          
-          <!-- Additional Info -->
-          <div style="background-color: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 15px; margin: 25px 0;">
-            <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 500;">
-              ⚡ <strong>Acción Requerida:</strong> Esta es una alerta de alta prioridad. Te recomendamos revisar los detalles completos en la plataforma lo antes posible.
-            </p>
-          </div>
-          
-        </div>
-        
-        <!-- Footer -->
-        <div style="background-color: #f8fafc; padding: 25px 30px; border-top: 1px solid #e2e8f0; text-align: center;">
-          <div style="margin-bottom: 15px;">
-            <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 16px;">
-              🌐 Visitar Plataforma
-            </a>
-          </div>
-          
-          <p style="margin: 0 0 10px; font-size: 14px; color: #64748b;">
-            Este es un email automático de <strong>Nahuel Lozano Trading</strong>
-          </p>
-          
-          <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-            Si no deseas recibir estas notificaciones, puedes 
-            <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil" style="color: #6b7280; text-decoration: underline;">
-              configurar tus preferencias aquí
-            </a>
-          </p>
-          
-          <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-            <p style="margin: 0; font-size: 11px; color: #9ca3af;">
-              © ${new Date().getFullYear()} Nahuel Lozano Trading. Todos los derechos reservados.
-            </p>
-          </div>
-        </div>
-        
+        ` : ''}
       </div>
-    </body>
-    </html>
-  `;
+    </div>
+  ` : '';
+
+  return createEmailTemplate({
+    title: `${notification.icon} ${notification.title}`,
+    content: `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="margin: 0 0 10px; font-size: 20px; color: #1e293b; font-weight: 600;">
+          ¡Hola ${user.name || user.email.split('@')[0]}! 👋
+        </h2>
+        <p style="margin: 0; font-size: 16px; color: #64748b;">
+          Tienes una nueva alerta de trading disponible en tu cuenta.
+        </p>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin: 25px 0; border-left: 4px solid #00ff88;">
+        <h3 style="margin: 0 0 15px; font-size: 18px; color: #1e293b; font-weight: 600;">
+          📊 Detalles de la Alerta
+        </h3>
+        <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6;">
+          ${notification.message}
+        </p>
+        ${alertDetails}
+      </div>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        ${actionButton}
+      </div>
+      
+      <div style="background-color: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 15px; margin: 25px 0;">
+        <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 500;">
+          ⚡ <strong>Acción Requerida:</strong> Esta es una alerta de alta prioridad. Te recomendamos revisar los detalles completos en la plataforma lo antes posible.
+        </p>
+      </div>
+    `,
+    buttonText: notification.actionText || 'Ver Detalles',
+    buttonUrl: notification.actionUrl ? `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}${notification.actionUrl}` : undefined
+  });
+}
+
+/**
+ * Plantilla para confirmación de entrenamientos
+ */
+export function createTrainingConfirmationTemplate(
+  userEmail: string,
+  userName: string,
+  trainingDetails: {
+    type: string;
+    date: string;
+    time: string;
+    duration: number;
+  }
+): string {
+  return createEmailTemplate({
+    title: `🎯 Entrenamiento Confirmado`,
+    content: `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; margin-bottom: 20px;">
+          ✅ Reserva Confirmada
+        </div>
+      </div>
+      
+      <p>Hola <strong>${userName}</strong>,</p>
+      <p>¡Tu entrenamiento ha sido confirmado exitosamente!</p>
+      
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin: 0 0 15px 0; color: #1a1a1a;">📋 Detalles del Entrenamiento:</h3>
+        <p style="margin: 8px 0;"><strong>👤 Participante:</strong> ${userName}</p>
+        <p style="margin: 8px 0;"><strong>📚 Tipo:</strong> ${trainingDetails.type}</p>
+        <p style="margin: 8px 0;"><strong>📅 Fecha:</strong> ${trainingDetails.date}</p>
+        <p style="margin: 8px 0;"><strong>⏰ Hora:</strong> ${trainingDetails.time}</p>
+        <p style="margin: 8px 0;"><strong>⏱️ Duración:</strong> ${trainingDetails.duration} minutos</p>
+      </div>
+      
+      <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; border-left: 4px solid #00ff88; margin: 20px 0;">
+        <h3 style="color: #1a1a1a; margin-top: 0;">📋 Próximos Pasos:</h3>
+        <ul style="color: #333; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Recibirás el link de la reunión por email 24 horas antes</li>
+          <li>Asegúrate de tener una conexión estable a internet</li>
+          <li>Prepara tus preguntas específicas sobre trading</li>
+          <li>Ten a mano tu plataforma de trading si quieres revisarla</li>
+        </ul>
+      </div>
+      
+      <p style="color: #666; font-size: 14px; text-align: center; margin-top: 30px;">
+        Si necesitas reprogramar o cancelar, contáctanos con al menos 24 horas de anticipación.
+      </p>
+    `,
+    buttonText: 'Ver Mi Perfil',
+    buttonUrl: `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil`
+  });
+}
+
+/**
+ * Plantilla para confirmación de asesorías
+ */
+export function createAdvisoryConfirmationTemplate(
+  userEmail: string,
+  userName: string,
+  advisoryDetails: {
+    type: string;
+    date: string;
+    time: string;
+    duration: number;
+    price?: number;
+  }
+): string {
+  return createEmailTemplate({
+    title: `🩺 Asesoría Confirmada`,
+    content: `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; margin-bottom: 20px;">
+          ✅ Consulta Agendada
+        </div>
+      </div>
+      
+      <p>Hola <strong>${userName}</strong>,</p>
+      <p>¡Tu asesoría ha sido agendada exitosamente!</p>
+      
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin: 0 0 15px 0; color: #1a1a1a;">📋 Detalles de la Asesoría:</h3>
+        <p style="margin: 8px 0;"><strong>👤 Cliente:</strong> ${userName}</p>
+        <p style="margin: 8px 0;"><strong>🩺 Servicio:</strong> ${advisoryDetails.type}</p>
+        <p style="margin: 8px 0;"><strong>📅 Fecha:</strong> ${advisoryDetails.date}</p>
+        <p style="margin: 8px 0;"><strong>⏰ Hora:</strong> ${advisoryDetails.time}</p>
+        <p style="margin: 8px 0;"><strong>⏱️ Duración:</strong> ${advisoryDetails.duration} minutos</p>
+        ${advisoryDetails.price ? `<p style="margin: 8px 0;"><strong>💰 Precio:</strong> $${advisoryDetails.price} USD</p>` : ''}
+      </div>
+      
+      <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; border-left: 4px solid #00ff88; margin: 20px 0;">
+        <h3 style="color: #1a1a1a; margin-top: 0;">📋 Qué Incluye tu Asesoría:</h3>
+        <ul style="color: #333; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Análisis completo de tu situación financiera actual</li>
+          <li>Evaluación de tu perfil de riesgo</li>
+          <li>Recomendaciones específicas de inversión</li>
+          <li>Plan de acción detallado y personalizado</li>
+          <li>Seguimiento por email durante 30 días</li>
+          <li>Grabación de la sesión para tu referencia</li>
+        </ul>
+      </div>
+      
+      <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
+        <h3 style="color: #1a1a1a; margin-top: 0;">📝 Preparación para la Sesión:</h3>
+        <ul style="color: #333; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Ten a mano información sobre tus inversiones actuales</li>
+          <li>Prepara datos sobre tus ingresos y gastos mensuales</li>
+          <li>Define tus objetivos financieros a corto y largo plazo</li>
+          <li>Anota las preguntas específicas que quieras hacer</li>
+        </ul>
+      </div>
+      
+      <p style="color: #666; font-size: 14px; text-align: center; margin-top: 30px;">
+        Recibirás el link de Google Meet 24 horas antes de la sesión.
+      </p>
+    `,
+    buttonText: 'Ver Mi Perfil',
+    buttonUrl: `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil`
+  });
+}
+
+/**
+ * Plantilla para notificaciones al admin
+ */
+export function createAdminNotificationTemplate(
+  bookingDetails: {
+    userEmail: string;
+    userName: string;
+    type: 'training' | 'advisory';
+    serviceType: string;
+    date: string;
+    time: string;
+    duration: number;
+    price?: number;
+  }
+): string {
+  const typeEmoji = bookingDetails.type === 'training' ? '🎯' : '🩺';
+  const typeLabel = bookingDetails.type === 'training' ? 'Entrenamiento' : 'Asesoría';
+  
+  return createEmailTemplate({
+    title: `${typeEmoji} Nueva Reserva de ${typeLabel}`,
+    content: `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; margin-bottom: 20px;">
+          🔔 Nueva Reserva
+        </div>
+      </div>
+      
+      <p>Se ha realizado una nueva reserva en la plataforma.</p>
+      
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin: 0 0 15px 0; color: #1a1a1a;">📋 Detalles de la Reserva:</h3>
+        <p style="margin: 8px 0;"><strong>👤 Usuario:</strong> ${bookingDetails.userName} (${bookingDetails.userEmail})</p>
+        <p style="margin: 8px 0;"><strong>📚 Tipo:</strong> ${typeLabel}</p>
+        <p style="margin: 8px 0;"><strong>🔧 Servicio:</strong> ${bookingDetails.serviceType}</p>
+        <p style="margin: 8px 0;"><strong>📅 Fecha:</strong> ${bookingDetails.date}</p>
+        <p style="margin: 8px 0;"><strong>⏰ Hora:</strong> ${bookingDetails.time}</p>
+        <p style="margin: 8px 0;"><strong>⏱️ Duración:</strong> ${bookingDetails.duration} minutos</p>
+        ${bookingDetails.price ? `<p style="margin: 8px 0;"><strong>💰 Precio:</strong> $${bookingDetails.price} USD</p>` : ''}
+      </div>
+      
+      <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+        <h3 style="color: #92400e; margin-top: 0;">📋 Acciones Requeridas:</h3>
+        <ul style="color: #92400e; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Confirmar disponibilidad para la fecha y hora</li>
+          <li>Enviar link de Google Meet 24 horas antes</li>
+          <li>Revisar el perfil del usuario si es necesario</li>
+          <li>Preparar material específico según el tipo de sesión</li>
+        </ul>
+      </div>
+      
+      <p style="color: #666; font-size: 14px; text-align: center; margin-top: 30px;">
+        Puedes gestionar esta reserva desde el panel de administración.
+      </p>
+    `,
+    buttonText: 'Ir al Panel Admin',
+    buttonUrl: `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/admin`
+  });
+}
+
+/**
+ * Plantilla para emails de bienvenida
+ */
+export function createWelcomeEmailTemplate({
+  userName,
+  content,
+  buttonText,
+  buttonUrl
+}: {
+  userName: string;
+  content: string;
+  buttonText?: string;
+  buttonUrl?: string;
+}): string {
+  return createEmailTemplate({
+    title: `¡Bienvenido a bordo, ${userName}! 🚀`,
+    content: `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; margin-bottom: 20px;">
+          🎉 ¡Cuenta Activada!
+        </div>
+      </div>
+      
+      <p>Hola <strong>${userName}</strong>,</p>
+      
+      ${content}
+      
+      <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 24px; border-radius: 12px; margin: 24px 0; border-left: 4px solid #0ea5e9;">
+        <h3 style="margin: 0 0 12px 0; color: #0c4a6e; font-size: 18px;">🎯 Próximos pasos:</h3>
+        <ul style="margin: 0; padding-left: 20px; color: #0f172a;">
+          <li style="margin-bottom: 8px;">Completa tu perfil en la plataforma</li>
+          <li style="margin-bottom: 8px;">Explora nuestras alertas de trading</li>
+          <li style="margin-bottom: 8px;">Únete a nuestra comunidad</li>
+          <li>Revisa los recursos educativos</li>
+        </ul>
+      </div>
+    `,
+    buttonText: buttonText || 'Comenzar Mi Viaje',
+    buttonUrl: buttonUrl || `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil`
+  });
+}
+
+/**
+ * Plantilla para emails promocionales
+ */
+export function createPromotionalEmailTemplate({
+  title,
+  content,
+  offer,
+  buttonText,
+  buttonUrl,
+  expiryDate
+}: {
+  title: string;
+  content: string;
+  offer?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+  expiryDate?: string;
+}): string {
+  return createEmailTemplate({
+    title: title,
+    content: `
+      ${offer ? `
+        <div style="text-align: center; margin-bottom: 30px;">
+          <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 16px 24px; border-radius: 12px; margin-bottom: 20px; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; right: 0; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 0 12px 0 12px; font-size: 12px; font-weight: bold;">
+              OFERTA ESPECIAL
+            </div>
+            <h3 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 700;">${offer}</h3>
+            ${expiryDate ? `<p style="margin: 0; font-size: 14px; opacity: 0.9;">Válido hasta: ${expiryDate}</p>` : ''}
+          </div>
+        </div>
+      ` : ''}
+      
+      ${content}
+      
+      <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 20px; border-radius: 12px; margin: 24px 0; border-left: 4px solid #f59e0b;">
+        <div style="display: flex; align-items: center; margin-bottom: 12px;">
+          <span style="font-size: 20px; margin-right: 12px;">⭐</span>
+          <strong style="color: #92400e; font-size: 16px;">¿Por qué elegir Nahuel Lozano?</strong>
+        </div>
+        <ul style="margin: 0; padding-left: 20px; color: #92400e; font-size: 14px;">
+          <li style="margin-bottom: 6px;">Estrategias probadas y rentables</li>
+          <li style="margin-bottom: 6px;">Alertas en tiempo real</li>
+          <li style="margin-bottom: 6px;">Comunidad activa de traders</li>
+          <li>Soporte personalizado</li>
+        </ul>
+      </div>
+    `,
+    buttonText: buttonText || 'Aprovechar Oferta',
+    buttonUrl: buttonUrl || `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}`
+  });
 } 

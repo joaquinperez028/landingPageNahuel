@@ -1,14 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
-import { 
-  sendEmail, 
-  createEmailTemplate, 
-  createWelcomeEmailTemplate, 
-  createAlertEmailTemplate,
-  createPromotionalEmailTemplate 
-} from '@/lib/smtp';
-import connectDB from '@/lib/mongodb';
+import { sendEmail, createEmailTemplate } from '@/lib/emailService';
+import { sendNotificationToSubscribers } from '@/lib/notificationUtils';
+import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 
 /**
@@ -16,130 +11,104 @@ import User from '@/models/User';
  * POST: Enviar notificación por email a usuario específico
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log('📧 [API] Send Notification - método:', req.method);
-  
-  await connectDB();
-
-  // Verificar autenticación básica
-  const session = await getServerSession(req, res, authOptions);
-  if (!session) {
-    return res.status(401).json({ error: 'No autorizado' });
-  }
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
   try {
-    const { userId, type, title, message, actionUrl, actionText, urgency, offer, expiryDate } = req.body;
-
-    // Validar datos de entrada
-    if (!userId || !type || !title || !message) {
-      return res.status(400).json({ 
-        error: 'Faltan campos requeridos: userId, type, title, message' 
-      });
+    // Verificar autenticación de admin
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.user?.email) {
+      return res.status(401).json({ error: 'No autenticado' });
     }
 
-    // Obtener información del usuario destinatario
-    const targetUser = await User.findById(userId).select('email name');
-    if (!targetUser || !targetUser.email) {
-      return res.status(404).json({
-        error: 'Usuario no encontrado o sin email válido'
-      });
+    await dbConnect();
+
+    // Verificar que el usuario sea admin
+    const user = await User.findOne({ email: session.user.email });
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'No tienes permisos de administrador' });
     }
 
-    console.log(`📧 Enviando notificación a: ${targetUser.email}`);
+    const { 
+      title, 
+      message, 
+      type = 'sistema', 
+      priority = 'medium',
+      targetUsers = 'all',
+      sendEmail: shouldSendEmail = true,
+      actionUrl,
+      actionText
+    } = req.body;
 
-    // Crear HTML del email según el tipo de notificación
-    let emailHTML = '';
-    let subject = '';
-
-    switch (type) {
-      case 'welcome':
-        subject = `¡Bienvenido a la plataforma, ${targetUser.name}!`;
-        emailHTML = createWelcomeEmailTemplate({
-          userName: targetUser.name,
-          content: message,
-          buttonText: actionText || 'Comenzar Ahora',
-          buttonUrl: actionUrl || 'https://lozanonahuel.vercel.app/perfil'
-        });
-        break;
-        
-      case 'alert':
-      case 'trader-call':
-      case 'smart-money':
-      case 'cash-flow':
-        subject = `🚨 ${title}`;
-        emailHTML = createAlertEmailTemplate({
-          alertType: type === 'alert' ? 'Alerta General' : type.replace('-', ' ').toUpperCase(),
-          title: title,
-          content: message,
-          urgency: urgency || 'medium',
-          buttonText: actionText || 'Ver Alerta',
-          buttonUrl: actionUrl || 'https://lozanonahuel.vercel.app/alertas'
-        });
-        break;
-        
-      case 'subscription':
-      case 'promotional':
-      case 'offer':
-        subject = `📈 ${title}`;
-        emailHTML = createPromotionalEmailTemplate({
-          title: title,
-          content: message,
-          offer: offer,
-          buttonText: actionText || 'Ver Suscripción',
-          buttonUrl: actionUrl || 'https://lozanonahuel.vercel.app/perfil',
-          expiryDate: expiryDate
-        });
-        break;
-        
-      case 'general':
-      default:
-        subject = title;
-        emailHTML = createEmailTemplate({
-          title: title,
-          content: message,
-          buttonText: actionText,
-          buttonUrl: actionUrl
-        });
-        break;
+    // Validaciones
+    if (!title || !message) {
+      return res.status(400).json({ error: 'Título y mensaje son requeridos' });
     }
 
-    // Enviar email
-    const result = await sendEmail({
-      to: targetUser.email,
-      subject,
-      html: emailHTML,
-      from: process.env.ADMIN_EMAIL
+    console.log('📧 Creando notificación manual desde admin');
+
+    // Crear la notificación usando el sistema existente
+    const notification = {
+      title,
+      message,
+      type,
+      priority,
+      icon: getIconForType(type),
+      actionUrl,
+      actionText,
+      isAutomatic: false,
+      metadata: {
+        sentBy: session.user.email,
+        manual: true
+      }
+    };
+
+    // Enviar notificación usando el sistema existente
+    const result = await sendNotificationToSubscribers(
+      notification,
+      type,
+      shouldSendEmail
+    );
+
+    console.log(`✅ Notificación enviada: ${result.sent} usuarios notificados`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Notificación enviada exitosamente`,
+      results: {
+        sent: result.sent,
+        failed: result.failed,
+        emailsSent: result.emailsSent || 0,
+        errors: result.errors || []
+      }
     });
-
-    if (result.success) {
-      console.log(`✅ Notificación enviada exitosamente a ${targetUser.email}`);
-      
-      return res.status(200).json({
-        success: true,
-        message: 'Notificación enviada exitosamente',
-        messageId: result.messageId,
-        recipient: targetUser.email
-      });
-    } else {
-      console.error(`❌ Error al enviar notificación a ${targetUser.email}:`, result.error);
-      
-      return res.status(500).json({
-        success: false,
-        error: 'Error al enviar notificación',
-        details: result.error
-      });
-    }
 
   } catch (error) {
-    console.error('💥 Error en envío de notificación:', error);
-    
+    console.error('❌ Error enviando notificación:', error);
     return res.status(500).json({
-      success: false,
       error: 'Error interno del servidor',
-      details: error instanceof Error ? error.message : String(error)
+      message: error instanceof Error ? error.message : 'Error desconocido'
     });
+  }
+}
+
+/**
+ * Obtiene el icono apropiado para el tipo de notificación
+ */
+function getIconForType(type: string): string {
+  switch (type) {
+    case 'alerta':
+      return '🚨';
+    case 'sistema':
+      return '⚙️';
+    case 'promocion':
+      return '🎉';
+    case 'actualizacion':
+      return '🔄';
+    case 'novedad':
+      return '📢';
+    default:
+      return '📧';
   }
 } 

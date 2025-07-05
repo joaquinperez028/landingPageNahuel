@@ -7,171 +7,209 @@ import { IAlert } from '@/models/Alert';
 import { sendEmail, generateAlertEmailTemplate } from '@/lib/emailService';
 
 /**
- * Crea una notificación automática cuando se crea una alerta
+ * Crea notificación automática cuando se crea una alerta
  */
-export async function createAlertNotification(alert: IAlert & { _id: string }): Promise<void> {
+export async function createAlertNotification(alert: IAlert): Promise<void> {
   try {
     await dbConnect();
     
-    console.log(`🔔 Creando notificación automática para alerta: ${alert.symbol} ${alert.action}`);
+    console.log('🔔 Creando notificación automática para alerta:', alert.symbol);
+
+    // Determinar el tipo de suscripción basado en el tipo de alerta
+    let subscriptionType = 'alertas_trader'; // por defecto
+    let alertType = 'TraderCall';
     
-    // Determinar el tipo de destino basado en el tipo de alerta
-    let targetUsers: string;
-    let alertType: string;
-    
-    switch (alert.tipo) {
-      case 'TraderCall':
-        targetUsers = 'alertas_trader';
-        alertType = 'Trader Call';
-        break;
-      case 'SmartMoney':
-        targetUsers = 'alertas_smart';
-        alertType = 'Smart Money';
-        break;
-      case 'CashFlow':
-        targetUsers = 'alertas_cashflow';
-        alertType = 'Cash Flow';
-        break;
-      default:
-        targetUsers = 'todos';
-        alertType = 'Trading';
+    if (alert.tipo === 'SmartMoney') {
+      subscriptionType = 'alertas_smart';
+      alertType = 'SmartMoney';
+    } else if (alert.tipo === 'CashFlow') {
+      subscriptionType = 'alertas_cashflow';
+      alertType = 'CashFlow';
     }
+
+    // Buscar plantilla específica para alertas
+    const template = await NotificationTemplate.findOne({ name: 'nueva_alerta' });
     
-    // Buscar plantilla para alertas
-    const template = await NotificationTemplate.findOne({ 
-      name: 'nueva_alerta',
-      isActive: true 
-    });
-    
-    let notificationData: any;
+    let notification: any;
     
     if (template) {
-      // Usar plantilla
+      // Usar plantilla con variables dinámicas
       const variables = {
         alertType,
         symbol: alert.symbol,
         action: alert.action,
-        price: alert.entryPrice,
-        takeProfit: alert.takeProfit,
-        stopLoss: alert.stopLoss
+        price: alert.entryPrice?.toString() || 'N/A',
+        takeProfit: alert.takeProfit?.toString() || 'N/A',
+        stopLoss: alert.stopLoss?.toString() || 'N/A'
       };
       
-      const rendered = template.render(variables);
-      
-      notificationData = {
-        ...rendered,
-        targetUsers,
+      notification = {
+        title: template.render(variables).title,
+        message: template.render(variables).message,
+        type: 'alerta',
+        priority: template.priority,
+        icon: '🤖',
+        actionUrl: getAlertActionUrl(alert.tipo),
+        actionText: 'Ver Alertas',
         isAutomatic: true,
-        templateId: template._id,
         relatedAlertId: alert._id,
-        createdBy: 'system',
+        templateId: template._id,
         metadata: {
-          alertType: alert.tipo,
           alertSymbol: alert.symbol,
           alertAction: alert.action,
-          alertPrice: alert.entryPrice
+          alertPrice: alert.entryPrice,
+          alertService: alert.tipo,
+          automatic: true
         }
       };
     } else {
-      // Crear notificación manual sin plantilla
-      notificationData = {
+      // Crear notificación manual si no hay plantilla
+      notification = {
         title: `🚨 Nueva Alerta ${alertType}`,
         message: `${alert.action} ${alert.symbol} en $${alert.entryPrice}. TP: $${alert.takeProfit}, SL: $${alert.stopLoss}`,
         type: 'alerta',
-        priority: 'alta',
-        targetUsers,
-        icon: '🚨',
-        actionUrl: `/alertas/${alert.tipo.toLowerCase().replace('call', '-call')}`,
-        actionText: 'Ver Alerta',
+        priority: 'high',
+        icon: '🤖',
+        actionUrl: getAlertActionUrl(alert.tipo),
+        actionText: 'Ver Alertas',
         isAutomatic: true,
         relatedAlertId: alert._id,
-        createdBy: 'system',
         metadata: {
-          alertType: alert.tipo,
           alertSymbol: alert.symbol,
           alertAction: alert.action,
-          alertPrice: alert.entryPrice
+          alertPrice: alert.entryPrice,
+          alertService: alert.tipo,
+          automatic: true
         }
       };
     }
+
+    // Enviar notificación a usuarios suscritos (incluyendo emails)
+    const result = await sendNotificationToSubscribers(notification, subscriptionType, true);
     
-    // Crear la notificación
-    const notification = await Notification.create(notificationData);
-    
-    // Enviar notificaciones (email y push)
-    await sendNotificationToSubscribers(notification);
-    
-    console.log(`✅ Notificación automática creada: ${notification._id}`);
-    
+    console.log(`✅ Notificación de alerta enviada: ${result.sent} usuarios, ${result.emailsSent} emails`);
+
   } catch (error) {
-    console.error('❌ Error al crear notificación automática:', error);
+    console.error('❌ Error creando notificación de alerta:', error);
   }
 }
 
 /**
- * Envía notificaciones a usuarios suscritos
+ * Envía notificación a usuarios suscritos
  */
-export async function sendNotificationToSubscribers(notification: any): Promise<void> {
+export async function sendNotificationToSubscribers(
+  notification: any, 
+  subscriptionType?: string, 
+  shouldSendEmail: boolean = true
+): Promise<{
+  sent: number;
+  failed: number;
+  emailsSent: number;
+  errors: string[];
+}> {
   try {
     await dbConnect();
+
+    // Determinar el tipo de suscripción basado en el tipo de notificación
+    let targetSubscriptionType = subscriptionType || 'notificaciones_sistema';
     
-    console.log(`📤 Enviando notificación a usuarios suscritos: ${notification.targetUsers}`);
-    
-    let subscribedUsers: any[] = [];
-    
-    // Obtener usuarios suscritos según el tipo
-    if (notification.targetUsers === 'todos') {
-      // Obtener todos los usuarios activos
-      subscribedUsers = await User.find({ 
-        isActive: true 
-      }).select('email name');
-    } else if (notification.targetUsers.startsWith('alertas_')) {
-      // Obtener usuarios suscritos a alertas específicas
-      const alertType = notification.targetUsers.replace('alertas_', '');
-      
-      // Construir query para el tipo de alerta específico
-      const query: any = {};
-      query[`subscriptions.alertas_${alertType}`] = true;
-      
-      const subscriptions = await UserSubscription.find(query).select('userEmail preferences');
-      
-      // Obtener información completa de usuarios
-      const emails = subscriptions.map((sub: any) => sub.userEmail);
-      subscribedUsers = await User.find({ 
-        email: { $in: emails },
-        isActive: true 
-      }).select('email name');
-    } else {
-      // Para otros tipos (suscriptores, admin, etc.)
-      const role = notification.targetUsers === 'admin' ? 'admin' : 'suscriptor';
-      subscribedUsers = await User.find({ 
-        role,
-        isActive: true 
-      }).select('email name');
+    // Mapear tipos de notificación a tipos de suscripción
+    switch (notification.type) {
+      case 'alerta':
+        targetSubscriptionType = 'notificaciones_alertas';
+        break;
+      case 'promocion':
+        targetSubscriptionType = 'notificaciones_promociones';
+        break;
+      case 'actualizacion':
+        targetSubscriptionType = 'notificaciones_actualizaciones';
+        break;
+      case 'sistema':
+      default:
+        targetSubscriptionType = 'notificaciones_sistema';
+        break;
     }
-    
-    console.log(`📧 Enviando a ${subscribedUsers.length} usuarios`);
-    
-    // Enviar emails en paralelo
-    const emailPromises = subscribedUsers.map(user => 
-      sendEmailNotification(user, notification)
-    );
-    
-    // Ejecutar envíos en lotes para evitar sobrecarga
-    const batchSize = 10;
-    for (let i = 0; i < emailPromises.length; i += batchSize) {
-      const batch = emailPromises.slice(i, i + batchSize);
-      await Promise.allSettled(batch);
+
+    // Buscar usuarios suscritos
+    const subscriptions = await UserSubscription.find({
+      [`subscriptions.${targetSubscriptionType}`]: true
+    });
+
+    if (subscriptions.length === 0) {
+      console.log('📧 No hay usuarios suscritos para este tipo de notificación');
+      return {
+        sent: 0,
+        failed: 0,
+        emailsSent: 0,
+        errors: []
+      };
     }
-    
-    // Marcar como enviada por email
-    notification.emailSent = true;
-    await notification.save();
-    
-    console.log(`✅ Notificaciones enviadas exitosamente`);
-    
+
+    const userEmails = subscriptions.map(sub => sub.userEmail);
+    console.log(`📧 Enviando notificación a ${userEmails.length} usuarios suscritos`);
+
+    let notificationsSent = 0;
+    let notificationsFailed = 0;
+    let emailsSent = 0;
+    const errors: string[] = [];
+
+    // Crear notificaciones en la base de datos
+    for (const email of userEmails) {
+      try {
+        const user = await User.findOne({ email });
+        if (!user) continue;
+
+        // Crear notificación
+        const notificationDoc = new Notification({
+          userId: user._id,
+          title: notification.title,
+          message: notification.message,
+          type: notification.type,
+          priority: notification.priority || 'medium',
+          icon: notification.icon || '📧',
+          actionUrl: notification.actionUrl,
+          actionText: notification.actionText,
+          isAutomatic: notification.isAutomatic || false,
+          metadata: notification.metadata || {}
+        });
+
+        await notificationDoc.save();
+        notificationsSent++;
+
+        // Enviar email si está habilitado
+        if (shouldSendEmail) {
+          const emailSuccess = await sendEmailNotification(user, notificationDoc);
+          if (emailSuccess) {
+            emailsSent++;
+          } else {
+            errors.push(`Error enviando email a ${email}`);
+          }
+        }
+
+      } catch (error) {
+        console.error(`❌ Error creando notificación para ${email}:`, error);
+        notificationsFailed++;
+        errors.push(`Error para ${email}: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      }
+    }
+
+    console.log(`📊 Notificaciones enviadas: ${notificationsSent}, fallidas: ${notificationsFailed}, emails: ${emailsSent}`);
+
+    return {
+      sent: notificationsSent,
+      failed: notificationsFailed,
+      emailsSent,
+      errors
+    };
+
   } catch (error) {
-    console.error('❌ Error al enviar notificaciones:', error);
+    console.error('❌ Error en sendNotificationToSubscribers:', error);
+    return {
+      sent: 0,
+      failed: 1,
+      emailsSent: 0,
+      errors: [error instanceof Error ? error.message : 'Error desconocido']
+    };
   }
 }
 
@@ -452,5 +490,21 @@ export async function getNotificationStats(): Promise<{
       notificationsByType: {},
       recentNotifications: []
     };
+  }
+}
+
+/**
+ * Obtiene la URL de acción para las alertas según el tipo
+ */
+function getAlertActionUrl(tipo: string): string {
+  switch (tipo) {
+    case 'TraderCall':
+      return '/alertas/trader-call';
+    case 'SmartMoney':
+      return '/alertas/smart-money';
+    case 'CashFlow':
+      return '/alertas/cash-flow';
+    default:
+      return '/alertas';
   }
 } 
