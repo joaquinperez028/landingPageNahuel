@@ -1,0 +1,316 @@
+.spyIndicator {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  border-radius: 16px;
+  padding: 20px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.spyIndicator::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #3b82f6, #1d4ed8, #0f172a);
+  border-radius: 18px;
+  z-index: -1;
+  opacity: 0.3;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.subtitle {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+}
+
+.refreshButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refreshButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.refreshButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.mainMetrics {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.currentPrice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.priceLabel {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.priceValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.yearPerformance {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.performanceHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.performanceLabel {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.performanceIcon {
+  display: flex;
+  align-items: center;
+}
+
+.performanceValues {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.percentageChange {
+  font-size: 1.8rem;
+  font-weight: 800;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.absoluteChange {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.positive {
+  color: #10b981;
+}
+
+.negative {
+  color: #ef4444;
+}
+
+.additionalInfo {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 12px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.infoLabel {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.lastUpdate {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.errorIndicator {
+  font-size: 0.75rem;
+  color: #fbbf24;
+  cursor: help;
+}
+
+.loadingContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.loadingSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.errorContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.errorIcon {
+  font-size: 2rem;
+}
+
+.retryButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.retryButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .spyIndicator {
+    padding: 16px;
+  }
+  
+  .mainMetrics {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .yearPerformance {
+    align-items: flex-start;
+    width: 100%;
+  }
+  
+  .performanceHeader {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .performanceValues {
+    align-items: flex-start;
+    width: 100%;
+  }
+  
+  .additionalInfo {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .infoItem {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .footer {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .spyIndicator {
+    padding: 12px;
+  }
+  
+  .priceValue {
+    font-size: 1.3rem;
+  }
+  
+  .percentageChange {
+    font-size: 1.5rem;
+  }
+} 

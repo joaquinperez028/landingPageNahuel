@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useSession, signIn } from 'next-auth/react';
@@ -27,6 +27,8 @@ import {
 import styles from '@/styles/CashFlow.module.css';
 import { useRouter } from 'next/router';
 import ImageUploader from '@/components/ImageUploader';
+import SPY500Indicator from '@/components/SPY500Indicator';
+import PortfolioTimeRange from '@/components/PortfolioTimeRange';
 
 // Interfaces para Cloudinary
 interface CloudinaryImage {
@@ -433,9 +435,59 @@ const SubscriberView: React.FC = () => {
   // Estados para información del mercado
   const [marketStatus, setMarketStatus] = useState<string>('');
   const [isUsingSimulatedPrices, setIsUsingSimulatedPrices] = useState(false);
+  const [portfolioRange, setPortfolioRange] = useState('30d');
+  const [portfolioData, setPortfolioData] = useState<any[]>([]);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
 
   const { data: session } = useSession();
   const router = useRouter();
+
+  // **NUEVO: Función para manejar cambio de rango temporal**
+  const handlePortfolioRangeChange = useCallback(async (range: string, days: number) => {
+    setPortfolioRange(range);
+    setPortfolioLoading(true);
+    
+    try {
+      // Simular carga de datos del portafolio
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Generar datos simulados basados en el rango
+      const mockData = generatePortfolioData(days);
+      setPortfolioData(mockData);
+    } catch (error) {
+      console.error('Error al cargar datos del portafolio:', error);
+    } finally {
+      setPortfolioLoading(false);
+    }
+  }, []);
+
+  // **NUEVO: Función para generar datos simulados del portafolio**
+  const generatePortfolioData = (days: number) => {
+    const data = [];
+    const baseValue = 10000;
+    let currentValue = baseValue;
+    
+    for (let i = 0; i < days; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - (days - i));
+      
+      // Simular variación diaria
+      const dailyChange = (Math.random() - 0.5) * 0.02; // ±1% por día
+      currentValue *= (1 + dailyChange);
+      
+      data.push({
+        date: date.toISOString(),
+        value: parseFloat(currentValue.toFixed(2))
+      });
+    }
+    
+    return data;
+  };
+
+  // Inicializar datos del portafolio
+  useEffect(() => {
+    handlePortfolioRangeChange('30d', 30);
+  }, [handlePortfolioRangeChange]);
 
   // Verificar rol del usuario
   React.useEffect(() => {

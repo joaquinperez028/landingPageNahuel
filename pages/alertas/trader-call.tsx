@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useSession, signIn } from 'next-auth/react';
@@ -39,6 +39,8 @@ import {
 import styles from '@/styles/TraderCall.module.css';
 import { useRouter } from 'next/router';
 import { calculateDaysRemaining, calculateDaysSinceSubscription } from '../../utils/dateUtils';
+import SPY500Indicator from '@/components/SPY500Indicator';
+import PortfolioTimeRange from '@/components/PortfolioTimeRange';
 
 interface TraderCallPageProps {
   isSubscribed: boolean;
@@ -514,33 +516,33 @@ const SubscriberView: React.FC = () => {
       return profitValue < 0;
     }).length;
     
-    // Calcular alertas de esta semana (últimos 7 días)
+    // **CAMBIO: Calcular alertas del año actual (en lugar de semanal)**
     const ahora = new Date();
-    const hace7Dias = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const alertasSemanales = realAlerts.filter(alert => {
+    const inicioAño = new Date(ahora.getFullYear(), 0, 1);
+    const alertasAnuales = realAlerts.filter(alert => {
       const fechaAlert = new Date(alert.date);
-      return fechaAlert >= hace7Dias;
+      return fechaAlert >= inicioAño;
     }).length;
 
-    // Calcular rentabilidad semanal usando alertas reales
-    const alertasSemanalConGanancias = realAlerts.filter(alert => {
+    // **CAMBIO: Calcular rentabilidad anual usando alertas reales**
+    const alertasAnualConGanancias = realAlerts.filter(alert => {
       const fechaAlert = new Date(alert.date);
-      return fechaAlert >= hace7Dias;
+      return fechaAlert >= inicioAño;
     });
 
-    const gananciasSemanal = alertasSemanalConGanancias.reduce((total, alert) => {
+    const gananciasAnual = alertasAnualConGanancias.reduce((total, alert) => {
       const profitValue = parseFloat(alert.profit.replace('%', '').replace('+', ''));
       return total + profitValue;
     }, 0);
 
-    const rentabilidadSemanal = gananciasSemanal.toFixed(1);
+    const rentabilidadAnual = gananciasAnual.toFixed(1);
 
     return {
       alertasActivas,
       alertasGanadoras,
       alertasPerdedoras,
-      rentabilidadSemanal: `${gananciasSemanal >= 0 ? '+' : ''}${rentabilidadSemanal}%`,
-      alertasSemanales
+      rentabilidadAnual: `${gananciasAnual >= 0 ? '+' : ''}${rentabilidadAnual}%`,
+      alertasAnuales
     };
   };
 
@@ -1016,6 +1018,17 @@ const SubscriberView: React.FC = () => {
     <div className={styles.dashboardContent}>
       <h2 className={styles.sectionTitle}>Dashboard de Trabajo</h2>
       
+      {/* **NUEVO: Indicador SPY500** */}
+      <SPY500Indicator />
+      
+      {/* **NUEVO: Selector de rango temporal del portafolio** */}
+      <PortfolioTimeRange
+        selectedRange={portfolioRange}
+        onRangeChange={handlePortfolioRangeChange}
+        data={portfolioData}
+        loading={portfolioLoading}
+      />
+      
       {/* Métricas principales */}
       <div className={styles.metricsGrid}>
         <div className={styles.metricCard}>
@@ -1053,20 +1066,20 @@ const SubscriberView: React.FC = () => {
           <div className={styles.metricIcon} style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
             <BarChart3 size={24} />
           </div>
-          <h3>Rentabilidad Semanal</h3>
+          <h3>Rentabilidad Anual</h3>
           <p className={styles.metricNumber} style={{ color: 'var(--warning-color)' }}>
-            {dashboardMetrics.rentabilidadSemanal}
+            {dashboardMetrics.rentabilidadAnual}
           </p>
-          <span className={styles.metricLabel}>Últimos 7 días</span>
+          <span className={styles.metricLabel}>Año {new Date().getFullYear()}</span>
         </div>
         
         <div className={styles.metricCard}>
           <div className={styles.metricIcon}>
             <Users size={24} />
           </div>
-          <h3>Alertas Semanales</h3>
-          <p className={styles.metricNumber}>{dashboardMetrics.alertasSemanales}</p>
-          <span className={styles.metricLabel}>Enviadas esta semana</span>
+          <h3>Alertas Anuales</h3>
+          <p className={styles.metricNumber}>{dashboardMetrics.alertasAnuales}</p>
+          <span className={styles.metricLabel}>Enviadas este año</span>
         </div>
       </div>
 
@@ -1101,67 +1114,50 @@ const SubscriberView: React.FC = () => {
 
       {/* Actividad Reciente */}
       <div className={styles.activitySection}>
-        <h3>Última actividad</h3>
-        <p className={styles.activitySubtitle}>Actividad reciente en Trader Call</p>
-        
-        <div className={styles.activityFeed}>
-          {recentActivity.length > 0 ? (
-            recentActivity.map((activity) => (
-              <div 
-                key={activity.id} 
-                className={`${styles.activityItem} ${activity.type === 'informe' ? styles.clickableActivity : ''}`}
-                onClick={activity.type === 'informe' ? () => openReport(activity.id) : undefined}
-                style={activity.type === 'informe' ? { cursor: 'pointer' } : {}}
-              >
-                <div className={styles.activityContent}>
-                  <div className={styles.activityText}>
-                    {activity.message}
-                  </div>
-                  <div className={styles.activityMeta}>
-                    <span className={styles.activityTime}>hace {activity.timestamp}</span>
-                    <span className={styles.activityType}>
-                      {activity.type === 'informe' ? '📰 INFORME' : '🔄 ACTUALIZACIÓN'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className={styles.emptyActivity}>
-              <span>📋</span>
-              <p>No hay actividad reciente.</p>
-              <p>Las alertas e informes aparecerán aquí cuando se generen.</p>
-            </div>
-          )}
+        <div className={styles.activityHeader}>
+          <h3>Actividad Reciente</h3>
+          <div className={styles.activityActions}>
+            <button 
+              className={styles.viewAllButton}
+              onClick={() => setActiveTab('seguimiento')}
+            >
+              Ver toda la actividad
+            </button>
+            <button 
+              className={styles.refreshButton}
+              onClick={() => refreshActivity()}
+              disabled={refreshingActivity}
+            >
+              <Activity size={16} />
+              {refreshingActivity ? 'Actualizando...' : 'Actualizar'}
+            </button>
+          </div>
         </div>
-        
-        <div className={styles.activityActions}>
-          <button 
-            className={styles.viewAllButton}
-            onClick={() => setActiveTab('seguimiento')}
-          >
-            Ver toda la actividad
-          </button>
-          <button 
-            className={styles.refreshButton}
-            onClick={() => refreshActivity()}
-            disabled={refreshingActivity}
-          >
-            <Activity size={16} />
-            {refreshingActivity ? 'Actualizando...' : 'Actualizar'}
-          </button>
+        <div className={styles.activityList}>
+          {recentActivity.slice(0, 5).map((activity, index) => (
+            <div key={activity.id || index} className={styles.activityItem}>
+              <span className={styles.activityTime}>{activity.timestamp}</span>
+              <span className={styles.activityMessage}>{activity.message}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Gráfico de rendimiento */}
+      {/* **MODIFICADO: Gráfico de evolución del portafolio con selector de rango** */}
       <div className={styles.chartContainer}>
-        <h3>Evolución del Portafolio (Últimos 30 días)</h3>
+        <h3>Evolución del Portafolio - {portfolioRange.toUpperCase()}</h3>
         <div className={styles.chartPlaceholder}>
           <BarChart3 size={64} />
           <p>Gráfico de Chart.js se implementaría aquí</p>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-            Mostrará la evolución diaria del rendimiento del portafolio
+            Mostrará la evolución del rendimiento del portafolio para el período seleccionado
           </p>
+          {portfolioData.length > 0 && (
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              Datos cargados: {portfolioData.length} puntos desde {' '}
+              {new Date(portfolioData[0]?.date).toLocaleDateString('es-ES')}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -2316,6 +2312,59 @@ const SubscriberView: React.FC = () => {
       </div>
     );
   };
+
+  // **NUEVO: Estado para manejo de rango temporal del portafolio**
+  const [portfolioRange, setPortfolioRange] = useState('30d');
+  const [portfolioData, setPortfolioData] = useState<any[]>([]);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
+
+  // **NUEVO: Función para manejar cambio de rango temporal**
+  const handlePortfolioRangeChange = useCallback(async (range: string, days: number) => {
+    setPortfolioRange(range);
+    setPortfolioLoading(true);
+    
+    try {
+      // Simular carga de datos del portafolio
+      // En producción, esto haría fetch a una API real
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Generar datos simulados basados en el rango
+      const mockData = generatePortfolioData(days);
+      setPortfolioData(mockData);
+    } catch (error) {
+      console.error('Error al cargar datos del portafolio:', error);
+    } finally {
+      setPortfolioLoading(false);
+    }
+  }, []);
+
+  // **NUEVO: Función para generar datos simulados del portafolio**
+  const generatePortfolioData = (days: number) => {
+    const data = [];
+    const baseValue = 10000;
+    let currentValue = baseValue;
+    
+    for (let i = 0; i < days; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - (days - i));
+      
+      // Simular variación diaria
+      const dailyChange = (Math.random() - 0.5) * 0.02; // ±1% por día
+      currentValue *= (1 + dailyChange);
+      
+      data.push({
+        date: date.toISOString(),
+        value: parseFloat(currentValue.toFixed(2))
+      });
+    }
+    
+    return data;
+  };
+
+  // Inicializar datos del portafolio
+  useEffect(() => {
+    handlePortfolioRangeChange('30d', 30);
+  }, [handlePortfolioRangeChange]);
 
   return (
     <div className={styles.subscriberView}>
