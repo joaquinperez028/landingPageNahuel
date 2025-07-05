@@ -218,33 +218,20 @@ export async function sendNotificationToSubscribers(
  */
 export async function sendEmailNotification(user: any, notification: any): Promise<boolean> {
   try {
-    // Verificar preferencias del usuario
-    const subscription = await UserSubscription.findOne({ userEmail: user.email });
-    
-    if (subscription && !subscription.preferences.emailNotifications) {
-      console.log(`📧 Usuario ${user.email} tiene emails desactivados`);
-      return false;
-    }
-
     console.log(`📧 Enviando email a: ${user.email}`);
     
     // Usar la nueva plantilla de email mejorada para alertas
     const htmlContent = generateAlertEmailTemplate(notification, user);
     
     // Enviar email usando el servicio real
-    const emailSent = await sendEmail({
+    await sendEmail({
       to: user.email,
       subject: notification.title,
       html: htmlContent
     });
 
-    if (emailSent) {
-      console.log(`✅ Email enviado exitosamente a: ${user.email}`);
-    } else {
-      console.log(`❌ Error enviando email a: ${user.email}`);
-    }
-    
-    return emailSent;
+    console.log(`✅ Email enviado exitosamente a: ${user.email}`);
+    return true;
     
   } catch (error) {
     console.error(`❌ Error enviando email a ${user.email}:`, error);

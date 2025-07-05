@@ -150,31 +150,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       buttonUrl: meetingLink
     });
 
-    // Enviar email
-    const success = await sendEmail({
-      to: booking.userEmail,
-      subject: `🔗 Link de Reunión - ${sessionType} del ${sessionDate}`,
-      html: emailHtml
-    });
-
-    if (success) {
-      // Actualizar la reserva para marcar que el link fue enviado
-      await Booking.findByIdAndUpdate(bookingId, {
-        $set: {
-          meetingLinkSent: true,
-          meetingLink: meetingLink,
-          updatedAt: new Date()
-        }
+    // Enviar email con link de reunión
+    console.log(`📧 Enviando link de reunión a: ${booking.userEmail}`);
+    
+    try {
+      await sendEmail({
+        to: booking.userEmail,
+        subject: `🎥 Link de Reunión - ${sessionType} con Nahuel Lozano`,
+        html: emailHtml
       });
-
+      
       console.log('✅ Link de reunión enviado exitosamente');
+      
       return res.status(200).json({
         success: true,
-        message: 'Link de reunión enviado exitosamente'
+        message: 'Link de reunión enviado exitosamente',
+        details: {
+          to: booking.userEmail,
+          tipo: sessionType,
+          meetingLink: meetingLink,
+          timestamp: new Date().toISOString()
+        }
       });
-    } else {
+      
+    } catch (emailError) {
+      console.error('❌ Error enviando link de reunión:', emailError);
+      
       return res.status(500).json({
-        error: 'Error al enviar el link de reunión'
+        success: false,
+        error: 'Error enviando link de reunión',
+        details: {
+          message: emailError instanceof Error ? emailError.message : 'Error desconocido',
+          to: booking.userEmail
+        }
       });
     }
 

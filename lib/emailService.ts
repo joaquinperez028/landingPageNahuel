@@ -65,121 +65,163 @@ interface EmailOptions {
 }
 
 /**
- * Envía un email usando Nodemailer
+ * Envía un email individual con mejor manejo de errores
  */
-export async function sendEmail(options: EmailOptions): Promise<boolean> {
+export async function sendEmail(options: {
+  to: string;
+  subject: string;
+  html: string;
+  from?: string;
+}): Promise<void> {
+  const { to, subject, html, from } = options;
+  
+  console.log(`📧 [EMAIL SERVICE] Enviando email a: ${to}`);
+  console.log(`📧 [EMAIL SERVICE] Asunto: ${subject}`);
+  
+  // Verificar configuración
+  const isConfigured = await verifyEmailConfiguration();
+  
+  if (!isConfigured) {
+    console.log('⚠️ [EMAIL SERVICE] Modo simulación - email no se enviará realmente');
+    console.log('📧 [EMAIL SERVICE] SIMULACIÓN - Email que se enviaría:');
+    console.log('📧 [EMAIL SERVICE] Para:', to);
+    console.log('📧 [EMAIL SERVICE] Asunto:', subject);
+    console.log('📧 [EMAIL SERVICE] HTML preview:', html.substring(0, 200) + '...');
+    
+    // En modo simulación, simular éxito
+    return;
+  }
+  
   try {
-    const transporter = initializeEmailService();
+    console.log('✅ [EMAIL SERVICE] Configuración SMTP válida, enviando email real...');
     
-    // Si no hay transportador configurado, simular envío
-    if (!transporter) {
-      console.log('📧 SIMULACIÓN - Email que se enviaría:');
-      console.log(`📧 Para: ${options.to}`);
-      console.log(`📧 Asunto: ${options.subject}`);
-      console.log(`📧 HTML: ${options.html.substring(0, 100)}...`);
-      
-      // Simular delay de envío
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return true;
-    }
-
-    // Configurar email
-    const mailOptions = {
-      from: {
-        name: options.from || process.env.EMAIL_FROM_NAME || 'Nahuel Lozano Trading',
-        address: process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'noreply@lozanonahuel.com'
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_PORT === '465',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-      text: options.text || options.html.replace(/<[^>]*>/g, ''), // Versión texto sin HTML
-      // Headers adicionales
-      headers: {
-        'X-Mailer': 'Nahuel Lozano Trading Platform',
-        'X-Priority': '1', // Alta prioridad para alertas
+      tls: {
+        rejectUnauthorized: false
       }
+    });
+    
+    const mailOptions = {
+      from: from || `${process.env.EMAIL_FROM_NAME || 'Nahuel Lozano'} <${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER}>`,
+      to,
+      subject,
+      html
     };
-
-    // Enviar email
-    console.log(`📧 Enviando email a: ${options.to}`);
-    const info = await transporter.sendMail(mailOptions);
     
-    console.log(`✅ Email enviado exitosamente a ${options.to}`);
-    console.log(`📧 Message ID: ${info.messageId}`);
+    console.log('📧 [EMAIL SERVICE] Enviando con opciones:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      htmlLength: mailOptions.html.length
+    });
     
-    return true;
-
+    const result = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ [EMAIL SERVICE] Email enviado exitosamente:', {
+      messageId: result.messageId,
+      to: to
+    });
+    
   } catch (error) {
-    console.error(`❌ Error enviando email a ${options.to}:`, error);
+    console.error('❌ [EMAIL SERVICE] Error enviando email:', error);
+    console.error('❌ [EMAIL SERVICE] Stack trace:', error instanceof Error ? error.stack : 'No stack available');
     
-    // Log adicional para debugging
-    if (error instanceof Error) {
-      console.error(`❌ Error details: ${error.message}`);
-      if (error.stack) {
-        console.error(`❌ Stack trace: ${error.stack}`);
-      }
-    }
-    
-    return false;
+    // Arrojar el error para que se maneje en sendBulkEmails
+    throw error;
   }
 }
 
 /**
- * Envío masivo de emails
+ * Envía emails masivos con mejor manejo de errores
  */
-export async function sendBulkEmails({
-  recipients,
-  subject,
-  html,
-  from
-}: {
+export async function sendBulkEmails(options: {
   recipients: string[];
   subject: string;
   html: string;
-  from?: string;
-}): Promise<{
-  sent: number;
-  failed: number;
-  errors: string[];
-}> {
-  const results = {
-    sent: 0,
-    failed: 0,
-    errors: [] as string[]
-  };
-
-  console.log(`📧 Iniciando envío masivo a ${recipients.length} destinatarios...`);
-
-  // Enviar emails en lotes para evitar sobrecargar el servidor SMTP
-  const batchSize = 5;
+}): Promise<{ sent: number; failed: number; errors: string[] }> {
+  const { recipients, subject, html } = options;
+  
+  console.log('📧 [EMAIL SERVICE] Iniciando envío masivo...');
+  console.log('📧 [EMAIL SERVICE] Destinatarios:', recipients.length);
+  console.log('📧 [EMAIL SERVICE] Asunto:', subject);
+  console.log('📧 [EMAIL SERVICE] HTML generado:', html.length, 'caracteres');
+  
+  let sent = 0;
+  let failed = 0;
+  const errors: string[] = [];
+  
+  console.log('🔍 [EMAIL SERVICE] Verificando configuración SMTP...');
+  const isConfigured = await verifyEmailConfiguration();
+  console.log('🔍 [EMAIL SERVICE] Configuración SMTP válida:', isConfigured);
+  
+  if (!isConfigured) {
+    console.log('⚠️ [EMAIL SERVICE] Modo simulación activado - emails no se enviarán realmente');
+    console.log('📧 [EMAIL SERVICE] SIMULACIÓN - Email que se enviaría:');
+    console.log('📧 [EMAIL SERVICE] Para:', recipients.slice(0, 3).join(', '), recipients.length > 3 ? '...' : '');
+    console.log('📧 [EMAIL SERVICE] Asunto:', subject);
+    console.log('📧 [EMAIL SERVICE] HTML preview:', html.substring(0, 200) + '...');
+    
+    // En modo simulación, simular éxito
+    return {
+      sent: recipients.length,
+      failed: 0,
+      errors: [`Modo simulación: ${recipients.length} emails simulados exitosamente`]
+    };
+  }
+  
+  console.log('✅ [EMAIL SERVICE] Configuración SMTP válida, enviando emails reales...');
+  
+  // Procesar en lotes para evitar sobrecargar el servidor
+  const batchSize = 10;
+  const batches = [];
+  
   for (let i = 0; i < recipients.length; i += batchSize) {
-    const batch = recipients.slice(i, i + batchSize);
+    batches.push(recipients.slice(i, i + batchSize));
+  }
+  
+  console.log('📦 [EMAIL SERVICE] Procesando', batches.length, 'lotes de', batchSize, 'emails cada uno');
+  
+  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+    const batch = batches[batchIndex];
+    console.log(`📦 [EMAIL SERVICE] Procesando lote ${batchIndex + 1}/${batches.length} (${batch.length} emails)`);
     
     const batchPromises = batch.map(async (email) => {
-      const success = await sendEmail({ to: email, subject, html, from });
-      
-      if (success) {
-        results.sent++;
-      } else {
-        results.failed++;
-        results.errors.push(`${email}: Error en envío`);
+      try {
+        console.log(`�� [EMAIL SERVICE] Enviando a: ${email}`);
+        await sendEmail({
+          to: email,
+          subject,
+          html
+        });
+        console.log(`✅ [EMAIL SERVICE] Enviado exitosamente a: ${email}`);
+        sent++;
+      } catch (error) {
+        console.error(`❌ [EMAIL SERVICE] Error enviando a ${email}:`, error);
+        failed++;
+        errors.push(`${email}: ${error instanceof Error ? error.message : 'Error desconocido'}`);
       }
-      
-      return success;
     });
-
-    // Esperar que se complete el lote actual
+    
     await Promise.all(batchPromises);
     
-    // Pausa pequeña entre lotes para no sobrecargar el servidor SMTP
-    if (i + batchSize < recipients.length) {
+    // Pequeña pausa entre lotes
+    if (batchIndex < batches.length - 1) {
+      console.log('⏰ [EMAIL SERVICE] Pausa de 1 segundo entre lotes...');
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
-
-  console.log(`📊 Envío masivo completado: ${results.sent} enviados, ${results.failed} fallidos`);
   
-  return results;
+  console.log('✅ [EMAIL SERVICE] Envío masivo completado');
+  console.log('📊 [EMAIL SERVICE] Resultados finales:', { sent, failed, errorsCount: errors.length });
+  
+  return { sent, failed, errors };
 }
 
 /**

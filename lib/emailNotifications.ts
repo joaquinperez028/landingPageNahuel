@@ -18,17 +18,13 @@ export async function sendTrainingConfirmationEmail(
 
     const html = createTrainingConfirmationTemplate(userEmail, userName, trainingDetails);
     
-    const success = await sendEmail({
+    await sendEmail({
       to: userEmail,
       subject: '✅ Confirmación de Entrenamiento - Nahuel Lozano Trading',
       html
     });
 
-    if (success) {
-      console.log('✅ Email de confirmación de entrenamiento enviado exitosamente');
-    } else {
-      throw new Error('Error al enviar email de confirmación de entrenamiento');
-    }
+    console.log('✅ Email de confirmación de entrenamiento enviado exitosamente');
 
   } catch (error) {
     console.error('❌ Error al enviar email de confirmación de entrenamiento:', error);
@@ -55,17 +51,13 @@ export async function sendAdvisoryConfirmationEmail(
 
     const html = createAdvisoryConfirmationTemplate(userEmail, userName, advisoryDetails);
     
-    const success = await sendEmail({
+    await sendEmail({
       to: userEmail,
       subject: '✅ Confirmación de Asesoría - Consultorio Financiero',
       html
     });
 
-    if (success) {
-      console.log('✅ Email de confirmación de asesoría enviado exitosamente');
-    } else {
-      throw new Error('Error al enviar email de confirmación de asesoría');
-    }
+    console.log('✅ Email de confirmación de asesoría enviado exitosamente');
 
   } catch (error) {
     console.error('❌ Error al enviar email de confirmación de asesoría:', error);
@@ -95,17 +87,13 @@ export async function sendAdminNotificationEmail(
     
     const adminEmail = process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'admin@lozanonahuel.com';
     
-    const success = await sendEmail({
+    await sendEmail({
       to: adminEmail,
       subject: `🔔 Nueva Reserva: ${bookingDetails.type === 'training' ? 'Entrenamiento' : 'Asesoría'} - ${bookingDetails.userName}`,
       html
     });
 
-    if (success) {
-      console.log('✅ Email de notificación al admin enviado exitosamente');
-    } else {
-      throw new Error('Error al enviar notificación al admin');
-    }
+    console.log('✅ Email de notificación al admin enviado exitosamente');
 
   } catch (error) {
     console.error('❌ Error al enviar notificación al admin:', error);

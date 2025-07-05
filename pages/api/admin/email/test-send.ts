@@ -79,25 +79,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // Enviar email de prueba
-    const success = await sendEmail({
-      to: targetEmail,
-      subject: '✅ Test de Configuración - Sistema de Emails Nahuel Lozano',
-      html: emailHtml
-    });
-
-    if (success) {
-      console.log(`✅ Email de prueba enviado exitosamente a: ${targetEmail}`);
+    console.log('📧 Enviando email de prueba...');
+    
+    try {
+      await sendEmail({
+        to: targetEmail,
+        subject: '✅ Test de Configuración - Sistema de Emails Nahuel Lozano',
+        html: emailHtml
+      });
+      
+      console.log('✅ Email de prueba enviado exitosamente');
+      
       return res.status(200).json({
         success: true,
-        message: `Email de prueba enviado exitosamente a ${targetEmail}`,
-        sentTo: targetEmail
+        message: 'Email de prueba enviado exitosamente',
+        details: {
+          to: targetEmail,
+          subject: '✅ Test de Configuración - Sistema de Emails Nahuel Lozano',
+          timestamp: new Date().toISOString()
+        }
       });
-    } else {
-      console.log(`❌ Error enviando email de prueba a: ${targetEmail}`);
+      
+    } catch (emailError) {
+      console.error('❌ Error enviando email de prueba:', emailError);
+      
       return res.status(500).json({
         success: false,
         error: 'Error enviando email de prueba',
-        message: 'Verifica la configuración SMTP en las variables de entorno'
+        details: {
+          message: emailError instanceof Error ? emailError.message : 'Error desconocido',
+          to: targetEmail
+        }
       });
     }
 

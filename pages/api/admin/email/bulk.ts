@@ -32,6 +32,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: 'No tienes permisos de administrador' });
     }
 
+    console.log('✅ [BULK EMAIL] Acceso de admin confirmado para:', session.user.email);
+    console.log('📦 [BULK EMAIL] Procesando datos del request...');
+    console.log('📦 [BULK EMAIL] req.body:', JSON.stringify(req.body, null, 2));
+
     const { 
       recipients, 
       recipientType, 
@@ -44,42 +48,77 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       buttonUrl
     } = req.body;
 
+    console.log('📋 [BULK EMAIL] Datos extraídos:', {
+      recipientType,
+      subject: subject?.substring(0, 50) + '...',
+      message: message?.substring(0, 50) + '...',
+      emailType,
+      recipientsLength: recipients?.length || 0,
+      hasOffer: !!offer,
+      hasButtonText: !!buttonText,
+      hasButtonUrl: !!buttonUrl
+    });
+
     // Validaciones
+    console.log('🔍 [BULK EMAIL] Validando datos requeridos...');
     if (!subject || !message) {
+      console.error('❌ [BULK EMAIL] Faltan datos requeridos:', { 
+        hasSubject: !!subject, 
+        hasMessage: !!message 
+      });
       return res.status(400).json({ error: 'Asunto y mensaje son requeridos' });
     }
+    console.log('✅ [BULK EMAIL] Validación de datos requeridos completada');
 
     let targetEmails: string[] = [];
 
+    console.log('👥 [BULK EMAIL] Determinando destinatarios para tipo:', recipientType);
+
     // Determinar destinatarios
     if (recipientType === 'all') {
+      console.log('👥 [BULK EMAIL] Obteniendo todos los usuarios...');
       const allUsers = await User.find({}, 'email');
       targetEmails = allUsers.map(user => user.email);
+      console.log('👥 [BULK EMAIL] Usuarios encontrados:', allUsers.length);
     } else if (recipientType === 'custom' && recipients) {
+      console.log('👥 [BULK EMAIL] Validando emails personalizados...');
       // Validar emails individuales
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       targetEmails = recipients.filter((email: string) => emailRegex.test(email));
+      console.log('👥 [BULK EMAIL] Emails válidos de la lista personalizada:', targetEmails.length, 'de', recipients.length);
     } else if (recipientType === 'subscribers') {
+      console.log('👥 [BULK EMAIL] Obteniendo solo suscriptores...');
       // Solo usuarios suscriptores
       const subscribers = await User.find({ role: 'suscriptor' }, 'email');
       targetEmails = subscribers.map(user => user.email);
+      console.log('👥 [BULK EMAIL] Suscriptores encontrados:', subscribers.length);
     } else if (recipientType === 'admins') {
+      console.log('👥 [BULK EMAIL] Obteniendo solo administradores...');
       // Solo administradores
       const admins = await User.find({ role: 'admin' }, 'email');
       targetEmails = admins.map(user => user.email);
+      console.log('👥 [BULK EMAIL] Administradores encontrados:', admins.length);
+    } else {
+      console.error('❌ [BULK EMAIL] Tipo de destinatario no válido:', recipientType);
     }
 
+    console.log('👥 [BULK EMAIL] Total de emails objetivo:', targetEmails.length);
+    console.log('👥 [BULK EMAIL] Lista de emails:', targetEmails.slice(0, 5), targetEmails.length > 5 ? '...' : '');
+
     if (targetEmails.length === 0) {
+      console.error('❌ [BULK EMAIL] No se encontraron destinatarios válidos');
       return res.status(400).json({ error: 'No se encontraron destinatarios válidos' });
     }
 
-    console.log(`📧 Preparando envío masivo a ${targetEmails.length} destinatarios`);
+    console.log(`📧 [BULK EMAIL] Preparando envío masivo a ${targetEmails.length} destinatarios`);
+    console.log('🎨 [BULK EMAIL] Creando plantilla de email tipo:', emailType);
 
     // Crear HTML del email basado en el tipo
     let emailHtml: string;
     
     switch (emailType) {
       case 'promotional':
+        console.log('🎨 [BULK EMAIL] Creando plantilla promocional...');
         emailHtml = createPromotionalEmailTemplate({
           title: subject,
           content: message,
@@ -91,6 +130,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         break;
       
       case 'alert':
+        console.log('🎨 [BULK EMAIL] Creando plantilla de alerta...');
         emailHtml = createEmailTemplate({
           title: `🚨 ${subject}`,
           content: `
@@ -107,6 +147,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         break;
 
       case 'newsletter':
+        console.log('🎨 [BULK EMAIL] Creando plantilla de newsletter...');
         emailHtml = createEmailTemplate({
           title: `📰 ${subject}`,
           content: `
@@ -125,6 +166,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         break;
 
       default: // general
+        console.log('🎨 [BULK EMAIL] Creando plantilla general...');
         emailHtml = createEmailTemplate({
           title: subject,
           content: message,
@@ -133,6 +175,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
     }
 
+    console.log('✅ [BULK EMAIL] Plantilla HTML creada, longitud:', emailHtml.length, 'caracteres');
+    console.log('📧 [BULK EMAIL] Iniciando envío masivo...');
+
     // Enviar emails masivos
     const results = await sendBulkEmails({
       recipients: targetEmails,
@@ -140,7 +185,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       html: emailHtml
     });
 
-    console.log(`📊 Envío masivo completado: ${results.sent} enviados, ${results.failed} fallidos`);
+    console.log('✅ [BULK EMAIL] Envío masivo completado');
+    console.log('📊 [BULK EMAIL] Resultados detallados:', {
+      sent: results.sent,
+      failed: results.failed,
+      total: targetEmails.length,
+      errorsCount: results.errors.length
+    });
+
+    if (results.errors.length > 0) {
+      console.error('❌ [BULK EMAIL] Errores durante el envío:', results.errors.slice(0, 3));
+    }
+
+    console.log(`📊 [BULK EMAIL] Envío masivo completado: ${results.sent} enviados, ${results.failed} fallidos`);
 
     return res.status(200).json({
       success: true,
@@ -154,7 +211,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
   } catch (error) {
-    console.error('❌ Error en envío masivo:', error);
+    console.error('❌ [BULK EMAIL] Error en envío masivo:', error);
+    console.error('❌ [BULK EMAIL] Stack trace:', error instanceof Error ? error.stack : 'No stack available');
     return res.status(500).json({
       error: 'Error interno del servidor',
       message: error instanceof Error ? error.message : 'Error desconocido'
