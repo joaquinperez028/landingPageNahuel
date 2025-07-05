@@ -67,82 +67,75 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     loadProximosTurnos();
   }, []);
 
-  // Verificar disponibilidad automáticamente cada 30 segundos
+  // **OPTIMIZACIÓN: Reducir verificación automática a 5 minutos y solo si es necesario**
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!loading && !loadingTurnos) {
-        console.log('🔄 Verificación automática de disponibilidad...');
+      // Solo verificar si hay slots seleccionados o si es probable que cambien
+      const shouldRefresh = selectedDate && selectedTime;
+      if (shouldRefresh && !loading && !loadingTurnos) {
+        console.log('🔄 Verificación automática de disponibilidad (5min)...');
         loadProximosTurnos();
       }
-    }, 30000); // 30 segundos
+    }, 300000); // **CAMBIO: 5 minutos en lugar de 30 segundos**
 
     return () => clearInterval(interval);
-  }, [loading, loadingTurnos]);
+  }, [loading, loadingTurnos, selectedDate, selectedTime]);
 
-  // Verificar disponibilidad cuando se selecciona un turno
+  // **OPTIMIZACIÓN: Verificación de disponibilidad solo cuando es realmente necesario**
   useEffect(() => {
-    if (selectedTime && selectedDate) {
-      // Verificar disponibilidad en tiempo real
-      checkRealTimeAvailability(selectedDate, selectedTime);
+    // Solo verificar disponibilidad cuando se ha seleccionado completamente una cita
+    if (selectedTime && selectedDate && proximosTurnos.length > 0) {
+      // Debounce para evitar verificaciones excesivas
+      const timeoutId = setTimeout(() => {
+        checkRealTimeAvailability(selectedDate, selectedTime);
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [selectedTime, selectedDate]);
 
-  // Limpiar estado de disponibilidad cuando cambian los turnos
+  // **OPTIMIZACIÓN: Limpiar estado solo cuando cambian los turnos significativamente**
   useEffect(() => {
-    setAvailabilityStatus({});
-  }, [proximosTurnos]);
+    // Solo limpiar si realmente hay cambios
+    if (proximosTurnos.length > 0) {
+      setAvailabilityStatus({});
+    }
+  }, [proximosTurnos.length]); // Cambiar dependencia a length para evitar re-renders innecesarios
 
   const loadProximosTurnos = async () => {
     try {
       setLoadingTurnos(true);
-      console.log('🔄 Cargando turnos para Consultorio Financiero...');
+      console.log('🚀 Cargando turnos optimizados para Consultorio Financiero...');
       
-      // Agregar múltiples parámetros anti-caché
-      const timestamp = new Date().getTime();
-      const cacheBreaker = Math.random().toString(36).substring(7);
-      const url = `/api/turnos/generate?type=advisory&advisoryType=ConsultorioFinanciero&maxSlotsPerDay=6&_t=${timestamp}&cb=${cacheBreaker}&force=${Date.now()}`;
-      console.log('📡 URL de la API:', url);
+      // **OPTIMIZACIÓN: URL simplificada sin parámetros de cache breaking innecesarios**
+      const url = `/api/turnos/generate?type=advisory&advisoryType=ConsultorioFinanciero&maxSlotsPerDay=6&days=10`;
       
       const response = await fetch(url, {
-        // Forzar recarga sin caché
-        cache: 'no-cache',
+        // **OPTIMIZACIÓN: Permitir caché del navegador pero revalidar**
+        cache: 'default',
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-          'X-Requested-At': new Date().toISOString()
+          'Cache-Control': 'max-age=30', // Cache 30 segundos en navegador
         }
       });
-      console.log('📊 Status de respuesta:', response.status);
       
       const data = await response.json();
-      console.log('📅 Respuesta completa del servidor:', data);
       
       if (response.ok) {
         const turnos = data.turnos || [];
         
-        // Filtro adicional en el frontend para asegurar que solo se muestren días con turnos
-        const turnosValidos = turnos.filter((turno: any) => {
-          const esValido = turno.horarios && Array.isArray(turno.horarios) && turno.horarios.length > 0;
-          if (!esValido) {
-            console.log(`🚫 Filtrando día ${turno.fecha} - sin horarios válidos`);
-          }
-          return esValido;
-        });
+        // **OPTIMIZACIÓN: Filtro más eficiente**
+        const turnosValidos = turnos.filter((turno: any) => 
+          turno.horarios?.length > 0
+        );
         
-        console.log(`✅ Turnos después del filtro: ${turnosValidos.length} días válidos de ${turnos.length} recibidos`);
-        
-        // VERIFICACIÓN ADICIONAL: Si no hay turnos válidos, mostrar mensaje
-        if (turnosValidos.length === 0) {
-          console.log('⚠️ NO HAY TURNOS DISPONIBLES');
-        } else {
-          console.log('📋 Turnos válidos:', turnosValidos);
-        }
+        console.log(`✅ ${turnosValidos.length} días con turnos cargados en ${data.responseTime || 'N/A'} (source: ${data.source || 'unknown'})`);
         
         setProximosTurnos(turnosValidos);
         
-        // Limpiar estado de disponibilidad para forzar re-verificación
-        setAvailabilityStatus({});
+        // **OPTIMIZACIÓN: Solo limpiar si hay cambios reales**
+        if (turnosValidos.length !== proximosTurnos.length) {
+          setAvailabilityStatus({});
+        }
       } else {
         console.error('❌ Error al cargar turnos:', data.error);
         setProximosTurnos([]);

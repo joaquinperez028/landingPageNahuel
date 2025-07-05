@@ -1,142 +1,176 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import connectToDatabase from '../../../lib/mongodb';
-import Booking from '../../../models/Booking';
-import AdvisorySchedule from '../../../models/AdvisorySchedule';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import dbConnect from '@/lib/mongodb';
+import Booking from '@/models/Booking';
+import { z } from 'zod';
 
+// Cache para verificación de disponibilidad
+const availabilityCache = new Map<string, { available: boolean; timestamp: number; }>();
+const CACHE_DURATION = 30000; // 30 segundos
+
+// Schema de validación
+const checkAvailabilitySchema = z.object({
+  fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$|^\w{3} \d{1,2} \w{3}$/), // YYYY-MM-DD o "Lun 15 Ene"
+  horario: z.string().regex(/^\d{2}:\d{2}$/), // HH:MM
+  serviceType: z.string().optional().default('ConsultorioFinanciero')
+});
+
+/**
+ * API optimizada para verificar disponibilidad de turnos específicos
+ * POST: Verifica si un horario específico está disponible
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Headers para cache controlado
+  res.setHeader('Cache-Control', 'public, max-age=15, s-maxage=30');
+  
+  await dbConnect();
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
   try {
-    await connectToDatabase();
-
-    const { fecha, horario, tipo = 'advisory', servicioTipo = 'ConsultorioFinanciero' } = req.body;
-
-    if (!fecha || !horario) {
-      return res.status(400).json({ error: 'Fecha y horario son requeridos' });
-    }
-
-    console.log(`🔍 [CHECK-AVAILABILITY] Verificando disponibilidad: ${fecha} ${horario} (${tipo}/${servicioTipo})`);
-
-    // Parsear la fecha (formato: "Lun 16 Jun")
-    let targetDate: Date;
+    const startTime = Date.now();
     
-    if (fecha.includes('/')) {
-      // Formato: "16/06/2025"
-      const [day, month, year] = fecha.split('/').map(Number);
-      targetDate = new Date(year, month - 1, day);
-    } else {
-      // Formato: "Lun 16 Jun"
-      const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-      const dateParts = fecha.split(' ');
-      const day = parseInt(dateParts[1]);
-      const monthName = dateParts[2];
-      const monthIndex = monthNames.indexOf(monthName);
-      
-      if (monthIndex === -1) {
-        return res.status(400).json({ error: 'Formato de fecha inválido' });
-      }
-      
-      const currentYear = new Date().getFullYear();
-      targetDate = new Date(currentYear, monthIndex, day);
-      
-      // Si la fecha es anterior a hoy, asumir que es del próximo año
-      if (targetDate < new Date()) {
-        targetDate.setFullYear(currentYear + 1);
-      }
-    }
-    
-    console.log(`📅 Fecha parseada: ${targetDate.toISOString()}`);
-    
-    // Parsear el horario
-    const [hour, minute] = horario.split(':').map(Number);
-    const slotStart = new Date(targetDate);
-    slotStart.setHours(hour, minute, 0, 0);
-    const slotEnd = new Date(slotStart.getTime() + 60 * 60000); // 60 minutos
-
-    console.log(`📅 Verificando slot: ${slotStart.toISOString()} - ${slotEnd.toISOString()}`);
-
-    // Buscar reservas existentes que puedan conflictuar
-    const startOfDay = new Date(targetDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(targetDate);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    // BUSCAR TODAS LAS RESERVAS DE CONSULTORIO FINANCIERO
-    const allBookings = await Booking.find({
-      serviceType: 'ConsultorioFinanciero',
-      status: { $in: ['pending', 'confirmed'] }
-    }).lean();
-    
-    console.log(`📋 [CHECK-AVAILABILITY] Total reservas de Consultorio Financiero: ${allBookings.length}`);
-    
-    // Filtrar las del día específico
-    const existingBookings = allBookings.filter(booking => {
-      const bookingDate = new Date(booking.startDate);
-      return bookingDate.getFullYear() === targetDate.getFullYear() &&
-             bookingDate.getMonth() === targetDate.getMonth() &&
-             bookingDate.getDate() === targetDate.getDate();
-    });
-
-    console.log(`📋 [CHECK-AVAILABILITY] Reservas encontradas para el día: ${existingBookings.length}`);
-    
-    if (existingBookings.length > 0) {
-      console.log(`📋 [CHECK-AVAILABILITY] Detalles de reservas encontradas:`);
-      existingBookings.forEach((booking, index) => {
-        console.log(`  ${index + 1}. ${booking.userEmail} - ${new Date(booking.startDate).toISOString()} - Status: ${booking.status} - Tipo: ${booking.serviceType}`);
+    // Validar entrada
+    const validationResult = checkAvailabilitySchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Parámetros inválidos',
+        details: validationResult.error.errors 
       });
     }
 
-    // VERIFICACIÓN DIRECTA Y SIMPLE
-    const conflictingBookings = existingBookings.filter(booking => {
-      const bookingStart = new Date(booking.startDate);
-      
-      // COMPARACIÓN EXACTA: mismo año, mes, día, hora y minuto
-      const exactMatch = (
-        bookingStart.getFullYear() === slotStart.getFullYear() &&
-        bookingStart.getMonth() === slotStart.getMonth() &&
-        bookingStart.getDate() === slotStart.getDate() &&
-        bookingStart.getHours() === slotStart.getHours() &&
-        bookingStart.getMinutes() === slotStart.getMinutes()
-      );
+    const { fecha, horario, serviceType } = validationResult.data;
 
-      if (exactMatch) {
-        console.log(`🚫 [CHECK-AVAILABILITY] CONFLICTO EXACTO con reserva de ${booking.userEmail}`);
-        console.log(`  Slot solicitado: ${slotStart.toISOString()}`);
-        console.log(`  Reserva existente: ${bookingStart.toISOString()}`);
-        console.log(`  Usuario: ${booking.userEmail}, Status: ${booking.status}, Tipo: ${booking.serviceType}`);
-        console.log(`  Comparación detallada:`);
-        console.log(`    Reserva: ${bookingStart.getFullYear()}/${bookingStart.getMonth()}/${bookingStart.getDate()} ${bookingStart.getHours()}:${bookingStart.getMinutes()}`);
-        console.log(`    Slot:    ${slotStart.getFullYear()}/${slotStart.getMonth()}/${slotStart.getDate()} ${slotStart.getHours()}:${slotStart.getMinutes()}`);
-      }
+    // Generar clave de caché
+    const cacheKey = `${fecha}_${horario}_${serviceType}`;
+    
+    // Verificar caché
+    const cached = availabilityCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+      return res.status(200).json({
+        available: cached.available,
+        fecha,
+        horario,
+        serviceType,
+        cached: true,
+        responseTime: `${Date.now() - startTime}ms`
+      });
+    }
 
-      return exactMatch;
+    // Parsear fecha
+    const targetDate = parseDateString(fecha);
+    if (!targetDate) {
+      return res.status(400).json({ error: 'Formato de fecha inválido' });
+    }
+
+    // Parsear horario
+    const [hour, minute] = horario.split(':').map(Number);
+    if (isNaN(hour) || isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      return res.status(400).json({ error: 'Formato de horario inválido' });
+    }
+
+    // Crear fecha/hora específica
+    const requestedDateTime = new Date(targetDate);
+    requestedDateTime.setHours(hour, minute, 0, 0);
+
+    // **OPTIMIZACIÓN: Query específica y eficiente**
+    const existingBooking = await Booking.findOne({
+      serviceType,
+      status: { $in: ['pending', 'confirmed'] },
+      startDate: requestedDateTime
+    }, '_id').lean();
+
+    const isAvailable = !existingBooking;
+
+    // **OPTIMIZACIÓN: Guardar en caché**
+    availabilityCache.set(cacheKey, {
+      available: isAvailable,
+      timestamp: Date.now()
     });
 
-     const isAvailable = conflictingBookings.length === 0;
+    // Limpiar caché viejo
+    if (availabilityCache.size > 100) {
+      const now = Date.now();
+      const keysToDelete: string[] = [];
+      
+      availabilityCache.forEach((value, key) => {
+        if (now - value.timestamp > CACHE_DURATION * 2) {
+          keysToDelete.push(key);
+        }
+      });
+      
+      keysToDelete.forEach(key => {
+        availabilityCache.delete(key);
+      });
+    }
 
-     console.log(`${isAvailable ? '✅' : '❌'} [CHECK-AVAILABILITY] RESULTADO: Turno ${fecha} ${horario} ${isAvailable ? 'DISPONIBLE' : 'NO DISPONIBLE'}`);
-     console.log(`📊 [CHECK-AVAILABILITY] Conflictos encontrados: ${conflictingBookings.length}`);
+    const responseTime = Date.now() - startTime;
 
-     return res.status(200).json({
-       available: isAvailable,
-       fecha,
-       horario,
-       conflicts: conflictingBookings.length,
-       message: isAvailable 
-         ? 'Turno disponible' 
-         : `Turno no disponible - ${conflictingBookings.length} conflicto(s) encontrado(s)`,
-       debug: {
-         slotRequested: slotStart.toISOString(),
-         totalBookings: existingBookings.length,
-         conflictingBookings: conflictingBookings.length,
-         timestamp: new Date().toISOString()
-       }
-     });
+    return res.status(200).json({
+      available: isAvailable,
+      fecha,
+      horario,
+      serviceType,
+      cached: false,
+      responseTime: `${responseTime}ms`,
+      requestedDateTime: requestedDateTime.toISOString()
+    });
 
   } catch (error) {
     console.error('❌ Error al verificar disponibilidad:', error);
-    return res.status(500).json({ error: 'Error al verificar disponibilidad' });
+    return res.status(500).json({ 
+      error: 'Error al verificar disponibilidad',
+      responseTime: `${Date.now() - Date.now()}ms`
+    });
   }
+}
+
+/**
+ * Parsea diferentes formatos de fecha
+ */
+function parseDateString(dateStr: string): Date | null {
+  try {
+    // Formato YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      return new Date(dateStr);
+    }
+
+    // Formato "Lun 15 Ene" (formato español)
+    if (/^\w{3} \d{1,2} \w{3}$/.test(dateStr)) {
+      return parseSpanishDate(dateStr);
+    }
+
+    return null;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Parsea fecha en formato español "Lun 15 Ene"
+ */
+function parseSpanishDate(dateStr: string): Date | null {
+  const monthMap: { [key: string]: number } = {
+    'Ene': 0, 'Feb': 1, 'Mar': 2, 'Abr': 3, 'May': 4, 'Jun': 5,
+    'Jul': 6, 'Ago': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dic': 11
+  };
+
+  const parts = dateStr.split(' ');
+  if (parts.length !== 3) return null;
+
+  const day = parseInt(parts[1]);
+  const month = monthMap[parts[2]];
+  const year = new Date().getFullYear();
+
+  if (isNaN(day) || month === undefined) return null;
+
+  const date = new Date(year, month, day);
+  
+  // Si la fecha es anterior a hoy, asumimos que es del próximo año
+  if (date < new Date()) {
+    date.setFullYear(year + 1);
+  }
+
+  return date;
 } 

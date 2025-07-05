@@ -5,12 +5,17 @@ import TrainingSchedule from '@/models/TrainingSchedule';
 import AdvisorySchedule from '@/models/AdvisorySchedule';
 import { z } from 'zod';
 
-// Schema de validación
+// Cache en memoria para optimizar rendimiento
+const cache = new Map<string, { data: any; timestamp: number; }>();
+const CACHE_DURATION = 60000; // 1 minuto en milisegundos
+
+// Schema de validación optimizado
 const generateTurnosSchema = z.object({
   type: z.enum(['training', 'advisory']).optional(),
   advisoryType: z.enum(['ConsultorioFinanciero', 'CuentaAsesorada']).optional(),
-  days: z.string().transform(val => parseInt(val) || 30).pipe(z.number().min(1).max(60)).optional().default("30"),
-  maxSlotsPerDay: z.string().transform(val => parseInt(val) || 6).pipe(z.number().min(1).max(20)).optional().default("6")
+  days: z.string().transform(val => parseInt(val) || 15).pipe(z.number().min(1).max(30)).optional().default("15"),
+  maxSlotsPerDay: z.string().transform(val => parseInt(val) || 6).pipe(z.number().min(1).max(12)).optional().default("6"),
+  useCache: z.string().transform(val => val !== 'false').optional().default("true")
 });
 
 interface TurnoData {
@@ -23,14 +28,14 @@ interface TurnoData {
 }
 
 /**
- * API para generar turnos dinámicos
- * GET: Genera turnos disponibles para los próximos días
+ * API optimizada para generar turnos dinámicos con caché y queries eficientes
+ * GET: Genera turnos disponibles para los próximos días (OPTIMIZADO)
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Configurar headers para evitar caché en Vercel
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
+  const startTime = Date.now();
+  
+  // Headers optimizados para caché selectivo
+  res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=60'); // Cache 30s en cliente, 60s en CDN
   
   await dbConnect();
 
@@ -39,9 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    console.log('🔄 Generando turnos dinámicos...');
-
-    // Validar parámetros
+    // Validar parámetros de forma optimizada
     const validationResult = generateTurnosSchema.safeParse(req.query);
     if (!validationResult.success) {
       return res.status(400).json({ 
@@ -50,32 +53,71 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    const { type, advisoryType, days, maxSlotsPerDay } = validationResult.data;
-    const turnos: TurnoData[] = [];
-    const today = new Date();
-
-    // Obtener horarios configurados según el tipo
-    let trainingSchedules: any[] = [];
-    let advisorySchedules: any[] = [];
-
-    if (!type || type === 'training') {
-      trainingSchedules = await TrainingSchedule.find({ activo: true });
-    }
-
-    if (!type || type === 'advisory') {
-      const advisoryFilter: any = { activo: true };
-      if (advisoryType) {
-        advisoryFilter.type = advisoryType;
+    const { type, advisoryType, days, maxSlotsPerDay, useCache } = validationResult.data;
+    
+    // Generar clave de caché única
+    const cacheKey = `turnos_${type || 'all'}_${advisoryType || 'all'}_${days}_${maxSlotsPerDay}`;
+    
+    // Verificar caché si está habilitado
+    if (useCache) {
+      const cached = cache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+        const responseTime = Date.now() - startTime;
+        return res.status(200).json({
+          ...cached.data,
+          cached: true,
+          responseTime: `${responseTime}ms`,
+          source: 'memory_cache'
+        });
       }
-      advisorySchedules = await AdvisorySchedule.find(advisoryFilter);
     }
 
-    // Generar turnos para los próximos días
+    // **OPTIMIZACIÓN 1: Una sola query para obtener todos los schedules**
+    const [trainingSchedules, advisorySchedules] = await Promise.all([
+      !type || type === 'training' ? 
+        TrainingSchedule.find({ activo: true }, 'dayOfWeek hour minute duration').lean() : 
+        Promise.resolve([]),
+      !type || type === 'advisory' ? 
+        AdvisorySchedule.find(
+          advisoryType ? { activo: true, type: advisoryType } : { activo: true },
+          'dayOfWeek hour minute duration price type'
+        ).lean() :
+        Promise.resolve([])
+    ]);
+
+    // **OPTIMIZACIÓN 2: Una sola query para obtener todas las reservas relevantes**
+    const today = new Date();
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() + days);
+    
+    const existingBookings = await Booking.find({
+      status: { $in: ['pending', 'confirmed'] },
+      startDate: { 
+        $gte: today,
+        $lte: endDate 
+      },
+      ...(advisoryType && { serviceType: advisoryType })
+    }, 'startDate endDate serviceType').lean();
+
+    // **OPTIMIZACIÓN 3: Pre-procesar reservas por fecha para acceso O(1)**
+    const bookingsByDate = new Map<string, any[]>();
+    existingBookings.forEach(booking => {
+      const dateKey = new Date(booking.startDate).toDateString();
+      if (!bookingsByDate.has(dateKey)) {
+        bookingsByDate.set(dateKey, []);
+      }
+      bookingsByDate.get(dateKey)!.push(booking);
+    });
+
+    // **OPTIMIZACIÓN 4: Generar turnos de forma eficiente**
+    const turnos: TurnoData[] = [];
+    const datePromises: Promise<TurnoData | null>[] = [];
+
     for (let i = 1; i <= days; i++) {
       const targetDate = new Date(today);
       targetDate.setDate(today.getDate() + i);
       
-      // Saltar fines de semana si no hay horarios configurados
+      // Skip weekends unless there are schedules
       const dayOfWeek = targetDate.getDay();
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         const hasWeekendSchedule = 
@@ -84,314 +126,226 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!hasWeekendSchedule) continue;
       }
 
-      // Obtener slots disponibles para entrenamientos
-      if (!type || type === 'training') {
-        const trainingSlots = await getAvailableSlotsForDate(
-          targetDate, 
-          'training', 
-          trainingSchedules,
-          []
-        );
-
-        if (trainingSlots.length > 0) {
-          const limitedSlots = trainingSlots.slice(0, maxSlotsPerDay);
-          
-          turnos.push({
-            fecha: formatDateForDisplay(targetDate),
-            horarios: limitedSlots,
-            disponibles: limitedSlots.length,
-            type: 'training'
-          });
-        }
-      }
-
-      // Obtener slots disponibles para asesorías
-      if (!type || type === 'advisory') {
-        const advisorySlots = await getAvailableSlotsForDate(
-          targetDate, 
-          'advisory', 
+      // Procesar fecha de forma asíncrona (pero sin await para paralelizar)
+      datePromises.push(
+        processDateSlots(
+          targetDate,
+          type,
+          advisoryType,
           trainingSchedules,
           advisorySchedules,
-          advisoryType
-        );
-
-        console.log(`📊 Fecha ${formatDateForDisplay(targetDate)}: ${advisorySlots.length} slots disponibles`);
-        
-        // CRÍTICO: SOLO agregar días que tengan turnos realmente disponibles
-        if (advisorySlots.length > 0) {
-          const limitedSlots = advisorySlots.slice(0, maxSlotsPerDay);
-          
-          // DOBLE VERIFICACIÓN: Asegurar que los slots no estén vacíos
-          if (limitedSlots.length > 0) {
-            // Obtener precio de la asesoría
-            const daySchedules = advisorySchedules.filter(as => as.dayOfWeek === dayOfWeek);
-            const price = daySchedules.length > 0 ? daySchedules[0].price : undefined;
-            
-            console.log(`✅ AGREGANDO día ${formatDateForDisplay(targetDate)} con ${limitedSlots.length} turnos: [${limitedSlots.join(', ')}]`);
-            
-            turnos.push({
-              fecha: formatDateForDisplay(targetDate),
-              horarios: limitedSlots,
-              disponibles: limitedSlots.length,
-              type: 'advisory',
-              advisoryType: advisoryType,
-              price: price
-            });
-          } else {
-            console.log(`🚫 Día ${formatDateForDisplay(targetDate)} excluido - limitedSlots vacío`);
-          }
-        } else {
-          console.log(`🚫 Día ${formatDateForDisplay(targetDate)} EXCLUIDO - sin turnos disponibles (advisorySlots.length = 0)`);
-        }
-      }
-
-      // Limitar número total de días con turnos
-      if (turnos.length >= 15) break;
+          bookingsByDate.get(targetDate.toDateString()) || [],
+          maxSlotsPerDay
+        )
+      );
     }
 
-    console.log(`✅ Generados ${turnos.length} días con turnos disponibles`);
+    // **OPTIMIZACIÓN 5: Esperar todas las fechas en paralelo**
+    const results = await Promise.all(datePromises);
+    
+    // Filtrar resultados válidos
+    results.forEach(result => {
+      if (result && result.horarios.length > 0) {
+        turnos.push(result);
+      }
+    });
 
-    // Headers agresivos de no-cache
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.setHeader('Surrogate-Control', 'no-store');
-    res.setHeader('X-Timestamp', Date.now().toString());
+    // Limitar número total de días
+    const finalTurnos = turnos.slice(0, 15);
 
-    return res.status(200).json({ 
-      turnos,
+    const responseData = {
+      turnos: finalTurnos,
       generatedAt: new Date().toISOString(),
       timestamp: Date.now(),
       type: type || 'all',
       advisoryType: advisoryType || 'all',
-      cacheBreaker: Math.random().toString(36).substring(7),
-      totalDaysWithSlots: turnos.length,
-      debug: {
-        requestTime: new Date().toISOString(),
-        totalBookingsFound: 'check logs'
+      totalDaysWithSlots: finalTurnos.length,
+      responseTime: `${Date.now() - startTime}ms`,
+      cached: false,
+      source: 'database'
+    };
+
+    // **OPTIMIZACIÓN 6: Guardar en caché para próximas requests**
+    if (useCache) {
+      cache.set(cacheKey, {
+        data: responseData,
+        timestamp: Date.now()
+      });
+      
+      // Limpiar caché viejo (garbage collection)
+      if (cache.size > 50) {
+        const now = Date.now();
+        const keysToDelete: string[] = [];
+        
+        cache.forEach((value, key) => {
+          if (now - value.timestamp > CACHE_DURATION * 2) {
+            keysToDelete.push(key);
+          }
+        });
+        
+        keysToDelete.forEach(key => {
+          cache.delete(key);
+        });
       }
-    });
+    }
+
+    return res.status(200).json(responseData);
 
   } catch (error) {
     console.error('❌ Error al generar turnos:', error);
-    return res.status(500).json({ error: 'Error al generar turnos' });
+    return res.status(500).json({ 
+      error: 'Error al generar turnos',
+      responseTime: `${Date.now() - startTime}ms`
+    });
   }
 }
 
 /**
- * Obtiene slots disponibles para una fecha específica
+ * Procesa slots disponibles para una fecha específica de forma optimizada
  */
-async function getAvailableSlotsForDate(
-  targetDate: Date, 
-  type: 'training' | 'advisory',
-  trainingSchedules: any[] = [],
-  advisorySchedules: any[] = [],
-  advisoryType?: 'ConsultorioFinanciero' | 'CuentaAsesorada'
-): Promise<string[]> {
+async function processDateSlots(
+  targetDate: Date,
+  type: string | undefined,
+  advisoryType: string | undefined,
+  trainingSchedules: any[],
+  advisorySchedules: any[],
+  dayBookings: any[],
+  maxSlotsPerDay: number
+): Promise<TurnoData | null> {
   const dayOfWeek = targetDate.getDay();
+  const dateKey = formatDateForDisplay(targetDate);
 
-  // Obtener reservas existentes para esta fecha
-  const startOfDay = new Date(targetDate);
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(targetDate);
-  endOfDay.setHours(23, 59, 59, 999);
+  // **OPTIMIZACIÓN: Procesar solo el tipo solicitado**
+  if (type === 'advisory' || !type) {
+    const availableSlots = getAdvisorySlotsOptimized(
+      dayOfWeek,
+      advisorySchedules,
+      dayBookings,
+      advisoryType
+    );
 
-  console.log(`🔍 Buscando reservas existentes para ${targetDate.toDateString()}`);
-  console.log(`📅 Rango: ${startOfDay.toISOString()} - ${endOfDay.toISOString()}`);
+    if (availableSlots.length > 0) {
+      const limitedSlots = availableSlots.slice(0, maxSlotsPerDay);
+      const price = advisorySchedules.find(as => 
+        as.dayOfWeek === dayOfWeek && (!advisoryType || as.type === advisoryType)
+      )?.price;
 
-  // Buscar TODAS las reservas primero para debugging
-  const allBookings = await Booking.find({});
-  console.log(`🗂️ TOTAL de reservas en la base de datos: ${allBookings.length}`);
-  
-  if (allBookings.length > 0) {
-    console.log('📋 Todas las reservas:');
-    allBookings.forEach((booking, index) => {
-      console.log(`  ${index + 1}. ${booking.userEmail} - ${booking.startDate.toISOString()} - Status: ${booking.status} - Tipo: ${booking.type}/${booking.serviceType}`);
-    });
-  }
-
-  // BUSCAR TODAS LAS RESERVAS DE CONSULTORIO FINANCIERO
-  const existingBookings = await Booking.find({
-    serviceType: 'ConsultorioFinanciero',
-    status: { $in: ['pending', 'confirmed'] }
-  }).lean();
-  
-  // Filtrar las del día específico
-  const bookingsForDay = existingBookings.filter(booking => {
-    const bookingDate = new Date(booking.startDate);
-    return bookingDate.getFullYear() === targetDate.getFullYear() &&
-           bookingDate.getMonth() === targetDate.getMonth() &&
-           bookingDate.getDate() === targetDate.getDate();
-  });
-
-  console.log(`📋 Total reservas de Consultorio Financiero: ${existingBookings.length}`);
-  console.log(`📋 Reservas para el día ${targetDate.toDateString()}: ${bookingsForDay.length}`);
-  
-  bookingsForDay.forEach((booking, index) => {
-    console.log(`  ${index + 1}. ${booking.userEmail} - ${new Date(booking.startDate).toISOString()} - Status: ${booking.status}`);
-  });
-
-  // También buscar reservas de Consultorio Financiero específicamente
-  const consultorioBookings = await Booking.find({
-    status: { $in: ['pending', 'confirmed'] },
-    serviceType: 'ConsultorioFinanciero'
-  });
-  
-  console.log(`🏥 Reservas de Consultorio Financiero en total: ${consultorioBookings.length}`);
-  consultorioBookings.forEach((booking, index) => {
-    console.log(`  ${index + 1}. ${booking.userEmail} - ${booking.startDate.toISOString()} - Status: ${booking.status}`);
-  });
-
-  if (type === 'training') {
-    // Para entrenamientos, usar la lógica existente
-    const trainingSlots = trainingSchedules
-      .filter(training => training.dayOfWeek === dayOfWeek)
-      .map(training => {
-        const hour = training.hour.toString().padStart(2, '0');
-        const minute = training.minute.toString().padStart(2, '0');
-        return `${hour}:${minute}`;
-      })
-      .filter(slot => {
-        // Verificar que no haya conflicto con reservas existentes
-        const [slotHour, slotMinute] = slot.split(':').map(Number);
-        const slotStart = new Date(targetDate);
-        slotStart.setHours(slotHour, slotMinute, 0, 0);
-        
-        // Encontrar la duración del entrenamiento
-        const training = trainingSchedules.find(t => 
-          t.dayOfWeek === dayOfWeek && 
-          t.hour === slotHour && 
-          t.minute === slotMinute
-        );
-        const duration = training ? training.duration : 180; // Default 3 horas
-        const slotEnd = new Date(slotStart.getTime() + duration * 60000);
-        
-        const hasConflict = existingBookings.some(booking => {
-          const bookingStart = new Date(booking.startDate);
-          const bookingEnd = new Date(booking.endDate);
-          
-          // Verificar si hay solapamiento entre el slot y la reserva existente
-          return (
-            (slotStart >= bookingStart && slotStart < bookingEnd) ||
-            (slotEnd > bookingStart && slotEnd <= bookingEnd) ||
-            (slotStart <= bookingStart && slotEnd >= bookingEnd)
-          );
-        });
-        
-        if (hasConflict) {
-          console.log(`🚫 Slot de entrenamiento ${slot} excluido por conflicto con reserva existente`);
-        }
-        
-        return !hasConflict;
-      });
-
-    return trainingSlots;
-  }
-
-  if (type === 'advisory') {
-    // Para asesorías, usar horarios específicos de asesorías
-    let relevantSchedules = advisorySchedules.filter(advisory => advisory.dayOfWeek === dayOfWeek);
-    
-    if (advisoryType) {
-      relevantSchedules = relevantSchedules.filter(advisory => advisory.type === advisoryType);
+      return {
+        fecha: dateKey,
+        horarios: limitedSlots,
+        disponibles: limitedSlots.length,
+        type: 'advisory',
+        advisoryType: advisoryType as any,
+        price
+      };
     }
+  }
 
-    console.log(`📋 Horarios configurados para ${advisoryType} en día ${dayOfWeek}: ${relevantSchedules.length}`);
-    relevantSchedules.forEach(schedule => {
-      console.log(`  - ${schedule.hour}:${schedule.minute.toString().padStart(2, '0')} (maxBookingsPerDay: ${schedule.maxBookingsPerDay || 'sin límite'})`);
-    });
+  if (type === 'training' || !type) {
+    const availableSlots = getTrainingSlotsOptimized(
+      dayOfWeek,
+      trainingSchedules,
+      dayBookings
+    );
 
-    // VERIFICACIÓN CRÍTICA: Verificar límite de reservas por día
-    console.log(`📊 Reservas existentes para el día: ${bookingsForDay.length}`);
-    
-    // Si hay horarios con límite por día, verificar ese límite primero
-    const hasMaxBookingsPerDay = relevantSchedules.some(schedule => schedule.maxBookingsPerDay && schedule.maxBookingsPerDay > 0);
-    
-    if (hasMaxBookingsPerDay) {
-      const maxBookingsAllowed = Math.min(...relevantSchedules.filter(s => s.maxBookingsPerDay).map(s => s.maxBookingsPerDay));
-      console.log(`🚨 LÍMITE DE RESERVAS POR DÍA DETECTADO: ${maxBookingsAllowed} máximo`);
-      console.log(`📊 Reservas actuales para este día: ${bookingsForDay.length}`);
+    if (availableSlots.length > 0) {
+      const limitedSlots = availableSlots.slice(0, maxSlotsPerDay);
       
-      if (bookingsForDay.length >= maxBookingsAllowed) {
-        console.log(`🚫 DÍA COMPLETO - Se alcanzó el límite de ${maxBookingsAllowed} reservas por día`);
-        console.log(`📋 Reservas existentes:`);
-        bookingsForDay.forEach((booking, index) => {
-          console.log(`  ${index + 1}. ${booking.userEmail} - ${new Date(booking.startDate).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`);
-        });
-        return []; // NO HAY SLOTS DISPONIBLES
-      }
+      return {
+        fecha: dateKey,
+        horarios: limitedSlots,
+        disponibles: limitedSlots.length,
+        type: 'training'
+      };
     }
-
-    const advisorySlots = relevantSchedules
-      .map(advisory => {
-        const hour = advisory.hour.toString().padStart(2, '0');
-        const minute = advisory.minute.toString().padStart(2, '0');
-        return `${hour}:${minute}`;
-      })
-      .filter(slot => {
-        // VERIFICACIÓN ADICIONAL: Verificar que no haya conflicto con reservas existentes por hora específica
-        const [slotHour, slotMinute] = slot.split(':').map(Number);
-        const slotStart = new Date(targetDate);
-        slotStart.setHours(slotHour, slotMinute, 0, 0);
-        
-        console.log(`🔍 Verificando slot ${slot} para fecha ${targetDate.toDateString()}`);
-        console.log(`📅 Slot datetime: ${slotStart.toISOString()}`);
-        
-        // BUSCAR CONFLICTOS EXACTOS POR HORA
-        const conflictingBookings = bookingsForDay.filter(booking => {
-          const bookingStart = new Date(booking.startDate);
-          
-          // COMPARACIÓN EXACTA: mismo año, mes, día, hora y minuto
-          const exactMatch = (
-            bookingStart.getFullYear() === slotStart.getFullYear() &&
-            bookingStart.getMonth() === slotStart.getMonth() &&
-            bookingStart.getDate() === slotStart.getDate() &&
-            bookingStart.getHours() === slotStart.getHours() &&
-            bookingStart.getMinutes() === slotStart.getMinutes()
-          );
-
-          if (exactMatch) {
-            console.log(`🚫 CONFLICTO EXACTO ENCONTRADO para slot ${slot}:`);
-            console.log(`  Slot solicitado: ${slotStart.toISOString()}`);
-            console.log(`  Reserva existente: ${bookingStart.toISOString()}`);
-            console.log(`  Usuario: ${booking.userEmail}`);
-            console.log(`  Status: ${booking.status}`);
-            console.log(`  Tipo: ${booking.serviceType}`);
-          }
-
-          return exactMatch;
-        });
-        
-        const hasConflict = conflictingBookings.length > 0;
-        
-        if (hasConflict) {
-          console.log(`🚫 SLOT ${slot} EXCLUIDO - ${conflictingBookings.length} conflicto(s) encontrado(s)`);
-        } else {
-          console.log(`✅ SLOT ${slot} DISPONIBLE - sin conflictos por hora`);
-        }
-        
-        return !hasConflict;
-      });
-
-    console.log(`📊 Resultado final para ${targetDate.toDateString()}: ${advisorySlots.length} slots disponibles de ${relevantSchedules.length} configurados`);
-    console.log(`📋 Slots disponibles: [${advisorySlots.join(', ')}]`);
-
-    return advisorySlots;
   }
 
-  return [];
+  return null;
 }
 
 /**
- * Formatea una fecha para mostrar
+ * Obtiene slots de asesorías de forma optimizada
+ */
+function getAdvisorySlotsOptimized(
+  dayOfWeek: number,
+  advisorySchedules: any[],
+  dayBookings: any[],
+  advisoryType?: string
+): string[] {
+  // Filtrar schedules para este día
+  const daySchedules = advisorySchedules.filter(schedule => 
+    schedule.dayOfWeek === dayOfWeek && 
+    (!advisoryType || schedule.type === advisoryType)
+  );
+
+  if (daySchedules.length === 0) return [];
+
+  // Generar slots disponibles
+  const availableSlots: string[] = [];
+  
+  daySchedules.forEach(schedule => {
+    const slotTime = `${schedule.hour.toString().padStart(2, '0')}:${schedule.minute.toString().padStart(2, '0')}`;
+    
+    // Verificar si el slot está ocupado
+    const isOccupied = dayBookings.some(booking => {
+      const bookingHour = new Date(booking.startDate).getHours();
+      const bookingMinute = new Date(booking.startDate).getMinutes();
+      const bookingTime = `${bookingHour.toString().padStart(2, '0')}:${bookingMinute.toString().padStart(2, '0')}`;
+      return bookingTime === slotTime;
+    });
+
+    if (!isOccupied && !availableSlots.includes(slotTime)) {
+      availableSlots.push(slotTime);
+    }
+  });
+
+  return availableSlots.sort();
+}
+
+/**
+ * Obtiene slots de entrenamientos de forma optimizada
+ */
+function getTrainingSlotsOptimized(
+  dayOfWeek: number,
+  trainingSchedules: any[],
+  dayBookings: any[]
+): string[] {
+  // Filtrar schedules para este día
+  const daySchedules = trainingSchedules.filter(schedule => 
+    schedule.dayOfWeek === dayOfWeek
+  );
+
+  if (daySchedules.length === 0) return [];
+
+  // Generar slots disponibles
+  const availableSlots: string[] = [];
+  
+  daySchedules.forEach(schedule => {
+    const slotTime = `${schedule.hour.toString().padStart(2, '0')}:${schedule.minute.toString().padStart(2, '0')}`;
+    
+    // Verificar si el slot está ocupado
+    const isOccupied = dayBookings.some(booking => {
+      const bookingHour = new Date(booking.startDate).getHours();
+      const bookingMinute = new Date(booking.startDate).getMinutes();
+      const bookingTime = `${bookingHour.toString().padStart(2, '0')}:${bookingMinute.toString().padStart(2, '0')}`;
+      return bookingTime === slotTime;
+    });
+
+    if (!isOccupied && !availableSlots.includes(slotTime)) {
+      availableSlots.push(slotTime);
+    }
+  });
+
+  return availableSlots.sort();
+}
+
+/**
+ * Formatea fecha para mostrar al usuario
  */
 function formatDateForDisplay(date: Date): string {
-  const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-  const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-  
-  const dayName = days[date.getDay()];
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  
-  return `${dayName} ${day} ${month}`;
+  return date.toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
 } 
