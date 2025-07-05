@@ -667,4 +667,39 @@
     padding: 1rem 2rem;
     font-size: 1rem;
   }
+}
+
+/* Roadmap Section */
+.roadmapSection {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.roadmapSection .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Responsive adjustments for roadmap */
+@media (max-width: 768px) {
+  .roadmapSection {
+    padding: 60px 0;
+  }
+  
+  .roadmapSection .container {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .roadmapSection {
+    padding: 40px 0;
+  }
+  
+  .roadmapSection .container {
+    padding: 0 12px;
+  }
 } 

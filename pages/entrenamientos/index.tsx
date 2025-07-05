@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { GetServerSideProps } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import TrainingRoadmap from '@/components/TrainingRoadmap';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -39,6 +40,162 @@ interface EntrenamientosPageProps {
 }
 
 const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) => {
+  // Datos del roadmap de entrenamientos
+  const roadmapModules = [
+    {
+      id: 1,
+      title: "Fundamentos del Trading",
+      description: "Conceptos básicos, terminología y principios fundamentales del trading",
+      duration: "8 horas",
+      lessons: 12,
+      topics: [
+        "¿Qué es el trading y cómo funciona?",
+        "Mercados financieros y tipos de activos",
+        "Horarios de mercado y sesiones",
+        "Brokers y plataformas de trading",
+        "Análisis técnico vs fundamental",
+        "Gestión de riesgo básica"
+      ],
+      completed: true,
+      difficulty: "Básico" as const
+    },
+    {
+      id: 2,
+      title: "Análisis Técnico",
+      description: "Herramientas y técnicas para analizar gráficos y patrones de precios",
+      duration: "12 horas",
+      lessons: 18,
+      topics: [
+        "Tipos de gráficos y timeframes",
+        "Soportes y resistencias",
+        "Tendencias y canales",
+        "Patrones de reversión y continuación",
+        "Indicadores técnicos principales",
+        "Fibonacci y proyecciones"
+      ],
+      completed: true,
+      difficulty: "Básico" as const,
+      prerequisite: 1
+    },
+    {
+      id: 3,
+      title: "Estrategias de Trading",
+      description: "Desarrollo y aplicación de estrategias de trading probadas",
+      duration: "15 horas",
+      lessons: 22,
+      topics: [
+        "Estrategias de seguimiento de tendencia",
+        "Trading de rango y laterales",
+        "Breakouts y rupturas",
+        "Scalping y day trading",
+        "Swing trading",
+        "Backtesting de estrategias"
+      ],
+      completed: false,
+      difficulty: "Intermedio" as const,
+      prerequisite: 2
+    },
+    {
+      id: 4,
+      title: "Gestión de Riesgo Avanzada",
+      description: "Técnicas avanzadas para proteger el capital y optimizar resultados",
+      duration: "10 horas",
+      lessons: 15,
+      topics: [
+        "Cálculo de posición y sizing",
+        "Stop loss y take profit avanzados",
+        "Ratio riesgo-beneficio",
+        "Diversificación de cartera",
+        "Hedging y coberturas",
+        "Psicología del riesgo"
+      ],
+      completed: false,
+      difficulty: "Intermedio" as const,
+      prerequisite: 3
+    },
+    {
+      id: 5,
+      title: "Psicología del Trading",
+      description: "Control emocional y disciplina mental para el trading exitoso",
+      duration: "8 horas",
+      lessons: 12,
+      topics: [
+        "Emociones en el trading",
+        "Disciplina y paciencia",
+        "Manejo del miedo y la codicia",
+        "Rutinas y hábitos del trader",
+        "Journaling y autoevaluación",
+        "Mentalidad ganadora"
+      ],
+      completed: false,
+      difficulty: "Intermedio" as const,
+      prerequisite: 4
+    },
+    {
+      id: 6,
+      title: "Trading Algorítmico",
+      description: "Automatización de estrategias y uso de algoritmos de trading",
+      duration: "20 horas",
+      lessons: 28,
+      topics: [
+        "Introducción al trading algorítmico",
+        "Lenguajes de programación para trading",
+        "Desarrollo de bots de trading",
+        "APIs y conectividad",
+        "Optimización de parámetros",
+        "Monitoring y control de algoritmos"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 5
+    },
+    {
+      id: 7,
+      title: "Análisis Fundamental",
+      description: "Evaluación de la salud financiera y valor intrínseco de empresas",
+      duration: "12 horas",
+      lessons: 18,
+      topics: [
+        "Estados financieros y ratios",
+        "Valoración de empresas",
+        "Análisis sectorial",
+        "Eventos económicos y noticias",
+        "Análisis top-down vs bottom-up",
+        "Combinación técnico-fundamental"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 6
+    },
+    {
+      id: 8,
+      title: "Trading Institucional",
+      description: "Técnicas y estrategias utilizadas por traders profesionales",
+      duration: "18 horas",
+      lessons: 25,
+      topics: [
+        "Estructura de mercado institucional",
+        "Order flow y flujo de órdenes",
+        "Dark pools y liquidez",
+        "Arbitraje y market making",
+        "Estrategias de alta frecuencia",
+        "Trading cuantitativo"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 7
+    }
+  ];
+
+  // Simular progreso del usuario
+  const currentModule = 3; // Módulo actual
+  const completedModules = [1, 2]; // Módulos completados
+
+  const handleModuleClick = (moduleId: number) => {
+    console.log(`Accediendo al módulo ${moduleId}`);
+    // Aquí se implementaría la navegación al módulo específico
+  };
+
   return (
     <>
       <Head>
@@ -126,6 +283,26 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
           </div>
         </section>
 
+        {/* Roadmap Section */}
+        <section className={styles.roadmapSection}>
+          <div className={styles.container}>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <TrainingRoadmap
+                modules={roadmapModules}
+                currentModule={currentModule}
+                completedModules={completedModules}
+                onModuleClick={handleModuleClick}
+                showProgress={true}
+              />
+            </motion.div>
+          </div>
+        </section>
+
         {/* Entrenamientos Section */}
         <section className={styles.trainingsSection}>
           <div className={styles.container}>
@@ -204,7 +381,7 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
                     <div className={styles.trainingFeatures}>
                       {training.features.map((feature, idx) => (
                         <div key={idx} className={styles.feature}>
-                          <CheckCircle size={16} />
+                          <CheckCircle size={14} />
                           <span>{feature}</span>
                         </div>
                       ))}
@@ -212,12 +389,12 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
                     
                     <div className={styles.trainingFooter}>
                       <div className={styles.trainingPrice}>
-                        <span className={styles.priceLabel}>Desde</span>
-                        <span className={styles.price}>{training.price}</span>
+                        <span className={styles.priceLabel}>Precio:</span>
+                        <span className={styles.priceValue}>{training.price}</span>
                       </div>
-                      <Link href={training.href} className={styles.trainingButton}>
-                        Ver Entrenamiento
-                        <ArrowRight size={18} />
+                      <Link href={training.href} className={styles.trainingCTA}>
+                        Comenzar Ahora
+                        <ArrowRight size={16} />
                       </Link>
                     </div>
                   </div>
