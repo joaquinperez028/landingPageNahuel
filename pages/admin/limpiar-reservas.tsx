@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
+import { Trash2, RefreshCw, AlertTriangle, Database, CheckCircle } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import styles from '@/styles/Admin.module.css';
 
 interface Booking {
@@ -121,15 +124,36 @@ const LimpiarReservasPage = () => {
   };
 
   if (status === 'loading') {
-    return <div>Cargando...</div>;
+    return (
+      <>
+        <Navbar />
+        <div className={styles.adminPage}>
+          <div className={styles.container}>
+            <div className={styles.loading}>
+              <div className={styles.spinner} />
+              <p>Cargando...</p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
   }
 
   if (!session || session.user?.email !== 'joaquinperez028@gmail.com') {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <h1>Acceso Denegado</h1>
-        <p>Solo el administrador puede acceder a esta página.</p>
-      </div>
+      <>
+        <Navbar />
+        <div className={styles.adminPage}>
+          <div className={styles.container}>
+            <div className={styles.error}>
+              <h1>🚫 Acceso Denegado</h1>
+              <p>Solo el administrador puede acceder a esta página.</p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
     );
   }
 
@@ -139,146 +163,189 @@ const LimpiarReservasPage = () => {
   return (
     <>
       <Head>
-        <title>Limpiar Reservas - Admin</title>
+        <title>🧹 Limpiar Reservas - Admin | Nahuel Lozano</title>
+        <meta name="description" content="Gestión y limpieza de reservas problemáticas" />
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
 
-      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        <h1>🧹 Limpieza de Reservas</h1>
+      <Navbar />
 
-        <div style={{ marginBottom: '2rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-            <div style={{ padding: '1rem', background: '#f5f5f5', borderRadius: '8px' }}>
-              <h3>📊 Total Reservas</h3>
-              <p style={{ fontSize: '2rem', margin: 0 }}>{bookings.length}</p>
+      <div className={styles.adminPage}>
+        <div className={styles.container}>
+          <div style={{ marginBottom: '2rem' }}>
+            <h1 className={styles.title}>🧹 Limpieza de Reservas</h1>
+            <p className={styles.subtitle}>
+              Gestiona y limpia reservas problemáticas que bloquean el sistema. 
+              Elimina reservas fantasma y soluciona conflictos de horarios.
+            </p>
+          </div>
+
+          {/* Estadísticas */}
+          <div className={styles.grid}>
+            <div className={styles.card}>
+              <h3 className={styles.cardTitle}>📊 Total Reservas</h3>
+              <p className={styles.cardValue}>{bookings.length}</p>
             </div>
             
-            <div style={{ padding: '1rem', background: '#e3f2fd', borderRadius: '8px' }}>
-              <h3>💼 Consultorio Financiero</h3>
-              <p style={{ fontSize: '2rem', margin: 0 }}>{consultorioBookings.length}</p>
+            <div className={styles.card}>
+              <h3 className={styles.cardTitle}>💼 Consultorio Financiero</h3>
+              <p className={styles.cardValue}>{consultorioBookings.length}</p>
             </div>
             
-            <div style={{ padding: '1rem', background: '#ffebee', borderRadius: '8px' }}>
-              <h3>👻 Reservas Fantasma</h3>
-              <p style={{ fontSize: '2rem', margin: 0 }}>{ghostBookings.length}</p>
+            <div className={styles.card}>
+              <h3 className={styles.cardTitle}>👻 Reservas Fantasma</h3>
+              <p className={styles.cardValue} style={{ color: ghostBookings.length > 0 ? '#ef4444' : '#10b981' }}>
+                {ghostBookings.length}
+              </p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+          {/* Acciones */}
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
             <button 
               onClick={limpiarReservasFantasma}
               disabled={processing || ghostBookings.length === 0}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#f44336',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: processing ? 'not-allowed' : 'pointer',
-                opacity: processing || ghostBookings.length === 0 ? 0.6 : 1
-              }}
+              className={`${styles.button} ${styles.buttonDanger} ${processing || ghostBookings.length === 0 ? styles.buttonDisabled : ''}`}
             >
-              {processing ? 'Procesando...' : `🗑️ Limpiar ${ghostBookings.length} Reservas Fantasma`}
+              <Trash2 size={20} />
+              {processing ? 'Procesando...' : `Limpiar ${ghostBookings.length} Reservas Fantasma`}
             </button>
 
             <button 
               onClick={loadBookings}
               disabled={processing}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#2196f3',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: processing ? 'not-allowed' : 'pointer'
-              }}
+              className={`${styles.button} ${styles.buttonSecondary} ${processing ? styles.buttonDisabled : ''}`}
             >
-              🔄 Recargar
+              <RefreshCw size={20} />
+              Recargar
             </button>
-          </div>
-        </div>
 
-        {loading ? (
-          <div>Cargando reservas...</div>
-        ) : (
-          <div>
-            <h2>📋 Todas las Reservas de Consultorio Financiero</h2>
-            
-            {consultorioBookings.length === 0 ? (
-              <p>No hay reservas de Consultorio Financiero.</p>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
-                  <thead>
-                    <tr style={{ backgroundColor: '#f5f5f5' }}>
-                      <th style={{ padding: '0.75rem', border: '1px solid #ddd' }}>ID</th>
-                      <th style={{ padding: '0.75rem', border: '1px solid #ddd' }}>Usuario</th>
-                      <th style={{ padding: '0.75rem', border: '1px solid #ddd' }}>Fecha</th>
-                      <th style={{ padding: '0.75rem', border: '1px solid #ddd' }}>Estado</th>
-                      <th style={{ padding: '0.75rem', border: '1px solid #ddd' }}>Google Event</th>
-                      <th style={{ padding: '0.75rem', border: '1px solid #ddd' }}>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {consultorioBookings.map((booking) => (
-                      <tr 
-                        key={booking.id}
-                        style={{ 
-                          backgroundColor: !booking.hasGoogleEventId ? '#ffebee' : 'white'
-                        }}
-                      >
-                        <td style={{ padding: '0.5rem', border: '1px solid #ddd', fontSize: '0.8rem' }}>
-                          {booking.id.substring(0, 8)}...
-                        </td>
-                        <td style={{ padding: '0.5rem', border: '1px solid #ddd' }}>
-                          {booking.userEmail}
-                        </td>
-                        <td style={{ padding: '0.5rem', border: '1px solid #ddd' }}>
-                          {booking.startDateLocal}
-                        </td>
-                        <td style={{ padding: '0.5rem', border: '1px solid #ddd' }}>
-                          <span style={{
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '4px',
-                            fontSize: '0.8rem',
-                            backgroundColor: booking.status === 'confirmed' ? '#e8f5e8' : '#fff3cd',
-                            color: booking.status === 'confirmed' ? '#2e7d32' : '#856404'
-                          }}>
-                            {booking.status}
-                          </span>
-                        </td>
-                        <td style={{ padding: '0.5rem', border: '1px solid #ddd' }}>
-                          {booking.hasGoogleEventId ? (
-                            <span style={{ color: 'green' }}>✅ Sí</span>
-                          ) : (
-                            <span style={{ color: 'red' }}>❌ No (Fantasma)</span>
-                          )}
-                        </td>
-                        <td style={{ padding: '0.5rem', border: '1px solid #ddd' }}>
-                          <button
-                            onClick={() => limpiarReservaUsuario(booking.userEmail)}
-                            disabled={processing}
-                            style={{
-                              padding: '0.25rem 0.5rem',
-                              backgroundColor: '#ff9800',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              fontSize: '0.8rem',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            🗑️ Usuario
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <a 
+              href="/api/debug/reservas" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className={`${styles.button} ${styles.buttonSecondary}`}
+            >
+              <Database size={20} />
+              Ver JSON Completo
+            </a>
+
+            <a 
+              href="/api/admin/limpiar-reservas-rapido" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className={`${styles.button} ${styles.buttonSecondary}`}
+            >
+              <AlertTriangle size={20} />
+              Limpieza Rápida (API)
+            </a>
           </div>
-        )}
+
+          {/* Tabla de reservas */}
+          {loading ? (
+            <div className={styles.loading}>
+              <div className={styles.spinner} />
+              <p>Cargando reservas...</p>
+            </div>
+          ) : (
+            <div>
+              <h2 style={{ color: 'var(--text-primary)', marginBottom: '1rem' }}>
+                📋 Reservas de Consultorio Financiero ({consultorioBookings.length})
+              </h2>
+              
+              {consultorioBookings.length === 0 ? (
+                <div className={styles.success}>
+                  <CheckCircle size={20} />
+                  <span style={{ marginLeft: '0.5rem' }}>
+                    ¡Excelente! No hay reservas de Consultorio Financiero en la base de datos.
+                  </span>
+                </div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table className={styles.table}>
+                    <thead className={styles.tableHeader}>
+                      <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Google Event</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {consultorioBookings.map((booking) => (
+                        <tr 
+                          key={booking.id}
+                          className={styles.tableRow}
+                          style={{ 
+                            backgroundColor: !booking.hasGoogleEventId ? 'rgba(239, 68, 68, 0.1)' : 'transparent'
+                          }}
+                        >
+                          <td className={styles.tableCell}>
+                            <code style={{ fontSize: '0.8rem' }}>
+                              {booking.id.substring(0, 8)}...
+                            </code>
+                          </td>
+                          <td className={styles.tableCell}>
+                            {booking.userEmail}
+                          </td>
+                          <td className={styles.tableCell}>
+                            {booking.startDateLocal}
+                          </td>
+                          <td className={styles.tableCell}>
+                            <span className={`${styles.badge} ${
+                              booking.status === 'confirmed' ? styles.badgeSuccess : 
+                              booking.status === 'pending' ? styles.badgeWarning : 
+                              styles.badgeError
+                            }`}>
+                              {booking.status}
+                            </span>
+                          </td>
+                          <td className={styles.tableCell}>
+                            {booking.hasGoogleEventId ? (
+                              <span className={styles.badgeSuccess}>✅ Sí</span>
+                            ) : (
+                              <span className={styles.badgeError}>❌ No (Fantasma)</span>
+                            )}
+                          </td>
+                          <td className={styles.tableCell}>
+                            <button
+                              onClick={() => limpiarReservaUsuario(booking.userEmail)}
+                              disabled={processing}
+                              className={`${styles.button} ${styles.buttonDanger} ${processing ? styles.buttonDisabled : ''}`}
+                              style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                            >
+                              <Trash2 size={14} />
+                              Usuario
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Información adicional */}
+          {ghostBookings.length > 0 && (
+            <div className={styles.warning} style={{ marginTop: '2rem' }}>
+              <AlertTriangle size={20} />
+              <div style={{ marginLeft: '0.5rem' }}>
+                <strong>⚠️ Reservas fantasma detectadas:</strong>
+                <p style={{ margin: '0.5rem 0 0 0' }}>
+                  Las reservas fantasma son reservas que se crearon en la base de datos pero no tienen un evento correspondiente en Google Calendar. 
+                  Estas reservas pueden bloquear horarios sin ser reales. Se recomienda eliminarlas.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
+      <Footer />
     </>
   );
 };

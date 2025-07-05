@@ -22,7 +22,9 @@ import {
   Search,
   Filter,
   Calendar,
-  Clock
+  Clock,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -66,6 +68,18 @@ const useDashboardSections = () => {
         { label: 'Ver Estadísticas', href: '#estadisticas', icon: <TrendingUp size={16} /> },
         { label: 'Actividad Reciente', href: '#actividad', icon: <Activity size={16} /> },
         { label: 'Control de Pagos', href: '/admin/billing', icon: <DollarSign size={16} /> }
+      ]
+    },
+    {
+      id: 'reservas',
+      title: 'Limpieza de Reservas',
+      description: 'Gestiona y limpia reservas problemáticas que bloquean el sistema. Elimina reservas fantasma y soluciona conflictos de horarios.',
+      icon: <Trash2 size={32} />,
+      color: 'from-red-500 to-pink-500',
+      links: [
+        { label: 'Gestión Visual', href: '/admin/limpiar-reservas', icon: <Trash2 size={16} /> },
+        { label: 'Limpieza Rápida', href: '/api/admin/limpiar-reservas-rapido', icon: <AlertTriangle size={16} /> },
+        { label: 'Ver Reservas', href: '/api/debug/reservas', icon: <Search size={16} /> }
       ]
     },
     {
@@ -379,6 +393,10 @@ export default function AdminDashboardPage() {
                 <Link href="/admin/asesorias-horarios" className={`${styles.quickActionCard} ${styles.schedules}`}>
                   <Calendar size={24} />
                   <span>Crear Horarios</span>
+                </Link>
+                <Link href="/admin/limpiar-reservas" className={`${styles.quickActionCard} ${styles.reservas}`}>
+                  <Trash2 size={24} />
+                  <span>Limpiar Reservas</span>
                 </Link>
                 <Link href="/admin/billing/export" className={`${styles.quickActionCard} ${styles.export}`}>
                   <Download size={24} />
