@@ -6,92 +6,82 @@ import Notification from '@/models/Notification';
 import User from '@/models/User';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
+  if (req.method === 'GET') {
+    return handleGetNotifications(req, res);
+  } else if (req.method === 'POST') {
+    return handleMarkAsRead(req, res);
+  } else {
     return res.status(405).json({ message: 'Método no permitido' });
   }
+}
 
+async function handleGetNotifications(req: NextApiRequest, res: NextApiResponse) {
   try {
+    // Verificar autenticación
     const session = await getServerSession(req, res, authOptions);
-    
     if (!session?.user?.email) {
       return res.status(401).json({ message: 'No autorizado' });
     }
 
-    // Conectar a la base de datos
     await dbConnect();
 
-    // Obtener información del usuario para determinar su rol
-    const user = await User.findOne({ email: session.user.email });
-    const userRole = user?.role || 'normal';
+    // Obtener parámetros de query
+    const { 
+      page = '1', 
+      limit = '10', 
+      type,
+      priority,
+      unreadOnly = 'false'
+    } = req.query;
 
-    const { limit = '5', page = '1', search } = req.query;
+    const pageNum = parseInt(page as string);
     const limitNum = parseInt(limit as string);
-    const skip = (parseInt(page as string) - 1) * limitNum;
+    const skip = (pageNum - 1) * limitNum;
 
-    // Construir query basado en el rol del usuario
-    let query: any = {
-      isActive: true
-    };
-
-    // Para usuarios normales: filtrar por fecha de creación (7 días) y expiración
-    if (userRole !== 'admin') {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-      query = {
-        ...query,
-        // Solo notificaciones de los últimos 7 días o que aún no han expirado
-        $and: [
-          {
-            $or: [
-              { createdAt: { $gte: sevenDaysAgo } }, // Creadas en los últimos 7 días
-              { expiresAt: { $exists: false } }, // Sin fecha de expiración
-              { expiresAt: null }, // Sin fecha de expiración
-              { expiresAt: { $gt: new Date() } } // No expiradas
-            ]
-          },
-          {
-            $or: [
-              { expiresAt: null },
-              { expiresAt: { $gt: new Date() } }
-            ]
-          }
-        ]
-      };
-    } else {
-      // Para administradores: mostrar todas las notificaciones sin restricción de fecha
-      query = {
-        ...query,
-        $or: [
-          { expiresAt: null },
-          { expiresAt: { $gt: new Date() } }
-        ]
-      };
+    // Obtener información del usuario
+    const user = await User.findOne({ email: session.user.email });
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+
+    const userRole = user.role || 'normal';
+    const userEmail = session.user.email;
+
+    // Construir query base
+    const now = new Date();
+    let query: any = {
+      isActive: true,
+      $or: [
+        { expiresAt: null },
+        { expiresAt: { $gt: now } }
+      ]
+    };
 
     // Filtrar por tipo de usuario
     if (userRole === 'admin') {
-      query.targetUsers = { $in: ['todos', 'admin'] };
+      query.targetUsers = { 
+        $in: ['todos', 'admin', 'alertas_trader', 'alertas_smart', 'alertas_cashflow'] 
+      };
     } else if (userRole === 'suscriptor') {
-      query.targetUsers = { $in: ['todos', 'suscriptores'] };
+      query.targetUsers = { 
+        $in: ['todos', 'suscriptores', 'alertas_trader', 'alertas_smart', 'alertas_cashflow'] 
+      };
     } else {
       query.targetUsers = 'todos';
     }
 
-    // Agregar búsqueda si se proporciona
-    if (search && typeof search === 'string') {
-      query = {
-        ...query,
-        $and: [
-          ...(query.$and || []),
-          {
-            $or: [
-              { title: { $regex: search, $options: 'i' } },
-              { message: { $regex: search, $options: 'i' } }
-            ]
-          }
-        ]
-      };
+    // Filtros adicionales
+    if (type) {
+      query.type = type;
+    }
+
+    if (priority) {
+      query.priority = priority;
+    }
+
+    // Filtro para solo no leídas
+    if (unreadOnly === 'true') {
+      query.readBy = { $ne: userEmail };
     }
 
     // Obtener notificaciones
@@ -103,6 +93,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Contar total para paginación
     const total = await Notification.countDocuments(query);
+
+    // Contar no leídas
+    const unreadQuery = { ...query, readBy: { $ne: userEmail } };
+    const unreadCount = await Notification.countDocuments(unreadQuery);
 
     // Formatear las notificaciones
     const formattedNotifications = notifications.map(notification => ({
@@ -116,25 +110,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       actionText: notification.actionText,
       createdAt: notification.createdAt,
       expiresAt: notification.expiresAt,
+      isRead: notification.readBy?.includes(userEmail) || false,
+      isAutomatic: notification.isAutomatic || false,
       // Calcular tiempo relativo
       timeAgo: getTimeAgo(notification.createdAt),
       // Información adicional para administradores
       ...(userRole === 'admin' && {
         targetUsers: notification.targetUsers,
         isActive: notification.isActive,
-        createdBy: notification.createdBy
+        createdBy: notification.createdBy,
+        totalReads: notification.totalReads || 0,
+        relatedAlertId: notification.relatedAlertId
       })
     }));
 
     return res.status(200).json({
       notifications: formattedNotifications,
       pagination: {
-        current: parseInt(page as string),
+        current: pageNum,
         total: Math.ceil(total / limitNum),
         hasMore: skip + limitNum < total,
         totalItems: total
       },
-      unreadCount: formattedNotifications.length, // Por ahora todas son "no leídas"
+      unreadCount,
       userRole // Devolver el rol para que el frontend sepa si es admin
     });
 
@@ -147,21 +145,81 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
-// Función auxiliar para calcular tiempo relativo
+async function handleMarkAsRead(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    // Verificar autenticación
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.user?.email) {
+      return res.status(401).json({ message: 'No autorizado' });
+    }
+
+    await dbConnect();
+
+    const { notificationId, markAllAsRead = false } = req.body;
+    const userEmail = session.user.email;
+
+    if (markAllAsRead) {
+      // Marcar todas las notificaciones como leídas
+      await Notification.updateMany(
+        { 
+          readBy: { $ne: userEmail },
+          isActive: true 
+        },
+        { 
+          $addToSet: { readBy: userEmail },
+          $inc: { totalReads: 1 }
+        }
+      );
+
+      return res.status(200).json({ 
+        message: 'Todas las notificaciones marcadas como leídas' 
+      });
+    } else {
+      // Marcar notificación específica como leída
+      if (!notificationId) {
+        return res.status(400).json({ message: 'ID de notificación requerido' });
+      }
+
+      const notification = await Notification.findById(notificationId);
+      if (!notification) {
+        return res.status(404).json({ message: 'Notificación no encontrada' });
+      }
+
+      // Usar el método del modelo para marcar como leída
+      await notification.markAsRead(userEmail);
+
+      return res.status(200).json({ 
+        message: 'Notificación marcada como leída',
+        isRead: true
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ Error al marcar notificación como leída:', error);
+    return res.status(500).json({ 
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+    });
+  }
+}
+
+// Función helper para calcular tiempo relativo
 function getTimeAgo(date: Date): string {
   const now = new Date();
-  const diffMs = now.getTime() - new Date(date).getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffInSeconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
 
-  if (diffDays > 0) {
-    return `Hace ${diffDays} día${diffDays !== 1 ? 's' : ''}`;
-  } else if (diffHours > 0) {
-    return `Hace ${diffHours} hora${diffHours !== 1 ? 's' : ''}`;
-  } else if (diffMinutes > 0) {
-    return `Hace ${diffMinutes} minuto${diffMinutes !== 1 ? 's' : ''}`;
+  if (diffInSeconds < 60) {
+    return 'Hace unos segundos';
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    return `Hace ${minutes} minuto${minutes > 1 ? 's' : ''}`;
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `Hace ${hours} hora${hours > 1 ? 's' : ''}`;
+  } else if (diffInSeconds < 604800) {
+    const days = Math.floor(diffInSeconds / 86400);
+    return `Hace ${days} día${days > 1 ? 's' : ''}`;
   } else {
-    return 'Hace un momento';
+    return new Date(date).toLocaleDateString('es-ES');
   }
 } 

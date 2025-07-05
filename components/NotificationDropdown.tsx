@@ -1,20 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, ExternalLink, Clock, ArrowRight } from 'lucide-react';
+import { Bell, X, ExternalLink, Clock, ArrowRight, Check, CheckCheck } from 'lucide-react';
 import styles from '@/styles/NotificationDropdown.module.css';
 
 interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'novedad' | 'actualizacion' | 'sistema' | 'promocion';
+  type: 'novedad' | 'actualizacion' | 'sistema' | 'promocion' | 'alerta';
   priority: 'alta' | 'media' | 'baja';
   icon: string;
   actionUrl?: string;
   actionText?: string;
   createdAt: string;
   timeAgo: string;
+  isRead: boolean;
+  isAutomatic?: boolean;
 }
 
 interface NotificationDropdownProps {
@@ -23,26 +25,111 @@ interface NotificationDropdownProps {
   onUpdate?: () => void;
 }
 
-const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onClose }) => {
+const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onClose, onUpdate }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [markingAsRead, setMarkingAsRead] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Obtener notificaciones
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/notifications/get?limit=5');
+      const response = await fetch('/api/notifications/get?limit=8');
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications);
         setUnreadCount(data.unreadCount);
+        
+        // Notificar al componente padre sobre la actualización
+        if (onUpdate) {
+          onUpdate();
+        }
       }
     } catch (error) {
       console.error('Error al obtener notificaciones:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Marcar notificación como leída
+  const markAsRead = async (notificationId: string) => {
+    try {
+      setMarkingAsRead(notificationId);
+      
+      const response = await fetch('/api/notifications/get', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notificationId }),
+      });
+
+      if (response.ok) {
+        // Actualizar estado local
+        setNotifications(prev => 
+          prev.map(notification => 
+            notification.id === notificationId 
+              ? { ...notification, isRead: true }
+              : notification
+          )
+        );
+        
+        // Actualizar contador
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        
+        // Notificar al componente padre
+        if (onUpdate) {
+          onUpdate();
+        }
+      }
+    } catch (error) {
+      console.error('Error al marcar como leída:', error);
+    } finally {
+      setMarkingAsRead(null);
+    }
+  };
+
+  // Marcar todas como leídas
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch('/api/notifications/get', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ markAllAsRead: true }),
+      });
+
+      if (response.ok) {
+        // Actualizar todas las notificaciones como leídas
+        setNotifications(prev => 
+          prev.map(notification => ({ ...notification, isRead: true }))
+        );
+        setUnreadCount(0);
+        
+        // Notificar al componente padre
+        if (onUpdate) {
+          onUpdate();
+        }
+      }
+    } catch (error) {
+      console.error('Error al marcar todas como leídas:', error);
+    }
+  };
+
+  // Manejar clic en notificación
+  const handleNotificationClick = async (notification: Notification) => {
+    // Marcar como leída si no lo está
+    if (!notification.isRead) {
+      await markAsRead(notification.id);
+    }
+    
+    // Cerrar dropdown si tiene URL de acción
+    if (notification.actionUrl) {
+      onClose();
     }
   };
 
@@ -73,6 +160,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
       case 'promocion': return '#f59e0b';
       case 'actualizacion': return '#3b82f6';
       case 'sistema': return '#ef4444';
+      case 'alerta': return '#00ff88';
       default: return '#10b981';
     }
   };
@@ -104,12 +192,23 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
             <Bell size={20} />
             <h3>Notificaciones</h3>
             {unreadCount > 0 && (
-              <span className={styles.unreadBadge}>{unreadCount}</span>
+              <span className={styles.unreadBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
             )}
           </div>
-          <button onClick={onClose} className={styles.closeButton}>
-            <X size={18} />
-          </button>
+          <div className={styles.headerActions}>
+            {unreadCount > 0 && (
+              <button 
+                onClick={markAllAsRead}
+                className={styles.markAllButton}
+                title="Marcar todas como leídas"
+              >
+                <CheckCheck size={16} />
+              </button>
+            )}
+            <button onClick={onClose} className={styles.closeButton}>
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -130,10 +229,11 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
               {notifications.map((notification, index) => (
                 <motion.div
                   key={notification.id}
-                  className={styles.notificationItem}
+                  className={`${styles.notificationItem} ${notification.isRead ? styles.read : styles.unread}`}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   {/* Priority indicator */}
                   <div 
@@ -144,12 +244,22 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
                   {/* Icon */}
                   <div className={styles.notificationIcon}>
                     <span className={styles.emoji}>{notification.icon}</span>
+                    {notification.isAutomatic && (
+                      <span className={styles.automaticBadge} title="Notificación automática">
+                        🤖
+                      </span>
+                    )}
                   </div>
 
                   {/* Content */}
                   <div className={styles.notificationContent}>
                     <div className={styles.notificationHeader}>
-                      <h4 className={styles.notificationTitle}>{notification.title}</h4>
+                      <h4 className={styles.notificationTitle}>
+                        {notification.title}
+                        {!notification.isRead && (
+                          <span className={styles.unreadDot}></span>
+                        )}
+                      </h4>
                       <div className={styles.notificationMeta}>
                         <span 
                           className={styles.notificationType}
@@ -176,6 +286,25 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
                       </Link>
                     )}
                   </div>
+
+                  {/* Mark as read button */}
+                  {!notification.isRead && (
+                    <button
+                      className={styles.markReadButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        markAsRead(notification.id);
+                      }}
+                      disabled={markingAsRead === notification.id}
+                      title="Marcar como leída"
+                    >
+                      {markingAsRead === notification.id ? (
+                        <div className={styles.miniSpinner} />
+                      ) : (
+                        <Check size={14} />
+                      )}
+                    </button>
+                  )}
                 </motion.div>
               ))}
             </div>

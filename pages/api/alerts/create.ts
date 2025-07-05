@@ -8,6 +8,7 @@ import { authOptions } from '@/lib/googleAuth';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Alert from '@/models/Alert';
+import { createAlertNotification } from '@/lib/notificationUtils';
 
 interface AlertRequest {
   symbol: string;
@@ -92,6 +93,15 @@ export default async function handler(
     });
 
     console.log('Nueva alerta creada por usuario:', user.name || user.email, newAlert._id);
+
+    // 🔔 NUEVA FUNCIONALIDAD: Crear notificación automática
+    try {
+      await createAlertNotification(newAlert);
+      console.log('✅ Notificación automática enviada para alerta:', newAlert._id);
+    } catch (notificationError) {
+      console.error('❌ Error al enviar notificación automática:', notificationError);
+      // No fallar la creación de la alerta si la notificación falla
+    }
 
     // Formatear la respuesta para el frontend - con validación de números
     const alertResponse = {

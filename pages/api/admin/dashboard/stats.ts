@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
+import { getNotificationStats } from '@/lib/notificationUtils';
 
 interface UserStat {
   _id: string;
@@ -68,7 +69,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .maxTimeMS(5000)
       .exec();
 
-    const [userStats, recentUsers] = await Promise.all([userStatsPromise, recentUsersPromise]);
+    // 📊 NUEVA FUNCIONALIDAD: Obtener estadísticas reales de notificaciones
+    const notificationStatsPromise = getNotificationStats();
+
+    const [userStats, recentUsers, notificationStats] = await Promise.all([
+      userStatsPromise, 
+      recentUsersPromise,
+      notificationStatsPromise
+    ]);
 
     // Procesar estadísticas
     const stats = {
@@ -76,8 +84,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       adminUsers: 0,
       suscriptorUsers: 0,
       normalUsers: 0,
-      totalNotifications: 0,
-      activeNotifications: 0,
+      totalNotifications: notificationStats.totalNotifications,
+      activeNotifications: notificationStats.activeNotifications,
       recentActivity: [] as Array<{ description: string; time: string }>
     };
 
@@ -99,15 +107,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     });
 
-    // Simular notificaciones activas (puedes reemplazar con lógica real)
-    stats.activeNotifications = 3;
-    stats.totalNotifications = 10;
-
-    // Actividad reciente basada en usuarios recientes
-    stats.recentActivity = recentUsers.map((user: RecentUser) => ({
+    // Actividad reciente combinada: usuarios y notificaciones
+    const userActivity = recentUsers.map((user: RecentUser) => ({
       description: `Usuario ${user.name} se registró`,
       time: user.createdAt ? new Date(user.createdAt).toLocaleDateString('es-ES') : 'Fecha desconocida'
     }));
+
+    const notificationActivity = notificationStats.recentNotifications.map((notification: any) => ({
+      description: `Notificación creada: ${notification.title}`,
+      time: new Date(notification.createdAt).toLocaleDateString('es-ES')
+    }));
+
+    // Combinar y ordenar actividades
+    stats.recentActivity = [...userActivity, ...notificationActivity]
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      .slice(0, 5);
 
     console.log('✅ Estadísticas obtenidas exitosamente');
 
