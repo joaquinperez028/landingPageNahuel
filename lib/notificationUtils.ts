@@ -13,7 +13,13 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
   try {
     await dbConnect();
     
-    console.log('🔔 Creando notificación automática para alerta:', alert.symbol);
+    console.log('🔔 [ALERT NOTIFICATION] Iniciando creación de notificación para alerta:', alert.symbol);
+    console.log('🔔 [ALERT NOTIFICATION] Detalles de alerta:', {
+      symbol: alert.symbol,
+      action: alert.action,
+      tipo: alert.tipo,
+      entryPrice: alert.entryPrice
+    });
 
     // Determinar el tipo de suscripción basado en el tipo de alerta
     let subscriptionType = 'alertas_trader'; // por defecto
@@ -27,8 +33,32 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
       alertType = 'CashFlow';
     }
 
+    console.log('🔔 [ALERT NOTIFICATION] Tipo de suscripción determinado:', subscriptionType);
+
+    // Verificar usuarios suscritos ANTES de crear la notificación
+    const subscribedUsers = await UserSubscription.find({
+      [`subscriptions.${subscriptionType}`]: true
+    });
+
+    console.log('👥 [ALERT NOTIFICATION] Usuarios suscritos encontrados:', subscribedUsers.length);
+    
+    if (subscribedUsers.length === 0) {
+      console.log('⚠️ [ALERT NOTIFICATION] No hay usuarios suscritos al tipo:', subscriptionType);
+      
+      // Mostrar estadísticas de suscripciones para debugging
+      const allSubscriptions = await UserSubscription.find({});
+      console.log('📊 [ALERT NOTIFICATION] Total usuarios con suscripciones configuradas:', allSubscriptions.length);
+      
+      for (const sub of allSubscriptions.slice(0, 3)) {
+        console.log('📊 [ALERT NOTIFICATION] Usuario:', sub.userEmail, 'suscripciones:', sub.subscriptions);
+      }
+      
+      return;
+    }
+
     // Buscar plantilla específica para alertas
     const template = await NotificationTemplate.findOne({ name: 'nueva_alerta' });
+    console.log('🎨 [ALERT NOTIFICATION] Plantilla encontrada:', !!template);
     
     let notification: any;
     
@@ -48,7 +78,7 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
         message: template.render(variables).message,
         type: 'alerta',
         priority: template.priority,
-        icon: '🤖',
+        icon: '🚨',
         actionUrl: getAlertActionUrl(alert.tipo),
         actionText: 'Ver Alertas',
         isAutomatic: true,
@@ -63,13 +93,14 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
         }
       };
     } else {
+      console.log('🎨 [ALERT NOTIFICATION] Usando notificación manual (sin plantilla)');
       // Crear notificación manual si no hay plantilla
       notification = {
         title: `🚨 Nueva Alerta ${alertType}`,
         message: `${alert.action} ${alert.symbol} en $${alert.entryPrice}. TP: $${alert.takeProfit}, SL: $${alert.stopLoss}`,
         type: 'alerta',
         priority: 'high',
-        icon: '🤖',
+        icon: '🚨',
         actionUrl: getAlertActionUrl(alert.tipo),
         actionText: 'Ver Alertas',
         isAutomatic: true,
@@ -84,13 +115,89 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
       };
     }
 
+    console.log('📧 [ALERT NOTIFICATION] Enviando notificación:', {
+      title: notification.title,
+      subscriptionType,
+      shouldSendEmail: true
+    });
+
     // Enviar notificación a usuarios suscritos (incluyendo emails)
     const result = await sendNotificationToSubscribers(notification, subscriptionType, true);
     
-    console.log(`✅ Notificación de alerta enviada: ${result.sent} usuarios, ${result.emailsSent} emails`);
+    console.log(`✅ [ALERT NOTIFICATION] Resultado final: ${result.sent} usuarios notificados, ${result.emailsSent} emails enviados, ${result.failed} fallos`);
+
+    if (result.errors.length > 0) {
+      console.error('❌ [ALERT NOTIFICATION] Errores durante el envío:', result.errors.slice(0, 3));
+    }
 
   } catch (error) {
-    console.error('❌ Error creando notificación de alerta:', error);
+    console.error('❌ [ALERT NOTIFICATION] Error creando notificación de alerta:', error);
+  }
+}
+
+/**
+ * Crea notificación automática cuando se crea un informe
+ */
+export async function createReportNotification(report: any): Promise<void> {
+  try {
+    await dbConnect();
+    
+    console.log('📰 [REPORT NOTIFICATION] Iniciando creación de notificación para informe:', report.title);
+    console.log('📰 [REPORT NOTIFICATION] Detalles del informe:', {
+      title: report.title,
+      type: report.type,
+      category: report.category,
+      author: report.author
+    });
+
+    // Verificar usuarios suscritos a actualizaciones
+    const subscribedUsers = await UserSubscription.find({
+      'subscriptions.notificaciones_actualizaciones': true
+    });
+
+    console.log('👥 [REPORT NOTIFICATION] Usuarios suscritos a actualizaciones:', subscribedUsers.length);
+    
+    if (subscribedUsers.length === 0) {
+      console.log('⚠️ [REPORT NOTIFICATION] No hay usuarios suscritos a actualizaciones');
+      return;
+    }
+
+    // Crear notificación para informe
+    const notification = {
+      title: `📰 Nuevo Informe: ${report.title}`,
+      message: `Se ha publicado un nuevo informe de análisis. ${report.content.substring(0, 100)}...`,
+      type: 'actualizacion',
+      priority: 'medium',
+      icon: '📰',
+      actionUrl: `/recursos`, // O la URL específica del informe
+      actionText: 'Leer Informe',
+      isAutomatic: true,
+      relatedReportId: report._id,
+      metadata: {
+        reportTitle: report.title,
+        reportType: report.type,
+        reportCategory: report.category,
+        automatic: true
+      }
+    };
+
+    console.log('📧 [REPORT NOTIFICATION] Enviando notificación:', {
+      title: notification.title,
+      subscriptionType: 'notificaciones_actualizaciones',
+      shouldSendEmail: true
+    });
+
+    // Enviar notificación a usuarios suscritos (incluyendo emails)
+    const result = await sendNotificationToSubscribers(notification, 'notificaciones_actualizaciones', true);
+    
+    console.log(`✅ [REPORT NOTIFICATION] Resultado final: ${result.sent} usuarios notificados, ${result.emailsSent} emails enviados, ${result.failed} fallos`);
+
+    if (result.errors.length > 0) {
+      console.error('❌ [REPORT NOTIFICATION] Errores durante el envío:', result.errors.slice(0, 3));
+    }
+
+  } catch (error) {
+    console.error('❌ [REPORT NOTIFICATION] Error creando notificación de informe:', error);
   }
 }
 
@@ -367,22 +474,24 @@ export async function initializeUserSubscriptions(userEmail: string): Promise<vo
   try {
     await dbConnect();
     
-    console.log(`🔔 Inicializando suscripciones para: ${userEmail}`);
+    console.log(`🔔 [INIT SUBSCRIPTIONS] Inicializando suscripciones para: ${userEmail}`);
     
     // Verificar si ya tiene suscripciones
     const existing = await UserSubscription.findOne({ userEmail });
     if (existing) {
-      console.log(`ℹ️ Usuario ${userEmail} ya tiene suscripciones configuradas`);
+      console.log(`ℹ️ [INIT SUBSCRIPTIONS] Usuario ${userEmail} ya tiene suscripciones configuradas`);
       return;
     }
     
-    // Crear suscripciones por defecto
+    // Crear suscripciones por defecto - ACTIVAR ALERTAS POR DEFECTO
     await UserSubscription.create({
       userEmail,
       subscriptions: {
-        alertas_trader: false,
-        alertas_smart: false,
-        alertas_cashflow: false,
+        // ✅ ALERTAS ACTIVADAS POR DEFECTO - los usuarios recibirán notificaciones
+        alertas_trader: true,
+        alertas_smart: true, 
+        alertas_cashflow: true,
+        // ✅ NOTIFICACIONES GENERALES ACTIVADAS
         notificaciones_sistema: true,
         notificaciones_promociones: true,
         notificaciones_actualizaciones: true
@@ -394,10 +503,10 @@ export async function initializeUserSubscriptions(userEmail: string): Promise<vo
       }
     });
     
-    console.log(`✅ Suscripciones inicializadas para: ${userEmail}`);
+    console.log(`✅ [INIT SUBSCRIPTIONS] Suscripciones inicializadas para: ${userEmail} (todas las alertas ACTIVADAS)`);
     
   } catch (error) {
-    console.error('❌ Error inicializando suscripciones:', error);
+    console.error('❌ [INIT SUBSCRIPTIONS] Error inicializando suscripciones:', error);
   }
 }
 
@@ -493,5 +602,117 @@ function getAlertActionUrl(tipo: string): string {
       return '/alertas/cash-flow';
     default:
       return '/alertas';
+  }
+}
+
+/**
+ * Asegura que todos los usuarios tengan suscripciones configuradas
+ */
+export async function ensureUserSubscriptions(): Promise<void> {
+  try {
+    await dbConnect();
+    
+    console.log('🔔 [SUBSCRIPTION CHECK] Verificando suscripciones de usuarios...');
+    
+    // Obtener todos los usuarios
+    const allUsers = await User.find({}, 'email');
+    console.log('👥 [SUBSCRIPTION CHECK] Total usuarios encontrados:', allUsers.length);
+    
+    // Obtener usuarios que ya tienen suscripciones
+    const usersWithSubscriptions = await UserSubscription.find({}, 'userEmail');
+    const emailsWithSubscriptions = usersWithSubscriptions.map(sub => sub.userEmail);
+    
+    console.log('📋 [SUBSCRIPTION CHECK] Usuarios con suscripciones:', emailsWithSubscriptions.length);
+    
+    // Encontrar usuarios sin suscripciones
+    const usersWithoutSubscriptions = allUsers.filter(user => 
+      !emailsWithSubscriptions.includes(user.email)
+    );
+    
+    console.log('⚠️ [SUBSCRIPTION CHECK] Usuarios SIN suscripciones:', usersWithoutSubscriptions.length);
+    
+    // Crear suscripciones para usuarios que no las tienen
+    for (const user of usersWithoutSubscriptions) {
+      await initializeUserSubscriptions(user.email);
+      console.log('✅ [SUBSCRIPTION CHECK] Suscripciones creadas para:', user.email);
+    }
+    
+    // Mostrar estadísticas finales
+    const finalSubscriptions = await UserSubscription.find({});
+    console.log('📊 [SUBSCRIPTION CHECK] Total usuarios con suscripciones después:', finalSubscriptions.length);
+    
+    // Mostrar ejemplos de suscripciones para debugging
+    for (const sub of finalSubscriptions.slice(0, 3)) {
+      console.log('📊 [SUBSCRIPTION CHECK] Ejemplo:', sub.userEmail, {
+        alertas_trader: sub.subscriptions.alertas_trader,
+        alertas_smart: sub.subscriptions.alertas_smart,
+        alertas_cashflow: sub.subscriptions.alertas_cashflow,
+        notificaciones_actualizaciones: sub.subscriptions.notificaciones_actualizaciones
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ [SUBSCRIPTION CHECK] Error verificando suscripciones:', error);
+  }
+}
+
+/**
+ * Función de diagnóstico para verificar el estado del sistema de notificaciones
+ */
+export async function diagnoseNotificationSystem(): Promise<{
+  users: number;
+  subscriptions: number;
+  templates: number;
+  recentNotifications: number;
+  alertSubscribers: {
+    trader: number;
+    smart: number;
+    cashflow: number;
+  };
+}> {
+  try {
+    await dbConnect();
+    
+    const [
+      totalUsers,
+      totalSubscriptions,
+      totalTemplates,
+      recentNotifications,
+      traderSubscribers,
+      smartSubscribers,
+      cashflowSubscribers
+    ] = await Promise.all([
+      User.countDocuments(),
+      UserSubscription.countDocuments(),
+      NotificationTemplate.countDocuments(),
+      Notification.countDocuments({ 
+        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } 
+      }),
+      UserSubscription.countDocuments({ 'subscriptions.alertas_trader': true }),
+      UserSubscription.countDocuments({ 'subscriptions.alertas_smart': true }),
+      UserSubscription.countDocuments({ 'subscriptions.alertas_cashflow': true })
+    ]);
+    
+    return {
+      users: totalUsers,
+      subscriptions: totalSubscriptions,
+      templates: totalTemplates,
+      recentNotifications,
+      alertSubscribers: {
+        trader: traderSubscribers,
+        smart: smartSubscribers,
+        cashflow: cashflowSubscribers
+      }
+    };
+    
+  } catch (error) {
+    console.error('❌ Error en diagnóstico:', error);
+    return {
+      users: 0,
+      subscriptions: 0,
+      templates: 0,
+      recentNotifications: 0,
+      alertSubscribers: { trader: 0, smart: 0, cashflow: 0 }
+    };
   }
 } 

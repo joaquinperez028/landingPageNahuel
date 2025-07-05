@@ -5,6 +5,7 @@ import dbConnect from '../../../lib/mongodb';
 import Report from '../../../models/Report';
 import User from '../../../models/User';
 import { getCloudinaryImageUrl, CloudinaryUploadResult } from '../../../lib/cloudinary';
+import { createReportNotification } from '../../../lib/notificationUtils';
 
 // Definir interface para las imágenes procesadas
 interface ProcessedImage {
@@ -122,6 +123,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const savedReport = await newReport.save();
 
     console.log('✅ Informe creado exitosamente:', savedReport._id);
+
+    // 📰 NUEVA FUNCIONALIDAD: Crear notificación automática
+    try {
+      await createReportNotification(savedReport);
+      console.log('✅ Notificación automática enviada para informe:', savedReport._id);
+    } catch (notificationError) {
+      console.error('❌ Error al enviar notificación automática:', notificationError);
+      // No fallar la creación del informe si la notificación falla
+    }
 
     // Poblar datos del autor para la respuesta
     await savedReport.populate('author', 'name email');
