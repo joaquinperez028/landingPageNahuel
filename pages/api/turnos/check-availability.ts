@@ -86,14 +86,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const requestedDateTime = new Date(targetDate);
     requestedDateTime.setHours(hour, minute, 0, 0);
 
-    // **OPTIMIZACIÓN: Query específica y eficiente**
-    const existingBooking = await Booking.findOne({
+    // **CORREGIDO: Crear fecha de fin basada en duración estándar (60 minutos)**
+    const endDateTime = new Date(requestedDateTime.getTime() + 60 * 60000); // 60 minutos después
+
+    // **CORREGIDO: Query con la misma lógica que la API de bookings (rangos superpuestos)**
+    const conflictingBookings = await Booking.find({
       serviceType,
       status: { $in: ['pending', 'confirmed'] },
-      startDate: requestedDateTime
-    }, '_id startDate endDate').lean();
+      $or: [
+        {
+          // Nueva reserva empieza durante una existente
+          startDate: { $lte: requestedDateTime },
+          endDate: { $gt: requestedDateTime }
+        },
+        {
+          // Nueva reserva termina durante una existente
+          startDate: { $lt: endDateTime },
+          endDate: { $gte: endDateTime }
+        },
+        {
+          // Nueva reserva contiene una existente
+          startDate: { $gte: requestedDateTime },
+          endDate: { $lte: endDateTime }
+        }
+      ]
+    }, '_id startDate endDate userEmail').lean();
 
-    const isAvailable = !existingBooking;
+    const isAvailable = conflictingBookings.length === 0;
+
+    // **DEBUG: Log detallado si hay conflictos**
+    if (conflictingBookings.length > 0) {
+      console.log(`⚠️ Conflictos encontrados para ${fecha} ${horario}:`);
+      conflictingBookings.forEach((booking, index) => {
+        console.log(`  ${index + 1}. ID: ${booking._id}`);
+        console.log(`     Usuario: ${booking.userEmail}`);
+        console.log(`     Inicio: ${booking.startDate?.toISOString()}`);
+        console.log(`     Fin: ${booking.endDate?.toISOString()}`);
+        console.log(`     Solicitado: ${requestedDateTime.toISOString()} - ${endDateTime.toISOString()}`);
+      });
+    }
 
     // **OPTIMIZACIÓN: Guardar en caché**
     availabilityCache.set(cacheKey, {
