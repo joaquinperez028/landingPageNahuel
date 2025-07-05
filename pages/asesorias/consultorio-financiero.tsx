@@ -248,36 +248,70 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     const turnoSeleccionado = proximosTurnos.find(t => t.fecha === selectedDate);
     if (!turnoSeleccionado) return;
 
-    // Crear la fecha correcta basada en la selección del usuario
-    // Necesitamos convertir el formato "Lun 23 Jun" a una fecha real
-    const today = new Date();
-    const currentYear = today.getFullYear();
+    // **CORREGIDO: Parsear fecha en formato DD/MM/YYYY que viene de la API**
+    let targetDate: Date;
     
-    // Mapear nombres de meses
-    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    
-    // Parsear la fecha seleccionada (formato: "Lun 23 Jun")
-    const dateParts = selectedDate.split(' ');
-    const day = parseInt(dateParts[1]);
-    const monthName = dateParts[2];
-    const monthIndex = monthNames.indexOf(monthName);
-    
-    if (monthIndex === -1) {
-      alert('Error: Formato de fecha inválido');
+    try {
+      // Verificar si es formato DD/MM/YYYY (formato actual de la API)
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(selectedDate)) {
+        const [day, month, year] = selectedDate.split('/').map(Number);
+        targetDate = new Date(year, month - 1, day); // month es 0-indexed en JavaScript
+        
+        console.log(`📅 Fecha parseada desde DD/MM/YYYY: ${selectedDate} → ${targetDate.toISOString()}`);
+      } 
+      // Fallback: Formato español "Lun 23 Jun" (para compatibilidad)
+      else if (/^\w{3} \d{1,2} \w{3}$/.test(selectedDate)) {
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        
+        // Mapear nombres de meses
+        const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        
+        // Parsear la fecha seleccionada (formato: "Lun 23 Jun")
+        const dateParts = selectedDate.split(' ');
+        const day = parseInt(dateParts[1]);
+        const monthName = dateParts[2];
+        const monthIndex = monthNames.indexOf(monthName);
+        
+        if (monthIndex === -1) {
+          alert('Error: Formato de fecha inválido');
+          return;
+        }
+        
+        targetDate = new Date(currentYear, monthIndex, day);
+        
+        // Si la fecha es anterior a hoy, asumir que es del próximo año
+        if (targetDate < today) {
+          targetDate.setFullYear(currentYear + 1);
+        }
+        
+        console.log(`📅 Fecha parseada desde formato español: ${selectedDate} → ${targetDate.toISOString()}`);
+      }
+      // Formato no reconocido
+      else {
+        console.error('❌ Formato de fecha no reconocido:', selectedDate);
+        alert('Error: Formato de fecha inválido');
+        return;
+      }
+      
+      // Verificar que la fecha sea válida
+      if (isNaN(targetDate.getTime())) {
+        console.error('❌ Fecha inválida después del parseo:', selectedDate);
+        alert('Error: Fecha inválida');
+        return;
+      }
+      
+    } catch (error) {
+      console.error('❌ Error al parsear fecha:', error);
+      alert('Error: No se pudo procesar la fecha seleccionada');
       return;
-    }
-    
-    // Crear la fecha objetivo
-    const targetDate = new Date(currentYear, monthIndex, day);
-    
-    // Si la fecha es anterior a hoy, asumir que es del próximo año
-    if (targetDate < today) {
-      targetDate.setFullYear(currentYear + 1);
     }
     
     // Agregar la hora seleccionada
     const [hour, minute] = selectedTime.split(':').map(Number);
     targetDate.setHours(hour, minute, 0, 0);
+
+    console.log(`🎯 Fecha y hora final para reserva: ${targetDate.toISOString()}`);
 
     const bookingData = {
       type: 'advisory' as const,
