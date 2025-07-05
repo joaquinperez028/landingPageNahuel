@@ -194,7 +194,7 @@ export async function sendBulkEmails(options: {
     
     const batchPromises = batch.map(async (email) => {
       try {
-        console.log(`�� [EMAIL SERVICE] Enviando a: ${email}`);
+        console.log(` [EMAIL SERVICE] Enviando a: ${email}`);
         await sendEmail({
           to: email,
           subject,
@@ -551,12 +551,127 @@ export function createEmailTemplate({
 }
 
 /**
- * Plantilla para emails de alertas de trading
+ * Plantilla específica para notificaciones de informes
+ */
+export function generateReportEmailTemplate(
+  notification: any,
+  user: any
+): string {
+  const actionButton = notification.actionUrl ? 
+    `<a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}${notification.actionUrl}" 
+        style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%); color: #000; text-decoration: none; border-radius: 12px; font-weight: 700; margin-top: 25px; box-shadow: 0 4px 15px rgba(0,255,136,0.3); transition: all 0.3s ease;">
+      ${notification.actionText || 'Leer Informe'}
+    </a>` : '';
+
+  const reportDetails = notification.metadata ? `
+    <div style="margin-top: 25px; padding: 20px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px; border-left: 4px solid #00ff88;">
+      <h3 style="margin: 0 0 15px; font-size: 16px; color: #1e293b; font-weight: 600;">
+        📊 Detalles del Informe
+      </h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 15px;">
+        ${notification.metadata.serviceType ? `
+          <div style="flex: 1; min-width: 120px;">
+            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Servicio</div>
+            <div style="font-size: 16px; color: #1e293b; font-weight: 700; background: #00ff88; color: #000; padding: 4px 12px; border-radius: 20px; display: inline-block;">${notification.metadata.serviceType}</div>
+          </div>
+        ` : ''}
+        ${notification.metadata.reportCategory ? `
+          <div style="flex: 1; min-width: 120px;">
+            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Categoría</div>
+            <div style="font-size: 16px; color: #1e293b; font-weight: 700; text-transform: capitalize;">${notification.metadata.reportCategory.replace('-', ' ')}</div>
+          </div>
+        ` : ''}
+        ${notification.metadata.reportType ? `
+          <div style="flex: 1; min-width: 120px;">
+            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Tipo</div>
+            <div style="font-size: 16px; color: #1e293b; font-weight: 700; text-transform: capitalize;">${notification.metadata.reportType}</div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  ` : '';
+
+  return createEmailTemplate({
+    title: `${notification.icon} ${notification.title}`,
+    content: `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; margin-bottom: 20px;">
+          📰 Nuevo Contenido Disponible
+        </div>
+        <h2 style="margin: 0 0 10px; font-size: 22px; color: #1e293b; font-weight: 700;">
+          ¡Hola ${user.name || user.email.split('@')[0]}! 👋
+        </h2>
+        <p style="margin: 0; font-size: 16px; color: #64748b; line-height: 1.5;">
+          Tienes un nuevo informe de análisis disponible en tu cuenta.
+        </p>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px solid #e2e8f0; border-radius: 16px; padding: 30px; margin: 25px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="font-size: 48px; margin-bottom: 10px;">📊</div>
+          <h3 style="margin: 0 0 10px; font-size: 20px; color: #1e293b; font-weight: 700;">
+            ${notification.metadata?.reportTitle || 'Nuevo Informe'}
+          </h3>
+        </div>
+        
+        <div style="background: #f1f5f9; border-radius: 12px; padding: 20px; margin: 20px 0;">
+          <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6; text-align: center;">
+            ${notification.message}
+          </p>
+        </div>
+        
+        ${reportDetails}
+        
+        <div style="text-align: center; margin-top: 30px;">
+          ${actionButton}
+        </div>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1px solid #10b981; border-radius: 12px; padding: 20px; margin: 25px 0;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="font-size: 24px;">✨</div>
+          <div>
+            <h4 style="margin: 0 0 5px; font-size: 16px; color: #065f46; font-weight: 600;">
+              Análisis Exclusivo
+            </h4>
+            <p style="margin: 0; font-size: 14px; color: #047857; line-height: 1.4;">
+              Este informe contiene análisis detallado y estrategias específicas para tu servicio suscrito.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 20px; margin: 25px 0;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="font-size: 24px;">⏰</div>
+          <div>
+            <h4 style="margin: 0 0 5px; font-size: 16px; color: #92400e; font-weight: 600;">
+              Acceso Inmediato
+            </h4>
+            <p style="margin: 0; font-size: 14px; color: #b45309; line-height: 1.4;">
+              El informe está disponible ahora en tu área de recursos. Te recomendamos leerlo lo antes posible.
+            </p>
+          </div>
+        </div>
+      </div>
+    `,
+    buttonText: notification.actionText || 'Leer Informe',
+    buttonUrl: notification.actionUrl ? `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}${notification.actionUrl}` : undefined
+  });
+}
+
+/**
+ * Plantilla mejorada para notificaciones de alertas
  */
 export function generateAlertEmailTemplate(
   notification: any, 
   user: any
 ): string {
+  // Si es una notificación de informe, usar la plantilla específica
+  if (notification.type === 'actualizacion' || notification.metadata?.reportTitle) {
+    return generateReportEmailTemplate(notification, user);
+  }
+
   const actionButton = notification.actionUrl ? 
     `<a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}${notification.actionUrl}" 
         style="display: inline-block; padding: 12px 24px; background: #00ff88; color: #000; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 12px rgba(0,255,136,0.3);">
