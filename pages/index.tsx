@@ -390,7 +390,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
               >
                 <div className={styles.sectionHeader}>
                   <h2>Cursos Destacados</h2>
-                  <p>Aprende trading con los mejores entrenamientos del mercado</p>
+                  <p>Aprende trading con los mejores entrenamientos del mercado.</p>
                 </div>
 
                 <div className={styles.cursosGrid}>
