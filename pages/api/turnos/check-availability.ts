@@ -90,8 +90,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const endDateTime = new Date(requestedDateTime.getTime() + 60 * 60000); // 60 minutos después
 
     // **CORREGIDO: Query con la misma lógica que la API de bookings (rangos superpuestos)**
+    // IMPORTANTE: NO filtrar por serviceType porque un horario ocupado es ocupado sin importar el tipo de servicio
     const conflictingBookings = await Booking.find({
-      serviceType,
       status: { $in: ['pending', 'confirmed'] },
       $or: [
         {
@@ -110,7 +110,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           endDate: { $lte: endDateTime }
         }
       ]
-    }, '_id startDate endDate userEmail').lean();
+    }, '_id startDate endDate userEmail serviceType').lean();
 
     const isAvailable = conflictingBookings.length === 0;
 
@@ -120,6 +120,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       conflictingBookings.forEach((booking, index) => {
         console.log(`  ${index + 1}. ID: ${booking._id}`);
         console.log(`     Usuario: ${booking.userEmail}`);
+        console.log(`     Servicio: ${booking.serviceType || 'N/A'}`);
         console.log(`     Inicio: ${booking.startDate?.toISOString()}`);
         console.log(`     Fin: ${booking.endDate?.toISOString()}`);
         console.log(`     Solicitado: ${requestedDateTime.toISOString()} - ${endDateTime.toISOString()}`);
