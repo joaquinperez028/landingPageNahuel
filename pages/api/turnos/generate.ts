@@ -5,8 +5,8 @@ import TrainingSchedule from '@/models/TrainingSchedule';
 import AdvisorySchedule from '@/models/AdvisorySchedule';
 import { z } from 'zod';
 
-// Cache en memoria para optimizar rendimiento
-const cache = new Map<string, { data: any; timestamp: number; }>();
+// Cache en memoria para optimizar rendimiento - EXPORTADO para invalidación
+export const cache = new Map<string, { data: any; timestamp: number; }>();
 const CACHE_DURATION = 60000; // 1 minuto en milisegundos
 
 // Schema de validación optimizado
@@ -108,6 +108,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }, 'startDate endDate serviceType').lean();
     
     console.log(`🔍 Reservas existentes encontradas: ${existingBookings.length}`);
+    
+    // 🔍 DEBUG ADICIONAL: Mostrar detalles de reservas para debugging
+    if (existingBookings.length > 0) {
+      console.log('📋 Detalles de reservas existentes:');
+      existingBookings.forEach((booking, index) => {
+        console.log(`  ${index + 1}. Usuario: ${booking.userEmail || 'N/A'}`);
+        console.log(`     Servicio: ${booking.serviceType || 'N/A'}`);
+        console.log(`     Inicio: ${new Date(booking.startDate).toISOString()}`);
+        console.log(`     Fin: ${new Date(booking.endDate).toISOString()}`);
+        console.log(`     Fecha Local: ${new Date(booking.startDate).toLocaleDateString('es-ES')}`);
+        console.log(`     Hora Local: ${new Date(booking.startDate).toLocaleTimeString('es-ES')}`);
+      });
+    }
 
     // **OPTIMIZACIÓN 3: Pre-procesar reservas por fecha para acceso O(1)**
     const bookingsByDate = new Map<string, any[]>();

@@ -204,89 +204,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // No fallar la reserva si el calendario falla
       }
 
-      // Enviar emails de confirmación
+      // ✅ CRÍTICO: Invalidar caché de turnos después de crear reserva exitosa
       try {
-        console.log('📧 Iniciando envío de emails de confirmación...');
-        console.log('🔑 Variables de email disponibles:', {
-          hasSmtpUser: !!process.env.SMTP_USER,
-          hasSmtpPassword: !!process.env.SMTP_PASSWORD,
-          smtpUser: process.env.SMTP_USER,
-          adminEmail: process.env.ADMIN_EMAIL
+        console.log('🧹 Invalidando caché de turnos después de crear reserva...');
+        
+        // Usar endpoint interno para invalidar caché
+        const invalidateResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/turnos/invalidate-cache`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
         
-        const dateStr = startDateTime.toLocaleDateString('es-ES', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        const timeStr = startDateTime.toLocaleTimeString('es-ES', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-
-        console.log('📅 Datos formateados para emails:', {
-          userEmail,
-          userName,
-          type,
-          eventName,
-          dateStr,
-          timeStr,
-          duration,
-          price
-        });
-
-        if (type === 'training') {
-          console.log('🏋️ Enviando email de confirmación de entrenamiento...');
-          await sendTrainingConfirmationEmail(userEmail, userName, {
-            type: eventName,
-            date: dateStr,
-            time: timeStr,
-            duration
-          });
-          console.log('✅ Email de entrenamiento enviado');
+        if (invalidateResponse.ok) {
+          console.log('✅ Caché de turnos invalidado exitosamente');
         } else {
-          console.log('💼 Enviando email de confirmación de asesoría...');
-          await sendAdvisoryConfirmationEmail(userEmail, userName, {
-            type: eventName,
-            date: dateStr,
-            time: timeStr,
-            duration,
-            price
-          });
-          console.log('✅ Email de asesoría enviado');
+          console.log('⚠️ Error al invalidar caché, pero continúo');
         }
-
-        // Notificar al admin
-        console.log('👨‍💼 Enviando notificación al admin...');
-        await sendAdminNotificationEmail({
-          userEmail,
-          userName,
-          type,
-          serviceType: eventName,
-          date: dateStr,
-          time: timeStr,
-          duration,
-          price
-        });
-        console.log('✅ Notificación al admin enviada');
-
-      } catch (emailError: any) {
-        console.error('❌ Error detallado al enviar emails:', {
-          error: emailError?.message || 'Error desconocido',
-          stack: emailError?.stack,
-          code: emailError?.code,
-          response: emailError?.response
-        });
-        // No fallar la reserva si el email falla
+      } catch (cacheError) {
+        console.error('⚠️ Error al invalidar caché (no crítico):', cacheError);
+        // No fallar la reserva si la invalidación de caché falla
       }
 
       console.log('✅ Reserva creada exitosamente:', newBooking._id);
-      return res.status(201).json({ booking: newBooking });
+      return res.status(201).json({ 
+        success: true, 
+        booking: newBooking,
+        message: 'Reserva creada exitosamente'
+      });
 
     } catch (error) {
       console.error('❌ Error al crear reserva:', error);
-      return res.status(500).json({ error: 'Error al crear la reserva' });
+      return res.status(500).json({ 
+        error: 'Error interno del servidor al crear la reserva',
+        details: error instanceof Error ? error.message : 'Error desconocido'
+      });
     }
   }
 
