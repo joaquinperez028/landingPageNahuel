@@ -102,20 +102,38 @@ export async function createTrainingEvent(
     const calendar = await getAdminCalendarClient();
     const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
     
+    // CORREGIDO: Crear fechas en formato RFC3339 con timezone específico
+    const timezone = process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo';
+    
+    // Convertir la fecha UTC a fecha local de Uruguay
+    const startLocalTime = startDate.toLocaleString('sv-SE', { timeZone: timezone });
+    const endLocalTime = endDate.toLocaleString('sv-SE', { timeZone: timezone });
+    
+    // Crear fechas en formato RFC3339 para Uruguay
+    const startDateTime = `${startLocalTime.replace(' ', 'T')}`;
+    const endDateTime = `${endLocalTime.replace(' ', 'T')}`;
+    
+    console.log('🕒 Conversión de timezone (entrenamiento):', {
+      originalUTC: startDate.toISOString(),
+      localTime: startLocalTime,
+      finalDateTime: startDateTime,
+      timezone: timezone
+    });
+    
     // Crear ID único para evitar conflictos con eventos existentes
     const uniqueId = Date.now().toString();
-    const formattedDate = startDate.toLocaleDateString('es-ES');
+    const formattedDate = startDate.toLocaleDateString('es-ES', { timeZone: timezone });
 
     const event = {
       summary: `${trainingName} - ${userEmail} - ${formattedDate} (${uniqueId})`,
       description: `Entrenamiento de trading reservado por: ${userEmail}\n\nTipo: ${trainingName}\nDuración: ${durationMinutes} minutos\n\nID único: ${uniqueId}`,
       start: {
-        dateTime: startDate.toISOString(),
-        timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo',
+        dateTime: startDateTime,
+        timeZone: timezone,
       },
       end: {
-        dateTime: endDate.toISOString(),
-        timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo',
+        dateTime: endDateTime,
+        timeZone: timezone,
       },
       attendees: [
         {
@@ -141,11 +159,14 @@ export async function createTrainingEvent(
     };
 
     console.log('📤 Enviando evento de entrenamiento a Google Calendar API...');
-    console.log('🎯 Calendar ID:', await getCorrectCalendarId(calendar));
+    
+    // Obtener el calendar ID correcto
+    const calendarId = await getCorrectCalendarId(calendar);
+    console.log('🎯 Calendar ID:', calendarId);
     console.log('📋 Resumen del evento:', event.summary);
 
     const response = await calendar.events.insert({
-      calendarId: await getCorrectCalendarId(calendar),
+      calendarId: calendarId,
       requestBody: event,
     });
 
@@ -180,21 +201,43 @@ export async function createAdvisoryEvent(
     const calendar = await getAdminCalendarClient();
     const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
     
+    // CORREGIDO: Crear fechas en formato RFC3339 con timezone específico
+    const timezone = process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo';
+    
+    // Convertir la fecha UTC a fecha local de Uruguay
+    const startLocalTime = startDate.toLocaleString('sv-SE', { timeZone: timezone });
+    const endLocalTime = endDate.toLocaleString('sv-SE', { timeZone: timezone });
+    
+    // Crear fechas en formato RFC3339 para Uruguay
+    const startDateTime = `${startLocalTime.replace(' ', 'T')}`;
+    const endDateTime = `${endLocalTime.replace(' ', 'T')}`;
+    
+    console.log('🕒 Conversión de timezone:', {
+      originalUTC: startDate.toISOString(),
+      localTime: startLocalTime,
+      finalDateTime: startDateTime,
+      timezone: timezone
+    });
+    
     // Crear ID único para evitar conflictos con eventos existentes
     const uniqueId = Date.now().toString();
-    const formattedDate = startDate.toLocaleDateString('es-ES');
-    const formattedTime = startDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    const formattedDate = startDate.toLocaleDateString('es-ES', { timeZone: timezone });
+    const formattedTime = startDate.toLocaleTimeString('es-ES', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      timeZone: timezone
+    });
 
     const event = {
       summary: `${advisoryName} - ${userEmail} - ${formattedDate} ${formattedTime} (${uniqueId})`,
       description: `Asesoría financiera reservada por: ${userEmail}\n\nTipo: ${advisoryName}\nDuración: ${durationMinutes} minutos\n\nFecha: ${formattedDate} a las ${formattedTime}\nID único: ${uniqueId}\n\nLink de reunión: [Se enviará por email]`,
       start: {
-        dateTime: startDate.toISOString(),
-        timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo',
+        dateTime: startDateTime,
+        timeZone: timezone,
       },
       end: {
-        dateTime: endDate.toISOString(),
-        timeZone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo',
+        dateTime: endDateTime,
+        timeZone: timezone,
       },
       attendees: [
         {
@@ -220,11 +263,23 @@ export async function createAdvisoryEvent(
     };
 
     console.log('📤 Enviando evento a Google Calendar API...');
-    console.log('🎯 Calendar ID:', await getCorrectCalendarId(calendar));
+
+    // Obtener el calendar ID correcto
+    const calendarId = await getCorrectCalendarId(calendar);
+    console.log(`🧪 Probando acceso al calendario: ${calendarId}`);
+    
+    try {
+      await calendar.calendars.get({ calendarId: calendarId });
+      console.log(`✅ Calendario ${calendarId} accesible`);
+    } catch (error: any) {
+      console.log(`⚠️ Error accediendo al calendario ${calendarId}:`, error.message);
+    }
+
+    console.log('🎯 Calendar ID:', calendarId);
     console.log('📋 Resumen del evento:', event.summary);
 
     const response = await calendar.events.insert({
-      calendarId: await getCorrectCalendarId(calendar),
+      calendarId: calendarId,
       requestBody: event,
     });
 
