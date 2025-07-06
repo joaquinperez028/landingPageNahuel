@@ -26,6 +26,8 @@ export default function AdminBulkEmailPage() {
     message: '',
     recipients: 'all' // all, suscriptores, admins
   });
+  const [testEmail, setTestEmail] = useState('');
+  const [testLoading, setTestLoading] = useState(false);
 
   const sendBulkEmail = async () => {
     if (!emailData.subject.trim() || !emailData.message.trim()) {
@@ -56,6 +58,37 @@ export default function AdminBulkEmailPage() {
       toast.error('Error al enviar emails');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTestEmail = async (testType: string) => {
+    if (!testEmail.trim()) {
+      toast.error('Por favor ingresa un email válido');
+      return;
+    }
+
+    try {
+      setTestLoading(true);
+      const response = await fetch('/api/admin/email/test-send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ testType, email: testEmail }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast.success(result.message || 'Email de prueba enviado exitosamente');
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Error al enviar email de prueba');
+      }
+    } catch (error) {
+      console.error('Error al enviar email de prueba:', error);
+      toast.error('Error al enviar email de prueba');
+    } finally {
+      setTestLoading(false);
     }
   };
 
@@ -223,6 +256,88 @@ export default function AdminBulkEmailPage() {
                 <div className={styles.statInfo}>
                   <h3>Eficiente</h3>
                   <p>Comunicación Directa</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Test de Emails de Reservas */}
+            <div className={styles.tableContainer} style={{ marginTop: '2rem' }}>
+              <div style={{ padding: '2rem' }}>
+                <div className={styles.subscriptionStats}>
+                  <h3>🧪 Test de Emails de Reservas</h3>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                    Prueba los emails de confirmación de reservas y notificaciones
+                  </p>
+                  
+                  <div className={styles.filtersSection}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      {/* Test Email Input */}
+                      <div className={styles.formGroup}>
+                        <label style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', display: 'block' }}>
+                          📧 Email de Prueba
+                        </label>
+                        <input
+                          type="email"
+                          value={testEmail}
+                          onChange={(e) => setTestEmail(e.target.value)}
+                          placeholder="usuario@ejemplo.com"
+                          className={styles.searchInput}
+                          style={{ width: '100%', maxWidth: '400px' }}
+                        />
+                      </div>
+
+                      {/* Test Buttons */}
+                      <div className={styles.formGroup}>
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => handleTestEmail('simple')}
+                            disabled={testLoading || !testEmail}
+                            className={`${styles.actionButton} ${styles.primary}`}
+                            style={{ width: 'auto' }}
+                          >
+                            <CheckCircle size={20} />
+                            {testLoading ? 'Enviando...' : '📧 Test Simple'}
+                          </button>
+                          
+                          <button
+                            onClick={() => handleTestEmail('advisory_confirmation')}
+                            disabled={testLoading || !testEmail}
+                            className={`${styles.actionButton} ${styles.secondary}`}
+                            style={{ width: 'auto' }}
+                          >
+                            <Mail size={20} />
+                            {testLoading ? 'Enviando...' : '🩺 Test Confirmación Asesoría'}
+                          </button>
+                          
+                          <button
+                            onClick={() => handleTestEmail('admin_notification')}
+                            disabled={testLoading || !testEmail}
+                            className={`${styles.actionButton} ${styles.tertiary}`}
+                            style={{ width: 'auto' }}
+                          >
+                            <AlertCircle size={20} />
+                            {testLoading ? 'Enviando...' : '🔔 Test Notificación Admin'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Test Info */}
+                  <div className={styles.subscriptionCard} style={{ marginTop: '2rem', backgroundColor: 'rgba(16, 185, 129, 0.1)' }}>
+                    <div className={styles.subscriptionIcon} style={{ backgroundColor: '#10b981' }}>
+                      <CheckCircle size={20} />
+                    </div>
+                    <div className={styles.subscriptionInfo}>
+                      <h4>Información de Test</h4>
+                      <ul style={{ marginTop: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                        <li>• <strong>Test Simple:</strong> Email básico de prueba para verificar configuración SMTP</li>
+                        <li>• <strong>Test Confirmación Asesoría:</strong> Email que recibe el usuario al reservar una asesoría</li>
+                        <li>• <strong>Test Notificación Admin:</strong> Email que recibe el administrador cuando hay una nueva reserva</li>
+                        <li>• Los emails de test usan datos de ejemplo</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

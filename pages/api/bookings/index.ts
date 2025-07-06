@@ -305,6 +305,63 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // No fallar la reserva si la invalidación de caché falla
       }
 
+      // ✅ NUEVO: Enviar notificaciones por email
+      try {
+        console.log('📧 Enviando notificaciones por email...');
+        
+        // Formatear fecha y hora para los emails
+        const formattedDate = startDateTime.toLocaleDateString('es-ES', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'America/Montevideo'
+        });
+        
+        const formattedTime = startDateTime.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'America/Montevideo'
+        });
+
+        const emailDetails = {
+          type: eventName,
+          date: formattedDate,
+          time: formattedTime,
+          duration,
+          price
+        };
+
+        // Enviar email de confirmación al usuario
+        if (type === 'training') {
+          console.log('📧 Enviando email de confirmación de entrenamiento...');
+          await sendTrainingConfirmationEmail(userEmail, userName, emailDetails);
+        } else {
+          console.log('📧 Enviando email de confirmación de asesoría...');
+          await sendAdvisoryConfirmationEmail(userEmail, userName, emailDetails);
+        }
+
+        // Enviar notificación al administrador
+        console.log('📧 Enviando notificación al administrador...');
+        await sendAdminNotificationEmail({
+          userEmail,
+          userName,
+          type,
+          serviceType: serviceType || eventName,
+          date: formattedDate,
+          time: formattedTime,
+          duration,
+          price
+        });
+
+        console.log('✅ Notificaciones por email enviadas exitosamente');
+
+      } catch (emailError) {
+        console.error('❌ Error al enviar notificaciones por email:', emailError);
+        // No fallar la reserva si los emails fallan
+        console.log('⚠️ La reserva se completó exitosamente, pero hubo problemas con las notificaciones por email');
+      }
+
       console.log('✅ Reserva creada exitosamente:', newBooking._id);
       return res.status(201).json({ 
         success: true, 
