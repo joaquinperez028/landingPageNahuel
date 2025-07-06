@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/mongodb';
 import Booking from '@/models/Booking';
+import AvailableSlot from '@/models/AvailableSlot';
 import { z } from 'zod';
 
 // Cache para verificación de disponibilidad
@@ -112,7 +113,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ]
     }, '_id startDate endDate userEmail serviceType').lean();
 
-    const isAvailable = conflictingBookings.length === 0;
+    // **NUEVO: Verificar también en AvailableSlot**
+    const dateStr = `${String(targetDate.getDate()).padStart(2, '0')}/${String(targetDate.getMonth() + 1).padStart(2, '0')}/${targetDate.getFullYear()}`;
+    
+    console.log(`🔍 Verificando AvailableSlot: ${dateStr} ${horario} (${serviceType})`);
+    
+    const availableSlot = await AvailableSlot.findOne({
+      date: dateStr,
+      time: horario,
+      serviceType: serviceType
+    }).lean();
+
+    // Determinar disponibilidad considerando AMBOS sistemas
+    const hasBookingConflicts = conflictingBookings.length > 0;
+    const hasAvailableSlot = !!(availableSlot && (availableSlot as any).available === true);
+
+    // Si existe un AvailableSlot, usarlo como fuente de verdad
+    // Si no existe, usar el sistema legacy de verificación de conflictos en Booking
+    const isAvailable = availableSlot ? hasAvailableSlot : !hasBookingConflicts;
+
+    console.log(`📊 Resultado de verificación:`);
+    console.log(`   - AvailableSlot encontrado: ${!!availableSlot}`);
+    console.log(`   - AvailableSlot.available: ${(availableSlot as any)?.available}`);
+    console.log(`   - Conflictos en Booking: ${hasBookingConflicts}`);
+    console.log(`   - Disponible final: ${isAvailable}`);
 
     // **DEBUG: Log detallado si hay conflictos**
     if (conflictingBookings.length > 0) {

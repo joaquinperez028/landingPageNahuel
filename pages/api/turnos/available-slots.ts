@@ -51,10 +51,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const [day, month, year] = slot.date.split('/').map(Number);
         const [hour, minute] = slot.time.split(':').map(Number);
         
+        // Crear fecha en timezone local (no UTC)
         const slotDate = new Date(year, month - 1, day, hour, minute);
         const now = new Date();
         
-        const isFuture = slotDate > now;
+        // Agregar un buffer de 5 minutos para evitar problemas de precisión
+        const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000);
+        
+        const isFuture = slotDate > fiveMinutesFromNow;
+        
+        // Log detallado para debug
+        console.log(`🕐 Comparando: ${slot.date} ${slot.time}`);
+        console.log(`   SlotDate: ${slotDate.toISOString()} (Local: ${slotDate.toLocaleString('es-ES', { timeZone: 'America/Montevideo' })})`);
+        console.log(`   Now: ${now.toISOString()} (Local: ${now.toLocaleString('es-ES', { timeZone: 'America/Montevideo' })})`);
+        console.log(`   Buffer: ${fiveMinutesFromNow.toISOString()}`);
+        console.log(`   ¿Es futuro?: ${isFuture} (available: ${slot.available})`);
         
         if (!isFuture) {
           console.log(`⏭️ Saltando horario pasado: ${slot.date} ${slot.time}`);
