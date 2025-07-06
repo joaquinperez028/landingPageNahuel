@@ -336,7 +336,13 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       const booking = await createBooking(bookingData);
 
       if (booking) {
-        console.log('✅ Reserva creada exitosamente, recargando turnos...');
+        console.log('✅ Reserva creada exitosamente');
+        
+        // ✅ SOLUCIÓN OPTIMIZADA: Actualización inmediata de la UI sin recargas múltiples
+        console.log('🔄 Actualizando interfaz inmediatamente...');
+        
+        // Guardar datos de la reserva antes de limpiar la selección
+        const reservedSlotData = { date: selectedDate, time: selectedTime };
         
         // Actualizar inmediatamente la UI removiendo el turno reservado
         setProximosTurnos(prevTurnos => 
@@ -353,47 +359,24 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
           }).filter(turno => turno.disponibles > 0) // Remover días sin turnos disponibles
         );
         
-        // 🚀 SOLUCIÓN MEJORADA: Forzar múltiples recargas para asegurar sincronización
-        console.log('🔄 Iniciando proceso de sincronización de turnos...');
-        
-        // Esperar un momento para que la base de datos se actualice
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Invalidar caché del servidor
-        try {
-          await fetch('/api/turnos/invalidate-cache', { method: 'POST' });
-          console.log('✅ Caché del servidor invalidado');
-        } catch (error) {
-          console.log('⚠️ Error al invalidar caché del servidor:', error);
-        }
-        
-        // Hacer múltiples recargas para asegurar sincronización
-        for (let i = 0; i < 5; i++) {
-          console.log(`🔄 Recarga ${i + 1}/5 de turnos...`);
-          await loadProximosTurnos(true); // Forzar recarga sin caché
-          
-          // Verificar si el turno reservado ya no está disponible
-          const turnosActuales = await fetch(`/api/turnos/generate?type=advisory&advisoryType=ConsultorioFinanciero&clearCache=true&timestamp=${Date.now()}`);
-          const data = await turnosActuales.json();
-          
-          const turnoReservado = data.turnos?.find((t: any) => t.fecha === selectedDate)?.horarios?.includes(selectedTime);
-          
-          if (!turnoReservado) {
-            console.log('✅ Turno reservado confirmado como no disponible');
-            break;
-          }
-          
-          if (i < 4) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-        }
-        
+        // Limpiar selección inmediatamente
         setSelectedDate('');
         setSelectedTime('');
-        console.log('🔄 Proceso de sincronización completado');
         
-        // Guardar datos de la reserva y mostrar modal de éxito
-        setReservedSlot({ date: selectedDate, time: selectedTime });
+        // Invalidar caché del servidor (async, sin esperar)
+        fetch('/api/turnos/invalidate-cache', { method: 'POST' })
+          .then(() => console.log('✅ Caché del servidor invalidado'))
+          .catch(error => console.log('⚠️ Error al invalidar caché:', error));
+        
+        // ✅ MEJORADO: Una sola recarga final para confirmar sincronización (sin bloquear UI)
+        setTimeout(async () => {
+          console.log('🔄 Sincronización final en segundo plano...');
+          await loadProximosTurnos(true);
+          console.log('✅ Sincronización final completada');
+        }, 2000);
+        
+        // Mostrar modal de éxito inmediatamente
+        setReservedSlot(reservedSlotData);
         setShowSuccessModal(true);
       }
     } catch (error: any) {
