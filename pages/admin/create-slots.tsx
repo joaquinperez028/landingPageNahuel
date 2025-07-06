@@ -17,7 +17,7 @@ const CreateSlotsPage = () => {
     timeSlots: ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00'],
     price: 199,
     duration: 60,
-    skipWeekends: true,
+    skipWeekends: false,
     skipExisting: true
   });
 
@@ -44,6 +44,23 @@ const CreateSlotsPage = () => {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  };
+
+  // Función para obtener el día de la semana de una fecha DD/MM/YYYY
+  const getDayOfWeek = (dateStr: string): string => {
+    if (!dateStr) return '';
+    const [day, month, year] = dateStr.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    return days[date.getDay()];
+  };
+
+  // Función para verificar si es fin de semana
+  const isWeekend = (dateStr: string): boolean => {
+    if (!dateStr) return false;
+    const [day, month, year] = dateStr.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.getDay() === 0 || date.getDay() === 6; // 0 = domingo, 6 = sábado
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -274,12 +291,48 @@ const CreateSlotsPage = () => {
                 borderRadius: 'var(--border-radius)',
                 border: '1px solid rgba(0, 255, 136, 0.3)'
               }}>
-                <p style={{ color: 'var(--primary-color)', margin: 0, fontSize: '0.9rem' }}>
+                <p style={{ color: 'var(--primary-color)', margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>
                   ℹ️ Se crearán horarios desde <strong>{formData.startDate}</strong> hasta <strong>{formData.endDate}</strong>
                   {formData.startDate === formData.endDate && (
                     <span style={{ color: 'var(--text-secondary)' }}> (un solo día)</span>
                   )}
                 </p>
+                
+                {/* Mostrar día de la semana */}
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                  {formData.startDate && (
+                    <p style={{ margin: '0.25rem 0' }}>
+                      📅 <strong>{formData.startDate}</strong> es {getDayOfWeek(formData.startDate)}
+                      {isWeekend(formData.startDate) && (
+                        <span style={{ color: '#f59e0b', fontWeight: 'bold' }}> (fin de semana)</span>
+                      )}
+                    </p>
+                  )}
+                  {formData.endDate && formData.startDate !== formData.endDate && (
+                    <p style={{ margin: '0.25rem 0' }}>
+                      📅 <strong>{formData.endDate}</strong> es {getDayOfWeek(formData.endDate)}
+                      {isWeekend(formData.endDate) && (
+                        <span style={{ color: '#f59e0b', fontWeight: 'bold' }}> (fin de semana)</span>
+                      )}
+                    </p>
+                  )}
+                </div>
+                
+                {/* Alerta si es fin de semana y skip weekends está activado */}
+                {(isWeekend(formData.startDate) || isWeekend(formData.endDate)) && formData.skipWeekends && (
+                  <div style={{ 
+                    marginTop: '0.75rem', 
+                    padding: '0.75rem', 
+                    background: 'rgba(255, 193, 7, 0.1)', 
+                    borderRadius: '0.5rem',
+                    border: '1px solid rgba(255, 193, 7, 0.3)'
+                  }}>
+                    <p style={{ color: '#f59e0b', margin: 0, fontSize: '0.85rem' }}>
+                      ⚠️ <strong>Atención:</strong> Tienes activado "Saltar fines de semana" y has seleccionado fecha(s) de fin de semana. 
+                      Estos días serán saltados automáticamente.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -408,12 +461,42 @@ const CreateSlotsPage = () => {
             <div className={styles.success} style={{ marginTop: '2rem' }}>
               <CheckCircle size={20} />
               <div style={{ marginLeft: '0.5rem' }}>
-                <h3>✅ Horarios creados exitosamente</h3>
-                <div style={{ marginTop: '1rem' }}>
-                  <p><strong>Creados:</strong> {result.created}</p>
-                  <p><strong>Saltados:</strong> {result.skipped}</p>
-                  <p><strong>Errores:</strong> {result.errors}</p>
+                <h3>✅ Proceso completado</h3>
+                <div style={{ marginTop: '1rem', display: 'grid', gap: '0.5rem' }}>
+                  <p><strong>✅ Creados:</strong> {result.created}</p>
+                  <p><strong>⏭️ Saltados:</strong> {result.skipped}</p>
+                  <p><strong>❌ Errores:</strong> {result.errors}</p>
                 </div>
+                
+                {/* Información adicional cuando no se crearon horarios */}
+                {result.created === 0 && (
+                  <div style={{ 
+                    marginTop: '1rem', 
+                    padding: '1rem', 
+                    background: 'rgba(255, 193, 7, 0.1)', 
+                    borderRadius: 'var(--border-radius)',
+                    border: '1px solid rgba(255, 193, 7, 0.3)'
+                  }}>
+                    <h4 style={{ color: '#ffc107', margin: '0 0 0.5rem 0', fontSize: '1rem' }}>
+                      ⚠️ No se crearon horarios
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                      Posibles razones:
+                    </p>
+                    <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                      {result.config.skipWeekends && (
+                        <li>La fecha seleccionada es fin de semana y tienes activado "Saltar fines de semana"</li>
+                      )}
+                      {result.config.skipExisting && (
+                        <li>Los horarios ya existen y tienes activado "Saltar horarios existentes"</li>
+                      )}
+                      <li>La fecha seleccionada no cumple con los criterios configurados</li>
+                    </ul>
+                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                      💡 <strong>Sugerencia:</strong> Desactiva "Saltar fines de semana" si quieres crear horarios en sábado/domingo
+                    </p>
+                  </div>
+                )}
                 
                 {result.details.createdSlots.length > 0 && (
                   <details style={{ marginTop: '1rem' }}>
@@ -424,6 +507,20 @@ const CreateSlotsPage = () => {
                       ))}
                       {result.details.createdSlots.length > 10 && (
                         <div>... y {result.details.createdSlots.length - 10} más</div>
+                      )}
+                    </div>
+                  </details>
+                )}
+                
+                {result.details.skippedSlots.length > 0 && (
+                  <details style={{ marginTop: '1rem' }}>
+                    <summary>Ver horarios saltados ({result.details.skippedSlots.length})</summary>
+                    <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                      {result.details.skippedSlots.slice(0, 10).map((slot: string, index: number) => (
+                        <div key={index}>• {slot}</div>
+                      ))}
+                      {result.details.skippedSlots.length > 10 && (
+                        <div>... y {result.details.skippedSlots.length - 10} más</div>
                       )}
                     </div>
                   </details>
