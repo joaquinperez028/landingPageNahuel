@@ -303,21 +303,23 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       return;
     }
     
-    // Agregar la hora seleccionada - CORREGIDO: Usar hora local directamente
+    // Agregar la hora seleccionada - CORREGIDO: Agregar 3 horas para UTC
     const [hour, minute] = selectedTime.split(':').map(Number);
     
-    // SOLUCIÓN: Crear fecha en hora local de Uruguay (sin UTC)
-    // Esto evita la doble conversión de timezone en el backend
-    targetDate.setHours(hour, minute, 0, 0);
-    
-    // Ajustar por timezone de Uruguay manualmente para enviar ISO correcto
-    // Uruguay es UTC-3, entonces 15:00 local debe ser 18:00 UTC
-    const uruguayOffsetMinutes = 3 * 60; // 3 horas en minutos
-    const utcDate = new Date(targetDate.getTime() + uruguayOffsetMinutes * 60000);
+    // SOLUCIÓN: Crear fecha UTC agregando 3 horas (Uruguay es UTC-3)
+    // 16:00 local → 19:00 UTC para que Google Calendar muestre 16:00 local
+    const utcDate = new Date(Date.UTC(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate(),
+      hour + 3, // Agregar 3 horas para UTC
+      minute,
+      0,
+      0
+    ));
 
     console.log(`🎯 Fecha y hora final para reserva: ${utcDate.toISOString()}`);
     console.log(`📍 Hora local esperada: ${selectedTime}`);
-    console.log(`📍 Hora local creada: ${targetDate.toLocaleString('es-ES')}`);
     console.log(`📍 Hora UTC enviada: ${utcDate.getUTCHours()}:${String(utcDate.getUTCMinutes()).padStart(2, '0')}`);
 
     const bookingData = {

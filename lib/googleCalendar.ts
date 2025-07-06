@@ -186,16 +186,16 @@ export async function createAdvisoryEvent(
       advisoryName,
       startDate: startDate.toISOString(),
       durationMinutes,
-      timezone: process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo'
+      timezone: 'America/Montevideo'
     });
 
     const calendar = await getAdminCalendarClient();
     const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
     
-    // CORREGIDO: Usar fechas UTC directamente (ya vienen ajustadas del frontend)
-    const timezone = process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo';
+    // CORREGIDO: Usar America/Montevideo para mostrar hora local correctamente
+    const timezone = 'America/Montevideo';
     
-    console.log('🕒 Usando fechas UTC directamente:', {
+    console.log('🕒 Usando fechas UTC con timezone local:', {
       startDateUTC: startDate.toISOString(),
       endDateUTC: endDate.toISOString(),
       timezone: timezone
