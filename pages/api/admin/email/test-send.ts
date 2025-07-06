@@ -23,6 +23,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('📧 Iniciando test de email:', testType);
     console.log('📧 Email destino:', email);
+    
+    // AGREGADO: Debug de variables de entorno
+    console.log('📧 Variables de entorno de email:', {
+      SMTP_HOST: process.env.SMTP_HOST,
+      SMTP_PORT: process.env.SMTP_PORT,
+      SMTP_USER: process.env.SMTP_USER,
+      EMAIL_FROM_ADDRESS: process.env.EMAIL_FROM_ADDRESS,
+      EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME,
+      ADMIN_EMAIL: process.env.ADMIN_EMAIL
+    });
 
     // Verificar configuración
     const isConfigured = await verifyEmailConfiguration();

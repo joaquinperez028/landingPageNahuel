@@ -85,7 +85,19 @@ export async function sendAdminNotificationEmail(
 
     const html = createAdminNotificationTemplate(bookingDetails);
     
-    const adminEmail = process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'admin@lozanonahuel.com';
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER;
+    
+    if (!adminEmail) {
+      console.error('❌ No se encontró email válido para el administrador');
+      console.error('📧 Variables disponibles:', {
+        ADMIN_EMAIL: !!process.env.ADMIN_EMAIL,
+        SMTP_USER: !!process.env.SMTP_USER,
+        EMAIL_FROM_ADDRESS: process.env.EMAIL_FROM_ADDRESS
+      });
+      throw new Error('Email del administrador no configurado');
+    }
+    
+    console.log('📧 Enviando notificación al admin:', adminEmail);
     
     await sendEmail({
       to: adminEmail,
