@@ -23,6 +23,29 @@ const CreateSlotsPage = () => {
 
   const [result, setResult] = useState<any>(null);
 
+  // Función para convertir de DD/MM/YYYY a YYYY-MM-DD (formato HTML5)
+  const formatDateForInput = (dateStr: string): string => {
+    if (!dateStr) return '';
+    const [day, month, year] = dateStr.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  };
+
+  // Función para convertir de YYYY-MM-DD a DD/MM/YYYY (formato esperado por API)
+  const formatDateForAPI = (dateStr: string): string => {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
+  };
+
+  // Obtener fecha mínima (hoy) en formato YYYY-MM-DD
+  const getMinDate = (): string => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -69,6 +92,28 @@ const CreateSlotsPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const htmlDate = e.target.value;
+    const apiDate = formatDateForAPI(htmlDate);
+    
+    setFormData(prev => ({
+      ...prev,
+      startDate: apiDate,
+      // Siempre establecer fecha de fin igual a fecha de inicio para facilitar selección de un solo día
+      endDate: apiDate
+    }));
+  };
+
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const htmlDate = e.target.value;
+    const apiDate = formatDateForAPI(htmlDate);
+    
+    setFormData(prev => ({
+      ...prev,
+      endDate: apiDate
+    }));
   };
 
   const handleTimeSlotChange = (index: number, value: string) => {
@@ -175,14 +220,14 @@ const CreateSlotsPage = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
                 <label htmlFor="startDate" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
-                  Fecha Inicio (DD/MM/YYYY)
+                  📅 Fecha de Inicio
                 </label>
                 <input
-                  type="text"
+                  type="date"
                   id="startDate"
-                  value={formData.startDate}
-                  onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
-                  placeholder="07/01/2025"
+                  value={formatDateForInput(formData.startDate)}
+                  onChange={handleStartDateChange}
+                  min={getMinDate()}
                   style={{ 
                     width: '100%', 
                     padding: '0.75rem', 
@@ -192,17 +237,20 @@ const CreateSlotsPage = () => {
                     color: 'var(--text-primary)'
                   }}
                 />
+                <small style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.25rem', display: 'block' }}>
+                  Primer día para crear horarios
+                </small>
               </div>
               <div>
                 <label htmlFor="endDate" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
-                  Fecha Fin (DD/MM/YYYY)
+                  📅 Fecha de Fin
                 </label>
                 <input
-                  type="text"
+                  type="date"
                   id="endDate"
-                  value={formData.endDate}
-                  onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
-                  placeholder="31/01/2025"
+                  value={formatDateForInput(formData.endDate)}
+                  onChange={handleEndDateChange}
+                  min={formData.startDate ? formatDateForInput(formData.startDate) : getMinDate()}
                   style={{ 
                     width: '100%', 
                     padding: '0.75rem', 
@@ -212,8 +260,28 @@ const CreateSlotsPage = () => {
                     color: 'var(--text-primary)'
                   }}
                 />
+                <small style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.25rem', display: 'block' }}>
+                  Último día para crear horarios
+                </small>
               </div>
             </div>
+            
+            {/* Información adicional sobre el rango de fechas */}
+            {formData.startDate && formData.endDate && (
+              <div style={{ 
+                padding: '1rem', 
+                background: 'rgba(0, 255, 136, 0.1)', 
+                borderRadius: 'var(--border-radius)',
+                border: '1px solid rgba(0, 255, 136, 0.3)'
+              }}>
+                <p style={{ color: 'var(--primary-color)', margin: 0, fontSize: '0.9rem' }}>
+                  ℹ️ Se crearán horarios desde <strong>{formData.startDate}</strong> hasta <strong>{formData.endDate}</strong>
+                  {formData.startDate === formData.endDate && (
+                    <span style={{ color: 'var(--text-secondary)' }}> (un solo día)</span>
+                  )}
+                </p>
+              </div>
+            )}
 
             {/* Horarios */}
             <div>

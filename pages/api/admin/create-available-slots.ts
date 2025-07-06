@@ -55,10 +55,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const start = new Date(startYear, startMonth - 1, startDay);
     const end = new Date(endYear, endMonth - 1, endDay);
 
-    if (start >= end) {
+    if (start > end) {
       return res.status(400).json({
         error: 'Fechas inválidas',
-        message: 'La fecha de inicio debe ser anterior a la fecha de fin'
+        message: 'La fecha de inicio debe ser anterior o igual a la fecha de fin'
       });
     }
 
