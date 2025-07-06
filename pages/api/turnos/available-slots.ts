@@ -31,43 +31,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       year: 'numeric'
     });
 
-    // Obtener horarios disponibles
+    console.log(`📅 Fecha actual: ${todayStr}`);
+
+    // Obtener horarios disponibles - consulta simplificada
     const availableSlots = await AvailableSlot.find({
       serviceType,
-      available: true,
-      // Solo obtener horarios futuros
-      $expr: {
-        $gte: [
-          {
-            $dateFromString: {
-              dateString: {
-                $concat: [
-                  { $substr: ["$date", 6, 4] }, // año
-                  "-",
-                  { $substr: ["$date", 3, 2] }, // mes
-                  "-",
-                  { $substr: ["$date", 0, 2] }, // día
-                  "T",
-                  "$time",
-                  ":00.000Z"
-                ]
-              }
-            }
-          },
-          new Date()
-        ]
-      }
+      available: true
     })
     .sort({ date: 1, time: 1 })
     .limit(parseInt(limit as string))
     .lean();
 
-    console.log(`📊 Encontrados ${availableSlots.length} horarios disponibles`);
+    console.log(`📊 Encontrados ${availableSlots.length} horarios disponibles (antes de filtrar por fecha)`);
+
+    // Filtrar fechas futuras en JavaScript (más confiable)
+    const futureSlots = availableSlots.filter(slot => {
+      try {
+        // Convertir fecha DD/MM/YYYY a Date para comparación
+        const [day, month, year] = slot.date.split('/').map(Number);
+        const [hour, minute] = slot.time.split(':').map(Number);
+        
+        const slotDate = new Date(year, month - 1, day, hour, minute);
+        const now = new Date();
+        
+        const isFuture = slotDate > now;
+        
+        if (!isFuture) {
+          console.log(`⏭️ Saltando horario pasado: ${slot.date} ${slot.time}`);
+        }
+        
+        return isFuture;
+      } catch (error) {
+        console.error(`❌ Error procesando fecha: ${slot.date} ${slot.time}`, error);
+        return false;
+      }
+    });
+
+    console.log(`📊 Horarios futuros: ${futureSlots.length}`);
 
     // Agrupar por fecha
     const turnosPorFecha = new Map<string, string[]>();
     
-    availableSlots.forEach(slot => {
+    futureSlots.forEach(slot => {
       if (!turnosPorFecha.has(slot.date)) {
         turnosPorFecha.set(slot.date, []);
       }
@@ -88,7 +93,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json({
       success: true,
       turnos,
-      total: availableSlots.length,
+      total: futureSlots.length,
       dias: turnos.length,
       serviceType,
       source: 'database_direct',
