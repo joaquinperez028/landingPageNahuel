@@ -303,16 +303,28 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       return;
     }
     
-    // Agregar la hora seleccionada
+    // Agregar la hora seleccionada - CORREGIDO: Usar UTC para consistencia
     const [hour, minute] = selectedTime.split(':').map(Number);
-    targetDate.setHours(hour, minute, 0, 0);
+    
+    // SOLUCIÓN: Crear fecha en UTC directamente para evitar problemas de timezone
+    const utcDate = new Date(Date.UTC(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate(),
+      hour,
+      minute,
+      0,
+      0
+    ));
 
-    console.log(`🎯 Fecha y hora final para reserva: ${targetDate.toISOString()}`);
+    console.log(`🎯 Fecha y hora final para reserva: ${utcDate.toISOString()}`);
+    console.log(`📍 Hora local esperada: ${selectedTime}`);
+    console.log(`📍 Hora UTC enviada: ${utcDate.getUTCHours()}:${String(utcDate.getUTCMinutes()).padStart(2, '0')}`);
 
     const bookingData = {
       type: 'advisory' as const,
       serviceType: 'ConsultorioFinanciero' as const,
-      startDate: targetDate.toISOString(),
+      startDate: utcDate.toISOString(),
       duration: 60,
       price: 199,
       notes: `Reserva desde página de Consultorio Financiero - ${selectedDate} a las ${selectedTime}`

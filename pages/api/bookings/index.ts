@@ -93,18 +93,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const dateStr = startDateTime.toLocaleDateString('es-ES', {
         day: '2-digit',
         month: '2-digit',
-        year: 'numeric'
+        year: 'numeric',
+        timeZone: 'America/Montevideo'
       });
       const timeStr = startDateTime.toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false
+        hour12: false,
+        timeZone: 'America/Montevideo'
       });
 
       console.log('🔍 Verificando disponibilidad en AvailableSlot:', {
         date: dateStr,
         time: timeStr,
-        serviceType
+        serviceType,
+        startDateUTC: startDateTime.toISOString(),
+        startDateLocal: startDateTime.toLocaleString('es-ES', { timeZone: 'America/Montevideo' })
       });
 
       // Verificar si el horario está disponible en AvailableSlot
