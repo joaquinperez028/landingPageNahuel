@@ -90,17 +90,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       // ✅ NUEVO: Verificar disponibilidad en AvailableSlot PRIMERO
+      // CORREGIDO: Convertir de UTC a hora local para buscar el slot correcto
+      const timezone = 'America/Montevideo';
+      
       const dateStr = startDateTime.toLocaleDateString('es-ES', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-        timeZone: 'UTC'
+        timeZone: timezone
       });
       const timeStr = startDateTime.toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
-        timeZone: 'UTC'
+        timeZone: timezone
       });
 
       console.log('🔍 Verificando disponibilidad en AvailableSlot:', {
@@ -108,8 +111,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         time: timeStr,
         serviceType,
         startDateUTC: startDateTime.toISOString(),
-        startDateLocal: startDateTime.toLocaleString('es-ES', { timeZone: 'America/Montevideo' }),
-        debugInfo: `Buscando slot para ${timeStr} (UTC) que corresponde a ${startDateTime.toLocaleString('es-ES', { timeZone: 'America/Montevideo' })} (Local)`
+        startDateLocal: startDateTime.toLocaleString('es-ES', { timeZone: timezone }),
+        debugInfo: `Buscando slot para ${timeStr} (Local) que corresponde a ${startDateTime.toISOString()} (UTC)`
       });
 
       // Verificar si el horario está disponible en AvailableSlot

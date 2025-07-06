@@ -102,21 +102,12 @@ export async function createTrainingEvent(
     const calendar = await getAdminCalendarClient();
     const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
     
-    // CORREGIDO: Crear fechas en formato RFC3339 con timezone específico
+    // CORREGIDO: Usar fechas UTC directamente (ya vienen ajustadas del frontend)
     const timezone = process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo';
     
-    // Convertir la fecha UTC a fecha local de Uruguay
-    const startLocalTime = startDate.toLocaleString('sv-SE', { timeZone: timezone });
-    const endLocalTime = endDate.toLocaleString('sv-SE', { timeZone: timezone });
-    
-    // Crear fechas en formato RFC3339 para Uruguay
-    const startDateTime = `${startLocalTime.replace(' ', 'T')}`;
-    const endDateTime = `${endLocalTime.replace(' ', 'T')}`;
-    
-    console.log('🕒 Conversión de timezone (entrenamiento):', {
-      originalUTC: startDate.toISOString(),
-      localTime: startLocalTime,
-      finalDateTime: startDateTime,
+    console.log('🕒 Usando fechas UTC directamente (entrenamiento):', {
+      startDateUTC: startDate.toISOString(),
+      endDateUTC: endDate.toISOString(),
       timezone: timezone
     });
     
@@ -128,11 +119,11 @@ export async function createTrainingEvent(
       summary: `${trainingName} - ${userEmail} - ${formattedDate} (${uniqueId})`,
       description: `Entrenamiento de trading reservado por: ${userEmail}\n\nTipo: ${trainingName}\nDuración: ${durationMinutes} minutos\n\nID único: ${uniqueId}`,
       start: {
-        dateTime: startDateTime,
+        dateTime: startDate.toISOString(),
         timeZone: timezone,
       },
       end: {
-        dateTime: endDateTime,
+        dateTime: endDate.toISOString(),
         timeZone: timezone,
       },
       attendees: [
@@ -201,21 +192,12 @@ export async function createAdvisoryEvent(
     const calendar = await getAdminCalendarClient();
     const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
     
-    // CORREGIDO: Crear fechas en formato RFC3339 con timezone específico
+    // CORREGIDO: Usar fechas UTC directamente (ya vienen ajustadas del frontend)
     const timezone = process.env.GOOGLE_CALENDAR_TIMEZONE || 'America/Montevideo';
     
-    // Convertir la fecha UTC a fecha local de Uruguay
-    const startLocalTime = startDate.toLocaleString('sv-SE', { timeZone: timezone });
-    const endLocalTime = endDate.toLocaleString('sv-SE', { timeZone: timezone });
-    
-    // Crear fechas en formato RFC3339 para Uruguay
-    const startDateTime = `${startLocalTime.replace(' ', 'T')}`;
-    const endDateTime = `${endLocalTime.replace(' ', 'T')}`;
-    
-    console.log('🕒 Conversión de timezone:', {
-      originalUTC: startDate.toISOString(),
-      localTime: startLocalTime,
-      finalDateTime: startDateTime,
+    console.log('🕒 Usando fechas UTC directamente:', {
+      startDateUTC: startDate.toISOString(),
+      endDateUTC: endDate.toISOString(),
       timezone: timezone
     });
     
@@ -232,11 +214,11 @@ export async function createAdvisoryEvent(
       summary: `${advisoryName} - ${userEmail} - ${formattedDate} ${formattedTime} (${uniqueId})`,
       description: `Asesoría financiera reservada por: ${userEmail}\n\nTipo: ${advisoryName}\nDuración: ${durationMinutes} minutos\n\nFecha: ${formattedDate} a las ${formattedTime}\nID único: ${uniqueId}\n\nLink de reunión: [Se enviará por email]`,
       start: {
-        dateTime: startDateTime,
+        dateTime: startDate.toISOString(),
         timeZone: timezone,
       },
       end: {
-        dateTime: endDateTime,
+        dateTime: endDate.toISOString(),
         timeZone: timezone,
       },
       attendees: [
