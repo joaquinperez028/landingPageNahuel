@@ -303,10 +303,11 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       return;
     }
     
-    // Agregar la hora seleccionada - CORREGIDO: Usar UTC para consistencia
+    // Agregar la hora seleccionada - CORREGIDO: Usar hora local
     const [hour, minute] = selectedTime.split(':').map(Number);
     
-    // SOLUCIÓN: Crear fecha en UTC directamente para evitar problemas de timezone
+    // SOLUCIÓN: Crear fecha UTC manteniendo la hora local
+    // Esto asegura que 17:00 local se mantenga como 17:00 en el backend
     const utcDate = new Date(Date.UTC(
       targetDate.getFullYear(),
       targetDate.getMonth(),
