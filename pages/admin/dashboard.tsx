@@ -107,6 +107,18 @@ const useDashboardSections = () => {
       ]
     },
     {
+      id: 'slots',
+      title: 'Horarios Disponibles',
+      description: 'Crea y gestiona los horarios disponibles para reservas. Sistema optimizado que evita conflictos y mantiene sincronización automática con las reservas.',
+      icon: <Clock size={32} />,
+      color: 'from-teal-500 to-cyan-500',
+      links: [
+        { label: 'Crear Horarios', href: '/admin/create-slots', icon: <Plus size={16} /> },
+        { label: 'Ver Disponibles', href: '/api/turnos/available-slots?serviceType=ConsultorioFinanciero', icon: <Calendar size={16} /> },
+        { label: 'Limpiar Reservas', href: '/admin/limpiar-reservas', icon: <Trash2 size={16} /> }
+      ]
+    },
+    {
       id: 'courses',
       title: 'Tarjetas de Cursos',
       description: 'Gestiona las tarjetas de cursos personalizadas que aparecen en la sección "Cursos Destacados" del landing page. Crea, edita y administra enlaces a cursos específicos.',
@@ -393,6 +405,10 @@ export default function AdminDashboardPage() {
                 <Link href="/admin/asesorias-horarios" className={`${styles.quickActionCard} ${styles.schedules}`}>
                   <Calendar size={24} />
                   <span>Crear Horarios</span>
+                </Link>
+                <Link href="/admin/create-slots" className={`${styles.quickActionCard} ${styles.slots}`}>
+                  <Plus size={24} />
+                  <span>Crear Slots</span>
                 </Link>
                 <Link href="/admin/limpiar-reservas" className={`${styles.quickActionCard} ${styles.reservas}`}>
                   <Trash2 size={24} />

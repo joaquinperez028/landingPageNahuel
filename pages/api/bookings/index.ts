@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
 import dbConnect from '@/lib/mongodb';
 import Booking from '@/models/Booking';
+import AvailableSlot from '@/models/AvailableSlot';
 import { z } from 'zod';
 import { createTrainingEvent, createAdvisoryEvent } from '@/lib/googleCalendar';
 import { 
@@ -88,7 +89,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       });
 
-      // Verificar que no haya conflictos de horario (bloqueo de 90 minutos)
+      // ✅ NUEVO: Verificar disponibilidad en AvailableSlot PRIMERO
+      const dateStr = startDateTime.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      const timeStr = startDateTime.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+
+      console.log('🔍 Verificando disponibilidad en AvailableSlot:', {
+        date: dateStr,
+        time: timeStr,
+        serviceType
+      });
+
+      // Verificar si el horario está disponible en AvailableSlot
+      const availableSlot = await AvailableSlot.findOne({
+        date: dateStr,
+        time: timeStr,
+        serviceType,
+        available: true
+      });
+
+      if (!availableSlot) {
+        console.log('❌ Horario no disponible en AvailableSlot');
+        return res.status(409).json({ 
+          error: 'Horario no disponible. Este horario ya fue reservado o no existe.',
+          details: {
+            date: dateStr,
+            time: timeStr,
+            serviceType,
+            found: false
+          }
+        });
+      }
+
+      console.log('✅ Horario disponible en AvailableSlot:', availableSlot._id);
+
+      // Verificar que no haya conflictos de horario en Booking (como respaldo)
       const conflictingBookings = await Booking.find({
         status: { $in: ['pending', 'confirmed'] },
         $or: [
@@ -159,6 +201,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         status: 'confirmed', // Por ahora confirmamos automáticamente
         paymentStatus: price ? 'pending' : 'paid'
       });
+
+      console.log('✅ Reserva creada en Booking:', newBooking._id);
+
+      // ✅ NUEVO: Marcar horario como no disponible en AvailableSlot
+      try {
+        console.log('🔒 Marcando horario como no disponible en AvailableSlot...');
+        
+        await AvailableSlot.findByIdAndUpdate(
+          availableSlot._id,
+          {
+            available: false,
+            reservedBy: userEmail,
+            reservedAt: new Date(),
+            bookingId: newBooking._id.toString()
+          }
+        );
+
+        console.log('✅ Horario marcado como no disponible en AvailableSlot');
+      } catch (slotError) {
+        console.error('❌ Error al marcar horario como no disponible:', slotError);
+        
+        // Si falla al marcar el slot, eliminar la reserva creada
+        await Booking.findByIdAndDelete(newBooking._id);
+        
+        return res.status(500).json({ 
+          error: 'Error al procesar la reserva',
+          message: 'No se pudo marcar el horario como ocupado'
+        });
+      }
 
       // Definir nombre del evento
       const eventName = serviceType || (type === 'training' ? 'Entrenamiento de Trading' : 'Asesoría Financiera');

@@ -105,26 +105,19 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   const loadProximosTurnos = async (forceRefresh = false) => {
     try {
       setLoadingTurnos(true);
-      console.log('🚀 Cargando turnos optimizados para Consultorio Financiero...');
+      console.log('🚀 Cargando turnos desde AvailableSlot...');
       
-      // Agregar parámetros para forzar recarga si es necesario
+      // Usar la nueva API que lee directamente desde AvailableSlot
       const params = new URLSearchParams({
-        type: 'advisory',
-        advisoryType: 'ConsultorioFinanciero',
-        days: '15',
-        maxSlotsPerDay: '6'
+        serviceType: 'ConsultorioFinanciero',
+        limit: '50'
       });
       
-      if (forceRefresh) {
-        params.append('clearCache', 'true');
-        params.append('useCache', 'false');
-        params.append('timestamp', Date.now().toString());
-      }
-      
-      const response = await fetch(`/api/turnos/generate?${params.toString()}`, {
+      // Con el nuevo sistema, no necesitamos caché ni timestamp
+      const response = await fetch(`/api/turnos/available-slots?${params.toString()}`, {
         method: 'GET',
         headers: {
-          'Cache-Control': forceRefresh ? 'no-cache' : 'public, max-age=30'
+          'Cache-Control': 'no-cache'
         }
       });
       
@@ -133,19 +126,12 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       if (response.ok) {
         const turnos = data.turnos || [];
         
-        // **OPTIMIZACIÓN: Filtro más eficiente**
-        const turnosValidos = turnos.filter((turno: any) => 
-          turno.horarios?.length > 0
-        );
+        console.log(`✅ ${turnos.length} días con turnos disponibles cargados en ${data.responseTime || 'N/A'} (source: ${data.source || 'unknown'})`);
         
-        console.log(`✅ ${turnosValidos.length} días con turnos cargados en ${data.responseTime || 'N/A'} (source: ${data.source || 'unknown'})`);
+        setProximosTurnos(turnos);
         
-        setProximosTurnos(turnosValidos);
-        
-        // **OPTIMIZACIÓN: Solo limpiar si hay cambios reales**
-        if (turnosValidos.length !== proximosTurnos.length) {
-          setAvailabilityStatus({});
-        }
+        // Limpiar estado de disponibilidad al cargar nuevos turnos
+        setAvailabilityStatus({});
       } else {
         console.error('❌ Error al cargar turnos:', data.error);
         setProximosTurnos([]);
@@ -363,17 +349,16 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
         setSelectedDate('');
         setSelectedTime('');
         
-        // Invalidar caché del servidor (async, sin esperar)
-        fetch('/api/turnos/invalidate-cache', { method: 'POST' })
-          .then(() => console.log('✅ Caché del servidor invalidado'))
-          .catch(error => console.log('⚠️ Error al invalidar caché:', error));
+        // ✅ NUEVO SISTEMA: Con AvailableSlot, no necesitamos invalidar caché
+        // El horario ya fue marcado como no disponible en la base de datos
+        console.log('✅ Horario marcado como no disponible en la base de datos');
         
-        // ✅ MEJORADO: Una sola recarga final para confirmar sincronización (sin bloquear UI)
+        // ✅ MEJORADO: Una sola recarga para confirmar sincronización (opcional)
         setTimeout(async () => {
-          console.log('🔄 Sincronización final en segundo plano...');
-          await loadProximosTurnos(true);
-          console.log('✅ Sincronización final completada');
-        }, 2000);
+          console.log('🔄 Recarga de confirmación...');
+          await loadProximosTurnos();
+          console.log('✅ Confirmación de sincronización completada');
+        }, 1000);
         
         // Mostrar modal de éxito inmediatamente
         setReservedSlot(reservedSlotData);

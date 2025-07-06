@@ -457,6 +457,10 @@
   background: linear-gradient(135deg, #f59e0b, #d97706);
 }
 
+.slots .sectionIcon {
+  background: linear-gradient(135deg, #14b8a6, #06b6d4);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .sectionsGrid {
