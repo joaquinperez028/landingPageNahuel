@@ -16,11 +16,20 @@ interface LessonContent {
     pdfTitle?: string;
     pdfSize?: string;
     
-    // Para PDFs de Cloudinary (nuevo)
+    // Para PDFs de Cloudinary (deprecado)
     cloudinaryPdf?: {
       publicId: string;
       originalFileName?: string;
       fileSize?: number;
+    };
+    
+    // Para PDFs almacenados en base de datos (nuevo)
+    databasePdf?: {
+      fileName: string;
+      fileSize: number;
+      mimeType: string;
+      uploadDate: Date;
+      pdfId: string; // ObjectId como string para referenciar el documento PDF
     };
     
     // Para imágenes
@@ -86,11 +95,20 @@ const lessonContentSchema = new Schema({
     pdfTitle: { type: String },
     pdfSize: { type: String },
     
-    // PDF de Cloudinary (nuevo)
+    // PDF de Cloudinary (deprecado)
     cloudinaryPdf: {
       publicId: { type: String },
       originalFileName: { type: String },
       fileSize: { type: Number }
+    },
+    
+    // PDF de base de datos (nuevo)
+    databasePdf: {
+      fileName: { type: String },
+      fileSize: { type: Number },
+      mimeType: { type: String },
+      uploadDate: { type: Date },
+      pdfId: { type: String } // ObjectId como string
     },
     
     // Imagen

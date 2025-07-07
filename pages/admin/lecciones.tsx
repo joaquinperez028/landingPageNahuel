@@ -36,6 +36,7 @@ import { authOptions } from '../../lib/googleAuth';
 import styles from '../../styles/AdminLecciones.module.css';
 import ImageUploader from '../../components/ImageUploader';
 import PDFUploader from '../../components/PDFUploader';
+import PDFUploaderDB from '@/components/PDFUploaderDB';
 import { verifyAdminAccess } from '@/lib/adminAuth';
 import { motion } from 'framer-motion';
 
@@ -75,9 +76,23 @@ interface LessonContent {
     imageUrl?: string;
     imageAlt?: string;
     imageCaption?: string;
-    // Nuevos campos para archivos de Cloudinary
+    // Campos de Cloudinary (deprecados)
     pdfFile?: CloudinaryPDF;
     imageFile?: CloudinaryImage;
+    cloudinaryPdf?: {
+      publicId: string;
+      originalFileName?: string;
+      fileSize?: number;
+    };
+    // Nuevos campos para PDFs en base de datos
+    databasePdf?: {
+      pdfId: string;
+      fileName: string;
+      originalName: string;
+      fileSize: number;
+      mimeType: string;
+      uploadDate: Date;
+    };
     text?: string;
     html?: string;
     description?: string;
@@ -366,14 +381,39 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
     });
   };
 
-  // Funciones para manejar uploads de archivos
+  // Funciones para manejar uploads de archivos (Cloudinary - legacy)
   const handlePDFUploaded = (contentId: string, pdfData: CloudinaryPDF) => {
     actualizarContenido(contentId, 'content', {
       pdfFile: pdfData,
       pdfUrl: pdfData.secure_url, // Mantener compatibilidad
-      pdfTitle: pdfData.public_id.split('/').pop() || 'PDF subido'
+      pdfTitle: pdfData.public_id.split('/').pop() || 'PDF subido',
+      cloudinaryPdf: {
+        publicId: pdfData.public_id,
+        originalFileName: pdfData.public_id.split('/').pop() || 'PDF subido',
+        fileSize: pdfData.bytes
+      }
     });
-    toast.success('PDF subido exitosamente');
+    toast.success('PDF subido exitosamente a Cloudinary');
+  };
+
+  // Nueva función para manejar uploads a base de datos
+  const handleDatabasePDFUploaded = (contentId: string, pdfData: {
+    pdfId: string;
+    fileName: string;
+    originalName: string;
+    fileSize: number;
+    mimeType: string;
+    uploadDate: Date;
+  }) => {
+    actualizarContenido(contentId, 'content', {
+      databasePdf: pdfData,
+      // Limpiar datos de Cloudinary si existen
+      pdfFile: undefined,
+      cloudinaryPdf: undefined,
+      pdfUrl: undefined,
+      pdfTitle: pdfData.originalName
+    });
+    toast.success('PDF subido exitosamente a base de datos');
   };
 
   const handleImageUploaded = (contentId: string, imageData: CloudinaryImage) => {
@@ -913,53 +953,95 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                           {/* PDF */}
                           {item.type === 'pdf' && (
                             <div className={styles.pdfContent}>
-                              {!item.content.pdfFile ? (
-                                <div className={styles.uploadSection}>
-                                  <PDFUploader
-                                    onPDFUploaded={(pdfData) => handlePDFUploaded(item.id, pdfData)}
-                                    onUploadStart={() => console.log('Subiendo PDF...')}
-                                    onUploadProgress={(progress) => console.log(`Progreso: ${progress}%`)}
-                                    onError={handleUploadError}
-                                    buttonText="Subir PDF"
-                                  />
-                                </div>
-                              ) : (
-                                <div className={styles.uploadedFile}>
-                                  <div className={styles.fileInfo}>
-                                    <FileDown size={20} />
-                                    <div className={styles.fileDetails}>
-                                      <p className={styles.fileName}>
-                                        {item.content.pdfFile.public_id.split('/').pop()}
-                                      </p>
-                                      <p className={styles.fileSize}>
-                                        {Math.round(item.content.pdfFile.bytes / 1024)} KB
-                                        {item.content.pdfFile.pages && ` • ${item.content.pdfFile.pages} páginas`}
-                                      </p>
+                              <div className={styles.pdfUploadSection}>
+                                <h4>📄 Configuración de PDF</h4>
+                                
+                                {/* Mostrar información del PDF actual */}
+                                {item.content.databasePdf ? (
+                                  <div className={styles.currentPdf}>
+                                    <div className={styles.pdfInfo}>
+                                      <span className={styles.pdfBadge}>📊 BASE DE DATOS</span>
+                                      <h5>PDF Actual:</h5>
+                                      <p><strong>Archivo:</strong> {item.content.databasePdf.originalName}</p>
+                                      <p><strong>Tamaño:</strong> {(item.content.databasePdf.fileSize / (1024 * 1024)).toFixed(2)} MB</p>
+                                      <p><strong>Subido:</strong> {new Date(item.content.databasePdf.uploadDate).toLocaleDateString()}</p>
+                                      <button 
+                                        type="button"
+                                        className={styles.removeButton}
+                                        onClick={() => actualizarContenido(item.id, 'content', { 
+                                          databasePdf: undefined,
+                                          pdfTitle: ''
+                                        })}
+                                      >
+                                        🗑️ Eliminar PDF
+                                      </button>
                                     </div>
                                   </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      actualizarContenido(item.id, 'content', {
-                                        pdfFile: undefined,
-                                        pdfUrl: '',
-                                        pdfTitle: ''
-                                      });
-                                    }}
-                                    className={styles.removeFileButton}
-                                  >
-                                    <Trash2 size={16} />
-                                    Eliminar
-                                  </button>
-                                </div>
-                              )}
-                              <input
-                                type="text"
-                                value={item.content.pdfTitle || ''}
-                                onChange={(e) => actualizarContenido(item.id, 'content', { pdfTitle: e.target.value })}
-                                placeholder="Título del PDF"
-                                className={styles.titleInput}
-                              />
+                                ) : item.content.cloudinaryPdf ? (
+                                  <div className={styles.currentPdf}>
+                                    <div className={styles.pdfInfo}>
+                                      <span className={styles.pdfBadge}>☁️ CLOUDINARY (DEPRECADO)</span>
+                                      <h5>PDF Actual (Cloudinary):</h5>
+                                      <p><strong>Archivo:</strong> {item.content.cloudinaryPdf.originalFileName}</p>
+                                      <p><strong>Tamaño:</strong> {item.content.cloudinaryPdf.fileSize ? (item.content.cloudinaryPdf.fileSize / (1024 * 1024)).toFixed(2) + ' MB' : 'N/A'}</p>
+                                      <p><strong>Public ID:</strong> {item.content.cloudinaryPdf.publicId}</p>
+                                      <button 
+                                        type="button"
+                                        className={styles.migrateButton}
+                                        onClick={() => {
+                                          // Aquí podrías implementar migración individual si es necesario
+                                          toast.success('Sube un nuevo PDF para reemplazar este archivo de Cloudinary');
+                                        }}
+                                      >
+                                        🔄 Migrar a Base de Datos
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : item.content.pdfFile ? (
+                                  <div className={styles.currentPdf}>
+                                    <div className={styles.pdfInfo}>
+                                      <span className={styles.pdfBadge}>☁️ CLOUDINARY (LEGACY)</span>
+                                      <h5>PDF Actual (Legacy):</h5>
+                                      <p><strong>URL:</strong> {item.content.pdfFile.secure_url}</p>
+                                      <p><strong>Tamaño:</strong> {(item.content.pdfFile.bytes / (1024 * 1024)).toFixed(2)} MB</p>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className={styles.uploadSection}>
+                                    <h5>📤 Subir Nuevo PDF</h5>
+                                    <PDFUploaderDB
+                                      onPDFUploaded={(pdfData) => handleDatabasePDFUploaded(item.id, pdfData)}
+                                      onUploadStart={() => console.log('Subiendo PDF a base de datos...')}
+                                      onUploadProgress={(progress) => console.log(`Progreso: ${progress}%`)}
+                                      onError={handleUploadError}
+                                      buttonText="Subir PDF a Base de Datos"
+                                    />
+                                    
+                                    <div className={styles.uploadOptions}>
+                                      <p className={styles.uploadNote}>
+                                        <strong>Recomendado:</strong> Los PDFs ahora se almacenan directamente en la base de datos.
+                                        Esto mejora la seguridad y elimina la dependencia de servicios externos.
+                                      </p>
+                                      
+                                      <details className={styles.legacyOptions}>
+                                        <summary>🔧 Opciones Legacy (Cloudinary)</summary>
+                                        <div className={styles.legacyUpload}>
+                                          <PDFUploader
+                                            onPDFUploaded={(pdfData) => handlePDFUploaded(item.id, pdfData)}
+                                            onUploadStart={() => console.log('Subiendo PDF...')}
+                                            onUploadProgress={(progress) => console.log(`Progreso: ${progress}%`)}
+                                            onError={handleUploadError}
+                                            buttonText="Subir a Cloudinary (Legacy)"
+                                          />
+                                          <p className={styles.legacyWarning}>
+                                            ⚠️ Este método está deprecado. Usa la opción de base de datos arriba.
+                                          </p>
+                                        </div>
+                                      </details>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           )}
 

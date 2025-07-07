@@ -37,6 +37,12 @@ import {
   getCloudinaryPDFDirectViewUrl,
   extractFileNameFromPublicId 
 } from '@/lib/cloudinary';
+import { 
+  getDatabasePDFViewUrl,
+  getDatabasePDFDownloadUrl,
+  getPDFType,
+  formatFileSize
+} from '@/lib/databasePdf';
 
 // Interfaces para archivos de Cloudinary
 interface CloudinaryImage {
@@ -83,6 +89,15 @@ interface LessonContent {
       publicId: string;
       originalFileName?: string;
       fileSize?: number;
+    };
+    // Nuevo campo para PDFs en base de datos
+    databasePdf?: {
+      pdfId: string;
+      fileName: string;
+      originalName: string;
+      fileSize: number;
+      mimeType: string;
+      uploadDate: Date;
     };
   };
 }
@@ -225,33 +240,63 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
         );
 
       case 'pdf':
-        const pdfFileName = extractFileNameFromPublicId(
-          content.content.cloudinaryPdf?.publicId || content.content.pdfUrl || ''
-        );
+        const pdfType = getPDFType(content.content);
         
-        // URLs usando nuestro endpoint con encoding mejorado
-        const viewUrl = content.content.cloudinaryPdf?.publicId
-          ? getCloudinaryPDFViewUrl(
-              content.content.cloudinaryPdf.publicId,
-              content.content.cloudinaryPdf.originalFileName || pdfFileName
-            )
-          : content.content.pdfUrl;
+        // Determinar URLs y información según el tipo de PDF
+        let viewUrl: string | undefined;
+        let downloadUrl: string | undefined;
+        let directViewUrl: string | undefined;
+        let pdfFileName: string;
+        let pdfInfo: { size?: string; type?: string } = {};
 
-        const downloadUrl = content.content.cloudinaryPdf?.publicId
-          ? getCloudinaryPDFDownloadUrl(
-              content.content.cloudinaryPdf.publicId,
-              content.content.cloudinaryPdf.originalFileName || pdfFileName
-            )
-          : content.content.pdfUrl;
-
-        // URLs de fallback directo a Cloudinary
-        const directViewUrl = content.content.cloudinaryPdf?.publicId
-          ? getCloudinaryPDFDirectViewUrl(content.content.cloudinaryPdf.publicId)
-          : content.content.pdfUrl;
-
-        const directDownloadUrl = content.content.cloudinaryPdf?.publicId
-          ? getCloudinaryDirectPDFUrl(content.content.cloudinaryPdf.publicId)
-          : content.content.pdfUrl;
+        if (pdfType === 'database' && content.content.databasePdf) {
+          // PDF almacenado en base de datos (nuevo sistema)
+          viewUrl = getDatabasePDFViewUrl(
+            content.content.databasePdf.pdfId,
+            content.content.databasePdf.originalName
+          );
+          downloadUrl = getDatabasePDFDownloadUrl(
+            content.content.databasePdf.pdfId,
+            content.content.databasePdf.originalName
+          );
+          directViewUrl = viewUrl; // Para PDFs de BD, es la misma URL
+          pdfFileName = content.content.databasePdf.originalName;
+          pdfInfo = {
+            size: formatFileSize(content.content.databasePdf.fileSize),
+            type: 'Base de Datos'
+          };
+        } else if (pdfType === 'cloudinary' && content.content.cloudinaryPdf) {
+          // PDF de Cloudinary (sistema anterior)
+          pdfFileName = extractFileNameFromPublicId(
+            content.content.cloudinaryPdf.publicId || ''
+          );
+          
+          viewUrl = getCloudinaryPDFViewUrl(
+            content.content.cloudinaryPdf.publicId,
+            content.content.cloudinaryPdf.originalFileName || pdfFileName
+          );
+          downloadUrl = getCloudinaryPDFDownloadUrl(
+            content.content.cloudinaryPdf.publicId,
+            content.content.cloudinaryPdf.originalFileName || pdfFileName
+          );
+          directViewUrl = getCloudinaryPDFDirectViewUrl(content.content.cloudinaryPdf.publicId);
+          
+          pdfInfo = {
+            size: content.content.cloudinaryPdf.fileSize 
+              ? formatFileSize(content.content.cloudinaryPdf.fileSize)
+              : undefined,
+            type: 'Cloudinary'
+          };
+        } else {
+          // Fallback para PDFs legacy
+          pdfFileName = extractFileNameFromPublicId(
+            content.content.pdfUrl || ''
+          );
+          viewUrl = content.content.pdfUrl;
+          downloadUrl = content.content.pdfUrl;
+          directViewUrl = content.content.pdfUrl;
+          pdfInfo = { type: 'Legacy' };
+        }
 
         return (
           <div className={styles.pdfContent}>
@@ -263,9 +308,15 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
                   <p className={styles.pdfDescription}>{content.content.description}</p>
                 )}
                 <div className={styles.pdfMeta}>
-                  <span>PDF:</span> {content.content.cloudinaryPdf?.originalFileName || pdfFileName}
-                  {content.content.cloudinaryPdf?.fileSize && (
-                    <span>• Tamaño: {(content.content.cloudinaryPdf.fileSize / (1024 * 1024)).toFixed(1)} MB</span>
+                  <span>PDF: {pdfFileName}</span>
+                  {pdfInfo.size && <span>• Tamaño: {pdfInfo.size}</span>}
+                  {pdfInfo.type && (
+                    <span className={`${styles.pdfTypeBadge} ${styles[`badge${pdfInfo.type.replace(/\s+/g, '')}`]}`}>
+                      • {pdfInfo.type}
+                    </span>
+                  )}
+                  {pdfType === 'database' && content.content.databasePdf && (
+                    <span>• Subido: {new Date(content.content.databasePdf.uploadDate).toLocaleDateString()}</span>
                   )}
                 </div>
               </div>
@@ -279,15 +330,15 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
                 title={content.title}
                 style={{ width: '100%', height: '600px', border: 'none', borderRadius: '0.5rem' }}
                 onLoad={() => {
-                  console.log('✅ PDF cargado exitosamente en iframe');
+                  console.log(`✅ PDF cargado exitosamente desde ${pdfInfo.type}:`, pdfFileName);
                 }}
                 onError={(e) => {
-                  console.warn('❌ Error cargando PDF en iframe, intentando fallback');
-                  // En caso de error, cambiar src al URL directo
+                  console.warn(`❌ Error cargando PDF desde ${pdfInfo.type}, intentando fallback`);
+                  // En caso de error, cambiar src al URL directo (solo para Cloudinary)
                   const iframe = e.target as HTMLIFrameElement;
-                  if (iframe.src !== directViewUrl) {
-                    console.log('🔄 Cambiando a URL directa de Cloudinary');
-                    iframe.src = directViewUrl || '';
+                  if (directViewUrl && iframe.src !== directViewUrl) {
+                    console.log('🔄 Cambiando a URL directa');
+                    iframe.src = directViewUrl;
                   }
                 }}
               />
@@ -308,65 +359,55 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
             
             {/* Acciones del PDF */}
             <div className={styles.pdfActions}>
-              <a
-                href={viewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
                 className={styles.pdfActionButton}
-                onClick={(e) => {
-                  // Si el URL principal falla, usar el directo
-                  console.log('🔗 Abriendo PDF en nueva ventana');
-                }}
-                onError={() => {
-                  console.warn('❌ Error con URL principal, usando directo');
-                }}
-              >
-                <Eye size={16} />
-                Ver en Nueva Ventana
-              </a>
-              <a
-                href={downloadUrl}
-                className={styles.pdfActionButton}
-                onClick={(e) => {
-                  console.log('📥 Iniciando descarga de PDF');
-                  // Agregar fallback en caso de error
-                  setTimeout(() => {
-                    // Si la descarga no funciona después de 3 segundos, mostrar alternativa
-                    console.log('💡 Si la descarga no funciona, usando URL directo');
-                  }, 3000);
-                }}
+                onClick={() => window.open(downloadUrl, '_blank')}
+                title="Descargar PDF"
               >
                 <Download size={16} />
                 Descargar PDF
-              </a>
+              </button>
               
-              {/* Botón de fallback directo (oculto por defecto) */}
-              {content.content.cloudinaryPdf?.publicId && (
-                <a
-                  href={directDownloadUrl}
+              <button
+                className={styles.pdfActionButton}
+                onClick={() => window.open(viewUrl, '_blank')}
+                title="Abrir en nueva pestaña"
+              >
+                <ExternalLink size={16} />
+                Abrir en Nueva Pestaña
+              </button>
+              
+              {directViewUrl && directViewUrl !== viewUrl && (
+                <button
                   className={`${styles.pdfActionButton} ${styles.fallbackButton}`}
-                  title="Enlace directo de respaldo"
-                  style={{ opacity: 0.7, fontSize: '0.875rem' }}
+                  onClick={() => window.open(directViewUrl, '_blank')}
+                  title="Enlace directo (fallback)"
                 >
-                  <ExternalLink size={14} />
+                  <Eye size={16} />
                   Enlace Directo
-                </a>
+                </button>
+              )}
+              
+              {/* Información para administradores */}
+              {userTrainings.includes('admin') && (
+                <div className={styles.adminDebugInfo}>
+                  <details>
+                    <summary>🔧 Info Debug (Admin)</summary>
+                    <div className={styles.debugDetails}>
+                      <p><strong>Tipo:</strong> {pdfType}</p>
+                      <p><strong>View URL:</strong> {viewUrl}</p>
+                      <p><strong>Download URL:</strong> {downloadUrl}</p>
+                      {pdfType === 'database' && content.content.databasePdf && (
+                        <p><strong>PDF ID:</strong> {content.content.databasePdf.pdfId}</p>
+                      )}
+                      {pdfType === 'cloudinary' && content.content.cloudinaryPdf && (
+                        <p><strong>Public ID:</strong> {content.content.cloudinaryPdf.publicId}</p>
+                      )}
+                    </div>
+                  </details>
+                </div>
               )}
             </div>
-            
-            {/* Debug info para admins */}
-            {session?.user?.role === 'admin' && (
-              <details style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#666' }}>
-                <summary>Info de Debug (Solo Admin)</summary>
-                <div style={{ marginTop: '0.5rem', fontFamily: 'monospace' }}>
-                  <p><strong>Public ID:</strong> {content.content.cloudinaryPdf?.publicId}</p>
-                  <p><strong>View URL:</strong> {viewUrl}</p>
-                  <p><strong>Download URL:</strong> {downloadUrl}</p>
-                  <p><strong>Direct View:</strong> {directViewUrl}</p>
-                  <p><strong>Direct Download:</strong> {directDownloadUrl}</p>
-                </div>
-              </details>
-            )}
           </div>
         );
 
