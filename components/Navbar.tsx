@@ -121,6 +121,9 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
     signOut();
   };
 
+  // Verificación defensiva para asegurar que session.user existe
+  const sessionUser = session?.user;
+
   return (
     <>
       <nav className={`${styles.navbar} ${className}`}>
@@ -198,7 +201,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
           <div className={styles.userSection}>
             {status === 'loading' ? (
               <div className={styles.spinner} />
-            ) : session ? (
+            ) : session && sessionUser ? (
               <div className={styles.userActions}>
                 {/* Contact Button */}
                 <button
@@ -238,10 +241,10 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                     className={styles.userButton}
                     onClick={() => handleDropdownToggle('user')}
                   >
-                    {session.user.image ? (
+                    {sessionUser.image ? (
                       <img
-                        src={session.user.image}
-                        alt={session.user.name || 'Usuario'}
+                        src={sessionUser.image}
+                        alt={sessionUser.name || 'Usuario'}
                         className={styles.userAvatar}
                         onError={(e) => {
                           // Si falla la carga de la imagen, ocultar y mostrar icono
@@ -256,9 +259,9 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                     <User 
                       size={20} 
                       className="fallback-icon"
-                      style={{ display: session.user.image ? 'none' : 'inline-flex' }}
+                      style={{ display: sessionUser.image ? 'none' : 'inline-flex' }}
                     />
-                    <span className={styles.userName}>{session.user.name}</span>
+                    <span className={styles.userName}>{sessionUser.name}</span>
                     <ChevronDown 
                       size={16} 
                       className={`${styles.chevron} ${openDropdown === 'user' ? styles.chevronOpen : ''}`}
@@ -271,7 +274,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                         <User size={16} />
                         Mi Perfil
                       </Link>
-                      {session.user.role === 'admin' && (
+                      {sessionUser.role === 'admin' && (
                         <>
                           <Link href="/admin/dashboard" className={styles.dropdownItem}>
                             <Settings size={16} />
@@ -368,7 +371,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
               
               {/* Mobile User Section */}
               <div className={styles.mobileUserSection}>
-                {session ? (
+                {session && sessionUser ? (
                   <>
                     {/* Mobile Contact Button */}
                     <button 
@@ -383,10 +386,10 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                     </button>
                     
                     <Link href="/perfil" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
-                      {session.user.image ? (
+                      {sessionUser.image ? (
                         <img
-                          src={session.user.image}
-                          alt={session.user.name || 'Usuario'}
+                          src={sessionUser.image}
+                          alt={sessionUser.name || 'Usuario'}
                           className={styles.userAvatar}
                           style={{ width: '16px', height: '16px' }}
                           onError={(e) => {
@@ -400,11 +403,11 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                       ) : null}
                       <User 
                         size={16} 
-                        style={{ display: session.user.image ? 'none' : 'inline-flex' }}
+                        style={{ display: sessionUser.image ? 'none' : 'inline-flex' }}
                       />
                       Mi Perfil
                     </Link>
-                    {session.user.role === 'admin' && (
+                    {sessionUser.role === 'admin' && (
                       <>
                         <Link href="/admin/dashboard" className={styles.mobileNavLink} onClick={() => setIsMenuOpen(false)}>
                           <Settings size={16} />
