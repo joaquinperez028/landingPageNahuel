@@ -1,32 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSession, getSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 import Head from 'next/head';
-import { GetServerSideProps } from 'next';
-import { verifyAdminAccess } from '@/lib/adminAuth';
-import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import {
+  PlayCircle,
+  BookOpen,
   Plus,
   Search,
   Filter,
   Edit,
   Trash2,
-  Eye,
-  PlayCircle,
+  X,
   FileText,
   Image,
-  Link,
-  Save,
-  X,
-  GripVertical,
   Youtube,
   FileDown,
-  BookOpen,
+  Star,
   Clock,
   Target,
+  GripVertical,
+  Upload,
+  Eye,
+  Save,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
-import styles from '@/styles/AdminLecciones.module.css';
+import { GetServerSideProps } from 'next';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../../lib/googleAuth';
+import styles from '../../styles/AdminLecciones.module.css';
+import ImageUploader from '../../components/ImageUploader';
+import PDFUploader from '../../components/PDFUploader';
+import { verifyAdminAccess } from '@/lib/adminAuth';
+import { motion } from 'framer-motion';
+
+// Interfaces para archivos de Cloudinary
+interface CloudinaryImage {
+  public_id: string;
+  url: string;
+  secure_url: string;
+  width: number;
+  height: number;
+  format: string;
+  bytes: number;
+}
+
+interface CloudinaryPDF {
+  public_id: string;
+  url: string;
+  secure_url: string;
+  format: string;
+  bytes: number;
+  pages?: number;
+}
 
 interface LessonContent {
   id: string;
@@ -37,12 +65,16 @@ interface LessonContent {
     youtubeId?: string;
     youtubeTitle?: string;
     youtubeDuration?: string;
+    // Campos legacy de URL (mantener para compatibilidad)
     pdfUrl?: string;
     pdfTitle?: string;
     pdfSize?: string;
     imageUrl?: string;
     imageAlt?: string;
     imageCaption?: string;
+    // Nuevos campos para archivos de Cloudinary
+    pdfFile?: CloudinaryPDF;
+    imageFile?: CloudinaryImage;
     text?: string;
     html?: string;
     description?: string;
@@ -319,19 +351,37 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
 
   // Reordenar contenido
   const reordenarContenido = (fromIndex: number, toIndex: number) => {
-    const nuevoContenido = [...formData.contenido];
-    const [moved] = nuevoContenido.splice(fromIndex, 1);
-    nuevoContenido.splice(toIndex, 0, moved);
+    const nuevosContenidos = [...formData.contenido];
+    const [elementoMovido] = nuevosContenidos.splice(fromIndex, 1);
+    nuevosContenidos.splice(toIndex, 0, elementoMovido);
     
-    // Actualizar órdenes
-    nuevoContenido.forEach((item, index) => {
-      item.orden = index + 1;
-    });
-
     setFormData({
       ...formData,
-      contenido: nuevoContenido
+      contenido: nuevosContenidos.map((item, index) => ({ ...item, orden: index + 1 }))
     });
+  };
+
+  // Funciones para manejar uploads de archivos
+  const handlePDFUploaded = (contentId: string, pdfData: CloudinaryPDF) => {
+    actualizarContenido(contentId, 'content', {
+      pdfFile: pdfData,
+      pdfUrl: pdfData.secure_url, // Mantener compatibilidad
+      pdfTitle: pdfData.public_id.split('/').pop() || 'PDF subido'
+    });
+    toast.success('PDF subido exitosamente');
+  };
+
+  const handleImageUploaded = (contentId: string, imageData: CloudinaryImage) => {
+    actualizarContenido(contentId, 'content', {
+      imageFile: imageData,
+      imageUrl: imageData.secure_url, // Mantener compatibilidad
+      imageAlt: 'Imagen subida'
+    });
+    toast.success('Imagen subida exitosamente');
+  };
+
+  const handleUploadError = (error: string) => {
+    toast.error(`Error subiendo archivo: ${error}`);
   };
 
   return (
@@ -795,17 +845,52 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                           {/* PDF */}
                           {item.type === 'pdf' && (
                             <div className={styles.pdfContent}>
-                              <input
-                                type="url"
-                                value={item.content.pdfUrl || ''}
-                                onChange={(e) => actualizarContenido(item.id, 'content', { pdfUrl: e.target.value })}
-                                placeholder="URL del PDF"
-                              />
+                              {!item.content.pdfFile ? (
+                                <div className={styles.uploadSection}>
+                                  <PDFUploader
+                                    onPDFUploaded={(pdfData) => handlePDFUploaded(item.id, pdfData)}
+                                    onUploadStart={() => console.log('Subiendo PDF...')}
+                                    onUploadProgress={(progress) => console.log(`Progreso: ${progress}%`)}
+                                    onError={handleUploadError}
+                                    buttonText="Subir PDF"
+                                  />
+                                </div>
+                              ) : (
+                                <div className={styles.uploadedFile}>
+                                  <div className={styles.fileInfo}>
+                                    <FileDown size={20} />
+                                    <div className={styles.fileDetails}>
+                                      <p className={styles.fileName}>
+                                        {item.content.pdfFile.public_id.split('/').pop()}
+                                      </p>
+                                      <p className={styles.fileSize}>
+                                        {Math.round(item.content.pdfFile.bytes / 1024)} KB
+                                        {item.content.pdfFile.pages && ` • ${item.content.pdfFile.pages} páginas`}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      actualizarContenido(item.id, 'content', {
+                                        pdfFile: undefined,
+                                        pdfUrl: '',
+                                        pdfTitle: ''
+                                      });
+                                    }}
+                                    className={styles.removeFileButton}
+                                  >
+                                    <Trash2 size={16} />
+                                    Eliminar
+                                  </button>
+                                </div>
+                              )}
                               <input
                                 type="text"
                                 value={item.content.pdfTitle || ''}
                                 onChange={(e) => actualizarContenido(item.id, 'content', { pdfTitle: e.target.value })}
                                 placeholder="Título del PDF"
+                                className={styles.titleInput}
                               />
                             </div>
                           )}
@@ -813,23 +898,69 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                           {/* Imagen */}
                           {item.type === 'image' && (
                             <div className={styles.imageContent}>
-                              <input
-                                type="url"
-                                value={item.content.imageUrl || ''}
-                                onChange={(e) => actualizarContenido(item.id, 'content', { imageUrl: e.target.value })}
-                                placeholder="URL de la imagen"
-                              />
+                              {!item.content.imageFile ? (
+                                <div className={styles.uploadSection}>
+                                  <ImageUploader
+                                    onImageUploaded={(imageData) => handleImageUploaded(item.id, imageData)}
+                                    onUploadStart={() => console.log('Subiendo imagen...')}
+                                    onUploadProgress={(progress) => console.log(`Progreso: ${progress}%`)}
+                                    onError={handleUploadError}
+                                    maxFiles={1}
+                                    multiple={false}
+                                    buttonText="Subir Imagen"
+                                  />
+                                </div>
+                              ) : (
+                                <div className={styles.uploadedFile}>
+                                  <div className={styles.imagePreview}>
+                                    <img 
+                                      src={item.content.imageFile.secure_url} 
+                                      alt="Vista previa"
+                                      className={styles.previewImage}
+                                    />
+                                  </div>
+                                  <div className={styles.fileInfo}>
+                                    <Image size={20} />
+                                    <div className={styles.fileDetails}>
+                                      <p className={styles.fileName}>
+                                        {item.content.imageFile.public_id.split('/').pop()}
+                                      </p>
+                                      <p className={styles.fileSize}>
+                                        {item.content.imageFile.width} × {item.content.imageFile.height} •{' '}
+                                        {Math.round(item.content.imageFile.bytes / 1024)} KB
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      actualizarContenido(item.id, 'content', {
+                                        imageFile: undefined,
+                                        imageUrl: '',
+                                        imageAlt: '',
+                                        imageCaption: ''
+                                      });
+                                    }}
+                                    className={styles.removeFileButton}
+                                  >
+                                    <Trash2 size={16} />
+                                    Eliminar
+                                  </button>
+                                </div>
+                              )}
                               <input
                                 type="text"
                                 value={item.content.imageAlt || ''}
                                 onChange={(e) => actualizarContenido(item.id, 'content', { imageAlt: e.target.value })}
                                 placeholder="Texto alternativo"
+                                className={styles.titleInput}
                               />
                               <input
                                 type="text"
                                 value={item.content.imageCaption || ''}
                                 onChange={(e) => actualizarContenido(item.id, 'content', { imageCaption: e.target.value })}
                                 placeholder="Descripción de la imagen"
+                                className={styles.titleInput}
                               />
                             </div>
                           )}

@@ -143,4 +143,87 @@ export function isValidCloudinaryPublicId(publicId: string): boolean {
   return typeof publicId === 'string' && publicId.length > 0;
 }
 
+/**
+ * Sube un archivo PDF u otro documento a Cloudinary
+ * @param fileBuffer Buffer del archivo
+ * @param fileName Nombre del archivo
+ * @param folder Carpeta donde se guardará el archivo (opcional)
+ * @returns Promise con resultado del upload
+ */
+export async function uploadFileToCloudinary(
+  fileBuffer: Buffer,
+  fileName: string,
+  folder?: string
+): Promise<UploadApiResponse> {
+  return new Promise((resolve, reject) => {
+    const uploadOptions: any = {
+      resource_type: 'raw', // Para archivos no-imagen (PDFs, documentos, etc.)
+      public_id: `${Date.now()}_${fileName.replace(/\.[^/.]+$/, "")}`,
+      overwrite: true,
+    };
+
+    if (folder) {
+      uploadOptions.folder = folder;
+    }
+
+    cloudinary.uploader.upload_stream(
+      uploadOptions,
+      (error, result) => {
+        if (error) {
+          console.error('❌ Error subiendo archivo a Cloudinary:', error);
+          reject(error);
+        } else if (result) {
+          console.log('✅ Archivo subido exitosamente a Cloudinary:', result.public_id);
+          resolve(result);
+        } else {
+          reject(new Error('No se recibió respuesta de Cloudinary'));
+        }
+      }
+    ).end(fileBuffer);
+  });
+}
+
+/**
+ * Elimina un archivo de Cloudinary
+ * @param publicId Public ID del archivo a eliminar
+ * @param resourceType Tipo de recurso ('image' | 'raw')
+ * @returns Promise<boolean> Éxito de la eliminación
+ */
+export async function deleteFileFromCloudinary(
+  publicId: string, 
+  resourceType: 'image' | 'raw' = 'raw'
+): Promise<boolean> {
+  try {
+    console.log('🗑️ Eliminando archivo de Cloudinary:', publicId);
+    
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType
+    });
+    
+    if (result.result === 'ok') {
+      console.log('✅ Archivo eliminado exitosamente de Cloudinary');
+      return true;
+    } else {
+      console.warn('⚠️ El archivo no pudo ser eliminado:', result.result);
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Error eliminando archivo de Cloudinary:', error);
+    return false;
+  }
+}
+
+/**
+ * Genera URL para archivos de Cloudinary
+ * @param publicId Public ID del archivo
+ * @param resourceType Tipo de recurso
+ * @returns URL del archivo
+ */
+export function getCloudinaryFileUrl(
+  publicId: string,
+  resourceType: 'image' | 'raw' = 'raw'
+): string {
+  return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/${resourceType}/upload/${publicId}`;
+}
+
 export default cloudinary; 
