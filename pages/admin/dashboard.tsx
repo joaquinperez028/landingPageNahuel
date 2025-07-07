@@ -24,7 +24,8 @@ import {
   Calendar,
   Clock,
   Trash2,
-  AlertTriangle
+  AlertTriangle,
+  BookOpen
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -56,6 +57,18 @@ const useDashboardSections = () => {
         { label: 'Configurar Video', href: '/admin/site-config', icon: <Settings size={16} /> },
         { label: 'Gestionar Secciones', href: '/admin/site-config', icon: <FileText size={16} /> },
         { label: 'Ver Landing', href: '/', icon: <TrendingUp size={16} /> }
+      ]
+    },
+    {
+      id: 'lecciones',
+      title: 'Gestión de Lecciones',
+      description: 'Crea, edita y administra las lecciones de los entrenamientos TradingFundamentals y DowJones. Sistema completo de contenido educativo con soporte para videos, PDFs, imágenes y más.',
+      icon: <BookOpen size={32} />,
+      color: 'from-red-500 to-rose-500',
+      links: [
+        { label: 'Gestionar Lecciones', href: '/admin/lecciones', icon: <BookOpen size={16} /> },
+        { label: 'Trading Fundamentals', href: '/admin/lecciones?tipo=TradingFundamentals', icon: <FileText size={16} /> },
+        { label: 'Dow Jones Avanzado', href: '/admin/lecciones?tipo=DowJones', icon: <TrendingUp size={16} /> }
       ]
     },
     {
@@ -389,6 +402,10 @@ export default function AdminDashboardPage() {
                 <Link href="/admin/site-config" className={`${styles.quickActionCard} ${styles.siteconfig}`}>
                   <Settings size={24} />
                   <span>Configurar Sitio</span>
+                </Link>
+                <Link href="/admin/lecciones" className={`${styles.quickActionCard} ${styles.lecciones}`}>
+                  <BookOpen size={24} />
+                  <span>Gestionar Lecciones</span>
                 </Link>
                 <Link href="/admin/notifications" className={`${styles.quickActionCard} ${styles.notifications}`}>
                   <Bell size={24} />
