@@ -79,6 +79,8 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
   const { data: session } = useSession();
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [showEnrollForm, setShowEnrollForm] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [checkingEnrollment, setCheckingEnrollment] = useState(false);
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
@@ -96,8 +98,29 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
         nombre: session.user.name || '',
         email: session.user.email || ''
       }));
+      
+      // Verificar si el usuario ya está inscrito
+      checkEnrollmentStatus();
     }
   }, [session]);
+
+  const checkEnrollmentStatus = async () => {
+    if (!session?.user?.email) return;
+    
+    setCheckingEnrollment(true);
+    try {
+      const response = await fetch('/api/user/entrenamientos');
+      if (response.ok) {
+        const data = await response.json();
+        const hasTrading = data.data.tiposDisponibles.includes('TradingFundamentals');
+        setIsEnrolled(hasTrading);
+      }
+    } catch (error) {
+      console.error('Error checking enrollment:', error);
+    } finally {
+      setCheckingEnrollment(false);
+    }
+  };
 
   const handleEnroll = () => {
     if (!session) {
@@ -105,6 +128,13 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
       signIn('google');
       return;
     }
+    
+    if (isEnrolled) {
+      // Si ya está inscrito, ir directamente a las lecciones
+      window.location.href = '/entrenamientos/TradingFundamentals/lecciones';
+      return;
+    }
+    
     setShowEnrollForm(true);
   };
 
@@ -113,7 +143,7 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
     setIsEnrolling(true);
 
     try {
-      const response = await fetch('/api/entrenamientos/solicitar', {
+      const response = await fetch('/api/entrenamientos/inscribir', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -127,8 +157,10 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
       const data = await response.json();
 
       if (response.ok) {
-        toast.success('¡Solicitud enviada exitosamente! Te contactaremos pronto.');
+        toast.success(data.message || '¡Inscripción exitosa! Redirigiendo a las lecciones...');
         setShowEnrollForm(false);
+        
+        // Resetear formulario
         setFormData({
           nombre: session?.user?.name || '',
           email: session?.user?.email || '',
@@ -138,12 +170,25 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
           nivelExperiencia: 'principiante',
           consulta: ''
         });
+
+        // Redirigir a las lecciones después de 2 segundos
+        setTimeout(() => {
+          window.location.href = data.data.redirectUrl;
+        }, 2000);
       } else {
-        toast.error(data.error || 'Error al enviar solicitud');
+        if (response.status === 409) {
+          // Ya está inscrito
+          toast.success('Ya tienes acceso a este entrenamiento. Redirigiendo a las lecciones...');
+          setTimeout(() => {
+            window.location.href = '/entrenamientos/TradingFundamentals/lecciones';
+          }, 1500);
+        } else {
+          toast.error(data.error || 'Error al procesar inscripción');
+        }
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al enviar solicitud');
+      toast.error('Error al procesar inscripción. Inténtalo nuevamente.');
     } finally {
       setIsEnrolling(false);
     }
@@ -415,9 +460,15 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
                   <button 
                     onClick={handleEnroll}
                     className={styles.enrollButton}
+                    disabled={checkingEnrollment}
                   >
                     <Users size={20} />
-                    Inscribirme Ahora
+                    {checkingEnrollment 
+                      ? 'Verificando...' 
+                      : isEnrolled 
+                        ? 'Ir a las Lecciones' 
+                        : 'Inscribirme Ahora'
+                    }
                   </button>
                 </div>
               </div>
@@ -786,9 +837,15 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
               <button 
                 onClick={handleEnroll}
                 className={styles.ctaButton}
+                disabled={checkingEnrollment}
               >
                 <Users size={20} />
-                Comenzar Ahora
+                {checkingEnrollment 
+                  ? 'Verificando...' 
+                  : isEnrolled 
+                    ? 'Ir a las Lecciones' 
+                    : 'Comenzar Ahora'
+                }
                 <ArrowRight size={20} />
               </button>
             </motion.div>

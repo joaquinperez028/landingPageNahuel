@@ -73,13 +73,13 @@ interface Lesson {
 interface LeccionesViewerProps {
   lecciones: Lesson[];
   tipoEntrenamiento: string;
-  currentUser: any;
+  userTrainings: string[]; // Array de tipos de entrenamientos que tiene el usuario
 }
 
 const LeccionesViewer: React.FC<LeccionesViewerProps> = ({ 
   lecciones, 
   tipoEntrenamiento,
-  currentUser 
+  userTrainings 
 }) => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -93,8 +93,9 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
   const hasAccessToLesson = (lesson: Lesson) => {
     if (lesson.esGratuita) return true;
     if (!lesson.requiereSuscripcion) return true;
-    // Aquí verificarías si el usuario tiene suscripción activa
-    return session && currentUser?.suscripciones?.includes(lesson.tipoEntrenamiento);
+    
+    // Verificar si el usuario tiene el entrenamiento asignado
+    return session && userTrainings.includes(lesson.tipoEntrenamiento);
   };
 
   // Marcar lección como completada
@@ -513,21 +514,53 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   try {
-    // Obtener lecciones del tipo específico
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/lessons?tipo=${tipo}&activa=true&limit=100`);
     
-    if (!response.ok) {
+    // Obtener lecciones del tipo específico
+    const leccionesResponse = await fetch(`${baseUrl}/api/lessons?tipo=${tipo}&activa=true&limit=100`);
+    
+    if (!leccionesResponse.ok) {
       throw new Error('Error fetching lessons');
     }
     
-    const data = await response.json();
+    const leccionesData = await leccionesResponse.json();
+
+    // Intentar obtener entrenamientos del usuario si está autenticado
+    let userTrainings: string[] = [];
+    
+    try {
+      // Obtener session del contexto
+      const { getServerSession } = await import('next-auth/next');
+      const { authOptions } = await import('@/lib/googleAuth');
+      const session = await getServerSession(context.req, context.res, authOptions);
+      
+      if (session?.user?.email) {
+        // Buscar usuario directamente en la BD para obtener entrenamientos
+        const { default: connectDB } = await import('@/lib/mongodb');
+        const { default: User } = await import('@/models/User');
+        
+        await connectDB();
+        const usuario = await User.findOne({ email: session.user.email });
+        
+        if (usuario && usuario.entrenamientos) {
+          // Extraer tipos de entrenamientos activos
+          for (const entrenamiento of usuario.entrenamientos) {
+            if (entrenamiento.activo) {
+              userTrainings.push(entrenamiento.tipo);
+            }
+          }
+        }
+      }
+    } catch (userError) {
+      console.error('Error fetching user trainings:', userError);
+      // Continuar sin entrenamientos de usuario si hay error
+    }
     
     return {
       props: {
-        lecciones: data.data.lecciones || [],
+        lecciones: leccionesData.data.lecciones || [],
         tipoEntrenamiento: tipo,
-        currentUser: null // Aquí cargarías datos del usuario si es necesario
+        userTrainings: userTrainings
       }
     };
   } catch (error) {
@@ -537,7 +570,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       props: {
         lecciones: [],
         tipoEntrenamiento: tipo,
-        currentUser: null
+        userTrainings: []
       }
     };
   }

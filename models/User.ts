@@ -33,6 +33,16 @@ export interface IUser extends Document {
     fechaFin?: Date;
     activa: boolean;
   }>;
+  entrenamientos: Array<{
+    tipo: 'TradingFundamentals' | 'DowJones';
+    fechaInscripcion: Date;
+    fechaCompletado?: Date;
+    progreso: number; // 0-100
+    activo: boolean;
+    precio?: number;
+    metodoPago?: string;
+    transactionId?: string;
+  }>;
   createdAt: Date;
   updatedAt: Date;
   lastLogin?: Date;
@@ -123,6 +133,39 @@ const UserSchema: Schema = new Schema({
       default: true
     }
   }],
+  entrenamientos: [{
+    tipo: {
+      type: String,
+      enum: ['TradingFundamentals', 'DowJones'],
+      required: true
+    },
+    fechaInscripcion: {
+      type: Date,
+      default: Date.now
+    },
+    fechaCompletado: {
+      type: Date
+    },
+    progreso: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100
+    },
+    activo: {
+      type: Boolean,
+      default: true
+    },
+    precio: {
+      type: Number
+    },
+    metodoPago: {
+      type: String
+    },
+    transactionId: {
+      type: String
+    }
+  }],
   lastLogin: {
     type: Date
   },
@@ -169,6 +212,7 @@ UserSchema.pre('findOneAndUpdate', function(next) {
 // Índices para optimizar búsquedas (sin duplicar los unique: true)
 UserSchema.index({ role: 1 });
 UserSchema.index({ 'subscriptions.tipo': 1, 'subscriptions.activa': 1 });
+UserSchema.index({ 'entrenamientos.tipo': 1, 'entrenamientos.activo': 1 });
 UserSchema.index({ createdAt: -1 });
 UserSchema.index({ lastLogin: -1 });
 
