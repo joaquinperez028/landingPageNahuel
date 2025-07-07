@@ -227,7 +227,7 @@ export function getCloudinaryFileUrl(
 }
 
 /**
- * Genera URL de PDF para visualización en navegador (evita descarga automática)
+ * Genera URL de PDF para visualización en navegador
  * @param publicId Public ID del PDF
  * @param originalFileName Nombre original del archivo (opcional)
  * @returns URL para visualizar en navegador
@@ -236,24 +236,23 @@ export function getCloudinaryPDFViewUrl(
   publicId: string,
   originalFileName?: string
 ): string {
-  // Agregar fl_attachment=false para evitar descarga automática
-  // y permitir visualización en navegador
-  return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/fl_inline/${publicId}`;
+  // Usar nuestro endpoint personalizado para visualización
+  return `/api/pdf/view/${publicId}${originalFileName ? `?fileName=${encodeURIComponent(originalFileName)}` : ''}`;
 }
 
 /**
- * Genera URL de PDF para descarga con nombre específico
- * @param publicId Public ID del PDF
+ * Genera URL de PDF para descarga forzada con nombre específico
+ * @param publicId Public ID del PDF  
  * @param fileName Nombre que se usará para la descarga
- * @returns URL para descarga con nombre específico
+ * @returns URL para descarga forzada con nombre específico
  */
 export function getCloudinaryPDFDownloadUrl(
   publicId: string,
   fileName: string
 ): string {
-  // Usar fl_attachment con el nombre de archivo para forzar descarga
+  // Usar nuestro endpoint personalizado para descarga con nombre correcto
   const encodedFileName = encodeURIComponent(fileName);
-  return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/fl_attachment:${encodedFileName}/${publicId}`;
+  return `/api/pdf/download/${publicId}?fileName=${encodedFileName}`;
 }
 
 /**

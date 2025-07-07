@@ -77,6 +77,11 @@ interface LessonContent {
     text?: string;
     html?: string;
     description?: string;
+    cloudinaryPdf?: {
+      publicId: string;
+      originalFileName?: string;
+      fileSize?: number;
+    };
   };
 }
 
@@ -218,69 +223,82 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
         );
 
       case 'pdf':
-        // Determinar la URL y nombre del PDF
-        const pdfFile = content.content.pdfFile;
-        const pdfUrl = pdfFile?.secure_url || content.content.pdfUrl;
-        const pdfTitle = content.content.pdfTitle || content.title || 'Documento PDF';
+        const pdfFileName = extractFileNameFromPublicId(
+          content.content.cloudinaryPdf?.publicId || content.content.pdfUrl || ''
+        );
         
-        // Generar URLs optimizadas si tenemos archivo de Cloudinary
-        let viewUrl = pdfUrl;
-        let downloadUrl = pdfUrl;
-        let fileName = 'documento.pdf';
+        const viewUrl = content.content.cloudinaryPdf?.publicId
+          ? getCloudinaryPDFViewUrl(
+              content.content.cloudinaryPdf.publicId,
+              content.content.cloudinaryPdf.originalFileName || pdfFileName
+            )
+          : content.content.pdfUrl;
 
-        if (pdfFile?.public_id) {
-          viewUrl = getCloudinaryPDFViewUrl(pdfFile.public_id);
-          fileName = extractFileNameFromPublicId(pdfFile.public_id, 'pdf');
-          downloadUrl = getCloudinaryPDFDownloadUrl(pdfFile.public_id, fileName);
-        }
+        const downloadUrl = content.content.cloudinaryPdf?.publicId
+          ? getCloudinaryPDFDownloadUrl(
+              content.content.cloudinaryPdf.publicId,
+              content.content.cloudinaryPdf.originalFileName || pdfFileName
+            )
+          : content.content.pdfUrl;
 
         return (
           <div className={styles.pdfContent}>
             <div className={styles.pdfHeader}>
-              <FileDown size={24} />
+              <FileText size={24} />
               <div className={styles.pdfInfo}>
-                <h4>{pdfTitle}</h4>
+                <h4>{content.title}</h4>
                 {content.content.description && (
                   <p className={styles.pdfDescription}>{content.content.description}</p>
                 )}
-                {pdfFile && (
-                  <div className={styles.pdfMeta}>
-                    <span>{Math.round(pdfFile.bytes / 1024)} KB</span>
-                    {pdfFile.pages && <span>• {pdfFile.pages} páginas</span>}
-                  </div>
-                )}
+                <div className={styles.pdfMeta}>
+                  <span>PDF:</span> {content.content.cloudinaryPdf?.originalFileName || pdfFileName}
+                  {content.content.cloudinaryPdf?.fileSize && (
+                    <span>• Tamaño: {(content.content.cloudinaryPdf.fileSize / (1024 * 1024)).toFixed(1)} MB</span>
+                  )}
+                </div>
               </div>
             </div>
-
+            
             {/* Viewer integrado del PDF */}
             <div className={styles.pdfViewer}>
               <iframe
                 src={viewUrl}
-                title={pdfTitle}
                 className={styles.pdfFrame}
-                width="100%"
-                height="600px"
+                title={content.title}
+                style={{ width: '100%', height: '600px', border: 'none', borderRadius: '0.5rem' }}
+                onError={() => {
+                  // Si hay error en el iframe, mostrar mensaje de error
+                  console.warn('Error cargando PDF en iframe');
+                }}
               />
+              {/* Fallback message si el iframe no funciona */}
+              <div className={styles.pdfFallback} style={{ display: 'none' }}>
+                <p>Si el PDF no se visualiza correctamente, puedes:</p>
+                <ul>
+                  <li>Hacer clic en "Ver en Nueva Ventana" para abrirlo en una pestaña separada</li>
+                  <li>Descargar el archivo y abrirlo con tu lector de PDF preferido</li>
+                </ul>
+              </div>
             </div>
-
-            {/* Botones de acción */}
+            
+            {/* Acciones del PDF */}
             <div className={styles.pdfActions}>
-              <a 
-                href={viewUrl} 
-                target="_blank" 
+              <a
+                href={viewUrl}
+                target="_blank"
                 rel="noopener noreferrer"
-                className={`${styles.pdfButton} ${styles.viewButton}`}
+                className={styles.pdfActionButton}
               >
                 <Eye size={16} />
                 Ver en Nueva Ventana
               </a>
-              <a 
-                href={downloadUrl} 
-                download={fileName}
-                className={`${styles.pdfButton} ${styles.downloadButton}`}
+              <a
+                href={downloadUrl}
+                download
+                className={styles.pdfActionButton}
               >
                 <Download size={16} />
-                Descargar ({fileName})
+                Descargar PDF
               </a>
             </div>
           </div>

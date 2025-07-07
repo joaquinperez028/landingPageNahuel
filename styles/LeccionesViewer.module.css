@@ -475,48 +475,46 @@
   display: block;
 }
 
+/* Botones de acción del PDF */
 .pdfActions {
   display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
-.pdfButton {
-  display: flex;
+.pdfActionButton {
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
+  background: white;
+  color: #475569;
   text-decoration: none;
   font-weight: 500;
   transition: all 0.2s ease;
-  border: 2px solid;
-  font-size: 0.875rem;
+  cursor: pointer;
 }
 
-.viewButton {
-  background: #f0f9ff;
-  color: #0369a1;
-  border-color: #0ea5e9;
-}
-
-.viewButton:hover {
-  background: #e0f2fe;
-  border-color: #0284c7;
+.pdfActionButton:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
   transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.downloadButton {
-  background: #f0fdf4;
-  color: #166534;
-  border-color: #22c55e;
+.pdfActionButton:first-child {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border-color: #3b82f6;
 }
 
-.downloadButton:hover {
-  background: #dcfce7;
-  border-color: #16a34a;
-  transform: translateY(-1px);
+.pdfActionButton:first-child:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  border-color: #2563eb;
+  color: white;
 }
 
 /* Image Content */
