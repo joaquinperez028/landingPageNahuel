@@ -226,4 +226,59 @@ export function getCloudinaryFileUrl(
   return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/${resourceType}/upload/${publicId}`;
 }
 
+/**
+ * Genera URL de PDF para visualización en navegador (evita descarga automática)
+ * @param publicId Public ID del PDF
+ * @param originalFileName Nombre original del archivo (opcional)
+ * @returns URL para visualizar en navegador
+ */
+export function getCloudinaryPDFViewUrl(
+  publicId: string,
+  originalFileName?: string
+): string {
+  // Agregar fl_attachment=false para evitar descarga automática
+  // y permitir visualización en navegador
+  return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/fl_inline/${publicId}`;
+}
+
+/**
+ * Genera URL de PDF para descarga con nombre específico
+ * @param publicId Public ID del PDF
+ * @param fileName Nombre que se usará para la descarga
+ * @returns URL para descarga con nombre específico
+ */
+export function getCloudinaryPDFDownloadUrl(
+  publicId: string,
+  fileName: string
+): string {
+  // Usar fl_attachment con el nombre de archivo para forzar descarga
+  const encodedFileName = encodeURIComponent(fileName);
+  return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/fl_attachment:${encodedFileName}/${publicId}`;
+}
+
+/**
+ * Extrae el nombre original del archivo desde el public_id de Cloudinary
+ * @param publicId Public ID del archivo
+ * @param extension Extensión del archivo (ej: 'pdf')
+ * @returns Nombre de archivo limpio
+ */
+export function extractFileNameFromPublicId(
+  publicId: string,
+  extension: string = 'pdf'
+): string {
+  // Remover timestamp y carpetas, conservar solo el nombre base
+  const parts = publicId.split('/');
+  const baseName = parts[parts.length - 1];
+  
+  // Remover timestamp del inicio si existe (formato: 123456789_nombre)
+  const nameWithoutTimestamp = baseName.replace(/^\d+_/, '');
+  
+  // Agregar extensión si no la tiene
+  if (!nameWithoutTimestamp.includes('.')) {
+    return `${nameWithoutTimestamp}.${extension}`;
+  }
+  
+  return nameWithoutTimestamp;
+}
+
 export default cloudinary; 

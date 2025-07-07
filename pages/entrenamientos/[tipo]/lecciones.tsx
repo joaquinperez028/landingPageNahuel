@@ -23,11 +23,38 @@ import {
   Youtube,
   FileDown,
   Star,
-  Settings
+  Settings,
+  Eye,
+  Maximize2
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import styles from '@/styles/LeccionesViewer.module.css';
+import { 
+  getCloudinaryPDFViewUrl, 
+  getCloudinaryPDFDownloadUrl, 
+  extractFileNameFromPublicId 
+} from '@/lib/cloudinary';
+
+// Interfaces para archivos de Cloudinary
+interface CloudinaryImage {
+  public_id: string;
+  url: string;
+  secure_url: string;
+  width: number;
+  height: number;
+  format: string;
+  bytes: number;
+}
+
+interface CloudinaryPDF {
+  public_id: string;
+  url: string;
+  secure_url: string;
+  format: string;
+  bytes: number;
+  pages?: number;
+}
 
 interface LessonContent {
   id: string;
@@ -38,11 +65,15 @@ interface LessonContent {
     youtubeId?: string;
     youtubeTitle?: string;
     youtubeDuration?: string;
+    // Campos legacy de URL (mantener para compatibilidad)
     pdfUrl?: string;
     pdfTitle?: string;
     imageUrl?: string;
     imageAlt?: string;
     imageCaption?: string;
+    // Nuevos campos para archivos de Cloudinary
+    pdfFile?: CloudinaryPDF;
+    imageFile?: CloudinaryImage;
     text?: string;
     html?: string;
     description?: string;
@@ -187,45 +218,85 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
         );
 
       case 'pdf':
+        // Determinar la URL y nombre del PDF
+        const pdfFile = content.content.pdfFile;
+        const pdfUrl = pdfFile?.secure_url || content.content.pdfUrl;
+        const pdfTitle = content.content.pdfTitle || content.title || 'Documento PDF';
+        
+        // Generar URLs optimizadas si tenemos archivo de Cloudinary
+        let viewUrl = pdfUrl;
+        let downloadUrl = pdfUrl;
+        let fileName = 'documento.pdf';
+
+        if (pdfFile?.public_id) {
+          viewUrl = getCloudinaryPDFViewUrl(pdfFile.public_id);
+          fileName = extractFileNameFromPublicId(pdfFile.public_id, 'pdf');
+          downloadUrl = getCloudinaryPDFDownloadUrl(pdfFile.public_id, fileName);
+        }
+
         return (
           <div className={styles.pdfContent}>
             <div className={styles.pdfHeader}>
               <FileDown size={24} />
-              <div>
-                <h4>{content.content.pdfTitle || content.title}</h4>
+              <div className={styles.pdfInfo}>
+                <h4>{pdfTitle}</h4>
                 {content.content.description && (
-                  <p>{content.content.description}</p>
+                  <p className={styles.pdfDescription}>{content.content.description}</p>
+                )}
+                {pdfFile && (
+                  <div className={styles.pdfMeta}>
+                    <span>{Math.round(pdfFile.bytes / 1024)} KB</span>
+                    {pdfFile.pages && <span>• {pdfFile.pages} páginas</span>}
+                  </div>
                 )}
               </div>
             </div>
+
+            {/* Viewer integrado del PDF */}
+            <div className={styles.pdfViewer}>
+              <iframe
+                src={viewUrl}
+                title={pdfTitle}
+                className={styles.pdfFrame}
+                width="100%"
+                height="600px"
+              />
+            </div>
+
+            {/* Botones de acción */}
             <div className={styles.pdfActions}>
               <a 
-                href={content.content.pdfUrl} 
+                href={viewUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className={styles.pdfButton}
+                className={`${styles.pdfButton} ${styles.viewButton}`}
               >
-                <ExternalLink size={16} />
-                Ver PDF
+                <Eye size={16} />
+                Ver en Nueva Ventana
               </a>
               <a 
-                href={content.content.pdfUrl} 
-                download
-                className={styles.pdfButton}
+                href={downloadUrl} 
+                download={fileName}
+                className={`${styles.pdfButton} ${styles.downloadButton}`}
               >
                 <Download size={16} />
-                Descargar
+                Descargar ({fileName})
               </a>
             </div>
           </div>
         );
 
       case 'image':
+        // Manejar imágenes de Cloudinary y URLs legacy
+        const imageFile = content.content.imageFile;
+        const imageUrl = imageFile?.secure_url || content.content.imageUrl;
+        const imageAlt = content.content.imageAlt || content.title || 'Imagen';
+
         return (
           <div className={styles.imageContent}>
             <img 
-              src={content.content.imageUrl}
-              alt={content.content.imageAlt || content.title}
+              src={imageUrl}
+              alt={imageAlt}
               className={styles.contentImage}
             />
             {content.content.imageCaption && (
