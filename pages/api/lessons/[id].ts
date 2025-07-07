@@ -17,15 +17,58 @@ const updateLessonSchema = z.object({
     orden: z.number(),
     title: z.string().optional(),
     content: z.object({
+      // YouTube
       youtubeId: z.string().optional(),
       youtubeTitle: z.string().optional(),
       youtubeDuration: z.string().optional(),
+      
+      // PDFs legacy
       pdfUrl: z.string().optional(),
       pdfTitle: z.string().optional(),
       pdfSize: z.string().optional(),
+      
+      // PDFs de Cloudinary (deprecado)
+      pdfFile: z.object({
+        public_id: z.string(),
+        url: z.string(),
+        secure_url: z.string(),
+        format: z.string(),
+        bytes: z.number(),
+        pages: z.number().optional()
+      }).optional(),
+      
+      cloudinaryPdf: z.object({
+        publicId: z.string(),
+        originalFileName: z.string().optional(),
+        fileSize: z.number().optional()
+      }).optional(),
+      
+      // PDFs almacenados en base de datos (nuevo)
+      databasePdf: z.object({
+        pdfId: z.string(),
+        fileName: z.string(),
+        originalName: z.string(),
+        fileSize: z.number(),
+        mimeType: z.string(),
+        uploadDate: z.date()
+      }).optional(),
+      
+      // Imágenes
       imageUrl: z.string().optional(),
       imageAlt: z.string().optional(),
       imageCaption: z.string().optional(),
+      
+      imageFile: z.object({
+        public_id: z.string(),
+        url: z.string(),
+        secure_url: z.string(),
+        width: z.number(),
+        height: z.number(),
+        format: z.string(),
+        bytes: z.number()
+      }).optional(),
+      
+      // Texto/HTML
       text: z.string().optional(),
       html: z.string().optional(),
       description: z.string().optional(),
