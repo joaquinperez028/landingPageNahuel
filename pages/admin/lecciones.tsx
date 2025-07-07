@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
 import toast from 'react-hot-toast';
+import Navbar from '../../components/Navbar';
 import {
   PlayCircle,
   BookOpen,
@@ -391,6 +392,8 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
       <Head>
         <title>Gestión de Lecciones - Panel Admin</title>
       </Head>
+
+      <Navbar />
 
       <div className={styles.container}>
         <div className={styles.header}>
