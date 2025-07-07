@@ -82,8 +82,24 @@ export default async function handler(
       });
     }
     
-    // Usar el fileName del query si se proporciona, sino usar el original
-    const finalFileName = (fileName as string) || pdfDoc.originalName;
+    // Usar el fileName del query si se proporciona y es válido, sino usar el original
+    let finalFileName = pdfDoc.originalName;
+    
+    if (fileName && typeof fileName === 'string' && fileName.trim() !== '' && fileName !== 'undefined') {
+      finalFileName = fileName.trim();
+    }
+    
+    // Fallback si no hay nombre válido
+    if (!finalFileName || finalFileName === 'undefined') {
+      finalFileName = pdfDoc.fileName || `documento_${pdfId}.pdf`;
+    }
+    
+    // Asegurar que el archivo tenga extensión .pdf
+    if (!finalFileName.toLowerCase().endsWith('.pdf')) {
+      finalFileName += '.pdf';
+    }
+    
+    console.log('📂 Nombre final del archivo:', finalFileName);
     
     // Configurar headers optimizados para visualización de PDF en iframe
     res.setHeader('Content-Type', 'application/pdf');
@@ -102,13 +118,15 @@ export default async function handler(
     res.setHeader('X-XSS-Protection', '1; mode=block');
     
     if (action === 'download') {
-      // Para descarga: forzar descarga con nombre específico
-      res.setHeader('Content-Disposition', `attachment; filename="${finalFileName}"`);
+      // Para descarga: forzar descarga con nombre específico y encode correcto
+      const encodedFileName = encodeURIComponent(finalFileName);
+      res.setHeader('Content-Disposition', `attachment; filename="${finalFileName}"; filename*=UTF-8''${encodedFileName}`);
       console.log('📥 Enviando PDF para descarga:', finalFileName);
     } else if (action === 'view') {
-      // Para visualización: abrir en navegador
-      res.setHeader('Content-Disposition', 'inline');
-      console.log('👁️ Enviando PDF para visualización inline');
+      // Para visualización: abrir en navegador con nombre correcto
+      const encodedFileName = encodeURIComponent(finalFileName);
+      res.setHeader('Content-Disposition', `inline; filename="${finalFileName}"; filename*=UTF-8''${encodedFileName}`);
+      console.log('👁️ Enviando PDF para visualización inline:', finalFileName);
     }
 
     // Verificar si es una solicitud de rango (para videos/PDFs grandes)
