@@ -22,7 +22,8 @@ import {
   Image,
   Youtube,
   FileDown,
-  Star
+  Star,
+  Settings
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -356,6 +357,17 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
                     <span className={`${styles.difficultyTag} ${styles[currentLesson.dificultad.toLowerCase()]}`}>
                       {currentLesson.dificultad}
                     </span>
+                    {/* Botón de administración solo para admins */}
+                    {session?.user?.role === 'admin' && (
+                      <a
+                        href={`/admin/lecciones?tipo=${tipoEntrenamiento}`}
+                        className={styles.adminButton}
+                        title="Administrar lecciones"
+                      >
+                        <Settings size={16} />
+                        Admin
+                      </a>
+                    )}
                   </div>
                   <h1 className={styles.lessonTitle}>{currentLesson.titulo}</h1>
                   <p className={styles.lessonDescription}>{currentLesson.descripcion}</p>

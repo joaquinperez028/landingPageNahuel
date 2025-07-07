@@ -14,7 +14,8 @@ import {
   Clock,
   FileText,
   ArrowRight,
-  Globe
+  Globe,
+  BookOpen
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -32,6 +33,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       icon: <Globe size={32} />,
       href: '/admin/site-config',
       color: '#7c3aed'
+    },
+    {
+      title: 'Gestión de Lecciones',
+      description: 'Crea, edita y administra las lecciones de los entrenamientos TradingFundamentals y DowJones',
+      icon: <BookOpen size={32} />,
+      href: '/admin/lecciones',
+      color: '#dc2626'
     },
     {
       title: 'Tarjetas de Cursos',
@@ -163,6 +171,19 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                   <p>Gestiona las tarjetas personalizadas de cursos</p>
                   <Link href="/admin/course-cards" className={styles.statLink}>
                     Gestionar cursos →
+                  </Link>
+                </div>
+              </div>
+
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>
+                  <BookOpen size={24} />
+                </div>
+                <div className={styles.statContent}>
+                  <h4>Gestión de Lecciones</h4>
+                  <p>Crea y administra lecciones de entrenamientos</p>
+                  <Link href="/admin/lecciones" className={styles.statLink}>
+                    Gestionar lecciones →
                   </Link>
                 </div>
               </div>
