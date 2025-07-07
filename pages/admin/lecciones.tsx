@@ -313,22 +313,22 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
     const nuevoContenido: LessonContent = {
       id: Date.now().toString(),
       type: tipo,
-      orden: formData.contenido.length + 1,
+      orden: 0, // Se calculará en el callback
       title: '',
       content: {}
     };
 
-    setFormData({
-      ...formData,
-      contenido: [...formData.contenido, nuevoContenido]
-    });
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      contenido: [...prevFormData.contenido, { ...nuevoContenido, orden: prevFormData.contenido.length + 1 }]
+    }));
   };
 
   // Actualizar contenido
   const actualizarContenido = (id: string, campo: string, valor: any) => {
-    setFormData({
-      ...formData,
-      contenido: formData.contenido.map(item =>
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      contenido: prevFormData.contenido.map(item =>
         item.id === id
           ? {
               ...item,
@@ -338,26 +338,28 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
             }
           : item
       )
-    });
+    }));
   };
 
   // Eliminar contenido
   const eliminarContenido = (id: string) => {
-    setFormData({
-      ...formData,
-      contenido: formData.contenido.filter(item => item.id !== id)
-    });
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      contenido: prevFormData.contenido.filter(item => item.id !== id)
+    }));
   };
 
   // Reordenar contenido
   const reordenarContenido = (fromIndex: number, toIndex: number) => {
-    const nuevosContenidos = [...formData.contenido];
-    const [elementoMovido] = nuevosContenidos.splice(fromIndex, 1);
-    nuevosContenidos.splice(toIndex, 0, elementoMovido);
-    
-    setFormData({
-      ...formData,
-      contenido: nuevosContenidos.map((item, index) => ({ ...item, orden: index + 1 }))
+    setFormData(prevFormData => {
+      const nuevosContenidos = [...prevFormData.contenido];
+      const [elementoMovido] = nuevosContenidos.splice(fromIndex, 1);
+      nuevosContenidos.splice(toIndex, 0, elementoMovido);
+      
+      return {
+        ...prevFormData,
+        contenido: nuevosContenidos.map((item, index) => ({ ...item, orden: index + 1 }))
+      };
     });
   };
 
