@@ -45,7 +45,9 @@ export default async function handler(
       action,
       pdfId,
       fileName,
-      user: session.user.email
+      user: session.user.email,
+      userAgent: req.headers['user-agent'],
+      referer: req.headers.referer
     });
 
     await connectDB();
@@ -65,24 +67,39 @@ export default async function handler(
       fileName: pdfDoc.fileName,
       originalName: pdfDoc.originalName,
       size: pdfDoc.fileSize,
-      uploadedBy: pdfDoc.uploadedBy
+      mimeType: pdfDoc.mimeType,
+      uploadedBy: pdfDoc.uploadedBy,
+      dataType: typeof pdfDoc.data,
+      dataLength: pdfDoc.data ? pdfDoc.data.length : 0
     });
+    
+    // Verificar que tenemos datos válidos
+    if (!pdfDoc.data || pdfDoc.data.length === 0) {
+      console.error('❌ PDF sin datos o datos vacíos:', pdfId);
+      return res.status(500).json({ 
+        error: 'PDF corrupto',
+        details: 'El archivo PDF no contiene datos válidos'
+      });
+    }
     
     // Usar el fileName del query si se proporciona, sino usar el original
     const finalFileName = (fileName as string) || pdfDoc.originalName;
     
-    // Configurar headers CORS para permitir iframe desde el mismo dominio
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
-    // Configurar headers del archivo
-    res.setHeader('Content-Type', pdfDoc.mimeType || 'application/pdf');
-    res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache por 1 año
+    // Configurar headers optimizados para visualización de PDF en iframe
+    res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Length', pdfDoc.fileSize);
     
-    // Evitar problemas de MIME-type sniffing
+    // Headers para permitir visualización en iframe
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Content-Security-Policy', "frame-ancestors 'self'");
+    
+    // Cache headers
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.setHeader('ETag', `"${pdfId}"`);
+    
+    // Headers de seguridad
     res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
     
     if (action === 'download') {
       // Para descarga: forzar descarga con nombre específico
@@ -94,8 +111,27 @@ export default async function handler(
       console.log('👁️ Enviando PDF para visualización inline');
     }
 
-    // Enviar el archivo desde la base de datos
-    res.send(pdfDoc.data);
+    // Verificar si es una solicitud de rango (para videos/PDFs grandes)
+    const range = req.headers.range;
+    if (range && action === 'view') {
+      console.log('📊 Procesando solicitud de rango:', range);
+      
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : pdfDoc.fileSize - 1;
+      const chunksize = (end - start) + 1;
+      
+      res.status(206);
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${pdfDoc.fileSize}`);
+      res.setHeader('Accept-Ranges', 'bytes');
+      res.setHeader('Content-Length', chunksize);
+      
+      // Enviar slice del buffer
+      res.end(pdfDoc.data.slice(start, end + 1));
+    } else {
+      // Enviar archivo completo
+      res.end(pdfDoc.data);
+    }
     
     console.log('✅ PDF enviado exitosamente desde base de datos');
 
@@ -104,17 +140,21 @@ export default async function handler(
     
     // Proporcionar más información sobre el error
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+    const errorStack = error instanceof Error ? error.stack : '';
+    
     const errorDetails = {
       message: errorMessage,
+      stack: errorStack,
       query: req.query,
+      headers: req.headers,
       timestamp: new Date().toISOString()
     };
     
-    console.error('📋 Detalles del error:', errorDetails);
+    console.error('📋 Detalles completos del error:', errorDetails);
     
     res.status(500).json({ 
       error: 'Error interno del servidor',
-      details: errorMessage
+      details: process.env.NODE_ENV === 'development' ? errorMessage : 'Error interno'
     });
   }
 } 
