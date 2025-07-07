@@ -65,7 +65,11 @@ interface PaginationData {
   hasPrev: boolean;
 }
 
-export default function AdminUsersPage() {
+interface AdminUsersProps {
+  user: any;
+}
+
+export default function AdminUsersPage({ user }: AdminUsersProps) {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -355,7 +359,7 @@ export default function AdminUsersPage() {
         <meta name="description" content="Gestión avanzada de usuarios y suscripciones del sistema" />
       </Head>
 
-      <Navbar />
+      <Navbar forceSession={user} />
 
       <main className={styles.main}>
         <div className={styles.container}>

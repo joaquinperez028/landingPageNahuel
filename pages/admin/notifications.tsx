@@ -40,7 +40,11 @@ interface Notification {
   actionText?: string;
 }
 
-export default function AdminNotificationsPage() {
+interface AdminNotificationsProps {
+  user: any;
+}
+
+export default function AdminNotificationsPage({ user }: AdminNotificationsProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -173,7 +177,7 @@ export default function AdminNotificationsPage() {
         <meta name="description" content="Gestión de notificaciones del sistema" />
       </Head>
 
-      <Navbar />
+      <Navbar forceSession={user} />
 
       <main className={styles.main}>
         <div className={styles.container}>

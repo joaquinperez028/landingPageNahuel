@@ -99,7 +99,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         <meta name="description" content="Panel de administración para gestionar contenido y configuraciones" />
       </Head>
 
-      <Navbar />
+      <Navbar forceSession={user} />
 
       <main className={styles.main}>
         <div className={styles.container}>

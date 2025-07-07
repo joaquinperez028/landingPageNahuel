@@ -44,6 +44,10 @@ interface DashboardStats {
   recentActivity: any[];
 }
 
+interface AdminDashboardProps {
+  user: any;
+}
+
 // Memoizar las secciones del dashboard para evitar re-renders innecesarios
 const useDashboardSections = () => {
   return useMemo(() => [
@@ -170,7 +174,7 @@ const useDashboardSections = () => {
   ], []);
 };
 
-export default function AdminDashboardPage() {
+export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     adminUsers: 0,
@@ -304,7 +308,7 @@ export default function AdminDashboardPage() {
         <link rel="preload" href="/api/admin/dashboard/stats" as="fetch" crossOrigin="anonymous" />
       </Head>
 
-      <Navbar />
+      <Navbar forceSession={user} />
 
       <main className={styles.main}>
         <div className={styles.container}>

@@ -51,7 +51,11 @@ interface SendLinkForm {
   customMessage: string;
 }
 
-const AdminEnviarLinksPage = () => {
+interface AdminEnviarLinksProps {
+  user: any;
+}
+
+const AdminEnviarLinksPage = ({ user }: AdminEnviarLinksProps) => {
   const [sessions, setSessions] = useState<UpcomingSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -201,7 +205,7 @@ const AdminEnviarLinksPage = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Head>
 
-      <Navbar />
+      <Navbar forceSession={user} />
 
       <main className={styles.main}>
         <div className={styles.container}>
