@@ -480,6 +480,7 @@
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
+  flex-wrap: wrap;
 }
 
 .pdfActionButton {
@@ -495,6 +496,7 @@
   font-weight: 500;
   transition: all 0.2s ease;
   cursor: pointer;
+  font-size: 0.875rem;
 }
 
 .pdfActionButton:hover {
@@ -515,6 +517,56 @@
   background: linear-gradient(135deg, #2563eb, #1e40af);
   border-color: #2563eb;
   color: white;
+}
+
+/* Botón de fallback */
+.fallbackButton {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  border-color: #cbd5e1 !important;
+  font-size: 0.75rem !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.fallbackButton:hover {
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Mensaje de fallback mejorado */
+.pdfFallback {
+  padding: 1rem;
+  background: #fef3cd;
+  border: 1px solid #fbbf24;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.pdfFallback p {
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
+  color: #92400e;
+}
+
+.pdfFallback ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #78350f;
+}
+
+.pdfFallback li {
+  margin: 0.25rem 0;
+}
+
+.pdfFallback a {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.pdfFallback a:hover {
+  color: #1e40af;
 }
 
 /* Image Content */

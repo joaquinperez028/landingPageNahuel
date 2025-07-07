@@ -26,7 +26,9 @@ import {
   Eye,
   Save,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  RefreshCw,
+  Database
 } from 'lucide-react';
 import { GetServerSideProps } from 'next';
 import { getServerSession } from 'next-auth/next';
@@ -387,6 +389,42 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
     toast.error(`Error subiendo archivo: ${error}`);
   };
 
+  // Función para migrar PDFs al nuevo formato
+  const handleMigratePDFs = async () => {
+    if (!confirm('¿Estás seguro de que quieres migrar todos los PDFs al nuevo formato cloudinaryPdf?')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/lessons/migrate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(`Migración completada: ${data.data.migrados} lecciones migradas`);
+        
+        // Mostrar detalles de la migración
+        console.log('📋 Detalles de migración:', data.data.detalles);
+        
+        // Recargar lecciones
+        await cargarLecciones();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error en la migración');
+      }
+    } catch (error) {
+      console.error('❌ Error migrando PDFs:', error);
+      toast.error(`Error en migración: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <Head>
@@ -408,11 +446,45 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
           </div>
 
           <div className={styles.headerRight}>
+            <select
+              value={filtros.tipo}
+              onChange={(e) => setFiltros({...filtros, tipo: e.target.value as any})}
+              className={styles.select}
+            >
+              <option value="all">Todos los tipos</option>
+              <option value="TradingFundamentals">Trading Fundamentals</option>
+              <option value="DowJones">Dow Jones</option>
+            </select>
+            
+            <button
+              onClick={handleMigratePDFs}
+              disabled={loading}
+              className={`${styles.button} ${styles.migrationButton}`}
+              title="Migrar PDFs existentes al nuevo formato"
+            >
+              {loading ? (
+                <>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <RefreshCw size={16} />
+                  </motion.div>
+                  Migrando...
+                </>
+              ) : (
+                <>
+                  <Database size={16} />
+                  Migrar PDFs
+                </>
+              )}
+            </button>
+            
             <button
               onClick={() => setShowCreateModal(true)}
-              className={styles.createButton}
+              className={`${styles.button} ${styles.primaryButton}`}
             >
-              <Plus size={20} />
+              <Plus size={16} />
               Nueva Lección
             </button>
           </div>
@@ -431,15 +503,6 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
           </div>
 
           <div className={styles.filters}>
-            <select
-              value={filtros.tipo}
-              onChange={(e) => setFiltros({...filtros, tipo: e.target.value})}
-            >
-              <option value="all">Todos los tipos</option>
-              <option value="TradingFundamentals">Trading Fundamentals</option>
-              <option value="DowJones">Dow Jones</option>
-            </select>
-
             <select
               value={filtros.modulo}
               onChange={(e) => setFiltros({...filtros, modulo: e.target.value})}

@@ -11,10 +11,17 @@ interface LessonContent {
     youtubeTitle?: string;
     youtubeDuration?: string;
     
-    // Para PDFs
+    // Para PDFs (campos legacy)
     pdfUrl?: string;
     pdfTitle?: string;
     pdfSize?: string;
+    
+    // Para PDFs de Cloudinary (nuevo)
+    cloudinaryPdf?: {
+      publicId: string;
+      originalFileName?: string;
+      fileSize?: number;
+    };
     
     // Para imágenes
     imageUrl?: string;
@@ -74,10 +81,17 @@ const lessonContentSchema = new Schema({
     youtubeTitle: { type: String },
     youtubeDuration: { type: String },
     
-    // PDF
+    // PDF (campos legacy)
     pdfUrl: { type: String },
     pdfTitle: { type: String },
     pdfSize: { type: String },
+    
+    // PDF de Cloudinary (nuevo)
+    cloudinaryPdf: {
+      publicId: { type: String },
+      originalFileName: { type: String },
+      fileSize: { type: Number }
+    },
     
     // Imagen
     imageUrl: { type: String },

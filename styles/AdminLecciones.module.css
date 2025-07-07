@@ -809,6 +809,32 @@
   color: var(--text-muted);
 }
 
+/* Botón de migración */
+.migrationButton {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: white !important;
+  border-color: #f59e0b !important;
+  font-size: 0.875rem;
+  padding: 0.625rem 1rem;
+}
+
+.migrationButton:hover {
+  background: linear-gradient(135deg, #d97706, #b45309) !important;
+  border-color: #d97706 !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+}
+
+.migrationButton:disabled {
+  background: #9ca3af !important;
+  border-color: #9ca3af !important;
+  color: white !important;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {

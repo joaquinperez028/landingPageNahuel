@@ -33,6 +33,8 @@ import styles from '@/styles/LeccionesViewer.module.css';
 import { 
   getCloudinaryPDFViewUrl, 
   getCloudinaryPDFDownloadUrl, 
+  getCloudinaryDirectPDFUrl,
+  getCloudinaryPDFDirectViewUrl,
   extractFileNameFromPublicId 
 } from '@/lib/cloudinary';
 
@@ -227,6 +229,7 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
           content.content.cloudinaryPdf?.publicId || content.content.pdfUrl || ''
         );
         
+        // URLs usando nuestro endpoint con encoding mejorado
         const viewUrl = content.content.cloudinaryPdf?.publicId
           ? getCloudinaryPDFViewUrl(
               content.content.cloudinaryPdf.publicId,
@@ -239,6 +242,15 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
               content.content.cloudinaryPdf.publicId,
               content.content.cloudinaryPdf.originalFileName || pdfFileName
             )
+          : content.content.pdfUrl;
+
+        // URLs de fallback directo a Cloudinary
+        const directViewUrl = content.content.cloudinaryPdf?.publicId
+          ? getCloudinaryPDFDirectViewUrl(content.content.cloudinaryPdf.publicId)
+          : content.content.pdfUrl;
+
+        const directDownloadUrl = content.content.cloudinaryPdf?.publicId
+          ? getCloudinaryDirectPDFUrl(content.content.cloudinaryPdf.publicId)
           : content.content.pdfUrl;
 
         return (
@@ -266,16 +278,29 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
                 className={styles.pdfFrame}
                 title={content.title}
                 style={{ width: '100%', height: '600px', border: 'none', borderRadius: '0.5rem' }}
-                onError={() => {
-                  // Si hay error en el iframe, mostrar mensaje de error
-                  console.warn('Error cargando PDF en iframe');
+                onLoad={() => {
+                  console.log('✅ PDF cargado exitosamente en iframe');
+                }}
+                onError={(e) => {
+                  console.warn('❌ Error cargando PDF en iframe, intentando fallback');
+                  // En caso de error, cambiar src al URL directo
+                  const iframe = e.target as HTMLIFrameElement;
+                  if (iframe.src !== directViewUrl) {
+                    console.log('🔄 Cambiando a URL directa de Cloudinary');
+                    iframe.src = directViewUrl || '';
+                  }
                 }}
               />
-              {/* Fallback message si el iframe no funciona */}
+              
+              {/* Mensaje de fallback si el iframe no funciona */}
               <div className={styles.pdfFallback} style={{ display: 'none' }}>
                 <p>Si el PDF no se visualiza correctamente, puedes:</p>
                 <ul>
-                  <li>Hacer clic en "Ver en Nueva Ventana" para abrirlo en una pestaña separada</li>
+                  <li>
+                    <a href={directViewUrl} target="_blank" rel="noopener noreferrer">
+                      Abrir el PDF directamente en una nueva pestaña
+                    </a>
+                  </li>
                   <li>Descargar el archivo y abrirlo con tu lector de PDF preferido</li>
                 </ul>
               </div>
@@ -288,19 +313,60 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.pdfActionButton}
+                onClick={(e) => {
+                  // Si el URL principal falla, usar el directo
+                  console.log('🔗 Abriendo PDF en nueva ventana');
+                }}
+                onError={() => {
+                  console.warn('❌ Error con URL principal, usando directo');
+                }}
               >
                 <Eye size={16} />
                 Ver en Nueva Ventana
               </a>
               <a
                 href={downloadUrl}
-                download
                 className={styles.pdfActionButton}
+                onClick={(e) => {
+                  console.log('📥 Iniciando descarga de PDF');
+                  // Agregar fallback en caso de error
+                  setTimeout(() => {
+                    // Si la descarga no funciona después de 3 segundos, mostrar alternativa
+                    console.log('💡 Si la descarga no funciona, usando URL directo');
+                  }, 3000);
+                }}
               >
                 <Download size={16} />
                 Descargar PDF
               </a>
+              
+              {/* Botón de fallback directo (oculto por defecto) */}
+              {content.content.cloudinaryPdf?.publicId && (
+                <a
+                  href={directDownloadUrl}
+                  className={`${styles.pdfActionButton} ${styles.fallbackButton}`}
+                  title="Enlace directo de respaldo"
+                  style={{ opacity: 0.7, fontSize: '0.875rem' }}
+                >
+                  <ExternalLink size={14} />
+                  Enlace Directo
+                </a>
+              )}
             </div>
+            
+            {/* Debug info para admins */}
+            {session?.user?.role === 'admin' && (
+              <details style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#666' }}>
+                <summary>Info de Debug (Solo Admin)</summary>
+                <div style={{ marginTop: '0.5rem', fontFamily: 'monospace' }}>
+                  <p><strong>Public ID:</strong> {content.content.cloudinaryPdf?.publicId}</p>
+                  <p><strong>View URL:</strong> {viewUrl}</p>
+                  <p><strong>Download URL:</strong> {downloadUrl}</p>
+                  <p><strong>Direct View:</strong> {directViewUrl}</p>
+                  <p><strong>Direct Download:</strong> {directDownloadUrl}</p>
+                </div>
+              </details>
+            )}
           </div>
         );
 

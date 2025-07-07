@@ -236,8 +236,9 @@ export function getCloudinaryPDFViewUrl(
   publicId: string,
   originalFileName?: string
 ): string {
-  // Usar nuestro endpoint personalizado para visualización
-  return `/api/pdf/view/${publicId}${originalFileName ? `?fileName=${encodeURIComponent(originalFileName)}` : ''}`;
+  // Encodificar el public_id para manejar carpetas correctamente
+  const encodedPublicId = encodeURIComponent(publicId);
+  return `/api/pdf/view/${encodedPublicId}${originalFileName ? `?fileName=${encodeURIComponent(originalFileName)}` : ''}`;
 }
 
 /**
@@ -250,9 +251,29 @@ export function getCloudinaryPDFDownloadUrl(
   publicId: string,
   fileName: string
 ): string {
-  // Usar nuestro endpoint personalizado para descarga con nombre correcto
+  // Encodificar el public_id para manejar carpetas correctamente
+  const encodedPublicId = encodeURIComponent(publicId);
   const encodedFileName = encodeURIComponent(fileName);
-  return `/api/pdf/download/${publicId}?fileName=${encodedFileName}`;
+  return `/api/pdf/download/${encodedPublicId}?fileName=${encodedFileName}`;
+}
+
+/**
+ * Genera URL directa de Cloudinary para PDFs (fallback)
+ * @param publicId Public ID del PDF
+ * @returns URL directa de Cloudinary
+ */
+export function getCloudinaryDirectPDFUrl(publicId: string): string {
+  return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/${publicId}`;
+}
+
+/**
+ * Genera URL de PDF para visualización directa en Cloudinary (sin proxy)
+ * @param publicId Public ID del PDF
+ * @returns URL directa para visualización
+ */
+export function getCloudinaryPDFDirectViewUrl(publicId: string): string {
+  // Usar fl_attachment para forzar descarga o sin él para visualización
+  return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/fl_attachment:false/${publicId}`;
 }
 
 /**
