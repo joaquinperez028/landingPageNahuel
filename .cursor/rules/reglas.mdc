@@ -7,8 +7,8 @@ alwaysApply: true
 
 1. *Variables de entorno siempre en el servidor*
    – Nunca hardcodeés claves o URLs sensibles en el código cliente..
-   – Usá process.env.NOMBRE_VARIABLE o equivalente para acceder a las variables (MongoDB, Google, MUX, mercadopago, etc.).
-   – Para cada variable, definí un nombre claro (MONGODB_URI, GOOGLE_CLIENT_ID, MUX_TOKEN_SECRET, etc.) y documentá en un .env.example las que se necesitan.
+   – Usá process.env.NOMBRE_VARIABLE o equivalente para acceder a las variables (MongoDB, Google, mercadopago, etc.).
+   – Para cada variable, definí un nombre claro (MONGODB_URI, GOOGLE_CLIENT_ID, etc.) y documentá en un .env.example las que se necesitan.
 
 2. *Después de cada cambio importante: npm run build*
    – Antes de mandar cualquier update a producción (Vercel), corré npm run build localmente para asegurarte de que no hay errores de compilación.
@@ -20,8 +20,8 @@ alwaysApply: true
    – Habilitá en tsconfig.json opciones como "strict": true, "noImplicitAny": true y "strictNullChecks": true para evitar sorpresas.
 
 4. *Estructura de carpetas y nombres consistentes*
-   – Carpeta /models para esquemas de MongoDB, /lib para helpers (conexión a BD, configuración de MUX, Google Auth, pagos, etc.).
-   – Componentes en /components, cada archivo con nombre PascalCase (Navbar.tsx, VideoPlayerMux.tsx).
+   – Carpeta /models para esquemas de MongoDB, /lib para helpers (conexión a BD, Google Auth, pagos, etc.).
+   – Componentes en /components, cada archivo con nombre PascalCase (Navbar.tsx).
    – Páginas en /pages siguiendo Next.js (o estructura equivalente si no usan Next).
    – Mantené separación clara entre frontend (.tsx/.jsx, /styles) y backend (/api, helpers en /lib).
 
@@ -34,11 +34,6 @@ alwaysApply: true
    – Todas las páginas que requieren login deben chequear en el servidor (con getServerSideProps o middleware) que session o token de Google exista.
    – Si no está autenticado, redirigir automáticamente a /login.
    – Guardar en la sesión sólo lo necesario (googleId, email, rol, foto), sin exponer tokens sensibles al cliente.
-
-7. *Integración con MUX sin filtrar credenciales*
-   – El backend (función serverless o API) debe ser el único que use MUX_TOKEN_SECRET y suba el archivo.
-   – El frontend sólo recibe playbackId y lo pasa al componente VideoPlayerMux.
-   – Chequear que cada playbackId exista antes de renderizar el player (si no, mostrar placeholder o error amigable).
 
 8. *Manejo de fechas y zonas horarias*
    – Uniformar todo a UTC en el backend.
@@ -68,7 +63,6 @@ alwaysApply: true
     * Login/Logout.
     * Que no puedas entrar a /admin si no sos admin.
     * Que al suscribirte a una alerta se actualice MongoDB y cambie la vista.
-    * Que los videos de MUX se reproduzcan sin errores de CORS.
       – Si ves algo crítico, sugerí a Cursor AI que agregue comentarios // TODO: agregar test unitario para X.
 
 13. *Documentación en el código*
@@ -77,20 +71,18 @@ alwaysApply: true
     – Dejá un README.md en la raíz explicando: cómo setear variables de entorno, comandos para iniciar en dev (npm run dev), cómo ejecutar build y deploy en Vercel.
 
 14. *Logs y monitoreo leve*
-    – En el backend, antes de cada operación crítica (login, pago, subida a MUX), hacé un console.log breve indicando qué está pasando.
+    – En el backend, antes de cada operación crítica (login, pago), hacé un console.log breve indicando qué está pasando.
     – Si usás Vercel, revisá el “Functions Logs” para capturar errores 500.
-    – Si algo falla al subir un video a MUX o al guardar en MongoDB, devolvé un mensaje claro al frontend (y guardá el error en logs, no lo muestres al usuario final).
 
 15. *Control de versiones y commits claros*
     – Aunque Cursor AI genere el código, recomendá siempre usar Git y hacer commits pequeños y descriptivos:
 
     * “feat: agregada ruta /api/trainings para crear entrenamiento”
-    * “fix: corregido error en VideoPlayerMux cuando playbackId es undefined”
       – Incluí un .gitignore que excluya node_modules, .env.local y .next (o dist).
 
 16. *Trabajar siempre en ramas (Git Branches)*
     – Cada nueva feature o corrección se desarrolla en su propia rama (git branch nombre-rama y luego git checkout nombre-rama).
-    – El nombre de la rama debe ser descriptivo: por ejemplo, feature/login-google, bugfix/mux-player-error o hotfix/env-config.
+    – El nombre de la rama debe ser descriptivo: por ejemplo, feature/login-google o hotfix/env-config.
     – Antes de mergear al main (o master), comprobá localmente que la rama corre sin errores (npm run build y pruebas mínimas).
 
     – Hacé Pull Requests (o Merges) sólo cuando la rama esté lista y revisada, evitando trabajar directamente en main.

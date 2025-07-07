@@ -8,6 +8,7 @@ import { generateCircularAvatarDataURL } from '@/lib/utils';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
+import TrainingRoadmap from '@/components/TrainingRoadmap';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -146,6 +147,217 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
     } finally {
       setIsEnrolling(false);
     }
+  };
+
+  // Roadmap específico para Trading Fundamentals
+  const tradingFundamentalsRoadmap = [
+    {
+      id: 1,
+      title: "Introducción al Trading",
+      description: "Fundamentos básicos del trading y configuración del entorno de trabajo",
+      duration: "3 horas",
+      lessons: 8,
+      topics: [
+        "¿Qué es el trading y cómo funciona?",
+        "Diferencias entre inversión y trading",
+        "Tipos de mercados financieros",
+        "Configuración de plataformas",
+        "Terminología básica",
+        "Horarios de mercado globales",
+        "Primeros pasos con capital demo",
+        "Mentalidad del trader principiante"
+      ],
+      completed: true,
+      difficulty: "Básico" as const
+    },
+    {
+      id: 2,
+      title: "Análisis Técnico Básico",
+      description: "Herramientas fundamentales para leer gráficos y patrones de precios",
+      duration: "5 horas",
+      lessons: 12,
+      topics: [
+        "Tipos de gráficos (velas, líneas, barras)",
+        "Timeframes y su importancia",
+        "Soportes y resistencias básicos",
+        "Tendencias alcistas, bajistas y laterales",
+        "Volumen y su interpretación",
+        "Patrones de velas japonesas",
+        "Líneas de tendencia",
+        "Fibonacci básico"
+      ],
+      completed: true,
+      difficulty: "Básico" as const,
+      prerequisite: 1
+    },
+    {
+      id: 3,
+      title: "Indicadores Técnicos",
+      description: "Dominio de los indicadores más efectivos para tomar decisiones",
+      duration: "4 horas",
+      lessons: 10,
+      topics: [
+        "Medias móviles (SMA, EMA)",
+        "RSI y interpretación de sobrecompra/sobreventa",
+        "MACD y divergencias",
+        "Bandas de Bollinger",
+        "Estocástico",
+        "ATR para volatilidad",
+        "Combinación de indicadores",
+        "Evitar el análisis paralítico"
+      ],
+      completed: false,
+      difficulty: "Básico" as const,
+      prerequisite: 2
+    },
+    {
+      id: 4,
+      title: "Gestión de Riesgo",
+      description: "Técnicas esenciales para proteger tu capital y maximizar ganancias",
+      duration: "4 horas",
+      lessons: 9,
+      topics: [
+        "Regla del 1-2% por operación",
+        "Cálculo de posición (position sizing)",
+        "Stop Loss: colocación y tipos",
+        "Take Profit y ratios R:R",
+        "Trailing stops",
+        "Diversificación de activos",
+        "Money management avanzado",
+        "Gestión emocional del riesgo"
+      ],
+      completed: false,
+      difficulty: "Intermedio" as const,
+      prerequisite: 3
+    },
+    {
+      id: 5,
+      title: "Estrategias de Trading",
+      description: "Estrategias probadas para diferentes condiciones de mercado",
+      duration: "5 horas",
+      lessons: 13,
+      topics: [
+        "Estrategia de seguimiento de tendencia",
+        "Trading en rangos y soportes/resistencias",
+        "Breakouts y rupturas",
+        "Pullbacks y retrocesos",
+        "Scalping básico",
+        "Swing trading",
+        "Trading de noticias",
+        "Adaptación a diferentes sesiones"
+      ],
+      completed: false,
+      difficulty: "Intermedio" as const,
+      prerequisite: 4
+    },
+    {
+      id: 6,
+      title: "Psicología del Trading",
+      description: "Control emocional y disciplina mental para el éxito sostenido",
+      duration: "3 horas",
+      lessons: 8,
+      topics: [
+        "Emociones en el trading (miedo, codicia)",
+        "Disciplina y paciencia",
+        "Manejo de rachas perdedoras",
+        "Overtrading y revenge trading",
+        "Rutinas diarias del trader",
+        "Journaling y autoevaluación",
+        "Mentalidad de crecimiento",
+        "Mantener la objetividad"
+      ],
+      completed: false,
+      difficulty: "Intermedio" as const,
+      prerequisite: 5
+    },
+    {
+      id: 7,
+      title: "Análisis Fundamental",
+      description: "Comprensión de factores económicos que mueven los mercados",
+      duration: "4 horas",
+      lessons: 10,
+      topics: [
+        "Calendarios económicos",
+        "Indicadores macroeconómicos clave",
+        "Noticias de alto impacto",
+        "Correlaciones entre activos",
+        "Análisis sectorial básico",
+        "Eventos geopolíticos",
+        "Estacionalidad en mercados",
+        "Combinando análisis técnico y fundamental"
+      ],
+      completed: false,
+      difficulty: "Intermedio" as const,
+      prerequisite: 6
+    },
+    {
+      id: 8,
+      title: "Backtesting y Optimización",
+      description: "Validación de estrategias y mejora continua del sistema de trading",
+      duration: "3 horas",
+      lessons: 7,
+      topics: [
+        "Conceptos de backtesting",
+        "Herramientas para backtest",
+        "Métricas de rendimiento",
+        "Optimización de parámetros",
+        "Evitar el curve fitting",
+        "Paper trading estructurado",
+        "Evaluación de sistemas"
+      ],
+      completed: false,
+      difficulty: "Intermedio" as const,
+      prerequisite: 7
+    },
+    {
+      id: 9,
+      title: "Trading en Vivo - Práctica",
+      description: "Aplicación práctica de todo lo aprendido en mercados reales",
+      duration: "6 horas",
+      lessons: 15,
+      topics: [
+        "Preparación pre-mercado",
+        "Análisis de múltiples timeframes",
+        "Identificación de setups",
+        "Ejecución disciplinada",
+        "Gestión de posiciones abiertas",
+        "Análisis post-mercado",
+        "Registro detallado de operaciones",
+        "Ajustes y mejoras continuas"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 8
+    },
+    {
+      id: 10,
+      title: "Plan de Trader Profesional",
+      description: "Construcción de un plan integral para el crecimiento como trader",
+      duration: "4 horas",
+      lessons: 9,
+      topics: [
+        "Definición de objetivos SMART",
+        "Plan de trading personalizado",
+        "Escalamiento de capital",
+        "Diversificación de estrategias",
+        "Educación continua",
+        "Networking en trading",
+        "Consideraciones fiscales",
+        "Transición a trader profesional"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 9
+    }
+  ];
+
+  // Simular progreso del usuario
+  const currentModule = 3; // Módulo actual
+  const completedModules = [1, 2]; // Módulos completados
+
+  const handleModuleClick = (moduleId: number) => {
+    console.log(`Accediendo al módulo ${moduleId}`);
+    // Aquí se implementaría la navegación al módulo específico
   };
 
   return (
@@ -409,87 +621,21 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
 
         {/* Roadmap de Aprendizaje */}
         <section className={styles.roadmapSection}>
-          <div className={styles.roadmapContainer}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
+          <div className={styles.container}>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
             >
-              Roadmap de Aprendizaje
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Progresión estructurada en 10 módulos diseñados para llevarte de principiante a trader avanzado
-            </motion.p>
-            
-            <div className={styles.roadmapWrapper}>
-              <div className={styles.roadmapTimeline}>
-                <div className={`${styles.roadmapModule} ${styles.roadmapModuleBottom}`}>
-                  <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>MODULO 1</span>
-                  </div>
-                </div>
-                
-                <div className={`${styles.roadmapModule} ${styles.roadmapModuleTop}`}>
-                  <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>MODULO 2</span>
-                  </div>
-                </div>
-                
-                <div className={`${styles.roadmapModule} ${styles.roadmapModuleBottom}`}>
-                  <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>MODULO 3</span>
-                  </div>
-                </div>
-                
-                <div className={`${styles.roadmapModule} ${styles.roadmapModuleTop}`}>
-                  <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>MODULO 4</span>
-                  </div>
-                </div>
-                
-                <div className={`${styles.roadmapModule} ${styles.roadmapModuleBottom}`}>
-                  <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>MODULO 5</span>
-                  </div>
-                </div>
-                
-                <div className={`${styles.roadmapModule} ${styles.roadmapModuleTop}`}>
-                  <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>MODULO 6</span>
-                  </div>
-                </div>
-                
-                <div className={`${styles.roadmapModule} ${styles.roadmapModuleBottom}`}>
-                  <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>MODULO 7</span>
-                  </div>
-                </div>
-                
-                <div className={`${styles.roadmapModule} ${styles.roadmapModuleTop}`}>
-                  <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>MODULO 8</span>
-                  </div>
-                </div>
-                
-                <div className={`${styles.roadmapModule} ${styles.roadmapModuleBottom}`}>
-                  <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>MODULO 9</span>
-                  </div>
-                </div>
-                
-                <div className={`${styles.roadmapModule} ${styles.roadmapModuleTop}`}>
-                  <div className={styles.roadmapCircle}>
-                    <span className={styles.roadmapModuleText}>MODULO 10</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <TrainingRoadmap
+                modules={tradingFundamentalsRoadmap}
+                currentModule={currentModule}
+                completedModules={completedModules}
+                onModuleClick={handleModuleClick}
+                showProgress={true}
+              />
+            </motion.div>
           </div>
         </section>
 

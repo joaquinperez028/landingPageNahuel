@@ -8,6 +8,7 @@ import { generateCircularAvatarDataURL } from '@/lib/utils';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
+import TrainingRoadmap from '@/components/TrainingRoadmap';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -146,6 +147,218 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
     } finally {
       setIsEnrolling(false);
     }
+  };
+
+  // Roadmap específico para Dow Jones - Estrategias Avanzadas
+  const dowJonesRoadmap = [
+    {
+      id: 1,
+      title: "Análisis Institucional del Mercado",
+      description: "Comprensión profunda de la estructura y flujo de órdenes institucionales",
+      duration: "6 horas",
+      lessons: 15,
+      topics: [
+        "Estructura del mercado Dow Jones",
+        "Order flow y level II data",
+        "Identificación de liquidez institucional",
+        "Market makers vs traders institucionales",
+        "Análisis de volumen avanzado",
+        "Dark pools y su impacto",
+        "Correlaciones inter-mercados",
+        "Sesiones de trading y características"
+      ],
+      completed: true,
+      difficulty: "Avanzado" as const
+    },
+    {
+      id: 2,
+      title: "Estrategias Algorítmicas",
+      description: "Desarrollo e implementación de algoritmos de trading profesionales",
+      duration: "8 horas",
+      lessons: 18,
+      topics: [
+        "Introducción al trading algorítmico",
+        "Lenguajes de programación (Python, MQL)",
+        "APIs de brokers institucionales",
+        "Estrategias de momentum algorítmico",
+        "Mean reversion avanzado",
+        "Arbitraje estadístico",
+        "Machine learning aplicado",
+        "Optimización de parámetros"
+      ],
+      completed: true,
+      difficulty: "Avanzado" as const,
+      prerequisite: 1
+    },
+    {
+      id: 3,
+      title: "Trading Cuantitativo",
+      description: "Análisis matemático y estadístico avanzado para decisiones de trading",
+      duration: "7 horas",
+      lessons: 16,
+      topics: [
+        "Modelos estadísticos avanzados",
+        "Análisis de correlaciones complejas",
+        "Volatilidad implícita vs realizada",
+        "Modelos de pricing de opciones",
+        "Risk-adjusted returns",
+        "Backtesting estadísticamente robusto",
+        "Monte Carlo simulations",
+        "Value at Risk (VaR) avanzado"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 2
+    },
+    {
+      id: 4,
+      title: "Gestión de Riesgo Institucional",
+      description: "Técnicas de gestión de riesgo utilizadas por fondos de inversión",
+      duration: "5 horas",
+      lessons: 12,
+      topics: [
+        "Portfolio risk management",
+        "Hedging con derivados complejos",
+        "Stress testing avanzado",
+        "Correlation risk management",
+        "Liquidity risk assessment",
+        "Counterparty risk",
+        "Operational risk controls",
+        "Regulatory compliance"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 3
+    },
+    {
+      id: 5,
+      title: "Estrategias de Alta Frecuencia",
+      description: "Técnicas de HFT y micro-estructuras de mercado",
+      duration: "6 horas",
+      lessons: 14,
+      topics: [
+        "High Frequency Trading concepts",
+        "Latencia y co-location",
+        "Market microstructure",
+        "Bid-ask spread dynamics",
+        "Order types avanzados",
+        "Slippage minimization",
+        "Execution algorithms",
+        "Regulatory considerations HFT"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 4
+    },
+    {
+      id: 6,
+      title: "Derivados Avanzados",
+      description: "Trading profesional con opciones, futuros y productos estructurados",
+      duration: "8 horas",
+      lessons: 20,
+      topics: [
+        "Opciones: Greeks avanzados",
+        "Estrategias multi-leg options",
+        "Volatility trading",
+        "Futuros: contango y backwardation",
+        "Spreads y arbitraje",
+        "Productos estructurados",
+        "Credit derivatives",
+        "Exotic options"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 5
+    },
+    {
+      id: 7,
+      title: "Análisis Macro-Económico Avanzado",
+      description: "Integración de análisis macro en estrategias institucionales",
+      duration: "5 horas",
+      lessons: 13,
+      topics: [
+        "Fed policy y mercados",
+        "Yield curve analysis",
+        "Sector rotation strategies",
+        "Global macro trends",
+        "Currency correlations",
+        "Commodity linkages",
+        "Geopolitical risk assessment",
+        "Central bank communications"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 6
+    },
+    {
+      id: 8,
+      title: "Trading Sistémico Avanzado",
+      description: "Construcción de sistemas de trading institucionales completos",
+      duration: "7 horas",
+      lessons: 17,
+      topics: [
+        "Multi-strategy frameworks",
+        "Position sizing dinámico",
+        "Portfolio rebalancing algorithms",
+        "Risk budgeting avanzado",
+        "Performance attribution",
+        "Benchmark tracking",
+        "Alpha generation strategies",
+        "Factor investing"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 7
+    },
+    {
+      id: 9,
+      title: "Tecnología y Infraestructura",
+      description: "Configuración de infraestructura tecnológica profesional",
+      duration: "6 horas",
+      lessons: 14,
+      topics: [
+        "Trading infrastructure setup",
+        "Data feeds profesionales",
+        "Backup y redundancy systems",
+        "Monitoring y alertas",
+        "Database management",
+        "Cloud vs on-premise",
+        "Security best practices",
+        "Disaster recovery"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 8
+    },
+    {
+      id: 10,
+      title: "Gestión de Fondos y Escalamiento",
+      description: "Transición hacia la gestión profesional de capital",
+      duration: "5 horas",
+      lessons: 12,
+      topics: [
+        "Fund management structures",
+        "Investor relations",
+        "Compliance y reporting",
+        "Fee structures",
+        "Marketing y track record",
+        "Legal considerations",
+        "Scaling operations",
+        "Team building"
+      ],
+      completed: false,
+      difficulty: "Avanzado" as const,
+      prerequisite: 9
+    }
+  ];
+
+  // Simular progreso del usuario
+  const currentModule = 3; // Módulo actual
+  const completedModules = [1, 2]; // Módulos completados
+
+  const handleModuleClick = (moduleId: number) => {
+    console.log(`Accediendo al módulo ${moduleId}`);
+    // Aquí se implementaría la navegación al módulo específico
   };
 
   return (
@@ -404,6 +617,26 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
                 <p className={styles.metricLabel}>Entrenamientos Realizados</p>
               </motion.div>
             </div>
+          </div>
+        </section>
+
+        {/* Roadmap de Aprendizaje Avanzado */}
+        <section className={styles.roadmapSection}>
+          <div className={styles.container}>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <TrainingRoadmap
+                modules={dowJonesRoadmap}
+                currentModule={currentModule}
+                completedModules={completedModules}
+                onModuleClick={handleModuleClick}
+                showProgress={true}
+              />
+            </motion.div>
           </div>
         </section>
 
