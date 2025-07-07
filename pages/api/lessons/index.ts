@@ -50,7 +50,7 @@ const createLessonSchema = z.object({
         originalName: z.string(),
         fileSize: z.number(),
         mimeType: z.string(),
-        uploadDate: z.date()
+        uploadDate: z.string()
       }).optional(),
       
       // Imágenes
