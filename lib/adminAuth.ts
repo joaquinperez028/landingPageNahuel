@@ -15,7 +15,7 @@ interface AdminVerificationResult {
  */
 export async function verifyAdminAccess(context: GetServerSidePropsContext): Promise<AdminVerificationResult> {
   try {
-    console.log('🔍 [ADMIN AUTH] Verificando acceso de administrador....');
+    console.log('🔍 [ADMIN AUTH] Verificando acceso de administrador...');
     
     const session = await getServerSession(context.req, context.res, authOptions);
     
