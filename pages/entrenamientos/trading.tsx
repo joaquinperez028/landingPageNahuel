@@ -143,7 +143,34 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
       if (data.success && data.data.roadmaps.length > 0) {
         // Tomar el primer roadmap activo
         const activeRoadmap = data.data.roadmaps.find((r: any) => r.activo) || data.data.roadmaps[0];
-        setRoadmapModules(activeRoadmap.modulos || []);
+        
+        if (activeRoadmap) {
+          // Cargar módulos independientes del roadmap
+          const modulesResponse = await fetch(`/api/modules/roadmap/${activeRoadmap._id}`);
+          const modulesData = await modulesResponse.json();
+          
+          if (modulesData.success && modulesData.data.modules.length > 0) {
+            // Transformar módulos para ser compatibles con TrainingRoadmap
+            const transformedModules = modulesData.data.modules.map((module: any) => ({
+              id: module._id,
+              titulo: module.nombre,
+              descripcion: module.descripcion,
+              duracion: module.duracion,
+              lecciones: module.lecciones,
+              temas: module.temas,
+              dificultad: module.dificultad,
+              prerequisito: module.prerequisito?._id,
+              orden: module.orden,
+              activo: module.activo
+            }));
+            
+            setRoadmapModules(transformedModules);
+          } else {
+            setRoadmapError('Este roadmap aún no tiene módulos creados. Contacta al administrador.');
+          }
+        } else {
+          setRoadmapError('No se encontró un roadmap activo para Trading Fundamentals');
+        }
       } else {
         setRoadmapError('No se encontraron roadmaps para Trading Fundamentals');
       }

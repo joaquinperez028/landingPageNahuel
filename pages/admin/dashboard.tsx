@@ -271,15 +271,20 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   const [showModuleForm, setShowModuleForm] = useState(false);
   const [editingModuleIndex, setEditingModuleIndex] = useState<number | null>(null);
   const [moduleFormData, setModuleFormData] = useState({
-    titulo: '',
+    nombre: '',
     descripcion: '',
     duracion: '',
     lecciones: 1,
     dificultad: 'Básico' as 'Básico' | 'Intermedio' | 'Avanzado',
-    prerequisito: undefined as number | undefined,
+    prerequisito: undefined as string | undefined,
     activo: true,
     temas: [{ titulo: '', descripcion: '' }]
   });
+
+  // Estados para módulos independientes
+  const [roadmapModules, setRoadmapModules] = useState<any[]>([]);
+  const [loadingModules, setLoadingModules] = useState(false);
+  const [editingModule, setEditingModule] = useState<any>(null);
 
   const dashboardSections = useDashboardSections();
 
@@ -474,7 +479,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   // Resetear formulario de módulo
   const resetModuleForm = () => {
     setModuleFormData({
-      titulo: '',
+      nombre: '',
       descripcion: '',
       duracion: '',
       lecciones: 1,
@@ -484,7 +489,30 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
       temas: [{ titulo: '', descripcion: '' }]
     });
     setEditingModuleIndex(null);
+    setEditingModule(null);
     setShowModuleForm(false);
+  };
+
+  // Cargar módulos del roadmap actual
+  const fetchRoadmapModules = async (roadmapId: string) => {
+    if (!roadmapId) return;
+    
+    try {
+      setLoadingModules(true);
+      const response = await fetch(`/api/modules/roadmap/${roadmapId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setRoadmapModules(data.data.modules || []);
+      } else {
+        toast.error('Error al cargar módulos del roadmap');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error de conexión al cargar módulos');
+    } finally {
+      setLoadingModules(false);
+    }
   };
 
   // Agregar tema al módulo
@@ -515,11 +543,11 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
     }));
   };
 
-  // Guardar módulo
-  const saveModule = () => {
+  // Guardar módulo independiente
+  const saveModule = async () => {
     // Validar módulo
-    if (!moduleFormData.titulo.trim()) {
-      toast.error('El título del módulo es obligatorio');
+    if (!moduleFormData.nombre.trim()) {
+      toast.error('El nombre del módulo es obligatorio');
       return;
     }
     if (!moduleFormData.descripcion.trim()) {
@@ -531,74 +559,110 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
       return;
     }
 
-    const newModule: RoadmapModule = {
-      id: editingModuleIndex !== null ? formData.modulos[editingModuleIndex].id : Date.now(),
-      titulo: moduleFormData.titulo,
-      descripcion: moduleFormData.descripcion,
-      duracion: moduleFormData.duracion,
-      lecciones: moduleFormData.lecciones,
-      temas: moduleFormData.temas.filter(tema => tema.titulo.trim()),
-      dificultad: moduleFormData.dificultad,
-      prerequisito: moduleFormData.prerequisito,
-      orden: editingModuleIndex !== null ? formData.modulos[editingModuleIndex].orden : formData.modulos.length + 1,
-      activo: moduleFormData.activo
-    };
-
-    if (editingModuleIndex !== null) {
-      // Editar módulo existente
-      setFormData(prev => ({
-        ...prev,
-        modulos: prev.modulos.map((mod, index) => 
-          index === editingModuleIndex ? newModule : mod
-        )
-      }));
-      toast.success('Módulo actualizado');
-    } else {
-      // Agregar nuevo módulo
-      setFormData(prev => ({
-        ...prev,
-        modulos: [...prev.modulos, newModule]
-      }));
-      toast.success('Módulo agregado');
+    if (!editingRoadmap) {
+      toast.error('No hay roadmap seleccionado');
+      return;
     }
 
-    resetModuleForm();
+    setIsSubmitting(true);
+    try {
+      const moduleData = {
+        nombre: moduleFormData.nombre,
+        descripcion: moduleFormData.descripcion,
+        roadmapId: editingRoadmap._id,
+        tipoEntrenamiento: editingRoadmap.tipoEntrenamiento,
+        duracion: moduleFormData.duracion,
+        lecciones: moduleFormData.lecciones,
+        temas: moduleFormData.temas.filter(tema => tema.titulo.trim()),
+        dificultad: moduleFormData.dificultad,
+        prerequisito: moduleFormData.prerequisito || null,
+        orden: editingModule ? editingModule.orden : roadmapModules.length + 1,
+        activo: moduleFormData.activo
+      };
+
+      let response;
+      if (editingModule) {
+        // Actualizar módulo existente
+        response = await fetch(`/api/modules/${editingModule._id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(moduleData)
+        });
+      } else {
+        // Crear nuevo módulo
+        response = await fetch('/api/modules', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(moduleData)
+        });
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(editingModule ? 'Módulo actualizado exitosamente' : 'Módulo creado exitosamente');
+        resetModuleForm();
+        // Recargar módulos del roadmap
+        fetchRoadmapModules(editingRoadmap._id);
+      } else {
+        toast.error(data.error || 'Error al guardar módulo');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error de conexión');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Editar módulo
-  const editModule = (index: number) => {
-    const module = formData.modulos[index];
+  const editModule = (module: any) => {
+    setEditingModule(module);
     setModuleFormData({
-      titulo: module.titulo,
+      nombre: module.nombre,
       descripcion: module.descripcion,
       duracion: module.duracion,
       lecciones: module.lecciones,
       dificultad: module.dificultad,
-      prerequisito: module.prerequisito,
+      prerequisito: module.prerequisito?._id || undefined,
       activo: module.activo,
       temas: module.temas.length > 0 
-        ? module.temas.map(tema => ({
+        ? module.temas.map((tema: any) => ({
             titulo: tema.titulo,
             descripcion: tema.descripcion || ''
           }))
         : [{ titulo: '', descripcion: '' }]
     });
-    setEditingModuleIndex(index);
     setShowModuleForm(true);
   };
 
   // Eliminar módulo
-  const deleteModule = (index: number) => {
-    if (confirm('¿Estás seguro de eliminar este módulo?')) {
-      setFormData(prev => ({
-        ...prev,
-        modulos: prev.modulos.filter((_, i) => i !== index)
-      }));
-      toast.success('Módulo eliminado');
+  const deleteModule = async (module: any) => {
+    if (!confirm(`¿Estás seguro de eliminar el módulo "${module.nombre}"?`)) return;
+
+    try {
+      const response = await fetch(`/api/modules/${module._id}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Módulo eliminado exitosamente');
+        // Recargar módulos del roadmap
+        if (editingRoadmap) {
+          fetchRoadmapModules(editingRoadmap._id);
+        }
+      } else {
+        toast.error(data.error || 'Error al eliminar módulo');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error de conexión');
     }
   };
 
-  // Abrir modal de edición
+  // Abrir modal de edición (actualizado)
   const openEditModal = (roadmap: Roadmap) => {
     setEditingRoadmap(roadmap);
     setFormData({
@@ -610,6 +674,8 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
       orden: roadmap.orden
     });
     setShowCreateModal(true);
+    // Cargar módulos independientes del roadmap
+    fetchRoadmapModules(roadmap._id);
   };
 
   // Optimizar la función de corrección de logins
@@ -1075,11 +1141,12 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
               {/* Sección de Módulos */}
               <div className={styles.formSection}>
                 <div className={styles.modulesHeader}>
-                  <h4>Módulos del Roadmap ({formData.modulos.length})</h4>
+                  <h4>Módulos del Roadmap ({roadmapModules.length})</h4>
                   <button
                     type="button"
                     onClick={() => setShowModuleForm(true)}
                     className={styles.addModuleButton}
+                    disabled={!editingRoadmap}
                   >
                     <Plus size={16} />
                     Agregar Módulo
@@ -1088,40 +1155,51 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
 
                 {/* Lista de módulos existentes */}
                 <div className={styles.modulesList}>
-                  {formData.modulos.map((module, index) => (
-                    <div key={module.id} className={styles.moduleItem}>
-                      <div className={styles.moduleItemHeader}>
-                        <div className={styles.moduleItemInfo}>
-                          <h5>{module.titulo}</h5>
-                          <div className={styles.moduleItemMeta}>
-                            <span>🕐 {module.duracion}</span>
-                            <span>📚 {module.lecciones} lecciones</span>
-                            <span>📊 {module.dificultad}</span>
-                            <span>🏷️ {module.temas.length} temas</span>
+                  {loadingModules ? (
+                    <div className={styles.loadingModules}>
+                      <Loader className={styles.spinning} size={32} />
+                      Cargando módulos...
+                    </div>
+                  ) : roadmapModules.length > 0 ? (
+                    roadmapModules.map((module) => (
+                      <div key={module._id} className={styles.moduleItem}>
+                        <div className={styles.moduleItemHeader}>
+                          <div className={styles.moduleItemInfo}>
+                            <h5>{module.nombre}</h5>
+                            <div className={styles.moduleItemMeta}>
+                              <span>🕐 {module.duracion}</span>
+                              <span>📚 {module.lecciones} lecciones</span>
+                              <span>📊 {module.dificultad}</span>
+                              <span>🏷️ {module.temas.length} temas</span>
+                              <span>📋 Orden: {module.orden}</span>
+                            </div>
+                          </div>
+                          <div className={styles.moduleItemActions}>
+                            <button
+                              type="button"
+                              onClick={() => editModule(module)}
+                              className={styles.editModuleButton}
+                            >
+                              <Edit size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteModule(module)}
+                              className={styles.deleteModuleButton}
+                            >
+                              <Trash2 size={14} />
+                            </button>
                           </div>
                         </div>
-                        <div className={styles.moduleItemActions}>
-                          <button
-                            type="button"
-                            onClick={() => editModule(index)}
-                            className={styles.editModuleButton}
-                          >
-                            <Edit size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => deleteModule(index)}
-                            className={styles.deleteModuleButton}
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
+                        <p className={styles.moduleItemDescription}>{module.descripcion}</p>
+                        {module.prerequisito && (
+                          <div className={styles.modulePrerequisite}>
+                            <small>Prerequisito: {module.prerequisito.nombre}</small>
+                          </div>
+                        )}
                       </div>
-                      <p className={styles.moduleItemDescription}>{module.descripcion}</p>
-                    </div>
-                  ))}
-                  
-                  {formData.modulos.length === 0 && (
+                    ))
+                  ) : (
                     <div className={styles.noModules}>
                       <BookOpen size={48} />
                       <p>No hay módulos creados aún</p>
@@ -1135,7 +1213,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                   <div className={styles.moduleFormOverlay}>
                     <div className={styles.moduleFormContainer}>
                       <div className={styles.moduleFormHeader}>
-                        <h5>{editingModuleIndex !== null ? 'Editar Módulo' : 'Nuevo Módulo'}</h5>
+                        <h5>{editingModule ? 'Editar Módulo' : 'Nuevo Módulo'}</h5>
                         <button
                           type="button"
                           onClick={resetModuleForm}
@@ -1148,13 +1226,13 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                       <div className={styles.moduleFormContent}>
                         <div className={styles.formRow}>
                           <div className={styles.formGroup}>
-                            <label>Título del Módulo</label>
+                            <label>Nombre del Módulo</label>
                             <input
                               type="text"
-                              value={moduleFormData.titulo}
+                              value={moduleFormData.nombre}
                               onChange={(e) => setModuleFormData(prev => ({ 
                                 ...prev, 
-                                titulo: e.target.value 
+                                nombre: e.target.value 
                               }))}
                               placeholder="Ej: Introducción al Trading"
                             />
@@ -1215,23 +1293,21 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                           </div>
                         </div>
 
-                        {formData.modulos.length > 0 && (
+                        {roadmapModules.length > 0 && !editingModule && (
                           <div className={styles.formGroup}>
                             <label>Prerequisito (opcional)</label>
                             <select
                               value={moduleFormData.prerequisito || ''}
                               onChange={(e) => setModuleFormData(prev => ({ 
                                 ...prev, 
-                                prerequisito: e.target.value ? parseInt(e.target.value) : undefined 
+                                prerequisito: e.target.value || undefined
                               }))}
                             >
                               <option value="">Sin prerequisito</option>
-                              {formData.modulos.map((mod, idx) => (
-                                idx !== editingModuleIndex && (
-                                  <option key={mod.id} value={mod.id}>
-                                    {mod.titulo}
-                                  </option>
-                                )
+                              {roadmapModules.map((mod) => (
+                                <option key={mod._id} value={mod._id}>
+                                  Módulo {mod.orden}: {mod.nombre}
+                                </option>
                               ))}
                             </select>
                           </div>
@@ -1295,9 +1371,19 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                           type="button"
                           onClick={saveModule}
                           className={styles.saveModuleButton}
+                          disabled={isSubmitting}
                         >
-                          <Save size={16} />
-                          {editingModuleIndex !== null ? 'Actualizar' : 'Agregar'} Módulo
+                          {isSubmitting ? (
+                            <>
+                              <RefreshCw size={16} className={styles.spinning} />
+                              {editingModule ? 'Actualizando...' : 'Creando...'}
+                            </>
+                          ) : (
+                            <>
+                              <Save size={16} />
+                              {editingModule ? 'Actualizar' : 'Crear'} Módulo
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>

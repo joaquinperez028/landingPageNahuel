@@ -1422,4 +1422,29 @@
 .removeTemaButton:hover {
   background: rgba(239, 68, 68, 0.2);
   border-color: #ef4444;
+}
+
+/* Estilos adicionales para módulos independientes */
+.loadingModules {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+}
+
+.modulePrerequisite {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.modulePrerequisite small {
+  color: var(--text-secondary);
+  font-style: italic;
 } 

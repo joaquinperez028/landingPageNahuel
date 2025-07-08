@@ -84,7 +84,7 @@ const TrainingRoadmap: React.FC<TrainingRoadmapProps> = ({
                   <div className={styles.moduleInfo}>
                     <div className={styles.moduleTitleRow}>
                       <h3 className={styles.moduleTitle}>
-                        Módulo {module.id}: {module.titulo}
+                        Módulo {module.orden}: {module.titulo}
                       </h3>
                       <span 
                         className={styles.difficultyBadge}
@@ -138,7 +138,7 @@ const TrainingRoadmap: React.FC<TrainingRoadmapProps> = ({
                   {module.prerequisito && (
                     <div className={styles.prerequisiteSection}>
                       <p className={styles.prerequisiteText}>
-                        <strong>Prerequisito:</strong> Completar Módulo {module.prerequisito}
+                        <strong>Prerequisito:</strong> Completar módulo anterior
                       </p>
                     </div>
                   )}
