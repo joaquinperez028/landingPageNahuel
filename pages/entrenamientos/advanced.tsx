@@ -23,10 +23,10 @@ import {
   PlayCircle,
   Calendar,
   User,
-  Quote
+  Quote,
+  Loader
 } from 'lucide-react';
 import styles from '@/styles/TradingFundamentals.module.css';
-import { convertToNewRoadmapStructure } from '@/utils/roadmapAdapter';
 
 interface TrainingData {
   tipo: string;
@@ -66,6 +66,22 @@ interface Testimonial {
   results: string;
 }
 
+interface RoadmapModule {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  duracion: string;
+  lecciones: number;
+  temas: Array<{
+    titulo: string;
+    descripcion?: string;
+  }>;
+  dificultad: 'Básico' | 'Intermedio' | 'Avanzado';
+  prerequisito?: number;
+  orden: number;
+  activo: boolean;
+}
+
 interface AdvancedTradingPageProps {
   training: TrainingData;
   program: ProgramModule[];
@@ -82,6 +98,12 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
   const [showEnrollForm, setShowEnrollForm] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [checkingEnrollment, setCheckingEnrollment] = useState(false);
+
+  // Estados para roadmaps dinámicos
+  const [roadmapModules, setRoadmapModules] = useState<RoadmapModule[]>([]);
+  const [loadingRoadmap, setLoadingRoadmap] = useState(true);
+  const [roadmapError, setRoadmapError] = useState<string>('');
+
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
@@ -104,6 +126,34 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
       checkEnrollmentStatus();
     }
   }, [session]);
+
+  // Cargar roadmaps dinámicos
+  useEffect(() => {
+    fetchRoadmaps();
+  }, []);
+
+  const fetchRoadmaps = async () => {
+    try {
+      setLoadingRoadmap(true);
+      setRoadmapError('');
+      
+      const response = await fetch('/api/roadmaps/tipo/DowJones');
+      const data = await response.json();
+      
+      if (data.success && data.data.roadmaps.length > 0) {
+        // Tomar el primer roadmap activo
+        const activeRoadmap = data.data.roadmaps.find((r: any) => r.activo) || data.data.roadmaps[0];
+        setRoadmapModules(activeRoadmap.modulos || []);
+      } else {
+        setRoadmapError('No se encontraron roadmaps para Dow Jones');
+      }
+    } catch (error) {
+      console.error('Error al cargar roadmaps:', error);
+      setRoadmapError('Error al cargar el roadmap de aprendizaje');
+    } finally {
+      setLoadingRoadmap(false);
+    }
+  };
 
   const checkEnrollmentStatus = async () => {
     if (!session?.user?.email) return;
@@ -194,213 +244,6 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
       setIsEnrolling(false);
     }
   };
-
-  // Roadmap específico para Dow Jones - Estrategias Avanzadas
-  const dowJonesRoadmap = [
-    {
-      id: 1,
-      title: "Análisis Institucional del Mercado",
-      description: "Comprensión profunda de la estructura y flujo de órdenes institucionales",
-      duration: "6 horas",
-      lessons: 15,
-      topics: [
-        "Estructura del mercado Dow Jones",
-        "Order flow y level II data",
-        "Identificación de liquidez institucional",
-        "Market makers vs traders institucionales",
-        "Análisis de volumen avanzado",
-        "Dark pools y su impacto",
-        "Correlaciones inter-mercados",
-        "Sesiones de trading y características"
-      ],
-      completed: true,
-      difficulty: "Avanzado" as const
-    },
-    {
-      id: 2,
-      title: "Estrategias Algorítmicas",
-      description: "Desarrollo e implementación de algoritmos de trading profesionales",
-      duration: "8 horas",
-      lessons: 18,
-      topics: [
-        "Introducción al trading algorítmico",
-        "Lenguajes de programación (Python, MQL)",
-        "APIs de brokers institucionales",
-        "Estrategias de momentum algorítmico",
-        "Mean reversion avanzado",
-        "Arbitraje estadístico",
-        "Machine learning aplicado",
-        "Optimización de parámetros"
-      ],
-      completed: true,
-      difficulty: "Avanzado" as const,
-      prerequisite: 1
-    },
-    {
-      id: 3,
-      title: "Trading Cuantitativo",
-      description: "Análisis matemático y estadístico avanzado para decisiones de trading",
-      duration: "7 horas",
-      lessons: 16,
-      topics: [
-        "Modelos estadísticos avanzados",
-        "Análisis de correlaciones complejas",
-        "Volatilidad implícita vs realizada",
-        "Modelos de pricing de opciones",
-        "Risk-adjusted returns",
-        "Backtesting estadísticamente robusto",
-        "Monte Carlo simulations",
-        "Value at Risk (VaR) avanzado"
-      ],
-      completed: false,
-      difficulty: "Avanzado" as const,
-      prerequisite: 2
-    },
-    {
-      id: 4,
-      title: "Gestión de Riesgo Institucional",
-      description: "Técnicas de gestión de riesgo utilizadas por fondos de inversión",
-      duration: "5 horas",
-      lessons: 12,
-      topics: [
-        "Portfolio risk management",
-        "Hedging con derivados complejos",
-        "Stress testing avanzado",
-        "Correlation risk management",
-        "Liquidity risk assessment",
-        "Counterparty risk",
-        "Operational risk controls",
-        "Regulatory compliance"
-      ],
-      completed: false,
-      difficulty: "Avanzado" as const,
-      prerequisite: 3
-    },
-    {
-      id: 5,
-      title: "Estrategias de Alta Frecuencia",
-      description: "Técnicas de HFT y micro-estructuras de mercado",
-      duration: "6 horas",
-      lessons: 14,
-      topics: [
-        "High Frequency Trading concepts",
-        "Latencia y co-location",
-        "Market microstructure",
-        "Bid-ask spread dynamics",
-        "Order types avanzados",
-        "Slippage minimization",
-        "Execution algorithms",
-        "Regulatory considerations HFT"
-      ],
-      completed: false,
-      difficulty: "Avanzado" as const,
-      prerequisite: 4
-    },
-    {
-      id: 6,
-      title: "Derivados Avanzados",
-      description: "Trading profesional con opciones, futuros y productos estructurados",
-      duration: "8 horas",
-      lessons: 20,
-      topics: [
-        "Opciones: Greeks avanzados",
-        "Estrategias multi-leg options",
-        "Volatility trading",
-        "Futuros: contango y backwardation",
-        "Spreads y arbitraje",
-        "Productos estructurados",
-        "Credit derivatives",
-        "Exotic options"
-      ],
-      completed: false,
-      difficulty: "Avanzado" as const,
-      prerequisite: 5
-    },
-    {
-      id: 7,
-      title: "Análisis Macro-Económico Avanzado",
-      description: "Integración de análisis macro en estrategias institucionales",
-      duration: "5 horas",
-      lessons: 13,
-      topics: [
-        "Fed policy y mercados",
-        "Yield curve analysis",
-        "Sector rotation strategies",
-        "Global macro trends",
-        "Currency correlations",
-        "Commodity linkages",
-        "Geopolitical risk assessment",
-        "Central bank communications"
-      ],
-      completed: false,
-      difficulty: "Avanzado" as const,
-      prerequisite: 6
-    },
-    {
-      id: 8,
-      title: "Trading Sistémico Avanzado",
-      description: "Construcción de sistemas de trading institucionales completos",
-      duration: "7 horas",
-      lessons: 17,
-      topics: [
-        "Multi-strategy frameworks",
-        "Position sizing dinámico",
-        "Portfolio rebalancing algorithms",
-        "Risk budgeting avanzado",
-        "Performance attribution",
-        "Benchmark tracking",
-        "Alpha generation strategies",
-        "Factor investing"
-      ],
-      completed: false,
-      difficulty: "Avanzado" as const,
-      prerequisite: 7
-    },
-    {
-      id: 9,
-      title: "Tecnología y Infraestructura",
-      description: "Configuración de infraestructura tecnológica profesional",
-      duration: "6 horas",
-      lessons: 14,
-      topics: [
-        "Trading infrastructure setup",
-        "Data feeds profesionales",
-        "Backup y redundancy systems",
-        "Monitoring y alertas",
-        "Database management",
-        "Cloud vs on-premise",
-        "Security best practices",
-        "Disaster recovery"
-      ],
-      completed: false,
-      difficulty: "Avanzado" as const,
-      prerequisite: 8
-    },
-    {
-      id: 10,
-      title: "Gestión de Fondos y Escalamiento",
-      description: "Transición hacia la gestión profesional de capital",
-      duration: "5 horas",
-      lessons: 12,
-      topics: [
-        "Fund management structures",
-        "Investor relations",
-        "Compliance y reporting",
-        "Fee structures",
-        "Marketing y track record",
-        "Legal considerations",
-        "Scaling operations",
-        "Team building"
-      ],
-      completed: false,
-      difficulty: "Avanzado" as const,
-      prerequisite: 9
-    }
-  ];
-
-  // Simular progreso del usuario
-  const currentModule = 3; // Módulo actual
-  const completedModules = [1, 2]; // Módulos completados
 
   const handleModuleClick = (moduleId: number) => {
     console.log(`Accediendo al módulo ${moduleId}`);
@@ -681,12 +524,43 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
-              <TrainingRoadmap
-                modules={convertToNewRoadmapStructure(dowJonesRoadmap)}
-                onModuleClick={handleModuleClick}
-                title="Roadmap de Aprendizaje Avanzado"
-                description="Estrategias avanzadas y técnicas institucionales para traders experimentados"
-              />
+              {loadingRoadmap ? (
+                <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+                  <Loader size={48} className="spinning" style={{ margin: '0 auto 1rem', color: '#3b82f6' }} />
+                  <p style={{ color: '#6b7280', fontSize: '1.1rem' }}>Cargando roadmap de aprendizaje...</p>
+                </div>
+              ) : roadmapError ? (
+                <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+                  <h3 style={{ color: '#dc2626', marginBottom: '1rem' }}>Error al cargar roadmap</h3>
+                  <p style={{ color: '#6b7280', marginBottom: '2rem' }}>{roadmapError}</p>
+                  <button 
+                    onClick={fetchRoadmaps}
+                    style={{ 
+                      padding: '0.75rem 1.5rem', 
+                      background: '#3b82f6', 
+                      color: 'white', 
+                      border: 'none', 
+                      borderRadius: '0.5rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              ) : roadmapModules.length > 0 ? (
+                <TrainingRoadmap
+                  modules={roadmapModules}
+                  onModuleClick={handleModuleClick}
+                  title="Roadmap de Aprendizaje Avanzado"
+                  description="Estrategias avanzadas y técnicas institucionales para traders experimentados"
+                />
+              ) : (
+                <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+                  <p style={{ color: '#6b7280', fontSize: '1.1rem' }}>
+                    Roadmap no disponible en este momento
+                  </p>
+                </div>
+              )}
             </motion.div>
           </div>
         </section>

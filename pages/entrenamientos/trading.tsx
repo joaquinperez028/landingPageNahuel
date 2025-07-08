@@ -23,10 +23,10 @@ import {
   PlayCircle,
   Calendar,
   User,
-  Quote
+  Quote,
+  Loader
 } from 'lucide-react';
 import styles from '@/styles/TradingFundamentals.module.css';
-import { convertToNewRoadmapStructure } from '@/utils/roadmapAdapter';
 
 interface TrainingData {
   tipo: string;
@@ -66,6 +66,22 @@ interface Testimonial {
   results: string;
 }
 
+interface RoadmapModule {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  duracion: string;
+  lecciones: number;
+  temas: Array<{
+    titulo: string;
+    descripcion?: string;
+  }>;
+  dificultad: 'Básico' | 'Intermedio' | 'Avanzado';
+  prerequisito?: number;
+  orden: number;
+  activo: boolean;
+}
+
 interface TradingPageProps {
   training: TrainingData;
   program: ProgramModule[];
@@ -82,6 +98,12 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
   const [showEnrollForm, setShowEnrollForm] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [checkingEnrollment, setCheckingEnrollment] = useState(false);
+  
+  // Estados para roadmaps dinámicos
+  const [roadmapModules, setRoadmapModules] = useState<RoadmapModule[]>([]);
+  const [loadingRoadmap, setLoadingRoadmap] = useState(true);
+  const [roadmapError, setRoadmapError] = useState<string>('');
+
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
@@ -104,6 +126,34 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
       checkEnrollmentStatus();
     }
   }, [session]);
+
+  // Cargar roadmaps dinámicos
+  useEffect(() => {
+    fetchRoadmaps();
+  }, []);
+
+  const fetchRoadmaps = async () => {
+    try {
+      setLoadingRoadmap(true);
+      setRoadmapError('');
+      
+      const response = await fetch('/api/roadmaps/tipo/TradingFundamentals');
+      const data = await response.json();
+      
+      if (data.success && data.data.roadmaps.length > 0) {
+        // Tomar el primer roadmap activo
+        const activeRoadmap = data.data.roadmaps.find((r: any) => r.activo) || data.data.roadmaps[0];
+        setRoadmapModules(activeRoadmap.modulos || []);
+      } else {
+        setRoadmapError('No se encontraron roadmaps para Trading Fundamentals');
+      }
+    } catch (error) {
+      console.error('Error al cargar roadmaps:', error);
+      setRoadmapError('Error al cargar el roadmap de aprendizaje');
+    } finally {
+      setLoadingRoadmap(false);
+    }
+  };
 
   const checkEnrollmentStatus = async () => {
     if (!session?.user?.email) return;
@@ -194,212 +244,6 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
       setIsEnrolling(false);
     }
   };
-
-  // Roadmap específico para Trading Fundamentals
-  const tradingFundamentalsRoadmap = [
-    {
-      id: 1,
-      title: "Introducción al Trading",
-      description: "Fundamentos básicos del trading y configuración del entorno de trabajo",
-      duration: "3 horas",
-      lessons: 8,
-      topics: [
-        "¿Qué es el trading y cómo funciona?",
-        "Diferencias entre inversión y trading",
-        "Tipos de mercados financieros",
-        "Configuración de plataformas",
-        "Terminología básica",
-        "Horarios de mercado globales",
-        "Primeros pasos con capital demo",
-        "Mentalidad del trader principiante"
-      ],
-      completed: true,
-      difficulty: "Básico" as const
-    },
-    {
-      id: 2,
-      title: "Análisis Técnico Básico",
-      description: "Herramientas fundamentales para leer gráficos y patrones de precios",
-      duration: "5 horas",
-      lessons: 12,
-      topics: [
-        "Tipos de gráficos (velas, líneas, barras)",
-        "Timeframes y su importancia",
-        "Soportes y resistencias básicos",
-        "Tendencias alcistas, bajistas y laterales",
-        "Volumen y su interpretación",
-        "Patrones de velas japonesas",
-        "Líneas de tendencia",
-        "Fibonacci básico"
-      ],
-      completed: true,
-      difficulty: "Básico" as const,
-      prerequisite: 1
-    },
-    {
-      id: 3,
-      title: "Indicadores Técnicos",
-      description: "Dominio de los indicadores más efectivos para tomar decisiones",
-      duration: "4 horas",
-      lessons: 10,
-      topics: [
-        "Medias móviles (SMA, EMA)",
-        "RSI y interpretación de sobrecompra/sobreventa",
-        "MACD y divergencias",
-        "Bandas de Bollinger",
-        "Estocástico",
-        "ATR para volatilidad",
-        "Combinación de indicadores",
-        "Evitar el análisis paralítico"
-      ],
-      completed: false,
-      difficulty: "Básico" as const,
-      prerequisite: 2
-    },
-    {
-      id: 4,
-      title: "Gestión de Riesgo",
-      description: "Técnicas esenciales para proteger tu capital y maximizar ganancias",
-      duration: "4 horas",
-      lessons: 9,
-      topics: [
-        "Regla del 1-2% por operación",
-        "Cálculo de posición (position sizing)",
-        "Stop Loss: colocación y tipos",
-        "Take Profit y ratios R:R",
-        "Trailing stops",
-        "Diversificación de activos",
-        "Money management avanzado",
-        "Gestión emocional del riesgo"
-      ],
-      completed: false,
-      difficulty: "Intermedio" as const,
-      prerequisite: 3
-    },
-    {
-      id: 5,
-      title: "Estrategias de Trading",
-      description: "Estrategias probadas para diferentes condiciones de mercado",
-      duration: "5 horas",
-      lessons: 13,
-      topics: [
-        "Estrategia de seguimiento de tendencia",
-        "Trading en rangos y soportes/resistencias",
-        "Breakouts y rupturas",
-        "Pullbacks y retrocesos",
-        "Scalping básico",
-        "Swing trading",
-        "Trading de noticias",
-        "Adaptación a diferentes sesiones"
-      ],
-      completed: false,
-      difficulty: "Intermedio" as const,
-      prerequisite: 4
-    },
-    {
-      id: 6,
-      title: "Psicología del Trading",
-      description: "Control emocional y disciplina mental para el éxito sostenido",
-      duration: "3 horas",
-      lessons: 8,
-      topics: [
-        "Emociones en el trading (miedo, codicia)",
-        "Disciplina y paciencia",
-        "Manejo de rachas perdedoras",
-        "Overtrading y revenge trading",
-        "Rutinas diarias del trader",
-        "Journaling y autoevaluación",
-        "Mentalidad de crecimiento",
-        "Mantener la objetividad"
-      ],
-      completed: false,
-      difficulty: "Intermedio" as const,
-      prerequisite: 5
-    },
-    {
-      id: 7,
-      title: "Análisis Fundamental",
-      description: "Comprensión de factores económicos que mueven los mercados",
-      duration: "4 horas",
-      lessons: 10,
-      topics: [
-        "Calendarios económicos",
-        "Indicadores macroeconómicos clave",
-        "Noticias de alto impacto",
-        "Correlaciones entre activos",
-        "Análisis sectorial básico",
-        "Eventos geopolíticos",
-        "Estacionalidad en mercados",
-        "Combinando análisis técnico y fundamental"
-      ],
-      completed: false,
-      difficulty: "Intermedio" as const,
-      prerequisite: 6
-    },
-    {
-      id: 8,
-      title: "Backtesting y Optimización",
-      description: "Validación de estrategias y mejora continua del sistema de trading",
-      duration: "3 horas",
-      lessons: 7,
-      topics: [
-        "Conceptos de backtesting",
-        "Herramientas para backtest",
-        "Métricas de rendimiento",
-        "Optimización de parámetros",
-        "Evitar el curve fitting",
-        "Paper trading estructurado",
-        "Evaluación de sistemas"
-      ],
-      completed: false,
-      difficulty: "Intermedio" as const,
-      prerequisite: 7
-    },
-    {
-      id: 9,
-      title: "Trading en Vivo - Práctica",
-      description: "Aplicación práctica de todo lo aprendido en mercados reales",
-      duration: "6 horas",
-      lessons: 15,
-      topics: [
-        "Preparación pre-mercado",
-        "Análisis de múltiples timeframes",
-        "Identificación de setups",
-        "Ejecución disciplinada",
-        "Gestión de posiciones abiertas",
-        "Análisis post-mercado",
-        "Registro detallado de operaciones",
-        "Ajustes y mejoras continuas"
-      ],
-      completed: false,
-      difficulty: "Avanzado" as const,
-      prerequisite: 8
-    },
-    {
-      id: 10,
-      title: "Plan de Trader Profesional",
-      description: "Construcción de un plan integral para el crecimiento como trader",
-      duration: "4 horas",
-      lessons: 9,
-      topics: [
-        "Definición de objetivos SMART",
-        "Plan de trading personalizado",
-        "Escalamiento de capital",
-        "Diversificación de estrategias",
-        "Educación continua",
-        "Networking en trading",
-        "Consideraciones fiscales",
-        "Transición a trader profesional"
-      ],
-      completed: false,
-      difficulty: "Avanzado" as const,
-      prerequisite: 9
-    }
-  ];
-
-  // Simular progreso del usuario
-  const currentModule = 3; // Módulo actual
-  const completedModules = [1, 2]; // Módulos completados
 
   const handleModuleClick = (moduleId: number) => {
     console.log(`Accediendo al módulo ${moduleId}`);
@@ -680,12 +524,43 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
-              <TrainingRoadmap
-                modules={convertToNewRoadmapStructure(tradingFundamentalsRoadmap)}
-                onModuleClick={handleModuleClick}
-                title="Roadmap de Trading Fundamentals"
-                description="Progresión estructurada desde principiante hasta trader competente"
-              />
+              {loadingRoadmap ? (
+                <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+                  <Loader size={48} className="spinning" style={{ margin: '0 auto 1rem', color: '#3b82f6' }} />
+                  <p style={{ color: '#6b7280', fontSize: '1.1rem' }}>Cargando roadmap de aprendizaje...</p>
+                </div>
+              ) : roadmapError ? (
+                <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+                  <h3 style={{ color: '#dc2626', marginBottom: '1rem' }}>Error al cargar roadmap</h3>
+                  <p style={{ color: '#6b7280', marginBottom: '2rem' }}>{roadmapError}</p>
+                  <button 
+                    onClick={fetchRoadmaps}
+                    style={{ 
+                      padding: '0.75rem 1.5rem', 
+                      background: '#3b82f6', 
+                      color: 'white', 
+                      border: 'none', 
+                      borderRadius: '0.5rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              ) : roadmapModules.length > 0 ? (
+                <TrainingRoadmap
+                  modules={roadmapModules}
+                  onModuleClick={handleModuleClick}
+                  title="Roadmap de Trading Fundamentals"
+                  description="Progresión estructurada desde principiante hasta trader competente"
+                />
+              ) : (
+                <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+                  <p style={{ color: '#6b7280', fontSize: '1.1rem' }}>
+                    Roadmap no disponible en este momento
+                  </p>
+                </div>
+              )}
             </motion.div>
           </div>
         </section>
