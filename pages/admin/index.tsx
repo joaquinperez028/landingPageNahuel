@@ -15,7 +15,10 @@ import {
   FileText,
   ArrowRight,
   Globe,
-  BookOpen
+  BookOpen,
+  Map,
+  Bell,
+  BarChart
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -215,6 +218,38 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               </div>
             </div>
           </motion.div>
+
+          <div className={styles.quickActions}>
+            <Link href="/admin/lecciones" className={styles.quickAction}>
+              <BookOpen size={24} />
+              <span>Gestionar Lecciones</span>
+            </Link>
+            
+            <Link href="/admin/roadmaps" className={styles.quickAction}>
+              <Map size={24} />
+              <span>Gestionar Roadmaps</span>
+            </Link>
+
+            <Link href="/admin/users" className={styles.quickAction}>
+              <Users size={24} />
+              <span>Gestionar Usuarios</span>
+            </Link>
+
+            <Link href="/admin/horarios" className={styles.quickAction}>
+              <Calendar size={24} />
+              <span>Gestionar Horarios</span>
+            </Link>
+
+            <Link href="/admin/notifications" className={styles.quickAction}>
+              <Bell size={24} />
+              <span>Enviar Notificación</span>
+            </Link>
+
+            <Link href="/admin/dashboard" className={styles.quickAction}>
+              <BarChart size={24} />
+              <span>Ver Dashboard</span>
+            </Link>
+          </div>
         </div>
       </main>
 

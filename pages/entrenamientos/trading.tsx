@@ -26,6 +26,7 @@ import {
   Quote
 } from 'lucide-react';
 import styles from '@/styles/TradingFundamentals.module.css';
+import { convertToNewRoadmapStructure } from '@/utils/roadmapAdapter';
 
 interface TrainingData {
   tipo: string;
@@ -680,11 +681,10 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
               transition={{ duration: 0.8 }}
             >
               <TrainingRoadmap
-                modules={tradingFundamentalsRoadmap}
-                currentModule={currentModule}
-                completedModules={completedModules}
+                modules={convertToNewRoadmapStructure(tradingFundamentalsRoadmap)}
                 onModuleClick={handleModuleClick}
-                showProgress={true}
+                title="Roadmap de Trading Fundamentals"
+                description="Progresión estructurada desde principiante hasta trader competente"
               />
             </motion.div>
           </div>

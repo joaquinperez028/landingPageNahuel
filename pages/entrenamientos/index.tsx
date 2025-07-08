@@ -19,6 +19,7 @@ import {
   PlayCircle
 } from 'lucide-react';
 import styles from '@/styles/EntrenamientosIndex.module.css';
+import { convertToNewRoadmapStructure } from '@/utils/roadmapAdapter';
 
 interface EntrenamientosPageProps {
   trainings: Array<{
@@ -293,11 +294,10 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
               transition={{ duration: 0.8 }}
             >
               <TrainingRoadmap
-                modules={roadmapModules}
-                currentModule={currentModule}
-                completedModules={completedModules}
+                modules={convertToNewRoadmapStructure(roadmapModules)}
                 onModuleClick={handleModuleClick}
-                showProgress={true}
+                title="Roadmap de Aprendizaje"
+                description="Progresión estructurada diseñada para llevarte de principiante a trader avanzado"
               />
             </motion.div>
           </div>

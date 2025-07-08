@@ -26,6 +26,7 @@ import {
   Quote
 } from 'lucide-react';
 import styles from '@/styles/TradingFundamentals.module.css';
+import { convertToNewRoadmapStructure } from '@/utils/roadmapAdapter';
 
 interface TrainingData {
   tipo: string;
@@ -681,11 +682,10 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
               transition={{ duration: 0.8 }}
             >
               <TrainingRoadmap
-                modules={dowJonesRoadmap}
-                currentModule={currentModule}
-                completedModules={completedModules}
+                modules={convertToNewRoadmapStructure(dowJonesRoadmap)}
                 onModuleClick={handleModuleClick}
-                showProgress={true}
+                title="Roadmap de Aprendizaje Avanzado"
+                description="Estrategias avanzadas y técnicas institucionales para traders experimentados"
               />
             </motion.div>
           </div>

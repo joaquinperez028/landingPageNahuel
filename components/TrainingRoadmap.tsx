@@ -1,34 +1,37 @@
 import React, { useState } from 'react';
-import { CheckCircle, Circle, Play, Clock, Book, Target } from 'lucide-react';
+import { ChevronDown, ChevronRight, Clock, Book, Target } from 'lucide-react';
 import styles from './TrainingRoadmap.module.css';
+
+interface RoadmapTopic {
+  titulo: string;
+  descripcion?: string;
+}
 
 interface RoadmapModule {
   id: number;
-  title: string;
-  description: string;
-  duration: string;
-  lessons: number;
-  topics: string[];
-  completed?: boolean;
-  locked?: boolean;
-  difficulty: 'Básico' | 'Intermedio' | 'Avanzado';
-  prerequisite?: number;
+  titulo: string;
+  descripcion: string;
+  duracion: string;
+  lecciones: number;
+  temas: RoadmapTopic[];
+  dificultad: 'Básico' | 'Intermedio' | 'Avanzado';
+  prerequisito?: number;
+  orden: number;
+  activo: boolean;
 }
 
 interface TrainingRoadmapProps {
   modules: RoadmapModule[];
-  currentModule?: number;
   onModuleClick?: (moduleId: number) => void;
-  showProgress?: boolean;
-  completedModules?: number[];
+  title?: string;
+  description?: string;
 }
 
 const TrainingRoadmap: React.FC<TrainingRoadmapProps> = ({
   modules,
-  currentModule = 1,
   onModuleClick,
-  showProgress = true,
-  completedModules = []
+  title = "Roadmap de Aprendizaje",
+  description = "Progresión estructurada diseñada para llevarte de principiante a trader avanzado"
 }) => {
   const [expandedModule, setExpandedModule] = useState<number | null>(null);
 
@@ -49,97 +52,49 @@ const TrainingRoadmap: React.FC<TrainingRoadmapProps> = ({
     }
   };
 
-  const getCompletionPercentage = () => {
-    if (!showProgress) return 0;
-    return Math.round((completedModules.length / modules.length) * 100);
-  };
-
-  const isModuleAccessible = (module: RoadmapModule) => {
-    if (!module.prerequisite) return true;
-    return completedModules.includes(module.prerequisite);
-  };
-
-  const getModuleStatus = (module: RoadmapModule) => {
-    if (completedModules.includes(module.id)) return 'completed';
-    if (module.id === currentModule) return 'current';
-    if (!isModuleAccessible(module)) return 'locked';
-    return 'available';
-  };
-
   return (
     <div className={styles.roadmapContainer}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Roadmap de Aprendizaje</h2>
-        <p className={styles.description}>
-          Progresión estructurada en {modules.length} módulos diseñados para llevarte 
-          de principiante a trader avanzado
-        </p>
-        
-        {showProgress && (
-          <div className={styles.progressSection}>
-            <div className={styles.progressInfo}>
-              <span className={styles.progressLabel}>Progreso general:</span>
-              <span className={styles.progressText}>
-                {completedModules.length}/{modules.length} módulos completados
-              </span>
-            </div>
-            <div className={styles.progressBar}>
-              <div 
-                className={styles.progressFill} 
-                style={{ width: `${getCompletionPercentage()}%` }}
-              />
-            </div>
-            <span className={styles.progressPercentage}>
-              {getCompletionPercentage()}%
-            </span>
-          </div>
-        )}
+        <h2 className={styles.title}>{title}</h2>
+        <p className={styles.description}>{description}</p>
       </div>
 
       <div className={styles.modulesList}>
         {modules.map((module, index) => {
-          const status = getModuleStatus(module);
           const isExpanded = expandedModule === module.id;
           
           return (
             <div 
               key={module.id} 
-              className={`${styles.moduleCard} ${styles[status]}`}
+              className={styles.moduleCard}
             >
               <div 
                 className={styles.moduleHeader}
                 onClick={() => toggleModule(module.id)}
               >
                 <div className={styles.moduleLeft}>
-                  <div className={styles.moduleIcon}>
-                    {status === 'completed' && (
-                      <CheckCircle size={24} className={styles.completedIcon} />
-                    )}
-                    {status === 'current' && (
-                      <Play size={24} className={styles.currentIcon} />
-                    )}
-                    {status === 'locked' && (
-                      <Circle size={24} className={styles.lockedIcon} />
-                    )}
-                    {status === 'available' && (
-                      <Circle size={24} className={styles.availableIcon} />
+                  <div className={styles.expandIcon}>
+                    {isExpanded ? (
+                      <ChevronDown size={20} className={styles.chevronIcon} />
+                    ) : (
+                      <ChevronRight size={20} className={styles.chevronIcon} />
                     )}
                   </div>
                   
                   <div className={styles.moduleInfo}>
                     <div className={styles.moduleTitleRow}>
                       <h3 className={styles.moduleTitle}>
-                        Módulo {module.id}: {module.title}
+                        Módulo {module.id}: {module.titulo}
                       </h3>
                       <span 
                         className={styles.difficultyBadge}
-                        style={{ backgroundColor: getDifficultyColor(module.difficulty) }}
+                        style={{ backgroundColor: getDifficultyColor(module.dificultad) }}
                       >
-                        {module.difficulty}
+                        {module.dificultad}
                       </span>
                     </div>
                     <p className={styles.moduleDescription}>
-                      {module.description}
+                      {module.descripcion}
                     </p>
                   </div>
                 </div>
@@ -148,16 +103,12 @@ const TrainingRoadmap: React.FC<TrainingRoadmapProps> = ({
                   <div className={styles.moduleStats}>
                     <div className={styles.statItem}>
                       <Clock size={16} />
-                      <span>{module.duration}</span>
+                      <span>{module.duracion}</span>
                     </div>
                     <div className={styles.statItem}>
                       <Book size={16} />
-                      <span>{module.lessons} lecciones</span>
+                      <span>{module.lecciones} lecciones</span>
                     </div>
-                  </div>
-                  
-                  <div className={styles.expandIcon}>
-                    {isExpanded ? '▼' : '▶'}
                   </div>
                 </div>
               </div>
@@ -170,64 +121,41 @@ const TrainingRoadmap: React.FC<TrainingRoadmapProps> = ({
                       Temas a cubrir:
                     </h4>
                     <div className={styles.topicsList}>
-                      {module.topics.map((topic, topicIndex) => (
+                      {module.temas.map((tema, topicIndex) => (
                         <div key={topicIndex} className={styles.topicItem}>
                           <span className={styles.topicBullet}>•</span>
-                          <span className={styles.topicText}>{topic}</span>
+                          <div className={styles.topicContent}>
+                            <span className={styles.topicText}>{tema.titulo}</span>
+                            {tema.descripcion && (
+                              <span className={styles.topicDescription}>{tema.descripcion}</span>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {module.prerequisite && (
+                  {module.prerequisito && (
                     <div className={styles.prerequisiteSection}>
                       <p className={styles.prerequisiteText}>
-                        <strong>Prerequisito:</strong> Completar Módulo {module.prerequisite}
+                        <strong>Prerequisito:</strong> Completar Módulo {module.prerequisito}
                       </p>
                     </div>
                   )}
 
-                  <div className={styles.moduleActions}>
-                    {status === 'completed' && (
+                  {onModuleClick && (
+                    <div className={styles.actionSection}>
                       <button 
-                        className={`${styles.actionButton} ${styles.completedButton}`}
-                        onClick={() => onModuleClick?.(module.id)}
+                        className={styles.actionButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onModuleClick(module.id);
+                        }}
                       >
-                        <CheckCircle size={16} />
-                        Completado - Revisar
+                        Ver Módulo
                       </button>
-                    )}
-                    
-                    {status === 'current' && (
-                      <button 
-                        className={`${styles.actionButton} ${styles.currentButton}`}
-                        onClick={() => onModuleClick?.(module.id)}
-                      >
-                        <Play size={16} />
-                        Continuar Módulo
-                      </button>
-                    )}
-                    
-                    {status === 'available' && (
-                      <button 
-                        className={`${styles.actionButton} ${styles.availableButton}`}
-                        onClick={() => onModuleClick?.(module.id)}
-                      >
-                        <Play size={16} />
-                        Comenzar Módulo
-                      </button>
-                    )}
-                    
-                    {status === 'locked' && (
-                      <button 
-                        className={`${styles.actionButton} ${styles.lockedButton}`}
-                        disabled
-                      >
-                        <Circle size={16} />
-                        Bloqueado
-                      </button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -235,35 +163,14 @@ const TrainingRoadmap: React.FC<TrainingRoadmapProps> = ({
         })}
       </div>
 
-      <div className={styles.footer}>
-        <div className={styles.legend}>
-          <div className={styles.legendItem}>
-            <CheckCircle size={16} className={styles.completedIcon} />
-            <span>Completado</span>
-          </div>
-          <div className={styles.legendItem}>
-            <Play size={16} className={styles.currentIcon} />
-            <span>En Progreso</span>
-          </div>
-          <div className={styles.legendItem}>
-            <Circle size={16} className={styles.availableIcon} />
-            <span>Disponible</span>
-          </div>
-          <div className={styles.legendItem}>
-            <Circle size={16} className={styles.lockedIcon} />
-            <span>Bloqueado</span>
-          </div>
-        </div>
-        
-        <div className={styles.footerStats}>
-          <p className={styles.statsText}>
-            Total: {modules.reduce((acc, module) => acc + module.lessons, 0)} lecciones • {' '}
-            {modules.reduce((acc, module) => {
-              const hours = parseInt(module.duration.split(' ')[0]);
-              return acc + (isNaN(hours) ? 0 : hours);
-            }, 0)} horas de contenido
-          </p>
-        </div>
+      <div className={styles.footerStats}>
+        <p className={styles.statsText}>
+          Total: {modules.reduce((acc, module) => acc + module.lecciones, 0)} lecciones • {' '}
+          {modules.reduce((acc, module) => {
+            const hours = parseInt(module.duracion.split(' ')[0]);
+            return acc + (isNaN(hours) ? 0 : hours);
+          }, 0)} horas de contenido
+        </p>
       </div>
     </div>
   );
