@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import TrainingRoadmap from '@/components/TrainingRoadmap';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -16,8 +15,7 @@ import {
   BookOpen,
   Target,
   Award,
-  PlayCircle,
-  Loader
+  PlayCircle
 } from 'lucide-react';
 import styles from '@/styles/EntrenamientosIndex.module.css';
 
@@ -40,68 +38,7 @@ interface EntrenamientosPageProps {
   }>;
 }
 
-interface RoadmapModule {
-  id: number;
-  titulo: string;
-  descripcion: string;
-  duracion: string;
-  lecciones: number;
-  temas: Array<{
-    titulo: string;
-    descripcion?: string;
-  }>;
-  dificultad: 'Básico' | 'Intermedio' | 'Avanzado';
-  prerequisito?: number;
-  orden: number;
-  activo: boolean;
-}
-
 const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) => {
-  // Estados para roadmaps dinámicos
-  const [roadmapModules, setRoadmapModules] = useState<RoadmapModule[]>([]);
-  const [loadingRoadmap, setLoadingRoadmap] = useState(true);
-  const [roadmapError, setRoadmapError] = useState<string>('');
-
-  // Cargar roadmaps dinámicos
-  useEffect(() => {
-    fetchRoadmaps();
-  }, []);
-
-  const fetchRoadmaps = async () => {
-    try {
-      setLoadingRoadmap(true);
-      setRoadmapError('');
-      
-      // Intentar obtener roadmap general primero, si no existe obtener cualquier roadmap activo
-      let response = await fetch('/api/roadmaps/tipo/General');
-      let data = await response.json();
-      
-      if (!data.success || data.data.roadmaps.length === 0) {
-        // Si no hay roadmap general, obtener todos los roadmaps
-        response = await fetch('/api/roadmaps');
-        data = await response.json();
-      }
-      
-      if (data.success && data.data.roadmaps.length > 0) {
-        // Tomar el primer roadmap activo
-        const activeRoadmap = data.data.roadmaps.find((r: any) => r.activo) || data.data.roadmaps[0];
-        setRoadmapModules(activeRoadmap.modulos || []);
-      } else {
-        setRoadmapError('No se encontraron roadmaps disponibles');
-      }
-    } catch (error) {
-      console.error('Error al cargar roadmaps:', error);
-      setRoadmapError('Error al cargar el roadmap de aprendizaje');
-    } finally {
-      setLoadingRoadmap(false);
-    }
-  };
-
-  const handleModuleClick = (moduleId: number) => {
-    console.log(`Accediendo al módulo ${moduleId}`);
-    // Aquí se implementaría la navegación al módulo específico
-  };
-
   return (
     <>
       <Head>
@@ -185,56 +122,6 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
                   <p className={styles.statLabel}>Horas de Contenido</p>
                 </motion.div>
               </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Roadmap Section */}
-        <section className={styles.roadmapSection}>
-          <div className={styles.container}>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
-              {loadingRoadmap ? (
-                <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-                  <Loader size={48} className="spinning" style={{ margin: '0 auto 1rem', color: '#3b82f6' }} />
-                  <p style={{ color: '#6b7280', fontSize: '1.1rem' }}>Cargando roadmap de aprendizaje...</p>
-                </div>
-              ) : roadmapError ? (
-                <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-                  <h3 style={{ color: '#dc2626', marginBottom: '1rem' }}>Error al cargar roadmap</h3>
-                  <p style={{ color: '#6b7280', marginBottom: '2rem' }}>{roadmapError}</p>
-                  <button 
-                    onClick={fetchRoadmaps}
-                    style={{ 
-                      padding: '0.75rem 1.5rem', 
-                      background: '#3b82f6', 
-                      color: 'white', 
-                      border: 'none', 
-                      borderRadius: '0.5rem',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Reintentar
-                  </button>
-                </div>
-              ) : roadmapModules.length > 0 ? (
-                <TrainingRoadmap
-                  modules={roadmapModules}
-                  onModuleClick={handleModuleClick}
-                  title="Roadmap de Aprendizaje"
-                  description="Progresión estructurada diseñada para llevarte de principiante a trader avanzado"
-                />
-              ) : (
-                <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-                  <p style={{ color: '#6b7280', fontSize: '1.1rem' }}>
-                    Roadmap no disponible en este momento
-                  </p>
-                </div>
-              )}
             </motion.div>
           </div>
         </section>
@@ -355,8 +242,8 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
             <div className={styles.benefitsGrid}>
               <motion.div 
                 className={styles.benefitCard}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
               >
@@ -365,55 +252,55 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
                 </div>
                 <h3 className={styles.benefitTitle}>Metodología Probada</h3>
                 <p className={styles.benefitDescription}>
-                  Estrategias y técnicas validadas en mercados reales con más de 10 años de experiencia
+                  Estrategias testadas en mercados reales con resultados medibles y documentados.
                 </p>
               </motion.div>
 
               <motion.div 
                 className={styles.benefitCard}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-              >
-                <div className={styles.benefitIcon}>
-                  <BookOpen size={40} />
-                </div>
-                <h3 className={styles.benefitTitle}>Contenido Actualizado</h3>
-                <p className={styles.benefitDescription}>
-                  Material constantemente actualizado según las últimas tendencias y cambios del mercado
-                </p>
-              </motion.div>
-
-              <motion.div 
-                className={styles.benefitCard}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
               >
                 <div className={styles.benefitIcon}>
                   <Users size={40} />
                 </div>
                 <h3 className={styles.benefitTitle}>Soporte Personalizado</h3>
                 <p className={styles.benefitDescription}>
-                  Acompañamiento directo del instructor y acceso a comunidad privada de estudiantes
+                  Acompañamiento directo del instructor y comunidad activa de estudiantes.
                 </p>
               </motion.div>
 
               <motion.div 
                 className={styles.benefitCard}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className={styles.benefitIcon}>
+                  <TrendingUp size={40} />
+                </div>
+                <h3 className={styles.benefitTitle}>Contenido Actualizado</h3>
+                <p className={styles.benefitDescription}>
+                  Material constantemente actualizado según las tendencias del mercado.
+                </p>
+              </motion.div>
+
+              <motion.div 
+                className={styles.benefitCard}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.4 }}
               >
                 <div className={styles.benefitIcon}>
                   <Award size={40} />
                 </div>
-                <h3 className={styles.benefitTitle}>Certificación</h3>
+                <h3 className={styles.benefitTitle}>Certificación Incluida</h3>
                 <p className={styles.benefitDescription}>
-                  Obtén certificado de completación reconocido en la industria financiera
+                  Obtén tu certificado de finalización para validar tus conocimientos adquiridos.
                 </p>
               </motion.div>
             </div>
@@ -424,27 +311,28 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
         <section className={styles.ctaSection}>
           <div className={styles.container}>
             <motion.div 
-              className={styles.ctaCard}
+              className={styles.ctaContent}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <div className={styles.ctaContent}>
-                <h2 className={styles.ctaTitle}>
-                  ¿Listo para Transformar tu Trading?
-                </h2>
-                <p className={styles.ctaDescription}>
-                  Únete a más de 1,200 estudiantes que ya han mejorado sus resultados con nuestros entrenamientos especializados
-                </p>
-                <div className={styles.ctaActions}>
-                  <Link href="/entrenamientos/trading" className={styles.ctaButton}>
-                    Comenzar Ahora
-                    <ArrowRight size={20} />
-                  </Link>
-                  <Link href="/asesorias" className={styles.ctaButtonSecondary}>
-                    Consultoría Personalizada
-                  </Link>
-                </div>
+              <h2 className={styles.ctaTitle}>
+                ¿Listo para Comenzar tu Transformación?
+              </h2>
+              <p className={styles.ctaDescription}>
+                Únete a más de 1,200 estudiantes que ya están aplicando estas estrategias exitosamente.
+              </p>
+              <div className={styles.ctaButtons}>
+                <Link href="/entrenamientos/trading" className={styles.ctaButton}>
+                  <BookOpen size={20} />
+                  Trading Fundamentals
+                  <ArrowRight size={20} />
+                </Link>
+                <Link href="/entrenamientos/advanced" className={styles.ctaButton}>
+                  <TrendingUp size={20} />
+                  Dow Jones Avanzado
+                  <ArrowRight size={20} />
+                </Link>
               </div>
             </motion.div>
           </div>
