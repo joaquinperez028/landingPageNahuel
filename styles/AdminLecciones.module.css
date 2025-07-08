@@ -835,6 +835,80 @@
   box-shadow: none;
 }
 
+/* Estilos para filtro por tipo */
+.typeFilter {
+  color: #059669;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+.filterInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filterBadge {
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.clearFilter {
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.clearFilter:hover {
+  color: #374151;
+  background-color: #f3f4f6;
+}
+
+/* Estilos para campos restringidos */
+.restrictedField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.readOnlyInput {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  background-color: #f9fafb;
+  color: #6b7280;
+  font-size: 0.875rem;
+  cursor: not-allowed;
+}
+
+.fieldNote {
+  font-size: 0.75rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.removeRestriction {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
+
+.removeRestriction:hover {
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {

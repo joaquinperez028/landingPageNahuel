@@ -134,19 +134,25 @@ interface AdminLeccionesProps {
 }
 
 const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
+  const router = useRouter();
   const [lecciones, setLecciones] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Obtener el tipo de la URL y configurar filtros iniciales
+  const tipoFromURL = router.query.tipo as string;
+  const isFilteredByType = tipoFromURL && ['DowJones', 'TradingFundamentals'].includes(tipoFromURL);
+  
   const [filtros, setFiltros] = useState({
-    tipo: 'all',
+    tipo: isFilteredByType ? tipoFromURL : 'all',
     modulo: 'all',
     dificultad: 'all',
     activa: 'all'
   });
 
-  // Estado del formulario
+  // Estado del formulario - pre-configurar tipo según URL
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
@@ -160,7 +166,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
       url: string;
       tipo: 'enlace' | 'descarga' | 'referencia';
     }[],
-    tipoEntrenamiento: 'TradingFundamentals' as 'TradingFundamentals' | 'DowJones',
+    tipoEntrenamiento: (isFilteredByType ? tipoFromURL : 'TradingFundamentals') as 'TradingFundamentals' | 'DowJones',
     dificultad: 'Básico' as 'Básico' | 'Intermedio' | 'Avanzado',
     esGratuita: false,
     requiereSuscripcion: true,
@@ -196,9 +202,24 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
     }
   };
 
+  // Actualizar filtros cuando cambie la URL
   useEffect(() => {
-    cargarLecciones();
-  }, [filtros, searchTerm]);
+    if (router.isReady) {
+      const tipoFromURL = router.query.tipo as string;
+      const isFilteredByType = tipoFromURL && ['DowJones', 'TradingFundamentals'].includes(tipoFromURL);
+      
+      if (isFilteredByType) {
+        setFiltros(prev => ({ ...prev, tipo: tipoFromURL }));
+        setFormData(prev => ({ ...prev, tipoEntrenamiento: tipoFromURL as 'TradingFundamentals' | 'DowJones' }));
+      }
+    }
+  }, [router.isReady, router.query.tipo]);
+
+  useEffect(() => {
+    if (router.isReady) {
+      cargarLecciones();
+    }
+  }, [filtros, searchTerm, router.isReady]);
 
   // Crear nueva lección
   const crearLeccion = async () => {
@@ -296,7 +317,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
         url: string;
         tipo: 'enlace' | 'descarga' | 'referencia';
       }[],
-      tipoEntrenamiento: 'TradingFundamentals',
+      tipoEntrenamiento: (isFilteredByType ? tipoFromURL : 'TradingFundamentals') as 'TradingFundamentals' | 'DowJones',
       dificultad: 'Básico',
       esGratuita: false,
       requiereSuscripcion: true,
@@ -480,22 +501,43 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
             <h1 className={styles.title}>
               <BookOpen size={32} />
               Gestión de Lecciones
+              {isFilteredByType && (
+                <span className={styles.typeFilter}>
+                  - {tipoFromURL === 'TradingFundamentals' ? 'Trading Fundamentals' : 'Dow Jones'}
+                </span>
+              )}
             </h1>
             <p className={styles.subtitle}>
-              Crea y gestiona el contenido de los entrenamientos
+              {isFilteredByType 
+                ? `Gestiona las lecciones de ${tipoFromURL === 'TradingFundamentals' ? 'Trading Fundamentals' : 'Dow Jones'}`
+                : 'Crea y gestiona el contenido de los entrenamientos'
+              }
             </p>
           </div>
 
           <div className={styles.headerRight}>
-            <select
-              value={filtros.tipo}
-              onChange={(e) => setFiltros({...filtros, tipo: e.target.value as any})}
-              className={styles.select}
-            >
-              <option value="all">Todos los tipos</option>
-              <option value="TradingFundamentals">Trading Fundamentals</option>
-              <option value="DowJones">Dow Jones</option>
-            </select>
+            {!isFilteredByType && (
+              <select
+                value={filtros.tipo}
+                onChange={(e) => setFiltros({...filtros, tipo: e.target.value as any})}
+                className={styles.select}
+              >
+                <option value="all">Todos los tipos</option>
+                <option value="TradingFundamentals">Trading Fundamentals</option>
+                <option value="DowJones">Dow Jones</option>
+              </select>
+            )}
+            
+            {isFilteredByType && (
+              <div className={styles.filterInfo}>
+                <span className={styles.filterBadge}>
+                  Filtrado: {tipoFromURL === 'TradingFundamentals' ? 'Trading Fundamentals' : 'Dow Jones'}
+                </span>
+                <Link href="/admin/lecciones" className={styles.clearFilter}>
+                  Ver todos
+                </Link>
+              </div>
+            )}
             
             <button
               onClick={handleMigratePDFs}
@@ -735,13 +777,30 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                     <div className={styles.formRow}>
                       <div className={styles.formGroup}>
                         <label>Tipo de Entrenamiento</label>
-                        <select
-                          value={formData.tipoEntrenamiento}
-                          onChange={(e) => setFormData({...formData, tipoEntrenamiento: e.target.value as any})}
-                        >
-                          <option value="TradingFundamentals">Trading Fundamentals</option>
-                          <option value="DowJones">Dow Jones</option>
-                        </select>
+                        {isFilteredByType ? (
+                          <div className={styles.restrictedField}>
+                            <input
+                              type="text"
+                              value={tipoFromURL === 'TradingFundamentals' ? 'Trading Fundamentals' : 'Dow Jones'}
+                              readOnly
+                              className={styles.readOnlyInput}
+                            />
+                            <small className={styles.fieldNote}>
+                              Tipo restringido por filtro de URL. 
+                              <Link href="/admin/lecciones" className={styles.removeRestriction}>
+                                Quitar restricción
+                              </Link>
+                            </small>
+                          </div>
+                        ) : (
+                          <select
+                            value={formData.tipoEntrenamiento}
+                            onChange={(e) => setFormData({...formData, tipoEntrenamiento: e.target.value as any})}
+                          >
+                            <option value="TradingFundamentals">Trading Fundamentals</option>
+                            <option value="DowJones">Dow Jones</option>
+                          </select>
+                        )}
                       </div>
 
                       <div className={styles.formGroup}>
@@ -908,7 +967,8 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                               {item.type === 'pdf' && <FileDown size={16} />}
                               {item.type === 'image' && <Image size={16} />}
                               {item.type === 'text' && <FileText size={16} />}
-                              {item.type}
+                              {item.type === 'html' && <FileText size={16} />}
+                              {item.title || item.type}
                             </span>
                             <input
                               type="text"
