@@ -1,30 +1,11 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
-import { MongoClient } from 'mongodb';
 import dbConnect from './mongodb';
 import User from '@/models/User';
 
-// Crear cliente de MongoDB para el adapter
-let mongoClient: Promise<MongoClient>;
-
-function getMongoClient() {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) {
-    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
-  }
-  
-  if (!mongoClient) {
-    const client = new MongoClient(uri);
-    mongoClient = client.connect();
-  }
-  
-  return mongoClient;
-}
-
 export const authOptions: NextAuthOptions = {
-  // ✅ HABILITAMOS el adapter de MongoDB para sincronización correcta
-  adapter: MongoDBAdapter(getMongoClient()),
+  // ❌ DESHABILITAMOS el adapter para evitar conflictos con nuestro sistema personalizado
+  // adapter: MongoDBAdapter(getMongoClient()),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -89,8 +70,8 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, account, user, trigger }) {
       console.log('🔑 [JWT] Callback ejecutado, trigger:', trigger, 'email:', token.email);
       
-      // Solo cargar desde BD si es necesario
-      if (token.email && (!token.role || trigger === 'update')) {
+      // Cargar información del usuario desde BD en cada creación de token o cuando se force update
+      if (token.email && (trigger === 'signIn' || trigger === 'update' || !token.role)) {
         try {
           await dbConnect();
           const dbUser = await User.findOne({ email: token.email }).lean() as any;
@@ -101,6 +82,7 @@ export const authOptions: NextAuthOptions = {
             token.id = dbUser._id.toString();
             token.suscripciones = dbUser.suscripciones || [];
             token.picture = dbUser.picture || token.picture;
+            token.name = dbUser.name || token.name;
           } else {
             console.log('⚠️ [JWT] Usuario no encontrado en BD:', token.email);
             token.role = 'normal';
@@ -108,7 +90,7 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error('❌ [JWT] Error cargando usuario:', error);
-          // Mantener datos existentes en caso de error
+          // Mantener datos existentes en caso de error, pero asegurar rol por defecto
           if (!token.role) {
             token.role = 'normal';
             token.suscripciones = [];
@@ -126,9 +108,12 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as 'normal' | 'suscriptor' | 'admin';
         session.user.suscripciones = token.suscripciones as any[] || [];
         
-        // Asegurar que la imagen esté actualizada
+        // Asegurar que la información esté actualizada
         if (token.picture) {
           session.user.image = token.picture as string;
+        }
+        if (token.name) {
+          session.user.name = token.name as string;
         }
         
         console.log('📋 [SESSION] Usuario procesado - Email:', session.user.email, 'Rol:', session.user.role);
@@ -156,11 +141,8 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' 
-          ? process.env.NEXTAUTH_URL?.includes('vercel.app') 
-            ? undefined  // Dejar que Vercel maneje el dominio
-            : '.lozanonahuel.com'  // O tu dominio personalizado
-          : undefined
+        // Simplificar dominio para Vercel
+        domain: undefined // Dejar que Vercel maneje automáticamente
       }
     },
     callbackUrl: {
@@ -170,7 +152,8 @@ export const authOptions: NextAuthOptions = {
       options: {
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production'
+        secure: process.env.NODE_ENV === 'production',
+        domain: undefined
       }
     },
     csrfToken: {
@@ -181,7 +164,8 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production'
+        secure: process.env.NODE_ENV === 'production',
+        domain: undefined
       }
     }
   },
@@ -226,5 +210,6 @@ declare module 'next-auth' {
     id?: string;
     suscripciones?: any[];
     picture?: string;
+    name?: string;
   }
 } 

@@ -1,26 +1,26 @@
+/* Auth Error Styles */
 .authErrorContainer {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-primary);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
 }
 
 .errorCard {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
-  padding: 48px;
-  text-align: center;
-  max-width: 500px;
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  max-width: 600px;
   width: 100%;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .errorIcon {
-  margin-bottom: 24px;
   color: #ef4444;
+  margin-bottom: 1.5rem;
   display: flex;
   justify-content: center;
 }
@@ -28,83 +28,179 @@
 .errorTitle {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 16px;
+  color: #1f2937;
+  margin-bottom: 1rem;
 }
 
 .errorMessage {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  margin-bottom: 32px;
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin-bottom: 2rem;
   line-height: 1.6;
+}
+
+.errorDetails {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  text-align: left;
+}
+
+.errorDetails h3 {
+  color: #92400e;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.errorDetails p {
+  color: #78350f;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.solutionSteps {
+  background: #e0f2fe;
+  border: 1px solid #0284c7;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  text-align: left;
+}
+
+.solutionSteps h3 {
+  color: #0c4a6e;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+.solutionSteps ol {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #075985;
+}
+
+.solutionSteps li {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .errorActions {
   display: flex;
-  gap: 16px;
-  justify-content: center;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
-.retryButton,
-.homeButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
+.clearButton {
+  background: #dc2626;
+  color: white;
+  padding: 0.75rem 1.5rem;
   border: none;
-  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 600;
   font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.clearButton:hover {
+  background: #b91c1c;
+  transform: translateY(-2px);
 }
 
 .retryButton {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: #3b82f6;
   color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
 }
 
 .retryButton:hover {
-  background: linear-gradient(135deg, #2563eb, #1e40af);
+  background: #2563eb;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
 }
 
 .homeButton {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  background: #6b7280;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
 }
 
 .homeButton:hover {
-  background: var(--hover-bg);
+  background: #4b5563;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  color: white;
+  text-decoration: none;
 }
 
-/* Responsive */
-@media (max-width: 640px) {
+.errorCode {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.errorCode small {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+}
+
+/* Responsive Design */
+@media (min-width: 640px) {
+  .errorActions {
+    flex-direction: row;
+    justify-content: center;
+  }
+  
   .errorCard {
-    padding: 32px 24px;
+    padding: 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .authErrorContainer {
+    padding: 10px;
+  }
+  
+  .errorCard {
+    padding: 2rem;
   }
   
   .errorTitle {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
   }
   
   .errorMessage {
     font-size: 1rem;
-  }
-  
-  .errorActions {
-    flex-direction: column;
-  }
-  
-  .retryButton,
-  .homeButton {
-    width: 100%;
-    justify-content: center;
   }
 } 
