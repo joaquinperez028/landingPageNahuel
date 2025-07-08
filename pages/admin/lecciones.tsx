@@ -28,7 +28,8 @@ import {
   ChevronDown,
   ChevronUp,
   RefreshCw,
-  Database
+  Database,
+  AlertCircle
 } from 'lucide-react';
 import { GetServerSideProps } from 'next';
 import { getServerSession } from 'next-auth/next';
@@ -141,6 +142,11 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
+  // Estados para manejo de errores y validaciones
+  const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string>('');
+  
   // Obtener el tipo de la URL y configurar filtros iniciales
   const tipoFromURL = router.query.tipo as string;
   const isFilteredByType = tipoFromURL && ['DowJones', 'TradingFundamentals'].includes(tipoFromURL);
@@ -174,7 +180,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
     activa: true
   });
 
-  // Cargar lecciones
+  // Cargar lecciones con manejo de errores mejorado
   const cargarLecciones = async () => {
     try {
       setLoading(true);
@@ -187,16 +193,43 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
       });
 
       const response = await fetch(`/api/lessons?${params}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Endpoint de lecciones no encontrado');
+        } else if (response.status === 403) {
+          throw new Error('No tienes permisos para ver las lecciones');
+        } else if (response.status >= 500) {
+          throw new Error('Error del servidor. Intenta nuevamente en unos momentos');
+        } else {
+          throw new Error(`Error HTTP: ${response.status}`);
+        }
+      }
+      
       const data = await response.json();
 
       if (data.success) {
-        setLecciones(data.data.lecciones);
+        setLecciones(data.data.lecciones || []);
+        if (data.data.lecciones.length === 0 && searchTerm) {
+          toast.success(`📝 No se encontraron lecciones para "${searchTerm}"`);
+        }
       } else {
-        toast.error('Error al cargar lecciones');
+        throw new Error(data.error || 'Error desconocido al cargar lecciones');
       }
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al cargar lecciones');
+      console.error('Error cargando lecciones:', error);
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        toast.error('🌐 Error de conexión. Verifica tu conexión a internet.');
+      } else {
+        toast.error(`❌ ${error instanceof Error ? error.message : 'Error al cargar lecciones'}`);
+      }
+      
+      // En caso de error, mantener las lecciones existentes si las hay
+      // Solo limpiar si es la primera carga
+      if (lecciones.length === 0) {
+        setLecciones([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -221,69 +254,272 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
     }
   }, [filtros, searchTerm, router.isReady]);
 
-  // Crear nueva lección
+  // Función de validación completa
+  const validateForm = (): boolean => {
+    const errors: {[key: string]: string} = {};
+    
+    // Validaciones básicas
+    if (!formData.titulo.trim()) {
+      errors.titulo = 'El título es obligatorio';
+    } else if (formData.titulo.length < 3) {
+      errors.titulo = 'El título debe tener al menos 3 caracteres';
+    } else if (formData.titulo.length > 100) {
+      errors.titulo = 'El título no puede exceder 100 caracteres';
+    }
+    
+    if (!formData.descripcion.trim()) {
+      errors.descripcion = 'La descripción es obligatoria';
+    } else if (formData.descripcion.length < 10) {
+      errors.descripcion = 'La descripción debe tener al menos 10 caracteres';
+    } else if (formData.descripcion.length > 500) {
+      errors.descripcion = 'La descripción no puede exceder 500 caracteres';
+    }
+    
+    if (formData.modulo < 1 || formData.modulo > 15) {
+      errors.modulo = 'El módulo debe estar entre 1 y 15';
+    }
+    
+    if (formData.numeroLeccion < 1 || formData.numeroLeccion > 50) {
+      errors.numeroLeccion = 'El número de lección debe estar entre 1 y 50';
+    }
+    
+    if (formData.duracionEstimada < 0 || formData.duracionEstimada > 300) {
+      errors.duracionEstimada = 'La duración debe estar entre 0 y 300 minutos';
+    }
+    
+    if (formData.orden < 1 || formData.orden > 1000) {
+      errors.orden = 'El orden debe estar entre 1 y 1000';
+    }
+    
+    // Validar objetivos
+    const objetivosValidos = formData.objetivos.filter(obj => obj.trim().length > 0);
+    if (objetivosValidos.length === 0) {
+      errors.objetivos = 'Debe agregar al menos un objetivo de aprendizaje';
+    } else {
+      const objetivosMuyCortos = objetivosValidos.filter(obj => obj.trim().length < 5);
+      if (objetivosMuyCortos.length > 0) {
+        errors.objetivos = 'Los objetivos deben tener al menos 5 caracteres';
+      }
+    }
+    
+    // Validar contenido
+    if (formData.contenido.length === 0) {
+      errors.contenido = 'Debe agregar al menos un elemento de contenido';
+    } else {
+      // Validar cada elemento de contenido
+      const contenidoInvalido = formData.contenido.find((item, index) => {
+        if (!item.title?.trim()) {
+          errors[`contenido_${index}_title`] = `El título del contenido ${index + 1} es obligatorio`;
+          return true;
+        }
+        
+        switch (item.type) {
+          case 'youtube':
+            if (!item.content.youtubeId?.trim()) {
+              errors[`contenido_${index}_youtube`] = `El ID de YouTube del contenido ${index + 1} es obligatorio`;
+              return true;
+            }
+            break;
+          case 'text':
+            if (!item.content.text?.trim()) {
+              errors[`contenido_${index}_text`] = `El texto del contenido ${index + 1} es obligatorio`;
+              return true;
+            }
+            break;
+          case 'pdf':
+            if (!item.content.databasePdf && !item.content.pdfFile && !item.content.cloudinaryPdf) {
+              errors[`contenido_${index}_pdf`] = `Debe subir un PDF para el contenido ${index + 1}`;
+              return true;
+            }
+            break;
+          case 'image':
+            if (!item.content.imageFile) {
+              errors[`contenido_${index}_image`] = `Debe subir una imagen para el contenido ${index + 1}`;
+              return true;
+            }
+            break;
+        }
+        return false;
+      });
+    }
+    
+    // Verificar duplicados (solo para nuevas lecciones)
+    if (!editingLesson) {
+      const existeModuloNumero = lecciones.some(leccion => 
+        leccion.modulo === formData.modulo && 
+        leccion.numeroLeccion === formData.numeroLeccion && 
+        leccion.tipoEntrenamiento === formData.tipoEntrenamiento
+      );
+      
+      if (existeModuloNumero) {
+        errors.numeroLeccion = `Ya existe una lección ${formData.numeroLeccion} en el módulo ${formData.modulo} para ${formData.tipoEntrenamiento}`;
+      }
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Crear nueva lección con validación mejorada
   const crearLeccion = async () => {
+    // Limpiar errores previos
+    setFormErrors({});
+    setSubmitError('');
+    
+    // Validar formulario
+    if (!validateForm()) {
+      toast.error('Por favor corrige los errores del formulario');
+      return;
+    }
+    
     try {
+      setIsSubmitting(true);
+      
       const response = await fetch('/api/lessons', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          objetivos: formData.objetivos.filter(obj => obj.trim().length > 0)
+        })
       });
 
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Lección creada exitosamente');
+        toast.success('¡Lección creada exitosamente!');
         setShowCreateModal(false);
         resetForm();
         cargarLecciones();
       } else {
-        toast.error(data.error || 'Error al crear lección');
+        // Manejar errores específicos del servidor
+        if (data.error?.includes('duplicate') || data.error?.includes('duplicada')) {
+          setFormErrors({
+            numeroLeccion: 'Ya existe una lección con este número en el módulo especificado'
+          });
+          toast.error('Lección duplicada: Ya existe una lección con este número');
+        } else if (data.error?.includes('validation')) {
+          setSubmitError('Error de validación: ' + data.error);
+          toast.error('Error de validación en los datos');
+        } else if (data.error?.includes('permission')) {
+          setSubmitError('No tienes permisos para crear lecciones');
+          toast.error('Permisos insuficientes');
+        } else {
+          setSubmitError(data.error || 'Error desconocido al crear la lección');
+          toast.error(data.error || 'Error al crear lección');
+        }
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al crear lección');
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setSubmitError('Error de conexión. Verifica tu conexión a internet.');
+        toast.error('Error de conexión');
+      } else {
+        setSubmitError('Error inesperado. Intenta nuevamente.');
+        toast.error('Error inesperado');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Actualizar lección
+  // Actualizar lección con validación mejorada
   const actualizarLeccion = async () => {
     if (!editingLesson) return;
 
+    // Limpiar errores previos
+    setFormErrors({});
+    setSubmitError('');
+    
+    // Validar formulario
+    if (!validateForm()) {
+      toast.error('Por favor corrige los errores del formulario');
+      return;
+    }
+    
+    // Verificar duplicados al editar (excluyendo la lección actual)
+    const existeModuloNumero = lecciones.some(leccion => 
+      leccion._id !== editingLesson._id &&
+      leccion.modulo === formData.modulo && 
+      leccion.numeroLeccion === formData.numeroLeccion && 
+      leccion.tipoEntrenamiento === formData.tipoEntrenamiento
+    );
+    
+    if (existeModuloNumero) {
+      setFormErrors({
+        numeroLeccion: `Ya existe otra lección ${formData.numeroLeccion} en el módulo ${formData.modulo} para ${formData.tipoEntrenamiento}`
+      });
+      toast.error('Número de lección duplicado');
+      return;
+    }
+
     try {
+      setIsSubmitting(true);
+      
       const response = await fetch(`/api/lessons/${editingLesson._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          objetivos: formData.objetivos.filter(obj => obj.trim().length > 0)
+        })
       });
 
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Lección actualizada exitosamente');
+        toast.success('¡Lección actualizada exitosamente!');
         setEditingLesson(null);
         resetForm();
         cargarLecciones();
       } else {
-        toast.error(data.error || 'Error al actualizar lección');
+        // Manejar errores específicos del servidor
+        if (data.error?.includes('duplicate') || data.error?.includes('duplicada')) {
+          setFormErrors({
+            numeroLeccion: 'Ya existe una lección con este número en el módulo especificado'
+          });
+          toast.error('Lección duplicada: Ya existe una lección con este número');
+        } else if (data.error?.includes('not found')) {
+          setSubmitError('La lección que intentas actualizar ya no existe');
+          toast.error('Lección no encontrada');
+        } else {
+          setSubmitError(data.error || 'Error desconocido al actualizar la lección');
+          toast.error(data.error || 'Error al actualizar lección');
+        }
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al actualizar lección');
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setSubmitError('Error de conexión. Verifica tu conexión a internet.');
+        toast.error('Error de conexión');
+      } else {
+        setSubmitError('Error inesperado. Intenta nuevamente.');
+        toast.error('Error inesperado');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Eliminar lección
+  // Eliminar lección con confirmación mejorada
   const eliminarLeccion = async (id: string, titulo: string) => {
-    if (!confirm(`¿Estás seguro de que quieres eliminar la lección "${titulo}"?`)) {
+    const confirmMessage = `¿Estás completamente seguro de que quieres eliminar la lección "${titulo}"?\n\n⚠️ ESTA ACCIÓN NO SE PUEDE DESHACER\n\n• Se eliminará todo el contenido\n• Se perderán las estadísticas\n• Los estudiantes ya no podrán acceder\n\nEscribe "ELIMINAR" para confirmar:`;
+    
+    const userInput = prompt(confirmMessage);
+    
+    if (userInput !== 'ELIMINAR') {
+      if (userInput !== null) {
+        toast.error('Eliminación cancelada. Debes escribir "ELIMINAR" exactamente.');
+      }
       return;
     }
 
     try {
+      setLoading(true);
       const response = await fetch(`/api/lessons/${id}`, {
         method: 'DELETE'
       });
@@ -291,14 +527,26 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Lección eliminada exitosamente');
+        toast.success('✅ Lección eliminada exitosamente');
         cargarLecciones();
       } else {
-        toast.error(data.error || 'Error al eliminar lección');
+        if (data.error?.includes('not found')) {
+          toast.error('❌ La lección ya no existe o fue eliminada previamente');
+        } else if (data.error?.includes('permission')) {
+          toast.error('❌ No tienes permisos para eliminar lecciones');
+        } else {
+          toast.error(`❌ Error al eliminar: ${data.error || 'Error desconocido'}`);
+        }
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al eliminar lección');
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        toast.error('❌ Error de conexión. Verifica tu conexión a internet.');
+      } else {
+        toast.error('❌ Error inesperado al eliminar la lección');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -324,6 +572,27 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
       orden: 1,
       activa: true
     });
+    // Limpiar errores al resetear
+    setFormErrors({});
+    setSubmitError('');
+  };
+
+  // Función para limpiar errores cuando el usuario está editando
+  const clearFieldError = (fieldName: string) => {
+    if (formErrors[fieldName]) {
+      setFormErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
+    }
+  };
+
+  // Función para obtener la clase CSS del campo con error
+  const getFieldClass = (fieldName: string, baseClass: string = '') => {
+    return formErrors[fieldName] 
+      ? `${baseClass} ${styles.fieldError}`.trim()
+      : baseClass;
   };
 
   // Cargar datos para edición
@@ -750,6 +1019,20 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
               </div>
 
               <div className={styles.modalContent}>
+                {/* Mensaje de error general */}
+                {submitError && (
+                  <div className={styles.errorBanner}>
+                    <AlertCircle size={20} />
+                    <span>{submitError}</span>
+                    <button 
+                      onClick={() => setSubmitError('')}
+                      className={styles.closeErrorButton}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+
                 {/* Información Básica */}
                 <div className={styles.formSection}>
                   <h3>Información Básica</h3>
@@ -759,19 +1042,33 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                       <input
                         type="text"
                         value={formData.titulo}
-                        onChange={(e) => setFormData({...formData, titulo: e.target.value})}
+                        onChange={(e) => {
+                          setFormData({...formData, titulo: e.target.value});
+                          clearFieldError('titulo');
+                        }}
                         placeholder="Título de la lección"
+                        className={getFieldClass('titulo')}
                       />
+                      {formErrors.titulo && (
+                        <span className={styles.errorMessage}>{formErrors.titulo}</span>
+                      )}
                     </div>
 
                     <div className={styles.formGroup}>
                       <label>Descripción</label>
                       <textarea
                         value={formData.descripcion}
-                        onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
+                        onChange={(e) => {
+                          setFormData({...formData, descripcion: e.target.value});
+                          clearFieldError('descripcion');
+                        }}
                         placeholder="Descripción de la lección"
                         rows={3}
+                        className={getFieldClass('descripcion')}
                       />
+                      {formErrors.descripcion && (
+                        <span className={styles.errorMessage}>{formErrors.descripcion}</span>
+                      )}
                     </div>
 
                     <div className={styles.formRow}>
@@ -807,12 +1104,19 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                         <label>Módulo</label>
                         <select
                           value={formData.modulo}
-                          onChange={(e) => setFormData({...formData, modulo: parseInt(e.target.value)})}
+                          onChange={(e) => {
+                            setFormData({...formData, modulo: parseInt(e.target.value)});
+                            clearFieldError('modulo');
+                          }}
+                          className={getFieldClass('modulo')}
                         >
                           {[1,2,3,4,5,6,7,8,9,10].map(num => (
                             <option key={num} value={num}>Módulo {num}</option>
                           ))}
                         </select>
+                        {formErrors.modulo && (
+                          <span className={styles.errorMessage}>{formErrors.modulo}</span>
+                        )}
                       </div>
 
                       <div className={styles.formGroup}>
@@ -821,8 +1125,15 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                           type="number"
                           min="1"
                           value={formData.numeroLeccion}
-                          onChange={(e) => setFormData({...formData, numeroLeccion: parseInt(e.target.value)})}
+                          onChange={(e) => {
+                            setFormData({...formData, numeroLeccion: parseInt(e.target.value)});
+                            clearFieldError('numeroLeccion');
+                          }}
+                          className={getFieldClass('numeroLeccion')}
                         />
+                        {formErrors.numeroLeccion && (
+                          <span className={styles.errorMessage}>{formErrors.numeroLeccion}</span>
+                        )}
                       </div>
 
                       <div className={styles.formGroup}>
@@ -831,8 +1142,15 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                           type="number"
                           min="0"
                           value={formData.duracionEstimada}
-                          onChange={(e) => setFormData({...formData, duracionEstimada: parseInt(e.target.value)})}
+                          onChange={(e) => {
+                            setFormData({...formData, duracionEstimada: parseInt(e.target.value)});
+                            clearFieldError('duracionEstimada');
+                          }}
+                          className={getFieldClass('duracionEstimada')}
                         />
+                        {formErrors.duracionEstimada && (
+                          <span className={styles.errorMessage}>{formErrors.duracionEstimada}</span>
+                        )}
                       </div>
                     </div>
 
@@ -896,8 +1214,11 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                           const nuevosObjetivos = [...formData.objetivos];
                           nuevosObjetivos[index] = e.target.value;
                           setFormData({...formData, objetivos: nuevosObjetivos});
+                          clearFieldError('objetivos');
+                          clearFieldError(`objetivos_${index}`);
                         }}
                         placeholder={`Objetivo ${index + 1}`}
+                        className={getFieldClass(`objetivos_${index}`, styles.objetivoInput)}
                       />
                       {formData.objetivos.length > 1 && (
                         <button
@@ -912,6 +1233,9 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                       )}
                     </div>
                   ))}
+                  {formErrors.objetivos && (
+                    <span className={styles.errorMessage}>{formErrors.objetivos}</span>
+                  )}
                   <button
                     onClick={() => setFormData({...formData, objetivos: [...formData.objetivos, '']})}
                     className={styles.addButton}
@@ -924,6 +1248,10 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                 {/* Contenido */}
                 <div className={styles.formSection}>
                   <h3>Contenido de la Lección</h3>
+                  
+                  {formErrors.contenido && (
+                    <div className={styles.errorMessage}>{formErrors.contenido}</div>
+                  )}
                   
                   <div className={styles.contentButtons}>
                     <button
@@ -975,7 +1303,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                               value={item.title || ''}
                               onChange={(e) => actualizarContenido(item.id, 'title', e.target.value)}
                               placeholder="Título del contenido"
-                              className={styles.contentTitle}
+                              className={getFieldClass(`contenido_${index}_title`)}
                             />
                           </div>
                           <button
@@ -993,20 +1321,29 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                               <input
                                 type="text"
                                 value={item.content.youtubeId || ''}
-                                onChange={(e) => actualizarContenido(item.id, 'content', { youtubeId: e.target.value })}
+                                onChange={(e) => {
+                                  actualizarContenido(item.id, 'content', { youtubeId: e.target.value });
+                                  clearFieldError(`contenido_${index}_youtube`);
+                                }}
                                 placeholder="ID del video de YouTube"
+                                className={getFieldClass(`contenido_${index}_youtube`)}
                               />
+                              {formErrors[`contenido_${index}_youtube`] && (
+                                <span className={styles.errorMessage}>{formErrors[`contenido_${index}_youtube`]}</span>
+                              )}
                               <input
                                 type="text"
                                 value={item.content.youtubeTitle || ''}
                                 onChange={(e) => actualizarContenido(item.id, 'content', { youtubeTitle: e.target.value })}
                                 placeholder="Título del video"
+                                className={getFieldClass(`contenido_${index}_youtubeTitle`)}
                               />
                               <input
                                 type="text"
                                 value={item.content.youtubeDuration || ''}
                                 onChange={(e) => actualizarContenido(item.id, 'content', { youtubeDuration: e.target.value })}
                                 placeholder="Duración (ej: 15:30)"
+                                className={getFieldClass(`contenido_${index}_youtubeDuration`)}
                               />
                             </div>
                           )}
@@ -1014,6 +1351,9 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                           {/* PDF */}
                           {item.type === 'pdf' && (
                             <div className={styles.pdfContent}>
+                              {formErrors[`contenido_${index}_pdf`] && (
+                                <div className={styles.errorMessage}>{formErrors[`contenido_${index}_pdf`]}</div>
+                              )}
                               <div className={styles.pdfUploadSection}>
                                 <h4>📄 Configuración de PDF</h4>
                                 
@@ -1109,6 +1449,9 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                           {/* Imagen */}
                           {item.type === 'image' && (
                             <div className={styles.imageContent}>
+                              {formErrors[`contenido_${index}_image`] && (
+                                <div className={styles.errorMessage}>{formErrors[`contenido_${index}_image`]}</div>
+                              )}
                               {!item.content.imageFile ? (
                                 <div className={styles.uploadSection}>
                                   <ImageUploader
@@ -1164,14 +1507,14 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                                 value={item.content.imageAlt || ''}
                                 onChange={(e) => actualizarContenido(item.id, 'content', { imageAlt: e.target.value })}
                                 placeholder="Texto alternativo"
-                                className={styles.titleInput}
+                                className={getFieldClass(`contenido_${index}_imageAlt`)}
                               />
                               <input
                                 type="text"
                                 value={item.content.imageCaption || ''}
                                 onChange={(e) => actualizarContenido(item.id, 'content', { imageCaption: e.target.value })}
                                 placeholder="Descripción de la imagen"
-                                className={styles.titleInput}
+                                className={getFieldClass(`contenido_${index}_imageCaption`)}
                               />
                             </div>
                           )}
@@ -1181,10 +1524,17 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                             <div className={styles.textContent}>
                               <textarea
                                 value={item.content.text || ''}
-                                onChange={(e) => actualizarContenido(item.id, 'content', { text: e.target.value })}
+                                onChange={(e) => {
+                                  actualizarContenido(item.id, 'content', { text: e.target.value });
+                                  clearFieldError(`contenido_${index}_text`);
+                                }}
                                 placeholder="Contenido de texto"
                                 rows={6}
+                                className={getFieldClass(`contenido_${index}_text`)}
                               />
+                              {formErrors[`contenido_${index}_text`] && (
+                                <span className={styles.errorMessage}>{formErrors[`contenido_${index}_text`]}</span>
+                              )}
                             </div>
                           )}
 
@@ -1193,7 +1543,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                             value={item.content.description || ''}
                             onChange={(e) => actualizarContenido(item.id, 'content', { description: e.target.value })}
                             placeholder="Descripción o notas adicionales (opcional)"
-                            className={styles.contentDescription}
+                            className={getFieldClass(`contenido_${index}_description`)}
                             rows={2}
                           />
                         </div>
@@ -1210,15 +1560,26 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                       resetForm();
                     }}
                     className={styles.cancelButton}
+                    disabled={isSubmitting}
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={editingLesson ? actualizarLeccion : crearLeccion}
                     className={styles.saveButton}
+                    disabled={isSubmitting}
                   >
-                    <Save size={16} />
-                    {editingLesson ? 'Actualizar' : 'Crear'} Lección
+                    {isSubmitting ? (
+                      <>
+                        <RefreshCw size={16} className={styles.spinning} />
+                        {editingLesson ? 'Actualizando...' : 'Creando...'}
+                      </>
+                    ) : (
+                      <>
+                        <Save size={16} />
+                        {editingLesson ? 'Actualizar' : 'Crear'} Lección
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
