@@ -359,7 +359,7 @@ export default function AdminUsersPage({ user }: AdminUsersProps) {
         <meta name="description" content="Gestión avanzada de usuarios y suscripciones del sistema" />
       </Head>
 
-      <Navbar forceSession={user} />
+      <Navbar />
 
       <main className={styles.main}>
         <div className={styles.container}>

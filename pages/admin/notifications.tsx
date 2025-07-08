@@ -177,7 +177,7 @@ export default function AdminNotificationsPage({ user }: AdminNotificationsProps
         <meta name="description" content="Gestión de notificaciones del sistema" />
       </Head>
 
-      <Navbar forceSession={user} />
+      <Navbar />
 
       <main className={styles.main}>
         <div className={styles.container}>

@@ -472,7 +472,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
         <meta name="description" content="Panel de administración para gestionar lecciones" />
       </Head>
 
-      <Navbar forceSession={session} />
+      <Navbar />
 
       <div className={styles.container}>
         <div className={styles.header}>

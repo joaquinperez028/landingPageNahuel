@@ -308,7 +308,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
         <link rel="preload" href="/api/admin/dashboard/stats" as="fetch" crossOrigin="anonymous" />
       </Head>
 
-      <Navbar forceSession={user} />
+      <Navbar />
 
       <main className={styles.main}>
         <div className={styles.container}>

@@ -9,44 +9,23 @@ import styles from '@/styles/Navbar.module.css';
 interface NavbarProps {
   /** @param className - Clases CSS adicionales */
   className?: string;
-  /** @param forceSession - Fuerza mostrar una sesión específica (útil para páginas admin) */
-  forceSession?: any;
 }
 
 /**
  * Componente de navegación principal
  * Incluye menú desplegable para servicios y autenticación con Google
  */
-const Navbar: React.FC<NavbarProps> = ({ className = '', forceSession }) => {
-  const { data: session, status, update } = useSession();
+const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
+  const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
-  const [sessionRefreshed, setSessionRefreshed] = useState(false);
-
-  // Usar forceSession si está disponible, sino usar la sesión normal
-  const effectiveSession = forceSession || session;
-  const effectiveStatus = forceSession ? 'authenticated' : status;
-
-  // Intentar refrescar la sesión si estamos en una página admin y no hay sesión del cliente
-  useEffect(() => {
-    if (forceSession && !session && !sessionRefreshed && status !== 'loading') {
-      console.log('🔄 Refrescando sesión para sincronizar con servidor...');
-      update().then(() => {
-        setSessionRefreshed(true);
-        console.log('✅ Sesión refrescada');
-      }).catch((error) => {
-        console.error('❌ Error al refrescar sesión:', error);
-        setSessionRefreshed(true);
-      });
-    }
-  }, [forceSession, session, status, sessionRefreshed, update]);
 
   // Obtener conteo de notificaciones
   const fetchNotificationCount = async () => {
-    if (!effectiveSession?.user?.email) return;
+    if (!session?.user?.email) return;
     
     try {
       const response = await fetch('/api/notifications/get?limit=1');
@@ -61,10 +40,10 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', forceSession }) => {
 
   // Cargar conteo al iniciar sesión
   useEffect(() => {
-    if (effectiveSession?.user?.email) {
+    if (session?.user?.email) {
       fetchNotificationCount();
     }
-  }, [effectiveSession]);
+  }, [session]);
 
   const navItems = [
     {
@@ -143,10 +122,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', forceSession }) => {
   };
 
   // Verificación defensiva para asegurar que session.user existe
-  const sessionUser = effectiveSession?.user;
-
-  // Mostrar spinner si estamos cargando y no tenemos forceSession
-  const isLoading = effectiveStatus === 'loading' || (!effectiveSession && forceSession && !sessionRefreshed);
+  const sessionUser = session?.user;
 
   return (
     <>
@@ -223,9 +199,9 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', forceSession }) => {
 
           {/* User Section */}
           <div className={styles.userSection}>
-            {isLoading ? (
+            {status === 'loading' ? (
               <div className={styles.spinner} />
-            ) : effectiveSession && sessionUser ? (
+            ) : session && sessionUser ? (
               <div className={styles.userActions}>
                 {/* Contact Button */}
                 <button
@@ -395,7 +371,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', forceSession }) => {
               
               {/* Mobile User Section */}
               <div className={styles.mobileUserSection}>
-                {effectiveSession && sessionUser ? (
+                {session && sessionUser ? (
                   <>
                     {/* Mobile Contact Button */}
                     <button 

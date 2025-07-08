@@ -205,7 +205,7 @@ const AdminEnviarLinksPage = ({ user }: AdminEnviarLinksProps) => {
         <meta name="robots" content="noindex, nofollow" />
       </Head>
 
-      <Navbar forceSession={user} />
+      <Navbar />
 
       <main className={styles.main}>
         <div className={styles.container}>
