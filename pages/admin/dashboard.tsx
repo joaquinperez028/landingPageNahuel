@@ -267,6 +267,20 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
     orden: 1
   });
 
+  // Estados para gestión de módulos
+  const [showModuleForm, setShowModuleForm] = useState(false);
+  const [editingModuleIndex, setEditingModuleIndex] = useState<number | null>(null);
+  const [moduleFormData, setModuleFormData] = useState({
+    titulo: '',
+    descripcion: '',
+    duracion: '',
+    lecciones: 1,
+    dificultad: 'Básico' as 'Básico' | 'Intermedio' | 'Avanzado',
+    prerequisito: undefined as number | undefined,
+    activo: true,
+    temas: [{ titulo: '', descripcion: '' }]
+  });
+
   const dashboardSections = useDashboardSections();
 
   // Optimizar la función de fetch con useCallback
@@ -454,6 +468,134 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
     });
     setFormErrors({});
     setSubmitError('');
+    resetModuleForm();
+  };
+
+  // Resetear formulario de módulo
+  const resetModuleForm = () => {
+    setModuleFormData({
+      titulo: '',
+      descripcion: '',
+      duracion: '',
+      lecciones: 1,
+      dificultad: 'Básico',
+      prerequisito: undefined,
+      activo: true,
+      temas: [{ titulo: '', descripcion: '' }]
+    });
+    setEditingModuleIndex(null);
+    setShowModuleForm(false);
+  };
+
+  // Agregar tema al módulo
+  const addTema = () => {
+    setModuleFormData(prev => ({
+      ...prev,
+      temas: [...prev.temas, { titulo: '', descripcion: '' }]
+    }));
+  };
+
+  // Remover tema del módulo
+  const removeTema = (index: number) => {
+    if (moduleFormData.temas.length > 1) {
+      setModuleFormData(prev => ({
+        ...prev,
+        temas: prev.temas.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  // Actualizar tema
+  const updateTema = (index: number, field: 'titulo' | 'descripcion', value: string) => {
+    setModuleFormData(prev => ({
+      ...prev,
+      temas: prev.temas.map((tema, i) => 
+        i === index ? { ...tema, [field]: value } : tema
+      )
+    }));
+  };
+
+  // Guardar módulo
+  const saveModule = () => {
+    // Validar módulo
+    if (!moduleFormData.titulo.trim()) {
+      toast.error('El título del módulo es obligatorio');
+      return;
+    }
+    if (!moduleFormData.descripcion.trim()) {
+      toast.error('La descripción del módulo es obligatoria');
+      return;
+    }
+    if (moduleFormData.temas.some(tema => !tema.titulo.trim())) {
+      toast.error('Todos los temas deben tener título');
+      return;
+    }
+
+    const newModule: RoadmapModule = {
+      id: editingModuleIndex !== null ? formData.modulos[editingModuleIndex].id : Date.now(),
+      titulo: moduleFormData.titulo,
+      descripcion: moduleFormData.descripcion,
+      duracion: moduleFormData.duracion,
+      lecciones: moduleFormData.lecciones,
+      temas: moduleFormData.temas.filter(tema => tema.titulo.trim()),
+      dificultad: moduleFormData.dificultad,
+      prerequisito: moduleFormData.prerequisito,
+      orden: editingModuleIndex !== null ? formData.modulos[editingModuleIndex].orden : formData.modulos.length + 1,
+      activo: moduleFormData.activo
+    };
+
+    if (editingModuleIndex !== null) {
+      // Editar módulo existente
+      setFormData(prev => ({
+        ...prev,
+        modulos: prev.modulos.map((mod, index) => 
+          index === editingModuleIndex ? newModule : mod
+        )
+      }));
+      toast.success('Módulo actualizado');
+    } else {
+      // Agregar nuevo módulo
+      setFormData(prev => ({
+        ...prev,
+        modulos: [...prev.modulos, newModule]
+      }));
+      toast.success('Módulo agregado');
+    }
+
+    resetModuleForm();
+  };
+
+  // Editar módulo
+  const editModule = (index: number) => {
+    const module = formData.modulos[index];
+    setModuleFormData({
+      titulo: module.titulo,
+      descripcion: module.descripcion,
+      duracion: module.duracion,
+      lecciones: module.lecciones,
+      dificultad: module.dificultad,
+      prerequisito: module.prerequisito,
+      activo: module.activo,
+      temas: module.temas.length > 0 
+        ? module.temas.map(tema => ({
+            titulo: tema.titulo,
+            descripcion: tema.descripcion || ''
+          }))
+        : [{ titulo: '', descripcion: '' }]
+    });
+    setEditingModuleIndex(index);
+    setShowModuleForm(true);
+  };
+
+  // Eliminar módulo
+  const deleteModule = (index: number) => {
+    if (confirm('¿Estás seguro de eliminar este módulo?')) {
+      setFormData(prev => ({
+        ...prev,
+        modulos: prev.modulos.filter((_, i) => i !== index)
+      }));
+      toast.success('Módulo eliminado');
+    }
   };
 
   // Abrir modal de edición
@@ -928,6 +1070,239 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                     </select>
                   </div>
                 </div>
+              </div>
+
+              {/* Sección de Módulos */}
+              <div className={styles.formSection}>
+                <div className={styles.modulesHeader}>
+                  <h4>Módulos del Roadmap ({formData.modulos.length})</h4>
+                  <button
+                    type="button"
+                    onClick={() => setShowModuleForm(true)}
+                    className={styles.addModuleButton}
+                  >
+                    <Plus size={16} />
+                    Agregar Módulo
+                  </button>
+                </div>
+
+                {/* Lista de módulos existentes */}
+                <div className={styles.modulesList}>
+                  {formData.modulos.map((module, index) => (
+                    <div key={module.id} className={styles.moduleItem}>
+                      <div className={styles.moduleItemHeader}>
+                        <div className={styles.moduleItemInfo}>
+                          <h5>{module.titulo}</h5>
+                          <div className={styles.moduleItemMeta}>
+                            <span>🕐 {module.duracion}</span>
+                            <span>📚 {module.lecciones} lecciones</span>
+                            <span>📊 {module.dificultad}</span>
+                            <span>🏷️ {module.temas.length} temas</span>
+                          </div>
+                        </div>
+                        <div className={styles.moduleItemActions}>
+                          <button
+                            type="button"
+                            onClick={() => editModule(index)}
+                            className={styles.editModuleButton}
+                          >
+                            <Edit size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteModule(index)}
+                            className={styles.deleteModuleButton}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                      <p className={styles.moduleItemDescription}>{module.descripcion}</p>
+                    </div>
+                  ))}
+                  
+                  {formData.modulos.length === 0 && (
+                    <div className={styles.noModules}>
+                      <BookOpen size={48} />
+                      <p>No hay módulos creados aún</p>
+                      <small>Agrega módulos para estructurar tu roadmap</small>
+                    </div>
+                  )}
+                </div>
+
+                {/* Formulario de módulo */}
+                {showModuleForm && (
+                  <div className={styles.moduleFormOverlay}>
+                    <div className={styles.moduleFormContainer}>
+                      <div className={styles.moduleFormHeader}>
+                        <h5>{editingModuleIndex !== null ? 'Editar Módulo' : 'Nuevo Módulo'}</h5>
+                        <button
+                          type="button"
+                          onClick={resetModuleForm}
+                          className={styles.closeModuleForm}
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
+
+                      <div className={styles.moduleFormContent}>
+                        <div className={styles.formRow}>
+                          <div className={styles.formGroup}>
+                            <label>Título del Módulo</label>
+                            <input
+                              type="text"
+                              value={moduleFormData.titulo}
+                              onChange={(e) => setModuleFormData(prev => ({ 
+                                ...prev, 
+                                titulo: e.target.value 
+                              }))}
+                              placeholder="Ej: Introducción al Trading"
+                            />
+                          </div>
+                          <div className={styles.formGroup}>
+                            <label>Dificultad</label>
+                            <select
+                              value={moduleFormData.dificultad}
+                              onChange={(e) => setModuleFormData(prev => ({ 
+                                ...prev, 
+                                dificultad: e.target.value as any 
+                              }))}
+                            >
+                              <option value="Básico">Básico</option>
+                              <option value="Intermedio">Intermedio</option>
+                              <option value="Avanzado">Avanzado</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Descripción</label>
+                          <textarea
+                            value={moduleFormData.descripcion}
+                            onChange={(e) => setModuleFormData(prev => ({ 
+                              ...prev, 
+                              descripcion: e.target.value 
+                            }))}
+                            placeholder="Describe qué aprenderán en este módulo..."
+                            rows={3}
+                          />
+                        </div>
+
+                        <div className={styles.formRow}>
+                          <div className={styles.formGroup}>
+                            <label>Duración</label>
+                            <input
+                              type="text"
+                              value={moduleFormData.duracion}
+                              onChange={(e) => setModuleFormData(prev => ({ 
+                                ...prev, 
+                                duracion: e.target.value 
+                              }))}
+                              placeholder="Ej: 2 semanas"
+                            />
+                          </div>
+                          <div className={styles.formGroup}>
+                            <label>Cantidad de Lecciones</label>
+                            <input
+                              type="number"
+                              min="1"
+                              value={moduleFormData.lecciones}
+                              onChange={(e) => setModuleFormData(prev => ({ 
+                                ...prev, 
+                                lecciones: parseInt(e.target.value) || 1 
+                              }))}
+                            />
+                          </div>
+                        </div>
+
+                        {formData.modulos.length > 0 && (
+                          <div className={styles.formGroup}>
+                            <label>Prerequisito (opcional)</label>
+                            <select
+                              value={moduleFormData.prerequisito || ''}
+                              onChange={(e) => setModuleFormData(prev => ({ 
+                                ...prev, 
+                                prerequisito: e.target.value ? parseInt(e.target.value) : undefined 
+                              }))}
+                            >
+                              <option value="">Sin prerequisito</option>
+                              {formData.modulos.map((mod, idx) => (
+                                idx !== editingModuleIndex && (
+                                  <option key={mod.id} value={mod.id}>
+                                    {mod.titulo}
+                                  </option>
+                                )
+                              ))}
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Temas del módulo */}
+                        <div className={styles.temasSection}>
+                          <div className={styles.temasHeader}>
+                            <h6>Temas del Módulo</h6>
+                            <button
+                              type="button"
+                              onClick={addTema}
+                              className={styles.addTemaButton}
+                            >
+                              <Plus size={14} />
+                              Agregar Tema
+                            </button>
+                          </div>
+
+                          <div className={styles.temasList}>
+                            {moduleFormData.temas.map((tema, index) => (
+                              <div key={index} className={styles.temaItem}>
+                                <div className={styles.temaInputs}>
+                                  <input
+                                    type="text"
+                                    placeholder="Título del tema"
+                                    value={tema.titulo}
+                                    onChange={(e) => updateTema(index, 'titulo', e.target.value)}
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="Descripción (opcional)"
+                                    value={tema.descripcion}
+                                    onChange={(e) => updateTema(index, 'descripcion', e.target.value)}
+                                  />
+                                </div>
+                                {moduleFormData.temas.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removeTema(index)}
+                                    className={styles.removeTemaButton}
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className={styles.moduleFormFooter}>
+                        <button
+                          type="button"
+                          onClick={resetModuleForm}
+                          className={styles.cancelModuleButton}
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={saveModule}
+                          className={styles.saveModuleButton}
+                        >
+                          <Save size={16} />
+                          {editingModuleIndex !== null ? 'Actualizar' : 'Agregar'} Módulo
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
