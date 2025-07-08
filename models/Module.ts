@@ -142,9 +142,9 @@ ModuleSchema.pre('save', function(next) {
   next();
 });
 
-// Método para generar slug automáticamente
-ModuleSchema.pre('save', function(next) {
-  if (this.isModified('nombre') || this.isNew) {
+// Método para generar slug automáticamente ANTES de la validación
+ModuleSchema.pre('validate', function(next) {
+  if (!this.slug || this.isModified('nombre') || this.isNew) {
     const baseSlug = this.nombre
       .toLowerCase()
       .normalize('NFD')
