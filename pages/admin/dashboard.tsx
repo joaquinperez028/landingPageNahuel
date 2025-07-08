@@ -25,7 +25,14 @@ import {
   Clock,
   Trash2,
   AlertTriangle,
-  BookOpen
+  BookOpen,
+  Map,
+  Edit,
+  X,
+  Save,
+  Target,
+  RefreshCw,
+  Loader
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -33,6 +40,7 @@ import Link from 'next/link';
 import User from '@/models/User';
 import styles from '@/styles/AdminDashboard.module.css';
 import dbConnect from '@/lib/mongodb';
+import toast from 'react-hot-toast';
 
 interface DashboardStats {
   totalUsers: number;
@@ -48,9 +56,57 @@ interface AdminDashboardProps {
   user: any;
 }
 
+interface RoadmapTopic {
+  titulo: string;
+  descripcion?: string;
+}
+
+interface RoadmapModule {
+  id: number;
+  titulo: string;
+  descripcion: string;
+  duracion: string;
+  lecciones: number;
+  temas: RoadmapTopic[];
+  dificultad: 'Básico' | 'Intermedio' | 'Avanzado';
+  prerequisito?: number;
+  orden: number;
+  activo: boolean;
+}
+
+interface Roadmap {
+  _id: string;
+  nombre: string;
+  descripcion: string;
+  tipoEntrenamiento: 'TradingFundamentals' | 'DowJones' | 'General';
+  modulos: RoadmapModule[];
+  activo: boolean;
+  orden: number;
+  metadatos: {
+    totalLecciones: number;
+    totalHoras: number;
+    autor: string;
+    version: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Memoizar las secciones del dashboard para evitar re-renders innecesarios
 const useDashboardSections = () => {
   return useMemo(() => [
+    {
+      id: 'roadmaps',
+      title: 'Gestión de Roadmaps',
+      description: 'Crea y gestiona los roadmaps de aprendizaje para Trading Fundamentals, Dow Jones y otros entrenamientos. Sistema dinámico que reemplaza el contenido hardcodeado.',
+      icon: <Map size={32} />,
+      color: 'from-cyan-500 to-blue-500',
+      links: [
+        { label: 'Gestionar Roadmaps', href: '#roadmaps-modal', icon: <Map size={16} /> },
+        { label: 'Trading Fundamentals', href: '#roadmaps-modal', icon: <TrendingUp size={16} /> },
+        { label: 'Dow Jones Avanzado', href: '#roadmaps-modal', icon: <Target size={16} /> }
+      ]
+    },
     {
       id: 'siteconfig',
       title: 'Configuración del Sitio',
@@ -187,6 +243,30 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [fixingLogins, setFixingLogins] = useState(false);
 
+  // Estados para gestión de roadmaps
+  const [showRoadmapsModal, setShowRoadmapsModal] = useState(false);
+  const [roadmaps, setRoadmaps] = useState<Roadmap[]>([]);
+  const [roadmapsLoading, setRoadmapsLoading] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingRoadmap, setEditingRoadmap] = useState<Roadmap | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('all');
+  
+  // Estados para manejo de errores de roadmaps
+  const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string>('');
+
+  // Estado del formulario de roadmaps
+  const [formData, setFormData] = useState({
+    nombre: '',
+    descripcion: '',
+    tipoEntrenamiento: 'TradingFundamentals' as 'TradingFundamentals' | 'DowJones' | 'General',
+    modulos: [] as RoadmapModule[],
+    activo: true,
+    orden: 1
+  });
+
   const dashboardSections = useDashboardSections();
 
   // Optimizar la función de fetch con useCallback
@@ -226,6 +306,169 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
       setLoading(false);
     }
   }, []);
+
+  // Función para cargar roadmaps
+  const fetchRoadmaps = useCallback(async () => {
+    try {
+      setRoadmapsLoading(true);
+      const params = new URLSearchParams();
+      if (selectedType !== 'all') params.set('tipo', selectedType);
+      if (searchTerm) params.set('search', searchTerm);
+
+      const response = await fetch(`/api/roadmaps?${params.toString()}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setRoadmaps(data.data.roadmaps || []);
+      } else {
+        toast.error('Error al cargar roadmaps');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error de conexión');
+    } finally {
+      setRoadmapsLoading(false);
+    }
+  }, [selectedType, searchTerm]);
+
+  // Validar formulario de roadmaps
+  const validateForm = (): boolean => {
+    const errors: {[key: string]: string} = {};
+
+    if (!formData.nombre.trim()) {
+      errors.nombre = 'El nombre es obligatorio';
+    } else if (formData.nombre.length < 3) {
+      errors.nombre = 'El nombre debe tener al menos 3 caracteres';
+    }
+
+    if (!formData.descripcion.trim()) {
+      errors.descripcion = 'La descripción es obligatoria';
+    } else if (formData.descripcion.length < 10) {
+      errors.descripcion = 'La descripción debe tener al menos 10 caracteres';
+    }
+
+    if (formData.orden < 1) {
+      errors.orden = 'El orden debe ser mayor a 0';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Crear roadmap
+  const handleCreateRoadmap = async () => {
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch('/api/roadmaps', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Roadmap creado exitosamente');
+        setShowCreateModal(false);
+        resetForm();
+        fetchRoadmaps();
+      } else {
+        setSubmitError(data.error || 'Error al crear roadmap');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setSubmitError('Error de conexión');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Editar roadmap
+  const handleEditRoadmap = async () => {
+    if (!editingRoadmap || !validateForm()) return;
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch(`/api/roadmaps/${editingRoadmap._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Roadmap actualizado exitosamente');
+        setEditingRoadmap(null);
+        resetForm();
+        fetchRoadmaps();
+      } else {
+        setSubmitError(data.error || 'Error al actualizar roadmap');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setSubmitError('Error de conexión');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Eliminar roadmap
+  const handleDeleteRoadmap = async (roadmapId: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este roadmap?')) return;
+
+    try {
+      const response = await fetch(`/api/roadmaps/${roadmapId}`, {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Roadmap eliminado exitosamente');
+        fetchRoadmaps();
+      } else {
+        toast.error(data.error || 'Error al eliminar roadmap');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error de conexión');
+    }
+  };
+
+  // Resetear formulario
+  const resetForm = () => {
+    setFormData({
+      nombre: '',
+      descripcion: '',
+      tipoEntrenamiento: 'TradingFundamentals',
+      modulos: [],
+      activo: true,
+      orden: 1
+    });
+    setFormErrors({});
+    setSubmitError('');
+  };
+
+  // Abrir modal de edición
+  const openEditModal = (roadmap: Roadmap) => {
+    setEditingRoadmap(roadmap);
+    setFormData({
+      nombre: roadmap.nombre,
+      descripcion: roadmap.descripcion,
+      tipoEntrenamiento: roadmap.tipoEntrenamiento,
+      modulos: roadmap.modulos,
+      activo: roadmap.activo,
+      orden: roadmap.orden
+    });
+    setShowCreateModal(true);
+  };
 
   // Optimizar la función de corrección de logins
   const fixLoginDates = useCallback(async () => {
@@ -270,6 +513,15 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
       setFixingLogins(false);
     }
   }, [fetchDashboardStats]);
+
+  // Manejar click en links de roadmaps
+  const handleRoadmapLinkClick = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    if (href === '#roadmaps-modal') {
+      setShowRoadmapsModal(true);
+      fetchRoadmaps();
+    }
+  };
 
   useEffect(() => {
     fetchDashboardStats();
@@ -385,123 +637,335 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
 
                   <div className={styles.sectionActions}>
                     {section.links.map((link, linkIndex) => (
-                      <Link
-                        key={linkIndex}
-                        href={link.href}
-                        className={styles.sectionLink}
-                      >
-                        {link.icon}
-                        <span>{link.label}</span>
-                      </Link>
+                      section.id === 'roadmaps' ? (
+                        <button
+                          key={linkIndex}
+                          onClick={(e) => handleRoadmapLinkClick(e, link.href)}
+                          className={styles.sectionLink}
+                        >
+                          {link.icon}
+                          <span>{link.label}</span>
+                        </button>
+                      ) : (
+                        <Link
+                          key={linkIndex}
+                          href={link.href}
+                          className={styles.sectionLink}
+                        >
+                          {link.icon}
+                          <span>{link.label}</span>
+                        </Link>
+                      )
                     ))}
                   </div>
                 </motion.div>
               ))}
             </div>
 
-            {/* Quick Actions */}
-            <div className={styles.quickActions}>
-              <h2 className={styles.quickActionsTitle}>Acciones Rápidas</h2>
-              <div className={styles.quickActionsGrid}>
-                <Link href="/admin/site-config" className={`${styles.quickActionCard} ${styles.siteconfig}`}>
-                  <Settings size={24} />
-                  <span>Configurar Sitio</span>
-                </Link>
-                <Link href="/admin/lecciones" className={`${styles.quickActionCard} ${styles.lecciones}`}>
-                  <BookOpen size={24} />
-                  <span>Gestionar Lecciones</span>
-                </Link>
-                <Link href="/admin/notifications" className={`${styles.quickActionCard} ${styles.notifications}`}>
-                  <Bell size={24} />
-                  <span>Nueva Notificación</span>
-                </Link>
-                <Link href="/admin/users" className={`${styles.quickActionCard} ${styles.users}`}>
-                  <Plus size={24} />
-                  <span>Gestionar Usuarios</span>
-                </Link>
-                <Link href="/admin/course-cards" className={`${styles.quickActionCard} ${styles.courses}`}>
-                  <FileText size={24} />
-                  <span>Tarjetas de Cursos</span>
-                </Link>
-                <Link href="/admin/asesorias-horarios" className={`${styles.quickActionCard} ${styles.schedules}`}>
-                  <Calendar size={24} />
-                  <span>Crear Horarios</span>
-                </Link>
-                <Link href="/admin/create-slots" className={`${styles.quickActionCard} ${styles.slots}`}>
-                  <Plus size={24} />
-                  <span>Crear Slots</span>
-                </Link>
-                <Link href="/admin/limpiar-reservas" className={`${styles.quickActionCard} ${styles.reservas}`}>
-                  <Trash2 size={24} />
-                  <span>Limpiar Reservas</span>
-                </Link>
-                <Link href="/admin/billing/export" className={`${styles.quickActionCard} ${styles.export}`}>
-                  <Download size={24} />
-                  <span>Exportar Datos</span>
-                </Link>
-                <Link href="/admin/email/bulk" className={`${styles.quickActionCard} ${styles.email}`}>
-                  <Mail size={24} />
-                  <span>Envío Masivo</span>
-                </Link>
+            {/* Sección de herramientas de administración */}
+            <div className={styles.adminTools}>
+              <h2 className={styles.toolsTitle}>Herramientas de Sistema</h2>
+              <div className={styles.toolsGrid}>
                 <button
                   onClick={fixLoginDates}
                   disabled={fixingLogins}
-                  className={`${styles.quickActionCard} ${styles.users}`}
-                  style={{ 
-                    border: 'none', 
-                    cursor: fixingLogins ? 'not-allowed' : 'pointer',
-                    opacity: fixingLogins ? 0.6 : 1
-                  }}
+                  className={`${styles.toolButton} ${fixingLogins ? styles.loading : ''}`}
                 >
-                  <Activity size={24} />
-                  <span>{fixingLogins ? 'Corrigiendo...' : 'Corregir Login Dates'}</span>
+                  {fixingLogins ? (
+                    <>
+                      <RefreshCw size={20} className={styles.spinning} />
+                      Corrigiendo...
+                    </>
+                  ) : (
+                    <>
+                      <Settings size={20} />
+                      Corregir Fechas Login
+                    </>
+                  )}
                 </button>
-              </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className={styles.recentActivity}>
-              <div className={styles.activityHeader}>
-                <h2 className={styles.activityTitle}>Actividad Reciente</h2>
-                <Link href="/admin/logs" className={styles.viewAllLink}>
-                  Ver Todo
-                </Link>
-              </div>
-              <div className={styles.activityList}>
-                {loading ? (
-                  <div className={styles.loading}>
-                    <div className={styles.spinner} />
-                    <p>Cargando actividad...</p>
-                  </div>
-                ) : stats.recentActivity.length === 0 ? (
-                  <div className={styles.emptyActivity}>
-                    <Activity size={48} className={styles.emptyIcon} />
-                    <p>No hay actividad reciente</p>
-                  </div>
-                ) : (
-                  stats.recentActivity.map((activity, index) => (
-                    <motion.div 
-                      key={index} 
-                      className={styles.activityItem}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      <div className={styles.activityIcon}>
-                        <Activity size={16} />
-                      </div>
-                      <div className={styles.activityContent}>
-                        <p className={styles.activityText}>{activity.description}</p>
-                        <span className={styles.activityTime}>{activity.time}</span>
-                      </div>
-                    </motion.div>
-                  ))
-                )}
               </div>
             </div>
           </motion.div>
         </div>
       </main>
+
+      {/* Modal de Roadmaps */}
+      {showRoadmapsModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.roadmapsModalContainer}>
+            <div className={styles.roadmapsModalHeader}>
+              <div className={styles.roadmapsModalTitle}>
+                <Map size={32} />
+                <div>
+                  <h2>Gestión de Roadmaps</h2>
+                  <p>Crea y gestiona los roadmaps de aprendizaje dinámicos</p>
+                </div>
+              </div>
+              <div className={styles.roadmapsModalActions}>
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className={styles.filterSelect}
+                >
+                  <option value="all">Todos los tipos</option>
+                  <option value="TradingFundamentals">Trading Fundamentals</option>
+                  <option value="DowJones">Dow Jones</option>
+                  <option value="General">General</option>
+                </select>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className={styles.createButton}
+                >
+                  <Plus size={16} />
+                  Nuevo Roadmap
+                </button>
+                <button
+                  onClick={() => setShowRoadmapsModal(false)}
+                  className={styles.closeModalButton}
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.roadmapsModalContent}>
+              {/* Barra de búsqueda */}
+              <div className={styles.searchContainer}>
+                <Search size={20} />
+                <input
+                  type="text"
+                  placeholder="Buscar roadmaps..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
+
+              {/* Lista de roadmaps */}
+              <div className={styles.roadmapsList}>
+                {roadmapsLoading ? (
+                  <div className={styles.roadmapsLoading}>
+                    <Loader className={styles.spinning} size={32} />
+                    Cargando roadmaps...
+                  </div>
+                ) : roadmaps.length === 0 ? (
+                  <div className={styles.roadmapsEmpty}>
+                    <Map size={64} />
+                    <h3>No hay roadmaps</h3>
+                    <p>Crea tu primer roadmap para comenzar</p>
+                  </div>
+                ) : (
+                  roadmaps.map((roadmap) => (
+                    <div key={roadmap._id} className={styles.roadmapCard}>
+                      <div className={styles.roadmapHeader}>
+                        <div className={styles.roadmapInfo}>
+                          <div className={styles.roadmapMeta}>
+                            <span className={`${styles.typeTag} ${styles[roadmap.tipoEntrenamiento.toLowerCase()]}`}>
+                              {roadmap.tipoEntrenamiento}
+                            </span>
+                            <span className={styles.orderTag}>
+                              Orden: {roadmap.orden}
+                            </span>
+                          </div>
+                          <h3 className={styles.roadmapTitle}>{roadmap.nombre}</h3>
+                          <p className={styles.roadmapDescription}>{roadmap.descripcion}</p>
+                          <div className={styles.roadmapStats}>
+                            <div className={styles.stat}>
+                              <BookOpen size={16} />
+                              {roadmap.modulos.length} módulos
+                            </div>
+                            <div className={styles.stat}>
+                              <Target size={16} />
+                              {roadmap.metadatos.totalLecciones} lecciones
+                            </div>
+                            <div className={styles.stat}>
+                              <Clock size={16} />
+                              {roadmap.metadatos.totalHoras} horas
+                            </div>
+                          </div>
+                        </div>
+                        <div className={styles.roadmapActions}>
+                          <button
+                            onClick={() => openEditModal(roadmap)}
+                            className={styles.editButton}
+                            title="Editar roadmap"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteRoadmap(roadmap._id)}
+                            className={styles.deleteButton}
+                            title="Eliminar roadmap"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className={styles.roadmapFooter}>
+                        <span className={`${styles.status} ${roadmap.activo ? styles.active : styles.inactive}`}>
+                          {roadmap.activo ? 'Activo' : 'Inactivo'}
+                        </span>
+                        <span className={styles.lastUpdate}>
+                          Actualizado: {new Date(roadmap.updatedAt).toLocaleDateString('es-ES')}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de crear/editar roadmap */}
+      {showCreateModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.createModalContainer}>
+            <div className={styles.createModalHeader}>
+              <h3>{editingRoadmap ? 'Editar Roadmap' : 'Crear Nuevo Roadmap'}</h3>
+              <button 
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setEditingRoadmap(null);
+                  resetForm();
+                }}
+                className={styles.closeButton}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className={styles.createModalContent}>
+              {submitError && (
+                <div className={styles.errorBanner}>
+                  <AlertTriangle size={20} />
+                  <span>{submitError}</span>
+                  <button onClick={() => setSubmitError('')}>
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+
+              <div className={styles.formSection}>
+                <h4>Información Básica</h4>
+                
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>Nombre del Roadmap</label>
+                    <input
+                      type="text"
+                      value={formData.nombre}
+                      onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
+                      className={formErrors.nombre ? styles.fieldError : ''}
+                      placeholder="Ej: Trading Fundamentals Master"
+                    />
+                    {formErrors.nombre && (
+                      <div className={styles.errorMessage}>{formErrors.nombre}</div>
+                    )}
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Tipo de Entrenamiento</label>
+                    <select
+                      value={formData.tipoEntrenamiento}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        tipoEntrenamiento: e.target.value as any 
+                      }))}
+                      className={formErrors.tipoEntrenamiento ? styles.fieldError : ''}
+                    >
+                      <option value="TradingFundamentals">Trading Fundamentals</option>
+                      <option value="DowJones">Dow Jones</option>
+                      <option value="General">General</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Descripción</label>
+                  <textarea
+                    value={formData.descripcion}
+                    onChange={(e) => setFormData(prev => ({ ...prev, descripcion: e.target.value }))}
+                    className={formErrors.descripcion ? styles.fieldError : ''}
+                    placeholder="Describe el objetivo y contenido del roadmap..."
+                    rows={3}
+                  />
+                  {formErrors.descripcion && (
+                    <div className={styles.errorMessage}>{formErrors.descripcion}</div>
+                  )}
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>Orden</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={formData.orden}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        orden: parseInt(e.target.value) || 1 
+                      }))}
+                      className={formErrors.orden ? styles.fieldError : ''}
+                    />
+                    {formErrors.orden && (
+                      <div className={styles.errorMessage}>{formErrors.orden}</div>
+                    )}
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Estado</label>
+                    <select
+                      value={formData.activo ? 'true' : 'false'}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        activo: e.target.value === 'true' 
+                      }))}
+                    >
+                      <option value="true">Activo</option>
+                      <option value="false">Inactivo</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.createModalFooter}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setEditingRoadmap(null);
+                  resetForm();
+                }}
+                className={styles.cancelButton}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={editingRoadmap ? handleEditRoadmap : handleCreateRoadmap}
+                className={styles.saveButton}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <RefreshCw size={16} className={styles.spinning} />
+                    {editingRoadmap ? 'Actualizando...' : 'Creando...'}
+                  </>
+                ) : (
+                  <>
+                    <Save size={16} />
+                    {editingRoadmap ? 'Actualizar' : 'Crear'}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </>

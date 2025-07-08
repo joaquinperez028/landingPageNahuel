@@ -225,7 +225,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               <span>Gestionar Lecciones</span>
             </Link>
             
-            <Link href="/admin/roadmaps" className={styles.quickAction}>
+            <Link href="/admin/dashboard" className={styles.quickAction}>
               <Map size={24} />
               <span>Gestionar Roadmaps</span>
             </Link>
