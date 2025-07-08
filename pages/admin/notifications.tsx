@@ -465,11 +465,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
-    console.log('✅ [NOTIFICATIONS] Acceso de admin confirmado para:', verification.user?.email);
+    console.log('✅ [NOTIFICATIONS] Acceso de admin confirmado para:', verification.session?.user?.email);
     
     return {
       props: {
-        user: verification.user,
+        user: verification.session?.user || verification.user,
       },
     };
 

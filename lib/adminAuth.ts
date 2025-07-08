@@ -7,6 +7,7 @@ import { GetServerSidePropsContext } from 'next';
 interface AdminVerificationResult {
   isAdmin: boolean;
   user?: any;
+  session?: any;
   redirectTo?: string;
 }
 
@@ -35,14 +36,16 @@ export async function verifyAdminAccess(context: GetServerSidePropsContext): Pro
       return {
         isAdmin: false,
         redirectTo: '/',
-        user: session.user
+        user: session.user,
+        session: session
       };
     }
 
     console.log('✅ [ADMIN AUTH] Acceso de admin confirmado para:', session.user.email);
     return {
       isAdmin: true,
-      user: session.user
+      user: session.user,
+      session: session
     };
 
   } catch (error) {

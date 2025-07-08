@@ -237,7 +237,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
-      user: verification.user,
+      user: verification.session?.user || verification.user,
     },
   };
 };

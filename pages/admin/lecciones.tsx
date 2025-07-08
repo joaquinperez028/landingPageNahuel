@@ -1184,7 +1184,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
-      session: adminCheck.user
+      session: adminCheck.session
     },
   };
 };

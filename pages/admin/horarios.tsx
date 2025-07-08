@@ -504,7 +504,7 @@ export const getServerSideProps: GetServerSideProps = async (context: GetServerS
     
     return {
       props: {
-        user: verification.user,
+        user: verification.session?.user || verification.user,
       },
     };
 

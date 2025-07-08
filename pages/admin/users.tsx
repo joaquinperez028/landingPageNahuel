@@ -972,11 +972,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
-    console.log('✅ [USERS] Acceso de admin confirmado para:', verification.user?.email);
+    console.log('✅ [USERS] Acceso de admin confirmado para:', verification.session?.user?.email || verification.user?.email);
     
     return {
       props: {
-        user: verification.user,
+        user: verification.session?.user || verification.user,
       },
     };
 
