@@ -855,14 +855,14 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                           <span>{link.label}</span>
                         </button>
                       ) : (
-                        <Link
-                          key={linkIndex}
-                          href={link.href}
-                          className={styles.sectionLink}
-                        >
-                          {link.icon}
-                          <span>{link.label}</span>
-                        </Link>
+                      <Link
+                        key={linkIndex}
+                        href={link.href}
+                        className={styles.sectionLink}
+                      >
+                        {link.icon}
+                        <span>{link.label}</span>
+                      </Link>
                       )
                     ))}
                   </div>
@@ -907,8 +907,8 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                 <div>
                   <h2>Gestión de Roadmaps</h2>
                   <p>Crea y gestiona los roadmaps de aprendizaje dinámicos</p>
-                </div>
               </div>
+                  </div>
               <div className={styles.roadmapsModalActions}>
                 <select
                   value={selectedType}
@@ -959,8 +959,20 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                 ) : roadmaps.length === 0 ? (
                   <div className={styles.roadmapsEmpty}>
                     <Map size={64} />
-                    <h3>No hay roadmaps</h3>
-                    <p>Crea tu primer roadmap para comenzar</p>
+                    <h3>No hay roadmaps creados</h3>
+                    <p>Para agregar módulos, primero debes:</p>
+                    <ol className={styles.instructionsList}>
+                      <li>1. Crear un nuevo roadmap</li>
+                      <li>2. Guardar el roadmap</li>
+                      <li>3. Editarlo para agregar módulos</li>
+                    </ol>
+                    <button 
+                      onClick={() => setShowCreateModal(true)}
+                      className={styles.createFirstRoadmapButton}
+                    >
+                      <Plus size={16} />
+                      Crear Primer Roadmap
+                    </button>
                   </div>
                 ) : (
                   roadmaps.map((roadmap) => (
@@ -1007,7 +1019,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                           >
                             <Trash2 size={16} />
                           </button>
-                        </div>
+                      </div>
                       </div>
                       <div className={styles.roadmapFooter}>
                         <span className={`${styles.status} ${roadmap.activo ? styles.active : styles.inactive}`}>
@@ -1022,7 +1034,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                 )}
               </div>
             </div>
-          </div>
+        </div>
         </div>
       )}
 
@@ -1142,15 +1154,33 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
               <div className={styles.formSection}>
                 <div className={styles.modulesHeader}>
                   <h4>Módulos del Roadmap ({roadmapModules.length})</h4>
-                  <button
-                    type="button"
-                    onClick={() => setShowModuleForm(true)}
-                    className={styles.addModuleButton}
-                    disabled={!editingRoadmap}
-                  >
-                    <Plus size={16} />
-                    Agregar Módulo
-                  </button>
+                  <div className={styles.moduleButtonContainer}>
+                    {!editingRoadmap ? (
+                      <div className={styles.disabledButtonWrapper}>
+                        <button
+                          type="button"
+                          className={`${styles.addModuleButton} ${styles.disabled}`}
+                          disabled
+                          title="Primero guarda el roadmap para poder agregar módulos"
+                        >
+                          <Plus size={16} />
+                          Agregar Módulo
+                        </button>
+                        <small className={styles.helperText}>
+                          💡 Primero guarda el roadmap, luego podrás agregar módulos
+                        </small>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setShowModuleForm(true)}
+                        className={styles.addModuleButton}
+                      >
+                        <Plus size={16} />
+                        Agregar Módulo
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Lista de módulos existentes */}
