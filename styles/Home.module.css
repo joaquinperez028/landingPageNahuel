@@ -6,12 +6,13 @@
 /* Hero Section */
 .hero {
   background: 
-    linear-gradient(135deg, rgba(76, 29, 149, 0.95) 0%, rgba(91, 33, 182, 0.95) 50%, rgba(107, 33, 168, 0.95) 100%),
-    /* Patrón de cuadrícula */
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 100% 100%, 40px 40px, 40px 40px;
-  background-color: #4c1d95;
+    /* Patrón de cuadrícula prominente */
+    linear-gradient(rgba(124, 58, 237, 0.4) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(124, 58, 237, 0.4) 2px, transparent 2px),
+    /* Gradiente base */
+    linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a855f7 100%);
+  background-size: 60px 60px, 60px 60px, 100% 100%;
+  background-color: #7c3aed;
   padding: 5rem 0;
   color: white;
   position: relative;
