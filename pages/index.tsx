@@ -279,12 +279,10 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
             >
               <div className={styles.heroText}>
                 <h1 className={styles.heroTitle}>
-                  Maximiza tus inversiones con
-                  <span className={styles.gradientText}> estrategias probadas</span>
+                  Comenzá a invertir como un profesional
                 </h1>
                 <p className={styles.heroDescription}>
-                  Únete a más de 1,500 inversores que confían en nuestras alertas y entrenamientos 
-                  para obtener resultados consistentes en los mercados financieros.
+                  Unite a la comunidad y descubrí las estrategias más efectivas para ganar dinero en los mercados financieros
                 </p>
                 
                 <div className={styles.heroActions}>
@@ -300,8 +298,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     </>
                   ) : (
                     <button onClick={() => signIn('google')} className={styles.heroButton}>
-                      Comienza ahora
-                      <ChevronRight size={20} />
+                      Empezá ahora &gt;
                     </button>
                   )}
                 </div>
@@ -322,54 +319,6 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </div>
         </section>
 
-        {/* Segunda sección hero - "Comenzá a invertir como un profesional" */}
-        <section className={styles.secondHero}>
-          <div className="container">
-            <motion.div
-              className={styles.secondHeroContent}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <div className={styles.secondHeroText}>
-                <h2 className={styles.secondHeroTitle}>
-                  Comenzá a invertir<br />
-                  como un profesional
-                </h2>
-                <p className={styles.secondHeroDescription}>
-                  Unite a la comunidad y descubrí las estrategias<br />
-                  más efectivas para ganar dinero en los<br />
-                  mercados financieros
-                </p>
-                
-                <div className={styles.secondHeroActions}>
-                  {session ? (
-                    <Link href="/entrenamientos" className={styles.secondHeroButton}>
-                      Empezá Ahora &gt;
-                    </Link>
-                  ) : (
-                    <button onClick={() => signIn('google')} className={styles.secondHeroButton}>
-                      Empezá Ahora &gt;
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Segundo video */}
-              <div className={styles.secondHeroVideo}>
-                <YouTubePlayer
-                  videoId="dQw4w9WgXcQ" // Placeholder - cambiar por el video real
-                  title="Entrenamiento Profesional"
-                  autoplay={false}
-                  muted={true}
-                  loop={false}
-                  className={styles.secondHeroVideoPlayer}
-                />
-              </div>
-            </motion.div>
-          </div>
-        </section>
 
         {/* Servicios Section - INMEDIATAMENTE DESPUÉS DEL HERO */}
         {(siteConfig?.servicios?.visible !== false) && (
