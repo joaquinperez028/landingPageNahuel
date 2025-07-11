@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { ChevronDown, Menu, X, User, LogOut, Settings, Bell, MessageCircle, Edit3 } from 'lucide-react';
+import { ChevronDown, Menu, X, User, LogOut, Settings, Bell, MessageCircle, Rocket } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
 import ContactForm from '@/components/ContactForm';
 import styles from '@/styles/Navbar.module.css';
@@ -137,7 +137,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
             <div className={styles.navContent}>
               {/* Mentoring Button */}
               <button className={styles.mentoringButton}>
-                <Edit3 size={18} />
+                <Rocket size={18} />
                 <span>Mentoring</span>
               </button>
 
@@ -310,7 +310,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
               {/* Mobile Mentoring Button */}
               <div className={styles.mobileNavItem}>
                 <button className={styles.mobileMentoringButton}>
-                  <Edit3 size={16} />
+                  <Rocket size={16} />
                   Mentoring
                 </button>
               </div>
