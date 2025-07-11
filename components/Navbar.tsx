@@ -136,10 +136,15 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
           <div className={styles.desktopNav}>
             <div className={styles.navContent}>
               {/* Mentoring Button */}
-              <button className={styles.mentoringButton}>
+              <a 
+                href="https://plataformacursos.lozanonahuel.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.mentoringButton}
+              >
                 <Rocket size={18} />
                 <span>Mentoring</span>
-              </button>
+              </a>
 
               {/* Navigation Links */}
               <ul className={styles.navList}>
@@ -309,10 +314,16 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
             <div className={styles.mobileMenuContent}>
               {/* Mobile Mentoring Button */}
               <div className={styles.mobileNavItem}>
-                <button className={styles.mobileMentoringButton}>
+                <a 
+                  href="https://plataformacursos.lozanonahuel.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.mobileMentoringButton}
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   <Rocket size={16} />
                   Mentoring
-                </button>
+                </a>
               </div>
 
               {navItems.map((item) => (
