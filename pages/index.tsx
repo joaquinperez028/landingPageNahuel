@@ -334,22 +334,23 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
             >
               <div className={styles.secondHeroText}>
                 <h2 className={styles.secondHeroTitle}>
-                  Comenzá a invertir como un profesional
+                  Comenzá a invertir<br />
+                  como un profesional
                 </h2>
                 <p className={styles.secondHeroDescription}>
-                  Unite a la comunidad y descubrí las estrategias más efectivas para ganar dinero en los mercados financieros
+                  Unite a la comunidad y descubrí las estrategias<br />
+                  más efectivas para ganar dinero en los<br />
+                  mercados financieros
                 </p>
                 
                 <div className={styles.secondHeroActions}>
                   {session ? (
                     <Link href="/entrenamientos" className={styles.secondHeroButton}>
-                      Empezá Ahora
-                      <ChevronRight size={20} />
+                      Empezá Ahora &gt;
                     </Link>
                   ) : (
                     <button onClick={() => signIn('google')} className={styles.secondHeroButton}>
-                      Empezá Ahora
-                      <ChevronRight size={20} />
+                      Empezá Ahora &gt;
                     </button>
                   )}
                 </div>
