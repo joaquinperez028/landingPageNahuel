@@ -279,7 +279,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
             >
               <div className={styles.heroText}>
                 <h1 className={styles.heroTitle}>
-                  Comenzá a invertir como un profesional
+                  Comenzá a invertir<br />
+                  como un profesional
                 </h1>
                 <p className={styles.heroDescription}>
                   Unite a la comunidad y descubrí las estrategias más efectivas para ganar dinero en los mercados financieros
