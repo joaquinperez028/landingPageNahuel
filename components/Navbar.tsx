@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { ChevronDown, Menu, X, User, LogOut, Settings, Bell, MessageCircle } from 'lucide-react';
+import { ChevronDown, Menu, X, User, LogOut, Settings, Bell, MessageCircle, Edit3 } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
 import ContactForm from '@/components/ContactForm';
 import styles from '@/styles/Navbar.module.css';
@@ -62,11 +62,6 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         { label: 'Trading Fundamentals', href: '/entrenamientos/trading' },
         { label: 'Dow Jones', href: '/entrenamientos/advanced' },
       ],
-    },
-    {
-      label: 'Cursos',
-      href: 'https://plataformacursos.lozanonahuel.com/',
-      external: true,
     },
     {
       label: 'Asesorías',
@@ -130,33 +125,31 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         <div className={styles.container}>
           {/* Logo */}
           <Link href="/" className={styles.logo}>
-            <img 
-              src="/logos/logo-nahuel.png" 
-              alt="Nahuel Lozano" 
-              className={styles.logoImage}
-            />
+            <div className={styles.logoText}>
+              <div className={styles.logoMain}>LOZANO</div>
+              <div className={styles.logoName}>NAHUEL</div>
+              <div className={styles.logoSubtitle}>TRADING & TRADERS</div>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
           <div className={styles.desktopNav}>
-            <ul className={styles.navList}>
-              {navItems.map((item) => (
-                <li
-                  key={item.label}
-                  className={styles.navItem}
-                  onMouseEnter={() => item.dropdown && setOpenDropdown(item.label)}
-                  onMouseLeave={() => item.dropdown && setOpenDropdown(null)}
-                >
-                  {item.external ? (
-                    <a
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.navLink}
-                    >
-                      {item.label}
-                    </a>
-                  ) : (
+            <div className={styles.navContent}>
+              {/* Mentoring Button */}
+              <button className={styles.mentoringButton}>
+                <Edit3 size={18} />
+                <span>Mentoring</span>
+              </button>
+
+              {/* Navigation Links */}
+              <ul className={styles.navList}>
+                {navItems.map((item) => (
+                  <li
+                    key={item.label}
+                    className={styles.navItem}
+                    onMouseEnter={() => item.dropdown && setOpenDropdown(item.label)}
+                    onMouseLeave={() => item.dropdown && setOpenDropdown(null)}
+                  >
                     <div className={`${styles.navLink} ${item.dropdown ? styles.hasDropdown : ''}`}>
                       <Link
                         href={item.href}
@@ -176,25 +169,25 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                         </button>
                       )}
                     </div>
-                  )}
 
-                  {/* Dropdown Menu */}
-                  {item.dropdown && openDropdown === item.label && (
-                    <div className={styles.dropdown}>
-                      {item.dropdown.map((dropdownItem) => (
-                        <Link
-                          key={dropdownItem.label}
-                          href={dropdownItem.href}
-                          className={styles.dropdownItem}
-                        >
-                          {dropdownItem.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
+                    {/* Dropdown Menu */}
+                    {item.dropdown && openDropdown === item.label && (
+                      <div className={styles.dropdown}>
+                        {item.dropdown.map((dropdownItem) => (
+                          <Link
+                            key={dropdownItem.label}
+                            href={dropdownItem.href}
+                            className={styles.dropdownItem}
+                          >
+                            {dropdownItem.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* User Section */}
@@ -314,57 +307,51 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         {isMenuOpen && (
           <div className={styles.mobileMenu}>
             <div className={styles.mobileMenuContent}>
+              {/* Mobile Mentoring Button */}
+              <div className={styles.mobileNavItem}>
+                <button className={styles.mobileMentoringButton}>
+                  <Edit3 size={16} />
+                  Mentoring
+                </button>
+              </div>
+
               {navItems.map((item) => (
                 <div key={item.label} className={styles.mobileNavItem}>
-                  {item.external ? (
-                    <a
+                  <div className={styles.mobileNavLinkContainer}>
+                    <Link
                       href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className={styles.mobileNavLink}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item.label}
-                    </a>
-                  ) : (
-                    <>
-                      <div className={styles.mobileNavLinkContainer}>
+                    </Link>
+                    {item.dropdown && (
+                      <button
+                        className={styles.mobileChevronButton}
+                        onClick={() => handleDropdownToggle(`mobile-${item.label}`)}
+                      >
+                        <ChevronDown 
+                          size={16} 
+                          className={`${styles.chevron} ${openDropdown === `mobile-${item.label}` ? styles.chevronOpen : ''}`}
+                        />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* Mobile Dropdown */}
+                  {item.dropdown && openDropdown === `mobile-${item.label}` && (
+                    <div className={styles.mobileDropdown}>
+                      {item.dropdown.map((dropdownItem) => (
                         <Link
-                          href={item.href}
-                          className={styles.mobileNavLink}
+                          key={dropdownItem.label}
+                          href={dropdownItem.href}
+                          className={styles.mobileDropdownItem}
                           onClick={() => setIsMenuOpen(false)}
                         >
-                          {item.label}
+                          {dropdownItem.label}
                         </Link>
-                        {item.dropdown && (
-                          <button
-                            className={styles.mobileChevronButton}
-                            onClick={() => handleDropdownToggle(`mobile-${item.label}`)}
-                          >
-                            <ChevronDown 
-                              size={16} 
-                              className={`${styles.chevron} ${openDropdown === `mobile-${item.label}` ? styles.chevronOpen : ''}`}
-                            />
-                          </button>
-                        )}
-                      </div>
-                      
-                      {/* Mobile Dropdown */}
-                      {item.dropdown && openDropdown === `mobile-${item.label}` && (
-                        <div className={styles.mobileDropdown}>
-                          {item.dropdown.map((dropdownItem) => (
-                            <Link
-                              key={dropdownItem.label}
-                              href={dropdownItem.href}
-                              className={styles.mobileDropdownItem}
-                              onClick={() => setIsMenuOpen(false)}
-                            >
-                              {dropdownItem.label}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </>
+                      ))}
+                    </div>
                   )}
                 </div>
               ))}
