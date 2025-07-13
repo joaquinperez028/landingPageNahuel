@@ -595,18 +595,10 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     whileHover={{ y: -5 }}
                   >
                     <div className={styles.empresaLogo}>
-                      <img 
-                        src="https://s3.tradingview.com/tv-logo-s.png" 
-                        alt="TradingView" 
-                        width={120} 
-                        height={40}
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          if (e.currentTarget.parentElement) {
-                            e.currentTarget.parentElement.innerHTML = '<span class="' + styles.empresaName + '">TradingView</span>';
-                          }
-                        }}
-                      />
+                      <svg width="120" height="32" viewBox="0 0 120 32" fill="none">
+                        <text x="12" y="12" fill="white" fontSize="14" fontWeight="bold" fontFamily="Arial">TV</text>
+                        <text x="12" y="24" fill="white" fontSize="8" fontWeight="normal" fontFamily="Arial">TradingView</text>
+                      </svg>
                     </div>
                   </motion.a>
 
@@ -622,7 +614,10 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     whileHover={{ y: -5 }}
                   >
                     <div className={styles.empresaLogo}>
-                      <span className={styles.empresaName}>BullMarket</span>
+                      <svg width="140" height="32" viewBox="0 0 140 32" fill="none">
+                        <text x="70" y="12" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold" fontFamily="Arial">BULLMARKET</text>
+                        <text x="70" y="24" textAnchor="middle" fill="white" fontSize="8" fontWeight="normal" fontFamily="Arial" letterSpacing="2">BROKERS</text>
+                      </svg>
                     </div>
                   </motion.a>
 
@@ -638,7 +633,12 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     whileHover={{ y: -5 }}
                   >
                     <div className={styles.empresaLogo}>
-                      <span className={styles.empresaName}>DolarHoy</span>
+                      <svg width="120" height="32" viewBox="0 0 120 32" fill="none">
+                        <circle cx="16" cy="16" r="12" fill="white"/>
+                        <text x="16" y="20" textAnchor="middle" fill="#6366f1" fontSize="16" fontWeight="bold" fontFamily="Arial">$</text>
+                        <text x="45" y="12" fill="white" fontSize="12" fontWeight="bold" fontFamily="Arial">DolarHoy</text>
+                        <text x="45" y="24" fill="white" fontSize="8" fontWeight="normal" fontFamily="Arial">.com</text>
+                      </svg>
                     </div>
                   </motion.a>
 
@@ -654,7 +654,9 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     whileHover={{ y: -5 }}
                   >
                     <div className={styles.empresaLogo}>
-                      <span className={styles.empresaName}>BALANZ</span>
+                      <svg width="100" height="32" viewBox="0 0 100 32" fill="none">
+                        <text x="50" y="20" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold" fontFamily="Arial" letterSpacing="1">BALANZ</text>
+                      </svg>
                     </div>
                   </motion.a>
 
@@ -670,7 +672,10 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     whileHover={{ y: -5 }}
                   >
                     <div className={styles.empresaLogo}>
-                      <span className={styles.empresaName}>Inviu</span>
+                      <svg width="80" height="32" viewBox="0 0 80 32" fill="none">
+                        <path d="M4 8h8v4H8v12h-4V8z" fill="white"/>
+                        <text x="20" y="20" fill="white" fontSize="14" fontWeight="bold" fontFamily="Arial">Inviu</text>
+                      </svg>
                     </div>
                   </motion.a>
                 </div>
