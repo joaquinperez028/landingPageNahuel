@@ -11,6 +11,15 @@ interface SiteConfigDocument extends Document {
     muted: boolean;
     loop: boolean;
   };
+  learningVideo: {
+    youtubeId: string;
+    title: string;
+    description: string;
+    thumbnail?: string;
+    autoplay: boolean;
+    muted: boolean;
+    loop: boolean;
+  };
   servicios: {
     orden: number;
     visible: boolean;
@@ -33,6 +42,15 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
     autoplay: { type: Boolean, default: true },
     muted: { type: Boolean, default: true },
     loop: { type: Boolean, default: true }
+  },
+  learningVideo: {
+    youtubeId: { type: String, required: true, default: 'dQw4w9WgXcQ' },
+    title: { type: String, required: true, default: 'Cursos de Inversión' },
+    description: { type: String, default: 'Aprende a invertir desde cero con nuestros cursos especializados' },
+    thumbnail: { type: String },
+    autoplay: { type: Boolean, default: false },
+    muted: { type: Boolean, default: true },
+    loop: { type: Boolean, default: false }
   },
   servicios: {
     orden: { type: Number, default: 1 },

@@ -49,6 +49,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             muted: true,
             loop: true
           },
+          learningVideo: {
+            youtubeId: 'dQw4w9WgXcQ',
+            title: 'Cursos de Inversión',
+            description: 'Aprende a invertir desde cero con nuestros cursos especializados',
+            autoplay: false,
+            muted: true,
+            loop: false
+          },
           servicios: {
             orden: 1,
             visible: true

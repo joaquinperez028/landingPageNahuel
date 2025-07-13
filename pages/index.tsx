@@ -67,6 +67,15 @@ interface SiteConfig {
     visible: boolean;
     destacados: Training[];
   };
+  learningVideo: {
+    youtubeId: string;
+    title: string;
+    description: string;
+    thumbnail?: string;
+    autoplay: boolean;
+    muted: boolean;
+    loop: boolean;
+  };
 }
 
 interface HomeProps {
@@ -354,11 +363,11 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
               {/* Video de Cursos */}
               <div className={styles.learningVideo}>
                 <YouTubePlayer
-                  videoId="dQw4w9WgXcQ" // Aquí puedes poner el ID del video específico para cursos
-                  title="Cursos de Inversión"
-                  autoplay={false}
-                  muted={true}
-                  loop={false}
+                  videoId={siteConfig.learningVideo.youtubeId}
+                  title={siteConfig.learningVideo.title}
+                  autoplay={siteConfig.learningVideo.autoplay}
+                  muted={siteConfig.learningVideo.muted}
+                  loop={siteConfig.learningVideo.loop}
                   className={styles.learningVideoPlayer}
                 />
               </div>
@@ -823,7 +832,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         loop: true
       },
       servicios: { orden: 1, visible: true },
-      cursos: { orden: 2, visible: true, destacados: [] }
+      cursos: { orden: 2, visible: true, destacados: [] },
+      learningVideo: {
+        youtubeId: 'dQw4w9WgXcQ',
+        title: 'Video de Cursos',
+        description: 'Conoce más sobre nuestros cursos de trading',
+        autoplay: true,
+        muted: true,
+        loop: true
+      }
     };
 
     // Entrenamientos por defecto
@@ -932,7 +949,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             loop: true
           },
           servicios: { orden: 1, visible: true },
-          cursos: { orden: 2, visible: true, destacados: [] }
+          cursos: { orden: 2, visible: true, destacados: [] },
+          learningVideo: {
+            youtubeId: 'dQw4w9WgXcQ',
+            title: 'Video de Cursos',
+            description: 'Conoce más sobre nuestros cursos de trading',
+            autoplay: true,
+            muted: true,
+            loop: true
+          }
         },
         entrenamientos: [
           {

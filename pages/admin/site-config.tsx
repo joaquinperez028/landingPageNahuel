@@ -20,6 +20,15 @@ interface SiteConfig {
     muted: boolean;
     loop: boolean;
   };
+  learningVideo: {
+    youtubeId: string;
+    title: string;
+    description: string;
+    thumbnail?: string;
+    autoplay: boolean;
+    muted: boolean;
+    loop: boolean;
+  };
   servicios: {
     orden: number;
     visible: boolean;
@@ -87,6 +96,17 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
       ...prev,
       heroVideo: {
         ...prev.heroVideo,
+        youtubeId: videoId
+      }
+    }));
+  };
+
+  const handleLearningVideoUrlChange = (url: string) => {
+    const videoId = extractYouTubeId(url);
+    setConfig(prev => ({
+      ...prev,
+      learningVideo: {
+        ...prev.learningVideo,
         youtubeId: videoId
       }
     }));
@@ -238,6 +258,126 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
                     height="315"
                     src={`https://www.youtube.com/embed/${config.heroVideo.youtubeId}`}
                     title={config.heroVideo.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Configuración del Video de Aprendizaje */}
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <Video size={24} />
+                <h2>Video de Aprendizaje</h2>
+              </div>
+              
+              <div className={styles.grid}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="learningVideoUrl">URL del Video de YouTube</label>
+                  <input
+                    type="text"
+                    id="learningVideoUrl"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    onChange={(e) => handleLearningVideoUrlChange(e.target.value)}
+                    className={styles.input}
+                  />
+                  <small className={styles.help}>
+                    Pega la URL completa del video de YouTube
+                  </small>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="learningVideoId">ID del Video (extraído automáticamente)</label>
+                  <input
+                    type="text"
+                    id="learningVideoId"
+                    value={config.learningVideo.youtubeId}
+                    onChange={(e) => setConfig(prev => ({
+                      ...prev,
+                      learningVideo: { ...prev.learningVideo, youtubeId: e.target.value }
+                    }))}
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="learningVideoTitle">Título del Video</label>
+                  <input
+                    type="text"
+                    id="learningVideoTitle"
+                    value={config.learningVideo.title}
+                    onChange={(e) => setConfig(prev => ({
+                      ...prev,
+                      learningVideo: { ...prev.learningVideo, title: e.target.value }
+                    }))}
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="learningVideoDescription">Descripción</label>
+                  <textarea
+                    id="learningVideoDescription"
+                    value={config.learningVideo.description}
+                    onChange={(e) => setConfig(prev => ({
+                      ...prev,
+                      learningVideo: { ...prev.learningVideo, description: e.target.value }
+                    }))}
+                    className={styles.textarea}
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.checkboxGrid}>
+                <label className={styles.checkbox}>
+                  <input
+                    type="checkbox"
+                    checked={config.learningVideo.autoplay}
+                    onChange={(e) => setConfig(prev => ({
+                      ...prev,
+                      learningVideo: { ...prev.learningVideo, autoplay: e.target.checked }
+                    }))}
+                  />
+                  <span>Reproducir automáticamente</span>
+                </label>
+
+                <label className={styles.checkbox}>
+                  <input
+                    type="checkbox"
+                    checked={config.learningVideo.muted}
+                    onChange={(e) => setConfig(prev => ({
+                      ...prev,
+                      learningVideo: { ...prev.learningVideo, muted: e.target.checked }
+                    }))}
+                  />
+                  <span>Silenciar por defecto</span>
+                </label>
+
+                <label className={styles.checkbox}>
+                  <input
+                    type="checkbox"
+                    checked={config.learningVideo.loop}
+                    onChange={(e) => setConfig(prev => ({
+                      ...prev,
+                      learningVideo: { ...prev.learningVideo, loop: e.target.checked }
+                    }))}
+                  />
+                  <span>Reproducir en bucle</span>
+                </label>
+              </div>
+
+              {/* Preview del Video de Aprendizaje */}
+              {config.learningVideo.youtubeId && (
+                <div className={styles.videoPreview}>
+                  <h3>Vista Previa del Video de Aprendizaje</h3>
+                  <iframe
+                    width="560"
+                    height="315"
+                    src={`https://www.youtube.com/embed/${config.learningVideo.youtubeId}`}
+                    title={config.learningVideo.title}
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -398,6 +538,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         muted: true,
         loop: true
       },
+      learningVideo: {
+        youtubeId: 'dQw4w9WgXcQ',
+        title: 'Video de Presentación',
+        description: 'Conoce más sobre nuestros servicios de trading',
+        autoplay: true,
+        muted: true,
+        loop: true
+      },
       servicios: { orden: 1, visible: true },
       cursos: { orden: 2, visible: true, destacados: [] }
     };
@@ -420,6 +568,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         session: adminCheck.user,
         initialConfig: {
           heroVideo: {
+            youtubeId: 'dQw4w9WgXcQ',
+            title: 'Video de Presentación',
+            description: 'Conoce más sobre nuestros servicios de trading',
+            autoplay: true,
+            muted: true,
+            loop: true
+          },
+          learningVideo: {
             youtubeId: 'dQw4w9WgXcQ',
             title: 'Video de Presentación',
             description: 'Conoce más sobre nuestros servicios de trading',
