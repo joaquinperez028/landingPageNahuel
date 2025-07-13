@@ -57,6 +57,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             muted: true,
             loop: false
           },
+          statistics: {
+            visible: true,
+            backgroundColor: '#7c3aed',
+            textColor: '#ffffff',
+            stats: [
+              {
+                id: 'estudiantes',
+                number: '+2900',
+                label: 'Estudiantes',
+                color: '#ffffff',
+                icon: '👥',
+                order: 1
+              },
+              {
+                id: 'formaciones',
+                number: '+15',
+                label: 'Formaciones',
+                color: '#ffffff',
+                icon: '📚',
+                order: 2
+              },
+              {
+                id: 'horas',
+                number: '+70',
+                label: 'Horas de contenido',
+                color: '#ffffff',
+                icon: '⏰',
+                order: 3
+              },
+              {
+                id: 'satisfaccion',
+                number: '98%',
+                label: 'Satisfacción',
+                color: '#ffffff',
+                icon: '⭐',
+                order: 4
+              }
+            ]
+          },
           servicios: {
             orden: 1,
             visible: true

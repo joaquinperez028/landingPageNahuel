@@ -20,6 +20,19 @@ interface SiteConfigDocument extends Document {
     muted: boolean;
     loop: boolean;
   };
+  statistics: {
+    visible: boolean;
+    backgroundColor: string;
+    textColor: string;
+    stats: Array<{
+      id: string;
+      number: string;
+      label: string;
+      color: string;
+      icon?: string;
+      order: number;
+    }>;
+  };
   servicios: {
     orden: number;
     visible: boolean;
@@ -35,22 +48,35 @@ interface SiteConfigDocument extends Document {
 
 const siteConfigSchema = new Schema<SiteConfigDocument>({
   heroVideo: {
-    youtubeId: { type: String, required: true, default: 'dQw4w9WgXcQ' },
-    title: { type: String, required: true, default: 'Video de Presentación' },
-    description: { type: String, default: 'Conoce más sobre nuestros servicios de trading' },
+    youtubeId: { type: String, required: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
     thumbnail: { type: String },
     autoplay: { type: Boolean, default: true },
     muted: { type: Boolean, default: true },
     loop: { type: Boolean, default: true }
   },
   learningVideo: {
-    youtubeId: { type: String, required: true, default: 'dQw4w9WgXcQ' },
-    title: { type: String, required: true, default: 'Cursos de Inversión' },
-    description: { type: String, default: 'Aprende a invertir desde cero con nuestros cursos especializados' },
+    youtubeId: { type: String, required: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
     thumbnail: { type: String },
     autoplay: { type: Boolean, default: false },
     muted: { type: Boolean, default: true },
     loop: { type: Boolean, default: false }
+  },
+  statistics: {
+    visible: { type: Boolean, default: true },
+    backgroundColor: { type: String, default: '#7c3aed' },
+    textColor: { type: String, default: '#ffffff' },
+    stats: [{
+      id: { type: String, required: true },
+      number: { type: String, required: true },
+      label: { type: String, required: true },
+      color: { type: String, default: '#ffffff' },
+      icon: { type: String },
+      order: { type: Number, default: 0 }
+    }]
   },
   servicios: {
     orden: { type: Number, default: 1 },
@@ -59,13 +85,11 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
   cursos: {
     orden: { type: Number, default: 2 },
     visible: { type: Boolean, default: true },
-    destacados: [{ type: Schema.Types.ObjectId, ref: 'Training' }]
+    destacados: [{ type: String }]
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  collection: 'siteconfig'
 });
-
-// Asegurar que solo existe una configuración
-// siteConfigSchema.index({ _id: 1 }, { unique: true }); // ELIMINADO - redundante, MongoDB ya indexa _id automáticamente
 
 export default mongoose.models.SiteConfig || mongoose.model<SiteConfigDocument>('SiteConfig', siteConfigSchema); 

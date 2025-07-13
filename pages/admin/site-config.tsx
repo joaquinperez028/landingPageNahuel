@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/googleAuth';
 import { verifyAdminAccess } from '@/lib/adminAuth';
 import Head from 'next/head';
 import Link from 'next/link';
-import { ArrowLeft, Save, Eye, EyeOff, Settings, Video, List, Grid } from 'lucide-react';
+import { ArrowLeft, Save, Eye, EyeOff, Settings, Video, List, Grid, PlayCircle, BarChart3, Layout, Trash2, Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import styles from '@/styles/admin/SiteConfig.module.css';
 
@@ -28,6 +28,19 @@ interface SiteConfig {
     autoplay: boolean;
     muted: boolean;
     loop: boolean;
+  };
+  statistics: {
+    visible: boolean;
+    backgroundColor: string;
+    textColor: string;
+    stats: Array<{
+      id: string;
+      number: string;
+      label: string;
+      color: string;
+      icon?: string;
+      order: number;
+    }>;
   };
   servicios: {
     orden: number;
@@ -108,6 +121,57 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
       learningVideo: {
         ...prev.learningVideo,
         youtubeId: videoId
+      }
+    }));
+  };
+
+  const handleStatisticsChange = (field: string, value: any) => {
+    setConfig(prev => ({
+      ...prev,
+      statistics: {
+        ...prev.statistics,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleStatChange = (statId: string, field: string, value: any) => {
+    setConfig(prev => ({
+      ...prev,
+      statistics: {
+        ...prev.statistics,
+        stats: prev.statistics.stats.map(stat => 
+          stat.id === statId ? { ...stat, [field]: value } : stat
+        )
+      }
+    }));
+  };
+
+  const addStat = () => {
+    const newStat = {
+      id: `stat-${Date.now()}`,
+      number: '+100',
+      label: 'Nueva Métrica',
+      color: '#ffffff',
+      icon: '📊',
+      order: config.statistics.stats.length + 1
+    };
+    
+    setConfig(prev => ({
+      ...prev,
+      statistics: {
+        ...prev.statistics,
+        stats: [...prev.statistics.stats, newStat]
+      }
+    }));
+  };
+
+  const removeStat = (statId: string) => {
+    setConfig(prev => ({
+      ...prev,
+      statistics: {
+        ...prev.statistics,
+        stats: prev.statistics.stats.filter(stat => stat.id !== statId)
       }
     }));
   };
@@ -269,7 +333,7 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
             {/* Configuración del Video de Aprendizaje */}
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
-                <Video size={24} />
+                <PlayCircle size={24} />
                 <h2>Video de Aprendizaje</h2>
               </div>
               
@@ -284,7 +348,7 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
                     className={styles.input}
                   />
                   <small className={styles.help}>
-                    Pega la URL completa del video de YouTube
+                    Pega la URL completa del video de YouTube para la sección de aprendizaje
                   </small>
                 </div>
 
@@ -365,99 +429,192 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
                       learningVideo: { ...prev.learningVideo, loop: e.target.checked }
                     }))}
                   />
-                  <span>Reproducir en bucle</span>
+                  <span>Repetir video</span>
                 </label>
               </div>
+            </div>
 
-              {/* Preview del Video de Aprendizaje */}
-              {config.learningVideo.youtubeId && (
-                <div className={styles.videoPreview}>
-                  <h3>Vista Previa del Video de Aprendizaje</h3>
-                  <iframe
-                    width="560"
-                    height="315"
-                    src={`https://www.youtube.com/embed/${config.learningVideo.youtubeId}`}
-                    title={config.learningVideo.title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
+            {/* Configuración de Estadísticas */}
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <BarChart3 size={24} />
+                <h2>Estadísticas/Métricas</h2>
+              </div>
+              
+              <div className={styles.grid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.statistics.visible}
+                      onChange={(e) => handleStatisticsChange('visible', e.target.checked)}
+                    />
+                    <span>Mostrar sección de estadísticas</span>
+                  </label>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="statsBackgroundColor">Color de fondo</label>
+                  <input
+                    type="color"
+                    id="statsBackgroundColor"
+                    value={config.statistics.backgroundColor}
+                    onChange={(e) => handleStatisticsChange('backgroundColor', e.target.value)}
+                    className={styles.colorInput}
                   />
                 </div>
-              )}
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="statsTextColor">Color del texto</label>
+                  <input
+                    type="color"
+                    id="statsTextColor"
+                    value={config.statistics.textColor}
+                    onChange={(e) => handleStatisticsChange('textColor', e.target.value)}
+                    className={styles.colorInput}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.statsSection}>
+                <div className={styles.statsList}>
+                  <h3>Métricas Configuradas</h3>
+                  {config.statistics.stats.sort((a, b) => a.order - b.order).map((stat, index) => (
+                    <div key={stat.id} className={styles.statItem}>
+                      <div className={styles.statHeader}>
+                        <span className={styles.statNumber}>#{stat.order}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeStat(stat.id)}
+                          className={styles.removeStat}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                      
+                      <div className={styles.statFields}>
+                        <div className={styles.formGroup}>
+                          <label>Número/Valor</label>
+                          <input
+                            type="text"
+                            value={stat.number}
+                            onChange={(e) => handleStatChange(stat.id, 'number', e.target.value)}
+                            placeholder="+2900"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Etiqueta</label>
+                          <input
+                            type="text"
+                            value={stat.label}
+                            onChange={(e) => handleStatChange(stat.id, 'label', e.target.value)}
+                            placeholder="Estudiantes"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Icono (opcional)</label>
+                          <input
+                            type="text"
+                            value={stat.icon || ''}
+                            onChange={(e) => handleStatChange(stat.id, 'icon', e.target.value)}
+                            placeholder="📊"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Color</label>
+                          <input
+                            type="color"
+                            value={stat.color}
+                            onChange={(e) => handleStatChange(stat.id, 'color', e.target.value)}
+                            className={styles.colorInput}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Orden</label>
+                          <input
+                            type="number"
+                            value={stat.order}
+                            onChange={(e) => handleStatChange(stat.id, 'order', parseInt(e.target.value))}
+                            className={styles.input}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={addStat}
+                  className={styles.addStatButton}
+                >
+                  <Plus size={16} />
+                  Agregar Métrica
+                </button>
+              </div>
             </div>
 
             {/* Configuración de Secciones */}
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
-                <Settings size={24} />
+                <Layout size={24} />
                 <h2>Configuración de Secciones</h2>
               </div>
 
-              <div className={styles.sectionConfig}>
-                <div className={styles.configItem}>
-                  <div className={styles.configHeader}>
-                    <List size={20} />
-                    <h3>Servicios</h3>
-                  </div>
-                  <div className={styles.configControls}>
-                    <label className={styles.checkbox}>
-                      <input
-                        type="checkbox"
-                        checked={config.servicios.visible}
-                        onChange={(e) => setConfig(prev => ({
-                          ...prev,
-                          servicios: { ...prev.servicios, visible: e.target.checked }
-                        }))}
-                      />
-                      <span>Mostrar sección</span>
-                    </label>
-                    <div className={styles.formGroup}>
-                      <label>Orden</label>
-                      <input
-                        type="number"
-                        value={config.servicios.orden}
-                        onChange={(e) => setConfig(prev => ({
-                          ...prev,
-                          servicios: { ...prev.servicios, orden: parseInt(e.target.value) }
-                        }))}
-                        className={styles.input}
-                        min="1"
-                      />
-                    </div>
-                  </div>
+              <div className={styles.sectionControls}>
+                <div className={styles.sectionControl}>
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.servicios.visible}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        servicios: { ...prev.servicios, visible: e.target.checked }
+                      }))}
+                    />
+                    <span>Mostrar sección de servicios</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={config.servicios.orden}
+                    onChange={(e) => setConfig(prev => ({
+                      ...prev,
+                      servicios: { ...prev.servicios, orden: parseInt(e.target.value) }
+                    }))}
+                    className={styles.orderInput}
+                    min="1"
+                  />
                 </div>
 
-                <div className={styles.configItem}>
-                  <div className={styles.configHeader}>
-                    <Grid size={20} />
-                    <h3>Cursos</h3>
-                  </div>
-                  <div className={styles.configControls}>
-                    <label className={styles.checkbox}>
-                      <input
-                        type="checkbox"
-                        checked={config.cursos.visible}
-                        onChange={(e) => setConfig(prev => ({
-                          ...prev,
-                          cursos: { ...prev.cursos, visible: e.target.checked }
-                        }))}
-                      />
-                      <span>Mostrar sección</span>
-                    </label>
-                    <div className={styles.formGroup}>
-                      <label>Orden</label>
-                      <input
-                        type="number"
-                        value={config.cursos.orden}
-                        onChange={(e) => setConfig(prev => ({
-                          ...prev,
-                          cursos: { ...prev.cursos, orden: parseInt(e.target.value) }
-                        }))}
-                        className={styles.input}
-                        min="1"
-                      />
-                    </div>
-                  </div>
+                <div className={styles.sectionControl}>
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.cursos.visible}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        cursos: { ...prev.cursos, visible: e.target.checked }
+                      }))}
+                    />
+                    <span>Mostrar sección de cursos</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={config.cursos.orden}
+                    onChange={(e) => setConfig(prev => ({
+                      ...prev,
+                      cursos: { ...prev.cursos, orden: parseInt(e.target.value) }
+                    }))}
+                    className={styles.orderInput}
+                    min="1"
+                  />
                 </div>
               </div>
             </div>
@@ -546,6 +703,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         muted: true,
         loop: true
       },
+      statistics: {
+        visible: true,
+        backgroundColor: '#f0f0f0',
+        textColor: '#333',
+        stats: [
+          { id: 'clients', number: '100+', label: 'Clientes Satisfechos', color: '#4CAF50', order: 1 },
+          { id: 'trades', number: '500+', label: 'Operaciones Realizadas', color: '#2196F3', order: 2 },
+          { id: 'profits', number: '$100,000+', label: 'Ganancias Totales', color: '#FFC107', order: 3 },
+        ]
+      },
       servicios: { orden: 1, visible: true },
       cursos: { orden: 2, visible: true, destacados: [] }
     };
@@ -582,6 +749,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             autoplay: true,
             muted: true,
             loop: true
+          },
+          statistics: {
+            visible: true,
+            backgroundColor: '#f0f0f0',
+            textColor: '#333',
+            stats: [
+              { id: 'clients', number: '100+', label: 'Clientes Satisfechos', color: '#4CAF50', order: 1 },
+              { id: 'trades', number: '500+', label: 'Operaciones Realizadas', color: '#2196F3', order: 2 },
+              { id: 'profits', number: '$100,000+', label: 'Ganancias Totales', color: '#FFC107', order: 3 },
+            ]
           },
           servicios: { orden: 1, visible: true },
           cursos: { orden: 2, visible: true, destacados: [] }

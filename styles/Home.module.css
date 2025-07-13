@@ -1311,3 +1311,201 @@
     padding: 12px 24px;
   }
 } 
+
+/* Learning Section Styles */
+.learningSection {
+  padding: 4rem 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  background-attachment: fixed;
+  position: relative;
+}
+
+.learningSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.learningContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.learningText {
+  margin-left: 2rem;
+}
+
+.learningTitle {
+  font-size: 4rem;
+  font-weight: 300;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.learningDescription {
+  font-size: 1.5rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  max-width: 500px;
+}
+
+.learningActions {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.learningButton {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 18px 36px;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.learningButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+}
+
+.learningVideo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.learningVideoPlayer {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+}
+
+/* Statistics Section Styles */
+.statisticsSection {
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.statisticsSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 100%);
+  pointer-events: none;
+}
+
+.statisticsContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.statisticsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.statisticItem {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.statisticItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.statisticIcon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.statisticNumber {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.statisticLabel {
+  font-size: 1.2rem;
+  font-weight: 500;
+  opacity: 0.9;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive Statistics */
+@media (max-width: 768px) {
+  .statisticsSection {
+    padding: 3rem 0;
+  }
+  
+  .statisticsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+  
+  .statisticItem {
+    padding: 1.5rem;
+  }
+  
+  .statisticNumber {
+    font-size: 2.5rem;
+  }
+  
+  .statisticLabel {
+    font-size: 1rem;
+  }
+  
+  .statisticIcon {
+    font-size: 2rem;
+  }
+} 

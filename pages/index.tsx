@@ -76,6 +76,19 @@ interface SiteConfig {
     muted: boolean;
     loop: boolean;
   };
+  statistics?: {
+    visible: boolean;
+    backgroundColor: string;
+    textColor: string;
+    stats: {
+      id: string;
+      number: string;
+      label: string;
+      icon?: React.ReactNode;
+      color: string;
+      order: number;
+    }[];
+  };
 }
 
 interface HomeProps {
@@ -375,7 +388,58 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </div>
         </section>
 
-        {/* Servicios Section - INMEDIATAMENTE DESPUÉS DEL HERO */}
+        {/* Nueva Sección: Estadísticas */}
+        {(siteConfig?.statistics?.visible !== false) && (
+          <section 
+            className={styles.statisticsSection}
+            style={{
+              backgroundColor: siteConfig?.statistics?.backgroundColor || '#7c3aed',
+              color: siteConfig?.statistics?.textColor || '#ffffff'
+            }}
+          >
+            <div className="container">
+              <motion.div
+                className={styles.statisticsContent}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                <div className={styles.statisticsGrid}>
+                  {siteConfig?.statistics?.stats
+                    ?.sort((a, b) => a.order - b.order)
+                    .map((stat, index) => (
+                      <motion.div
+                        key={stat.id}
+                        className={styles.statisticItem}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: index * 0.1 }}
+                        viewport={{ once: true }}
+                      >
+                        {stat.icon && (
+                          <div className={styles.statisticIcon}>
+                            {stat.icon}
+                          </div>
+                        )}
+                        <h3 
+                          className={styles.statisticNumber}
+                          style={{ color: stat.color }}
+                        >
+                          {stat.number}
+                        </h3>
+                        <p className={styles.statisticLabel}>
+                          {stat.label}
+                        </p>
+                      </motion.div>
+                    ))}
+                </div>
+              </motion.div>
+            </div>
+          </section>
+        )}
+
+        {/* Servicios Section - INMEDIATAMENTE DESPUÉS DE LAS ESTADÍSTICAS */}
         {(siteConfig?.servicios?.visible !== false) && (
           <section className={styles.servicios}>
             <div className="container">
@@ -840,6 +904,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         autoplay: true,
         muted: true,
         loop: true
+      },
+      statistics: {
+        visible: true,
+        backgroundColor: '#f8f9fa', // Un color claro para el fondo
+        textColor: '#343a40', // Un color oscuro para el texto
+        stats: [
+          { id: 'alumnos', number: '+1,500', label: 'Alumnos', icon: <Users size={32} />, color: '#007bff', order: 1 },
+          { id: 'horas', number: '+300', label: 'Horas de formación', icon: <Clock size={32} />, color: '#28a745', order: 2 },
+          { id: 'satisfaccion', number: '4.8', label: 'Satisfacción', icon: <Star size={32} />, color: '#ffc107', order: 3 },
+        ]
       }
     };
 
@@ -957,6 +1031,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             autoplay: true,
             muted: true,
             loop: true
+          },
+          statistics: {
+            visible: true,
+            backgroundColor: '#f8f9fa', // Un color claro para el fondo
+            textColor: '#343a40', // Un color oscuro para el texto
+            stats: [
+              { id: 'alumnos', number: '+1,500', label: 'Alumnos', icon: <Users size={32} />, color: '#007bff', order: 1 },
+              { id: 'horas', number: '+300', label: 'Horas de formación', icon: <Clock size={32} />, color: '#28a745', order: 2 },
+              { id: 'satisfaccion', number: '4.8', label: 'Satisfacción', icon: <Star size={32} />, color: '#ffc107', order: 3 },
+            ]
           }
         },
         entrenamientos: [
