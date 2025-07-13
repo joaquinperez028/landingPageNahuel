@@ -1566,4 +1566,143 @@
   .statisticLabel {
     font-size: 0.9rem;
   }
+}
+
+/* === SECCIÓN EMPRESAS === */
+.empresasSection {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 50%, #9333ea 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.empresasSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.empresasContent {
+  position: relative;
+  z-index: 1;
+}
+
+.empresasTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  margin-bottom: 3rem;
+  line-height: 1.2;
+}
+
+.empresasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  align-items: center;
+  justify-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.empresaCard {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  width: 100%;
+  max-width: 180px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  text-decoration: none;
+}
+
+.empresaCard:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.empresaLogo {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empresaName {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Responsive para la sección de empresas */
+@media (max-width: 768px) {
+  .empresasSection {
+    padding: 3rem 0;
+  }
+
+  .empresasTitle {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .empresasGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .empresaCard {
+    max-width: none;
+    min-height: 100px;
+    padding: 1.5rem;
+  }
+
+  .empresaName {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .empresasSection {
+    padding: 2rem 0;
+  }
+
+  .empresasTitle {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .empresasGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    max-width: 280px;
+  }
+
+  .empresaCard {
+    min-height: 80px;
+    padding: 1rem;
+  }
+
+  .empresaName {
+    font-size: 0.95rem;
+  }
 } 

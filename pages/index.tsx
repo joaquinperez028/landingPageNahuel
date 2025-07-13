@@ -570,7 +570,101 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </section>
         )}
 
-        {/* Cursos Section - DESPUÉS DE LOS SERVICIOS */}
+        {/* Sección de Empresas que confían en nosotros */}
+        <section className={styles.empresasSection}>
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className={styles.empresasContent}>
+                <h2 className={styles.empresasTitle}>Empresas que confían en nosotros</h2>
+                
+                <div className={styles.empresasGrid}>
+                  <motion.a
+                    href="https://www.tradingview.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.empresaCard}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                    viewport={{ once: true }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className={styles.empresaLogo}>
+                      <span className={styles.empresaName}>TradingView</span>
+                    </div>
+                  </motion.a>
+
+                  <motion.a
+                    href="https://bullmarketus.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.empresaCard}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    viewport={{ once: true }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className={styles.empresaLogo}>
+                      <span className={styles.empresaName}>BullMarket</span>
+                    </div>
+                  </motion.a>
+
+                  <motion.a
+                    href="https://dolarhoy.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.empresaCard}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    viewport={{ once: true }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className={styles.empresaLogo}>
+                      <span className={styles.empresaName}>DolarHoy.com</span>
+                    </div>
+                  </motion.a>
+
+                  <motion.a
+                    href="https://balanz.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.empresaCard}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    viewport={{ once: true }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className={styles.empresaLogo}>
+                      <span className={styles.empresaName}>BALANZ</span>
+                    </div>
+                  </motion.a>
+
+                  <motion.div
+                    className={styles.empresaCard}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.5 }}
+                    viewport={{ once: true }}
+                  >
+                    <div className={styles.empresaLogo}>
+                      <span className={styles.empresaName}>Inviu</span>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Cursos Section - DESPUÉS DE LAS EMPRESAS */}
         {(siteConfig?.cursos?.visible !== false) && (courseCards.length > 0 || entrenamientos.length > 0) && (
           <section className={styles.cursos}>
             <div className="container">
