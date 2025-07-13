@@ -89,6 +89,29 @@ interface SiteConfig {
       order: number;
     }[];
   };
+  serviciosVideos?: {
+    alertas?: {
+      youtubeId: string;
+      title: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+    entrenamientos?: {
+      youtubeId: string;
+      title: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+    asesorias?: {
+      youtubeId: string;
+      title: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+  };
 }
 
 interface HomeProps {
@@ -434,9 +457,9 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </section>
         )}
 
-        {/* Servicios Section - INMEDIATAMENTE DESPUÉS DE LAS ESTADÍSTICAS */}
+        {/* Servicios Section con Videos */}
         {(siteConfig?.servicios?.visible !== false) && (
-          <section className={styles.servicios}>
+          <section className={styles.serviciosSection}>
             <div className="container">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -445,45 +468,102 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                 viewport={{ once: true }}
               >
                 <div className={styles.sectionHeader}>
-                  <h2>Nuestros Servicios</h2>
-                  <p>Herramientas y conocimiento para potenciar tus inversiones</p>
+                  <h2>Servicios</h2>
                 </div>
 
                 <div className={styles.serviciosGrid}>
-                  {servicios.map((servicio, index) => (
-                    <motion.div
-                      key={servicio.titulo}
-                      className={styles.servicioCard}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      whileHover={{ y: -5 }}
-                    >
-                      <div className={styles.servicioHeader}>
-                        {servicio.icono}
-                        <h3>{servicio.titulo}</h3>
+                  {/* Alertas de Trading */}
+                  <motion.div
+                    className={styles.servicioCard}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <div className={styles.servicioContent}>
+                      <h3 className={styles.servicioTitle}>Alertas</h3>
+                      <p className={styles.servicioDescription}>
+                        Recibí las mejores señales de compra y venta para potenciar tus inversiones en el mercado
+                      </p>
+                      
+                      <div className={styles.servicioVideo}>
+                        <YouTubePlayer
+                          videoId={siteConfig?.serviciosVideos?.alertas?.youtubeId || 'dQw4w9WgXcQ'}
+                          title={siteConfig?.serviciosVideos?.alertas?.title || 'Video de Alertas'}
+                          autoplay={siteConfig?.serviciosVideos?.alertas?.autoplay || false}
+                          muted={siteConfig?.serviciosVideos?.alertas?.muted || true}
+                          loop={siteConfig?.serviciosVideos?.alertas?.loop || false}
+                          className={styles.servicioVideoPlayer}
+                        />
                       </div>
-                      <p className={styles.servicioDescription}>{servicio.descripcion}</p>
-                      <div className={styles.servicioPrecio}>{servicio.precio}</div>
-                      {servicio.external ? (
-                        <a 
-                          href={servicio.href} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="btn btn-primary"
-                        >
-                          Conocer más
-                          <ChevronRight size={16} />
-                        </a>
-                      ) : (
-                        <Link href={servicio.href} className="btn btn-primary">
-                          Conocer más
-                          <ChevronRight size={16} />
-                        </Link>
-                      )}
-                    </motion.div>
-                  ))}
+                      
+                      <Link href="/alertas" className={styles.servicioButton}>
+                        Quiero hacer más &gt;
+                      </Link>
+                    </div>
+                  </motion.div>
+
+                  {/* Entrenamientos */}
+                  <motion.div
+                    className={styles.servicioCard}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    viewport={{ once: true }}
+                  >
+                    <div className={styles.servicioContent}>
+                      <h3 className={styles.servicioTitle}>Entrenamientos</h3>
+                      <p className={styles.servicioDescription}>
+                        Experiencia premium y personalizada de educación financiera integral
+                      </p>
+                      
+                      <div className={styles.servicioVideo}>
+                        <YouTubePlayer
+                          videoId={siteConfig?.serviciosVideos?.entrenamientos?.youtubeId || 'dQw4w9WgXcQ'}
+                          title={siteConfig?.serviciosVideos?.entrenamientos?.title || 'Video de Entrenamientos'}
+                          autoplay={siteConfig?.serviciosVideos?.entrenamientos?.autoplay || false}
+                          muted={siteConfig?.serviciosVideos?.entrenamientos?.muted || true}
+                          loop={siteConfig?.serviciosVideos?.entrenamientos?.loop || false}
+                          className={styles.servicioVideoPlayer}
+                        />
+                      </div>
+                      
+                      <Link href="/entrenamientos" className={styles.servicioButton}>
+                        Quiero hacer más &gt;
+                      </Link>
+                    </div>
+                  </motion.div>
+
+                  {/* Asesorías */}
+                  <motion.div
+                    className={styles.servicioCard}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    viewport={{ once: true }}
+                  >
+                    <div className={styles.servicioContent}>
+                      <h3 className={styles.servicioTitle}>Asesorías</h3>
+                      <p className={styles.servicioDescription}>
+                        Reuniones 1 a 1 con asesores profesionales para la correcta gestión de tu portafolio
+                      </p>
+                      
+                      <div className={styles.servicioVideo}>
+                        <YouTubePlayer
+                          videoId={siteConfig?.serviciosVideos?.asesorias?.youtubeId || 'dQw4w9WgXcQ'}
+                          title={siteConfig?.serviciosVideos?.asesorias?.title || 'Video de Asesorías'}
+                          autoplay={siteConfig?.serviciosVideos?.asesorias?.autoplay || false}
+                          muted={siteConfig?.serviciosVideos?.asesorias?.muted || true}
+                          loop={siteConfig?.serviciosVideos?.asesorias?.loop || false}
+                          className={styles.servicioVideoPlayer}
+                        />
+                      </div>
+                      
+                      <Link href="/asesorias" className={styles.servicioButton}>
+                        Quiero hacer más &gt;
+                      </Link>
+                    </div>
+                  </motion.div>
                 </div>
               </motion.div>
             </div>
@@ -909,6 +989,29 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           { id: 'horas', number: '+300', label: 'Horas de formación', icon: <Clock size={32} />, color: '#28a745', order: 2 },
           { id: 'satisfaccion', number: '4.8', label: 'Satisfacción', icon: <Star size={32} />, color: '#ffc107', order: 3 },
         ]
+      },
+      serviciosVideos: {
+        alertas: {
+          youtubeId: 'dQw4w9WgXcQ',
+          title: 'Video de Alertas',
+          autoplay: false,
+          muted: true,
+          loop: false
+        },
+        entrenamientos: {
+          youtubeId: 'dQw4w9WgXcQ',
+          title: 'Video de Entrenamientos',
+          autoplay: false,
+          muted: true,
+          loop: false
+        },
+        asesorias: {
+          youtubeId: 'dQw4w9WgXcQ',
+          title: 'Video de Asesorías',
+          autoplay: false,
+          muted: true,
+          loop: false
+        }
       }
     };
 
@@ -1036,6 +1139,29 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
               { id: 'horas', number: '+300', label: 'Horas de formación', icon: <Clock size={32} />, color: '#28a745', order: 2 },
               { id: 'satisfaccion', number: '4.8', label: 'Satisfacción', icon: <Star size={32} />, color: '#ffc107', order: 3 },
             ]
+          },
+          serviciosVideos: {
+            alertas: {
+              youtubeId: 'dQw4w9WgXcQ',
+              title: 'Video de Alertas',
+              autoplay: false,
+              muted: true,
+              loop: false
+            },
+            entrenamientos: {
+              youtubeId: 'dQw4w9WgXcQ',
+              title: 'Video de Entrenamientos',
+              autoplay: false,
+              muted: true,
+              loop: false
+            },
+            asesorias: {
+              youtubeId: 'dQw4w9WgXcQ',
+              title: 'Video de Asesorías',
+              autoplay: false,
+              muted: true,
+              loop: false
+            }
           }
         },
         entrenamientos: [

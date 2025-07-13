@@ -29,6 +29,32 @@ interface SiteConfig {
     muted: boolean;
     loop: boolean;
   };
+  serviciosVideos: {
+    alertas: {
+      youtubeId: string;
+      title: string;
+      description: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+    entrenamientos: {
+      youtubeId: string;
+      title: string;
+      description: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+    asesorias: {
+      youtubeId: string;
+      title: string;
+      description: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+  };
   statistics: {
     visible: boolean;
     backgroundColor: string;
@@ -121,6 +147,20 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
       learningVideo: {
         ...prev.learningVideo,
         youtubeId: videoId
+      }
+    }));
+  };
+
+  const handleServiceVideoUrlChange = (servicio: 'alertas' | 'entrenamientos' | 'asesorias', url: string) => {
+    const videoId = extractYouTubeId(url);
+    setConfig(prev => ({
+      ...prev,
+      serviciosVideos: {
+        ...prev.serviciosVideos,
+        [servicio]: {
+          ...prev.serviciosVideos[servicio],
+          youtubeId: videoId
+        }
       }
     }));
   };
@@ -434,6 +474,359 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
               </div>
             </div>
 
+            {/* Configuración de Videos de Servicios */}
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <Video size={24} />
+                <h2>Videos de Servicios</h2>
+              </div>
+              
+              {/* Video de Alertas */}
+              <div className={styles.serviceVideoGroup}>
+                <h3>📊 Alertas de Trading</h3>
+                <div className={styles.grid}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="alertasVideoUrl">URL del Video de YouTube</label>
+                    <input
+                      type="text"
+                      id="alertasVideoUrl"
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      onChange={(e) => handleServiceVideoUrlChange('alertas', e.target.value)}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="alertasVideoId">ID del Video</label>
+                    <input
+                      type="text"
+                      id="alertasVideoId"
+                      value={config.serviciosVideos.alertas.youtubeId}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          alertas: { ...prev.serviciosVideos.alertas, youtubeId: e.target.value }
+                        }
+                      }))}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="alertasVideoTitle">Título del Video</label>
+                    <input
+                      type="text"
+                      id="alertasVideoTitle"
+                      value={config.serviciosVideos.alertas.title}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          alertas: { ...prev.serviciosVideos.alertas, title: e.target.value }
+                        }
+                      }))}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="alertasVideoDescription">Descripción</label>
+                    <textarea
+                      id="alertasVideoDescription"
+                      value={config.serviciosVideos.alertas.description}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          alertas: { ...prev.serviciosVideos.alertas, description: e.target.value }
+                        }
+                      }))}
+                      className={styles.textarea}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.checkboxGrid}>
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.serviciosVideos.alertas.autoplay}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          alertas: { ...prev.serviciosVideos.alertas, autoplay: e.target.checked }
+                        }
+                      }))}
+                    />
+                    <span>Reproducir automáticamente</span>
+                  </label>
+
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.serviciosVideos.alertas.muted}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          alertas: { ...prev.serviciosVideos.alertas, muted: e.target.checked }
+                        }
+                      }))}
+                    />
+                    <span>Silenciar por defecto</span>
+                  </label>
+
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.serviciosVideos.alertas.loop}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          alertas: { ...prev.serviciosVideos.alertas, loop: e.target.checked }
+                        }
+                      }))}
+                    />
+                    <span>Repetir video</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Video de Entrenamientos */}
+              <div className={styles.serviceVideoGroup}>
+                <h3>📚 Entrenamientos</h3>
+                <div className={styles.grid}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="entrenamientosVideoUrl">URL del Video de YouTube</label>
+                    <input
+                      type="text"
+                      id="entrenamientosVideoUrl"
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      onChange={(e) => handleServiceVideoUrlChange('entrenamientos', e.target.value)}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="entrenamientosVideoId">ID del Video</label>
+                    <input
+                      type="text"
+                      id="entrenamientosVideoId"
+                      value={config.serviciosVideos.entrenamientos.youtubeId}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          entrenamientos: { ...prev.serviciosVideos.entrenamientos, youtubeId: e.target.value }
+                        }
+                      }))}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="entrenamientosVideoTitle">Título del Video</label>
+                    <input
+                      type="text"
+                      id="entrenamientosVideoTitle"
+                      value={config.serviciosVideos.entrenamientos.title}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          entrenamientos: { ...prev.serviciosVideos.entrenamientos, title: e.target.value }
+                        }
+                      }))}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="entrenamientosVideoDescription">Descripción</label>
+                    <textarea
+                      id="entrenamientosVideoDescription"
+                      value={config.serviciosVideos.entrenamientos.description}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          entrenamientos: { ...prev.serviciosVideos.entrenamientos, description: e.target.value }
+                        }
+                      }))}
+                      className={styles.textarea}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.checkboxGrid}>
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.serviciosVideos.entrenamientos.autoplay}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          entrenamientos: { ...prev.serviciosVideos.entrenamientos, autoplay: e.target.checked }
+                        }
+                      }))}
+                    />
+                    <span>Reproducir automáticamente</span>
+                  </label>
+
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.serviciosVideos.entrenamientos.muted}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          entrenamientos: { ...prev.serviciosVideos.entrenamientos, muted: e.target.checked }
+                        }
+                      }))}
+                    />
+                    <span>Silenciar por defecto</span>
+                  </label>
+
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.serviciosVideos.entrenamientos.loop}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          entrenamientos: { ...prev.serviciosVideos.entrenamientos, loop: e.target.checked }
+                        }
+                      }))}
+                    />
+                    <span>Repetir video</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Video de Asesorías */}
+              <div className={styles.serviceVideoGroup}>
+                <h3>💼 Asesorías</h3>
+                <div className={styles.grid}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="asesoriasVideoUrl">URL del Video de YouTube</label>
+                    <input
+                      type="text"
+                      id="asesoriasVideoUrl"
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      onChange={(e) => handleServiceVideoUrlChange('asesorias', e.target.value)}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="asesoriasVideoId">ID del Video</label>
+                    <input
+                      type="text"
+                      id="asesoriasVideoId"
+                      value={config.serviciosVideos.asesorias.youtubeId}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          asesorias: { ...prev.serviciosVideos.asesorias, youtubeId: e.target.value }
+                        }
+                      }))}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="asesoriasVideoTitle">Título del Video</label>
+                    <input
+                      type="text"
+                      id="asesoriasVideoTitle"
+                      value={config.serviciosVideos.asesorias.title}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          asesorias: { ...prev.serviciosVideos.asesorias, title: e.target.value }
+                        }
+                      }))}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="asesoriasVideoDescription">Descripción</label>
+                    <textarea
+                      id="asesoriasVideoDescription"
+                      value={config.serviciosVideos.asesorias.description}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          asesorias: { ...prev.serviciosVideos.asesorias, description: e.target.value }
+                        }
+                      }))}
+                      className={styles.textarea}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.checkboxGrid}>
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.serviciosVideos.asesorias.autoplay}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          asesorias: { ...prev.serviciosVideos.asesorias, autoplay: e.target.checked }
+                        }
+                      }))}
+                    />
+                    <span>Reproducir automáticamente</span>
+                  </label>
+
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.serviciosVideos.asesorias.muted}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          asesorias: { ...prev.serviciosVideos.asesorias, muted: e.target.checked }
+                        }
+                      }))}
+                    />
+                    <span>Silenciar por defecto</span>
+                  </label>
+
+                  <label className={styles.checkbox}>
+                    <input
+                      type="checkbox"
+                      checked={config.serviciosVideos.asesorias.loop}
+                      onChange={(e) => setConfig(prev => ({
+                        ...prev,
+                        serviciosVideos: {
+                          ...prev.serviciosVideos,
+                          asesorias: { ...prev.serviciosVideos.asesorias, loop: e.target.checked }
+                        }
+                      }))}
+                    />
+                    <span>Repetir video</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
             {/* Configuración de Estadísticas */}
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
@@ -697,20 +1090,47 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
       learningVideo: {
         youtubeId: 'dQw4w9WgXcQ',
-        title: 'Video de Presentación',
-        description: 'Conoce más sobre nuestros servicios de trading',
-        autoplay: true,
+        title: 'Cursos de Inversión',
+        description: 'Aprende a invertir desde cero con nuestros cursos especializados',
+        autoplay: false,
         muted: true,
-        loop: true
+        loop: false
+      },
+      serviciosVideos: {
+        alertas: {
+          youtubeId: 'dQw4w9WgXcQ',
+          title: 'Video de Alertas',
+          description: 'Descubre cómo funcionan nuestras alertas de trading',
+          autoplay: false,
+          muted: true,
+          loop: false
+        },
+        entrenamientos: {
+          youtubeId: 'dQw4w9WgXcQ',
+          title: 'Video de Entrenamientos',
+          description: 'Conoce nuestros programas de formación especializados',
+          autoplay: false,
+          muted: true,
+          loop: false
+        },
+        asesorias: {
+          youtubeId: 'dQw4w9WgXcQ',
+          title: 'Video de Asesorías',
+          description: 'Asesorías personalizadas para optimizar tu portafolio',
+          autoplay: false,
+          muted: true,
+          loop: false
+        }
       },
       statistics: {
         visible: true,
-        backgroundColor: '#f0f0f0',
-        textColor: '#333',
+        backgroundColor: '#7c3aed',
+        textColor: '#ffffff',
         stats: [
-          { id: 'clients', number: '100+', label: 'Clientes Satisfechos', color: '#4CAF50', order: 1 },
-          { id: 'trades', number: '500+', label: 'Operaciones Realizadas', color: '#2196F3', order: 2 },
-          { id: 'profits', number: '$100,000+', label: 'Ganancias Totales', color: '#FFC107', order: 3 },
+          { id: 'estudiantes', number: '+2900', label: 'Estudiantes', color: '#ffffff', order: 1 },
+          { id: 'formaciones', number: '+15', label: 'Formaciones', color: '#ffffff', order: 2 },
+          { id: 'horas', number: '+70', label: 'Horas de contenido', color: '#ffffff', order: 3 },
+          { id: 'satisfaccion', number: '98%', label: 'Satisfacción', color: '#ffffff', order: 4 }
         ]
       },
       servicios: { orden: 1, visible: true },
@@ -744,20 +1164,47 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           },
           learningVideo: {
             youtubeId: 'dQw4w9WgXcQ',
-            title: 'Video de Presentación',
-            description: 'Conoce más sobre nuestros servicios de trading',
-            autoplay: true,
+            title: 'Cursos de Inversión',
+            description: 'Aprende a invertir desde cero con nuestros cursos especializados',
+            autoplay: false,
             muted: true,
-            loop: true
+            loop: false
+          },
+          serviciosVideos: {
+            alertas: {
+              youtubeId: 'dQw4w9WgXcQ',
+              title: 'Video de Alertas',
+              description: 'Descubre cómo funcionan nuestras alertas de trading',
+              autoplay: false,
+              muted: true,
+              loop: false
+            },
+            entrenamientos: {
+              youtubeId: 'dQw4w9WgXcQ',
+              title: 'Video de Entrenamientos',
+              description: 'Conoce nuestros programas de formación especializados',
+              autoplay: false,
+              muted: true,
+              loop: false
+            },
+            asesorias: {
+              youtubeId: 'dQw4w9WgXcQ',
+              title: 'Video de Asesorías',
+              description: 'Asesorías personalizadas para optimizar tu portafolio',
+              autoplay: false,
+              muted: true,
+              loop: false
+            }
           },
           statistics: {
             visible: true,
-            backgroundColor: '#f0f0f0',
-            textColor: '#333',
+            backgroundColor: '#7c3aed',
+            textColor: '#ffffff',
             stats: [
-              { id: 'clients', number: '100+', label: 'Clientes Satisfechos', color: '#4CAF50', order: 1 },
-              { id: 'trades', number: '500+', label: 'Operaciones Realizadas', color: '#2196F3', order: 2 },
-              { id: 'profits', number: '$100,000+', label: 'Ganancias Totales', color: '#FFC107', order: 3 },
+              { id: 'estudiantes', number: '+2900', label: 'Estudiantes', color: '#ffffff', order: 1 },
+              { id: 'formaciones', number: '+15', label: 'Formaciones', color: '#ffffff', order: 2 },
+              { id: 'horas', number: '+70', label: 'Horas de contenido', color: '#ffffff', order: 3 },
+              { id: 'satisfaccion', number: '98%', label: 'Satisfacción', color: '#ffffff', order: 4 }
             ]
           },
           servicios: { orden: 1, visible: true },

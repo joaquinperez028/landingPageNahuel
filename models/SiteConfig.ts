@@ -20,6 +20,32 @@ interface SiteConfigDocument extends Document {
     muted: boolean;
     loop: boolean;
   };
+  serviciosVideos: {
+    alertas: {
+      youtubeId: string;
+      title: string;
+      description: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+    entrenamientos: {
+      youtubeId: string;
+      title: string;
+      description: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+    asesorias: {
+      youtubeId: string;
+      title: string;
+      description: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+  };
   statistics: {
     visible: boolean;
     backgroundColor: string;
@@ -64,6 +90,32 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
     autoplay: { type: Boolean, default: false },
     muted: { type: Boolean, default: true },
     loop: { type: Boolean, default: false }
+  },
+  serviciosVideos: {
+    alertas: {
+      youtubeId: { type: String, required: true },
+      title: { type: String, required: true },
+      description: { type: String, required: true },
+      autoplay: { type: Boolean, default: false },
+      muted: { type: Boolean, default: true },
+      loop: { type: Boolean, default: false }
+    },
+    entrenamientos: {
+      youtubeId: { type: String, required: true },
+      title: { type: String, required: true },
+      description: { type: String, required: true },
+      autoplay: { type: Boolean, default: false },
+      muted: { type: Boolean, default: true },
+      loop: { type: Boolean, default: false }
+    },
+    asesorias: {
+      youtubeId: { type: String, required: true },
+      title: { type: String, required: true },
+      description: { type: String, required: true },
+      autoplay: { type: Boolean, default: false },
+      muted: { type: Boolean, default: true },
+      loop: { type: Boolean, default: false }
+    }
   },
   statistics: {
     visible: { type: Boolean, default: true },

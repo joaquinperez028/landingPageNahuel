@@ -57,6 +57,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             muted: true,
             loop: false
           },
+          serviciosVideos: {
+            alertas: {
+              youtubeId: 'dQw4w9WgXcQ',
+              title: 'Video de Alertas',
+              description: 'Descubre cómo funcionan nuestras alertas de trading',
+              autoplay: false,
+              muted: true,
+              loop: false
+            },
+            entrenamientos: {
+              youtubeId: 'dQw4w9WgXcQ',
+              title: 'Video de Entrenamientos',
+              description: 'Conoce nuestros programas de formación especializados',
+              autoplay: false,
+              muted: true,
+              loop: false
+            },
+            asesorias: {
+              youtubeId: 'dQw4w9WgXcQ',
+              title: 'Video de Asesorías',
+              description: 'Asesorías personalizadas para optimizar tu portafolio',
+              autoplay: false,
+              muted: true,
+              loop: false
+            }
+          },
           statistics: {
             visible: true,
             backgroundColor: '#7c3aed',

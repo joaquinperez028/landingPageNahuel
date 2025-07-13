@@ -296,96 +296,164 @@
   transform: scale(1.05);
 }
 
-/* Servicios Section */
-.servicios {
-  padding: 6rem 0;
-  background: var(--bg-primary);
-}
-
-.sectionHeader {
-  text-align: center;
-  margin-bottom: 4rem;
-}
-
-.sectionHeader h2 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-}
-
-.sectionHeader p {
-  font-size: 1.25rem;
-  color: var(--text-secondary);
-}
-
-.serviciosGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-}
-
-.servicioCard {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  padding: 2rem;
-  text-align: center;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.3s ease;
+/* Servicios Section con Videos */
+.serviciosSection {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   position: relative;
   overflow: hidden;
 }
 
-.servicioCard::before {
+.serviciosSection::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(124, 58, 237, 0.1) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-.servicioCard:hover::before {
-  transform: scaleX(1);
+.serviciosSection .sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.serviciosSection .sectionHeader h2 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.serviciosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.servicioCard {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .servicioCard:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--primary-color);
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-.servicioHeader {
+.servicioContent {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  height: 100%;
 }
 
-.serviceIcon {
+.servicioTitle {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
   margin-bottom: 1rem;
-  color: var(--primary-color);
-}
-
-.servicioHeader h3 {
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
+  text-align: center;
 }
 
 .servicioDescription {
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
   line-height: 1.6;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-style: italic;
 }
 
-.servicioPrecio {
-  font-size: 1.25rem;
+.servicioVideo {
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.servicioVideoPlayer {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+}
+
+.servicioButton {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--primary-color);
-  margin-bottom: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  text-align: center;
+  margin-top: auto;
+  display: block;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.servicioButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* Responsive Servicios */
+@media (max-width: 768px) {
+  .serviciosSection {
+    padding: 3rem 0;
+  }
+  
+  .serviciosSection .sectionHeader h2 {
+    font-size: 2.5rem;
+  }
+  
+  .serviciosGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+  
+  .servicioCard {
+    padding: 1.5rem;
+  }
+  
+  .servicioTitle {
+    font-size: 1.5rem;
+  }
+  
+  .servicioVideo {
+    height: 200px;
+  }
+  
+  .servicioButton {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
 }
 
 /* Testimonios Section */
