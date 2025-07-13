@@ -320,6 +320,51 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </div>
         </section>
 
+        {/* Nueva Sección: Aprende a invertir desde cero */}
+        <section className={styles.learningSection}>
+          <div className="container">
+            <motion.div
+              className={styles.learningContent}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <div className={styles.learningText}>
+                <h2 className={styles.learningTitle}>
+                  Aprende a invertir<br />
+                  desde cero
+                </h2>
+                <p className={styles.learningDescription}>
+                  Aprende a invertir en bolsa con nuestros cursos especializados. Comienza tu camino hacia la independencia financiera.
+                </p>
+                
+                <div className={styles.learningActions}>
+                  <a 
+                    href="https://plataformacursos.lozanonahuel.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.learningButton}
+                  >
+                    Ir a Mentoring🚀
+                  </a>
+                </div>
+              </div>
+
+              {/* Video de Cursos */}
+              <div className={styles.learningVideo}>
+                <YouTubePlayer
+                  videoId="dQw4w9WgXcQ" // Aquí puedes poner el ID del video específico para cursos
+                  title="Cursos de Inversión"
+                  autoplay={false}
+                  muted={true}
+                  loop={false}
+                  className={styles.learningVideoPlayer}
+                />
+              </div>
+            </motion.div>
+          </div>
+        </section>
 
         {/* Servicios Section - INMEDIATAMENTE DESPUÉS DEL HERO */}
         {(siteConfig?.servicios?.visible !== false) && (

@@ -1079,3 +1079,235 @@
     font-size: 1.25rem;
   }
 } 
+
+/* Learning Section - Aprende a invertir desde cero */
+.learningSection {
+  background: 
+    /* Patrón de cuadrícula sutil */
+    linear-gradient(rgba(30, 41, 59, 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 41, 59, 0.4) 1px, transparent 1px),
+    /* Fondo base más oscuro */
+    #1e293b;
+  background-size: 40px 40px, 40px 40px, 100% 100%;
+  padding: 5rem 0;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.learningSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: none;
+  z-index: 1;
+}
+
+.learningContent {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 4rem;
+  align-items: center;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 1rem 0 0.5rem;
+}
+
+.learningText {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  justify-content: center;
+  padding-left: 0;
+  margin-left: -1rem;
+}
+
+.learningTitle {
+  font-size: 4rem;
+  font-weight: 400;
+  line-height: 1.1;
+  margin-bottom: 0;
+  color: white;
+  letter-spacing: -0.02em;
+  font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  text-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.8),
+    0 6px 12px rgba(0, 0, 0, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.learningDescription {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0;
+  font-weight: 400;
+  font-style: italic;
+  margin-top: 1.5rem;
+  max-width: 90%;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.7),
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.learningActions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 2.5rem;
+}
+
+.learningButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 32px;
+  background: #10b981;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.learningButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+  background: #059669;
+}
+
+.learningVideo {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 
+    0 40px 80px rgba(0, 0, 0, 0.5),
+    0 20px 40px rgba(30, 41, 59, 0.3),
+    0 0 60px rgba(30, 41, 59, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(145deg, rgba(0, 0, 0, 0.1), rgba(30, 41, 59, 0.1));
+  transform: scale(1.02);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.learningVideo:hover {
+  transform: scale(1.04);
+  box-shadow: 
+    0 50px 100px rgba(0, 0, 0, 0.6),
+    0 25px 50px rgba(30, 41, 59, 0.4),
+    0 0 80px rgba(30, 41, 59, 0.35),
+    0 0 120px rgba(30, 41, 59, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.learningVideoPlayer {
+  width: 100%;
+  height: 320px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  aspect-ratio: 16/9;
+}
+
+/* Responsive Learning Section */
+@media (max-width: 768px) {
+  .learningSection {
+    padding: 3rem 0;
+    background-size: 30px 30px, 30px 30px, 100% 100%;
+  }
+  
+  .learningContent {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    text-align: center;
+    padding: 0 1.5rem;
+    max-width: 100%;
+  }
+  
+  .learningText {
+    margin-left: 0;
+  }
+  
+  .learningTitle {
+    font-size: 2.8rem;
+    line-height: 1.15;
+    font-weight: 400;
+  }
+  
+  .learningDescription {
+    font-size: 1.25rem;
+    margin-top: 1.25rem;
+    max-width: 100%;
+  }
+  
+  .learningActions {
+    margin-top: 2rem;
+    justify-content: center;
+  }
+  
+  .learningVideoPlayer {
+    height: 250px;
+  }
+  
+  .learningButton {
+    font-size: 16px;
+    padding: 14px 28px;
+  }
+  
+  .learningVideo {
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .learningSection {
+    padding: 2rem 0;
+    background-size: 20px 20px, 20px 20px, 100% 100%;
+  }
+  
+  .learningTitle {
+    font-size: 2.2rem;
+    line-height: 1.2;
+    font-weight: 400;
+  }
+  
+  .learningDescription {
+    font-size: 1.1rem;
+    margin-top: 1rem;
+  }
+  
+  .learningActions {
+    margin-top: 1.5rem;
+  }
+  
+  .learningVideoPlayer {
+    height: 200px;
+  }
+  
+  .learningContent {
+    padding: 0 1rem;
+  }
+  
+  .learningText {
+    text-align: left;
+  }
+  
+  .learningButton {
+    font-size: 14px;
+    padding: 12px 24px;
+  }
+} 
