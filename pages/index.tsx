@@ -596,12 +596,15 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                   >
                     <div className={styles.empresaLogo}>
                       <img 
-                        src="https://logo.clearbit.com/tradingview.com" 
+                        src="https://s3.tradingview.com/tv-logo-s.png" 
                         alt="TradingView" 
                         width={120} 
                         height={40}
                         onError={(e) => {
-                          e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48dGV4dCB4PSI2MCIgeT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiPlRyYWRpbmdWaWV3PC90ZXh0Pjwvc3ZnPg=='
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.parentElement) {
+                            e.currentTarget.parentElement.innerHTML = '<span class="' + styles.empresaName + '">TradingView</span>';
+                          }
                         }}
                       />
                     </div>
@@ -619,15 +622,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     whileHover={{ y: -5 }}
                   >
                     <div className={styles.empresaLogo}>
-                      <img 
-                        src="https://logo.clearbit.com/bullmarketbrokers.com" 
-                        alt="BullMarket" 
-                        width={120} 
-                        height={40}
-                        onError={(e) => {
-                          e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48dGV4dCB4PSI2MCIgeT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiPkJ1bGxNYXJrZXQ8L3RleHQ+PC9zdmc+'
-                        }}
-                      />
+                      <span className={styles.empresaName}>BullMarket</span>
                     </div>
                   </motion.a>
 
@@ -643,15 +638,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     whileHover={{ y: -5 }}
                   >
                     <div className={styles.empresaLogo}>
-                      <img 
-                        src="https://logo.clearbit.com/dolarhoy.com" 
-                        alt="DolarHoy.com" 
-                        width={120} 
-                        height={40}
-                        onError={(e) => {
-                          e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48dGV4dCB4PSI2MCIgeT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPkRvbGFySG95LmNvbTwvdGV4dD48L3N2Zz4='
-                        }}
-                      />
+                      <span className={styles.empresaName}>DolarHoy</span>
                     </div>
                   </motion.a>
 
@@ -667,15 +654,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     whileHover={{ y: -5 }}
                   >
                     <div className={styles.empresaLogo}>
-                      <img 
-                        src="https://logo.clearbit.com/balanz.com" 
-                        alt="BALANZ" 
-                        width={120} 
-                        height={40}
-                        onError={(e) => {
-                          e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48dGV4dCB4PSI2MCIgeT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZm9udC13ZWlnaHQ9ImJvbGQiPkJBTEFOWjwvdGV4dD48L3N2Zz4='
-                        }}
-                      />
+                      <span className={styles.empresaName}>BALANZ</span>
                     </div>
                   </motion.a>
 
@@ -691,15 +670,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     whileHover={{ y: -5 }}
                   >
                     <div className={styles.empresaLogo}>
-                      <img 
-                        src="https://logo.clearbit.com/inviu.com.ar" 
-                        alt="Inviu" 
-                        width={120} 
-                        height={40}
-                        onError={(e) => {
-                          e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTIwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZmZmZmYiLz48dGV4dCB4PSI2MCIgeT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZm9udC13ZWlnaHQ9ImJvbGQiPkludml1PC90ZXh0Pjwvc3ZnPg=='
-                        }}
-                      />
+                      <span className={styles.empresaName}>Inviu</span>
                     </div>
                   </motion.a>
                 </div>
