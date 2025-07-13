@@ -417,11 +417,6 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                         transition={{ duration: 0.6, delay: index * 0.1 }}
                         viewport={{ once: true }}
                       >
-                        {stat.icon && (
-                          <div className={styles.statisticIcon}>
-                            {stat.icon}
-                          </div>
-                        )}
                         <h3 
                           className={styles.statisticNumber}
                           style={{ color: stat.color }}

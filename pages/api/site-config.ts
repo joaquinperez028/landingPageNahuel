@@ -67,7 +67,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 number: '+2900',
                 label: 'Estudiantes',
                 color: '#ffffff',
-                icon: '👥',
                 order: 1
               },
               {
@@ -75,7 +74,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 number: '+15',
                 label: 'Formaciones',
                 color: '#ffffff',
-                icon: '📚',
                 order: 2
               },
               {
@@ -83,7 +81,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 number: '+70',
                 label: 'Horas de contenido',
                 color: '#ffffff',
-                icon: '⏰',
                 order: 3
               },
               {
@@ -91,7 +88,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 number: '98%',
                 label: 'Satisfacción',
                 color: '#ffffff',
-                icon: '⭐',
                 order: 4
               }
             ]

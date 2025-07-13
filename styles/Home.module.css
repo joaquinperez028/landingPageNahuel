@@ -1414,7 +1414,7 @@
 
 /* Statistics Section Styles */
 .statisticsSection {
-  padding: 4rem 0;
+  padding: 2rem 0;
   position: relative;
   overflow: hidden;
 }
@@ -1439,41 +1439,35 @@
 
 .statisticsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  padding: 2rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0;
 }
 
 .statisticItem {
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  border-radius: 12px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
 }
 
 .statisticItem:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.statisticIcon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .statisticNumber {
-  font-size: 3.5rem;
+  font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .statisticLabel {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 500;
   opacity: 0.9;
   margin: 0;
@@ -1484,28 +1478,24 @@
 /* Responsive Statistics */
 @media (max-width: 768px) {
   .statisticsSection {
-    padding: 3rem 0;
+    padding: 1.5rem 0;
   }
   
   .statisticsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    padding: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    padding: 0.5rem;
   }
   
   .statisticItem {
-    padding: 1.5rem;
+    padding: 1rem;
   }
   
   .statisticNumber {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   
   .statisticLabel {
-    font-size: 1rem;
-  }
-  
-  .statisticIcon {
-    font-size: 2rem;
+    font-size: 0.9rem;
   }
 } 
