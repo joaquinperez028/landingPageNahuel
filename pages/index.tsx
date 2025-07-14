@@ -1137,28 +1137,45 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
 
 
         {/* CTA Final */}
-        <section className={styles.cta}>
+        <section className={styles.ctaInvestmentSection}>
           <div className="container">
             <motion.div
-              className={styles.ctaContent}
+              className={styles.ctaInvestmentContent}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2>¿Listo para llevar tus inversiones al siguiente nivel?</h2>
-              <p>Únete a nuestra comunidad de inversores exitosos y comienza a ver resultados desde el primer día.</p>
+              <h2 className={styles.ctaInvestmentTitle}>
+                ¿Listo para llevar tus inversiones al siguiente nivel?
+              </h2>
+              <p className={styles.ctaInvestmentSubtitle}>
+                Únete a nuestra comunidad y comienza construir tu libertad financiera
+              </p>
               
-              {!session && (
-                <div className={styles.ctaActions}>
-                  <button onClick={() => signIn('google')} className="btn btn-primary btn-lg">
-                    Comenzar Ahora
-                  </button>
-                  <Link href="/entrenamientos" className="btn btn-outline btn-lg">
-                    Ver Entrenamientos
+              <div className={styles.ctaInvestmentActions}>
+                {session ? (
+                  <Link href="/alertas" className={styles.ctaInvestmentButtonPrimary}>
+                    Comenzar ahora
                   </Link>
-                </div>
-              )}
+                ) : (
+                  <button 
+                    onClick={() => signIn('google')} 
+                    className={styles.ctaInvestmentButtonPrimary}
+                  >
+                    Comenzar ahora
+                  </button>
+                )}
+                
+                <a 
+                  href="https://plataformacursos.lozanonahuel.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.ctaInvestmentButtonSecondary}
+                >
+                  Ir a Mentoring 🚀
+                </a>
+              </div>
             </motion.div>
           </div>
         </section>
