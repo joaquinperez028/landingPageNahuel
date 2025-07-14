@@ -693,7 +693,96 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </div>
         </section>
 
-        {/* Cursos Section - DESPUÉS DE LAS EMPRESAS */}
+        {/* Sección Acerca de nosotros */}
+        <section className={styles.aboutSection}>
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className={styles.aboutContent}>
+                <h2 className={styles.aboutMainTitle}>Acerca de nosotros</h2>
+                
+                {/* Tres preguntas principales */}
+                <div className={styles.aboutQuestions}>
+                  <motion.div
+                    className={styles.aboutQuestion}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <h3 className={styles.questionTitle}>¿Quienes Somos?</h3>
+                    <p className={styles.questionText}>
+                      Somos una plataforma educativa que transforma la manera en que las personas invierten y gestionan su dinero, brindando acompañamiento profesional para lograr libertad y tranquilidad financiera.
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    className={styles.aboutQuestion}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    viewport={{ once: true }}
+                  >
+                    <h3 className={styles.questionTitle}>¿Que hacemos?</h3>
+                    <p className={styles.questionText}>
+                      Enseñamos y acompañamos a nuestra comunidad a la hora de invertir, brindando asesorías y herramientas prácticas para que mejoren su economía, protejan su capital y alcancen sus metas financieras.
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    className={styles.aboutQuestion}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    viewport={{ once: true }}
+                  >
+                    <h3 className={styles.questionTitle}>¿Por qué lo hacemos?</h3>
+                    <p className={styles.questionText}>
+                      Porque creemos que todos merecen manejar su dinero con libertad. Buscamos brindar conocimiento y herramientas para que cada persona construya estabilidad y un futuro financiero más auspicioso.
+                    </p>
+                  </motion.div>
+                </div>
+
+                {/* Sección de Nahuel Lozano */}
+                <motion.div
+                  className={styles.nahuelSection}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  viewport={{ once: true }}
+                >
+                  <div className={styles.nahuelContent}>
+                    <div className={styles.nahuelText}>
+                      <h3 className={styles.nahuelName}>Nahuel Lozano</h3>
+                      <p className={styles.nahuelBio}>
+                        Desde 2016 trabajo en los mercados financieros, es por eso que pude incorporar conocimientos importantísimos acerca del funcionamiento del mercado. A día de hoy, no solo puede especializarme en el análisis técnico, sino que también soy idóneo en el mercado de capitales, estando legalmente autorizado por la CNV para asesorar al público inversor.
+                      </p>
+                      <div className={styles.nahuelQuote}>
+                        <div className={styles.quoteIcon}>"</div>
+                        <p className={styles.quoteText}>
+                          Mi objetivo es promover la educación financiera, lo que considero una herramienta esencial para mejorar la calidad de vida de las personas.
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles.nahuelImage}>
+                      <img 
+                        src="/logos/nahuelsobremi.png" 
+                        alt="Nahuel Lozano" 
+                        className={styles.nahuelPhoto}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Cursos Section - DESPUÉS DE LA SECCIÓN ACERCA DE NOSOTROS */}
         {(siteConfig?.cursos?.visible !== false) && (courseCards.length > 0 || entrenamientos.length > 0) && (
           <section className={styles.cursos}>
             <div className="container">

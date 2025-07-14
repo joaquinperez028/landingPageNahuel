@@ -1728,3 +1728,269 @@
     font-size: 0.95rem;
   }
 } 
+
+/* Sección Acerca de nosotros */
+.aboutSection {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  padding: 120px 0;
+  margin: 0;
+}
+
+.aboutContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.aboutMainTitle {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 80px;
+  letter-spacing: -0.02em;
+}
+
+/* Tres preguntas principales */
+.aboutQuestions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 40px;
+  margin-bottom: 100px;
+}
+
+.aboutQuestion {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  padding: 40px 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.aboutQuestion:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.questionTitle {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  padding: 15px 25px;
+  border-radius: 25px;
+  margin: 0 0 25px 0;
+  text-align: center;
+  display: inline-block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.questionText {
+  color: #e5e5e5;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin: 0;
+  text-align: center;
+}
+
+/* Sección de Nahuel Lozano */
+.nahuelSection {
+  margin-top: 60px;
+}
+
+.nahuelContent {
+  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  border: 2px solid #22c55e;
+  border-radius: 30px;
+  padding: 50px 40px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: center;
+  backdrop-filter: blur(15px);
+  position: relative;
+  overflow: hidden;
+}
+
+.nahuelContent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(34, 197, 94, 0.05) 50%, transparent 70%);
+  pointer-events: none;
+}
+
+.nahuelText {
+  position: relative;
+  z-index: 2;
+}
+
+.nahuelName {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 25px 0;
+  letter-spacing: -0.02em;
+}
+
+.nahuelBio {
+  color: #e5e5e5;
+  font-size: 1.15rem;
+  line-height: 1.7;
+  margin: 0 0 30px 0;
+  text-align: justify;
+}
+
+.nahuelQuote {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-radius: 20px;
+  padding: 25px 30px;
+  position: relative;
+  margin-top: 30px;
+}
+
+.quoteIcon {
+  font-size: 4rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 700;
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  line-height: 1;
+}
+
+.quoteText {
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1.6;
+  margin: 0;
+  padding-left: 40px;
+  font-style: italic;
+}
+
+.nahuelImage {
+  position: relative;
+  z-index: 2;
+}
+
+.nahuelPhoto {
+  width: 300px;
+  height: auto;
+  border-radius: 20px;
+  object-fit: cover;
+  border: 3px solid rgba(34, 197, 94, 0.3);
+  transition: all 0.3s ease;
+}
+
+.nahuelPhoto:hover {
+  border-color: #22c55e;
+  transform: scale(1.02);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .nahuelContent {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 40px 30px;
+  }
+  
+  .nahuelPhoto {
+    width: 250px;
+    margin: 0 auto;
+  }
+  
+  .nahuelName {
+    font-size: 2.5rem;
+  }
+  
+  .aboutQuestions {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .aboutSection {
+    padding: 80px 0;
+  }
+  
+  .aboutMainTitle {
+    font-size: 2.5rem;
+    margin-bottom: 60px;
+  }
+  
+  .aboutQuestion {
+    padding: 30px 25px;
+  }
+  
+  .questionTitle {
+    font-size: 1.2rem;
+    padding: 12px 20px;
+  }
+  
+  .questionText {
+    font-size: 1rem;
+  }
+  
+  .nahuelContent {
+    padding: 30px 25px;
+  }
+  
+  .nahuelName {
+    font-size: 2rem;
+  }
+  
+  .nahuelBio {
+    font-size: 1rem;
+    text-align: left;
+  }
+  
+  .nahuelPhoto {
+    width: 200px;
+  }
+  
+  .quoteText {
+    font-size: 1.1rem;
+    padding-left: 30px;
+  }
+  
+  .quoteIcon {
+    font-size: 3rem;
+    top: -5px;
+    left: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .aboutContent {
+    padding: 0 15px;
+  }
+  
+  .aboutMainTitle {
+    font-size: 2rem;
+  }
+  
+  .aboutQuestion {
+    padding: 25px 20px;
+  }
+  
+  .nahuelContent {
+    padding: 25px 20px;
+  }
+  
+  .nahuelPhoto {
+    width: 180px;
+  }
+  
+  .questionTitle {
+    font-size: 1.1rem;
+  }
+} 
