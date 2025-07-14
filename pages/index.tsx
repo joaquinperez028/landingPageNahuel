@@ -1086,47 +1086,44 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
               <div className={styles.youtubeVideoContainer}>
                 <Carousel 
                   items={[
-                    <div key="video-1" className={styles.youtubeVideoWrapper}>
-                      <iframe
-                        src="https://www.youtube.com/embed/0NpdClGWaY8"
-                        title="Video 1"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className={styles.youtubeVideoPlayer}
-                      />
-                    </div>,
-                    <div key="video-2" className={styles.youtubeVideoWrapper}>
-                      <iframe
-                        src="https://www.youtube.com/embed/jl3lUCIluAs"
-                        title="Video 2"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className={styles.youtubeVideoPlayer}
-                      />
-                    </div>,
-                    <div key="video-3" className={styles.youtubeVideoWrapper}>
-                      <iframe
-                        src="https://www.youtube.com/embed/_AMDVmj9_jw"
-                        title="Video 3"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className={styles.youtubeVideoPlayer}
-                      />
-                    </div>,
-                    <div key="video-4" className={styles.youtubeVideoWrapper}>
-                      <iframe
-                        src="https://www.youtube.com/embed/sUktp76givU"
-                        title="Video 4"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className={styles.youtubeVideoPlayer}
-                      />
-                    </div>
+                    <iframe
+                      key="video-1"
+                      src="https://www.youtube.com/embed/0NpdClGWaY8"
+                      title="Video 1"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className={styles.youtubeVideoPlayer}
+                    />,
+                    <iframe
+                      key="video-2"
+                      src="https://www.youtube.com/embed/jl3lUCIluAs"
+                      title="Video 2"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className={styles.youtubeVideoPlayer}
+                    />,
+                    <iframe
+                      key="video-3"
+                      src="https://www.youtube.com/embed/_AMDVmj9_jw"
+                      title="Video 3"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className={styles.youtubeVideoPlayer}
+                    />,
+                    <iframe
+                      key="video-4"
+                      src="https://www.youtube.com/embed/sUktp76givU"
+                      title="Video 4"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className={styles.youtubeVideoPlayer}
+                    />
                   ]}
+                  itemsPerView={1}
                   autoplay={false}
                   showDots={false}
                   showArrows={true}
