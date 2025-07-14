@@ -1063,6 +1063,67 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </div>
         </section>
 
+        {/* YouTube Community Section */}
+        <section className={styles.youtubeSection}>
+          <div className="container">
+            <motion.div
+              className={styles.youtubeContent}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className={styles.youtubeText}>
+                <h2 className={styles.youtubeTitle}>
+                  ¡Sumate a nuestra comunidad<br />
+                  en YouTube!
+                </h2>
+                <p className={styles.youtubeSubtitle}>
+                  No te pierdas nuestros últimos videos
+                </p>
+              </div>
+
+              <div className={styles.youtubeVideoContainer}>
+                <Carousel 
+                  items={[
+                    {
+                      id: '0NpdClGWaY8',
+                      title: 'Video 1'
+                    },
+                    {
+                      id: 'jl3lUCIluAs', 
+                      title: 'Video 2'
+                    },
+                    {
+                      id: '_AMDVmj9_jw',
+                      title: 'Video 3'
+                    },
+                    {
+                      id: 'sUktp76givU',
+                      title: 'Video 4'
+                    }
+                  ].map((video, index) => (
+                    <div key={video.id} className={styles.youtubeVideoWrapper}>
+                      <YouTubePlayer
+                        videoId={video.id}
+                        title={video.title}
+                        autoplay={false}
+                        muted={true}
+                        loop={false}
+                        className={styles.youtubeVideoPlayer}
+                      />
+                    </div>
+                  ))}
+                  autoplay={false}
+                  showDots={false}
+                  showArrows={true}
+                  className={styles.youtubeCarousel}
+                />
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Sistema de cobros personalizado */}
         <section className={styles.sistemaCobranza}>
           <div className="container">
