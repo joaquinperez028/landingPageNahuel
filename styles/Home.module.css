@@ -1773,11 +1773,11 @@
 .aboutQuestion:hover {
   transform: translateY(-3px);
   background: #202020;
-  border-color: #22c55e;
+  border-color: #00d084;
 }
 
 .questionTitle {
-  background: #22c55e;
+  background: #00d084;
   color: #ffffff;
   font-size: 1.3rem;
   font-weight: 600;
