@@ -4,7 +4,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, TrendingUp, Users, Shield, Star, X, BookOpen, Clock, Award } from 'lucide-react';
+import { ChevronRight, TrendingUp, Users, Shield, Star, X, BookOpen, Clock, Award, ChevronLeft } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
@@ -121,6 +121,92 @@ interface HomeProps {
   entrenamientos: Training[];
   courseCards: CourseCard[];
 }
+
+/**
+ * Componente de carousel automático para videos de YouTube
+ */
+const YouTubeAutoCarousel: React.FC = () => {
+  const [currentVideo, setCurrentVideo] = useState(0);
+  
+  const videos = [
+    {
+      id: '0NpdClGWaY8',
+      title: 'Video 1'
+    },
+    {
+      id: 'jl3lUCIluAs',
+      title: 'Video 2'
+    },
+    {
+      id: '_AMDVmj9_jw',
+      title: 'Video 3'
+    },
+    {
+      id: 'sUktp76givU',
+      title: 'Video 4'
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentVideo((prev) => (prev + 1) % videos.length);
+    }, 5000); // Cambia cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, [videos.length]);
+
+  const goToPrevious = () => {
+    setCurrentVideo((prev) => (prev - 1 + videos.length) % videos.length);
+  };
+
+  const goToNext = () => {
+    setCurrentVideo((prev) => (prev + 1) % videos.length);
+  };
+
+  return (
+    <div className={styles.youtubeAutoCarousel}>
+      <button 
+        onClick={goToPrevious}
+        className={styles.youtubeArrowLeft}
+        aria-label="Video anterior"
+      >
+        <ChevronLeft size={24} />
+      </button>
+      
+      <div className={styles.youtubeVideoFrame}>
+        <iframe
+          src={`https://www.youtube.com/embed/${videos[currentVideo].id}`}
+          title={videos[currentVideo].title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className={styles.youtubeVideoPlayer}
+        />
+      </div>
+      
+      <button 
+        onClick={goToNext}
+        className={styles.youtubeArrowRight}
+        aria-label="Siguiente video"
+      >
+        <ChevronRight size={24} />
+      </button>
+
+      <div className={styles.youtubeIndicators}>
+        {videos.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentVideo(index)}
+            className={`${styles.youtubeIndicator} ${
+              index === currentVideo ? styles.youtubeIndicatorActive : ''
+            }`}
+            aria-label={`Ver video ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 /**
  * Página principal del sitio web de Nahuel Lozano
@@ -1084,51 +1170,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
               </div>
 
               <div className={styles.youtubeVideoContainer}>
-                <Carousel 
-                  items={[
-                    <iframe
-                      key="video-1"
-                      src="https://www.youtube.com/embed/0NpdClGWaY8"
-                      title="Video 1"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className={styles.youtubeVideoPlayer}
-                    />,
-                    <iframe
-                      key="video-2"
-                      src="https://www.youtube.com/embed/jl3lUCIluAs"
-                      title="Video 2"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className={styles.youtubeVideoPlayer}
-                    />,
-                    <iframe
-                      key="video-3"
-                      src="https://www.youtube.com/embed/_AMDVmj9_jw"
-                      title="Video 3"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className={styles.youtubeVideoPlayer}
-                    />,
-                    <iframe
-                      key="video-4"
-                      src="https://www.youtube.com/embed/sUktp76givU"
-                      title="Video 4"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className={styles.youtubeVideoPlayer}
-                    />
-                  ]}
-                  itemsPerView={1}
-                  autoplay={false}
-                  showDots={false}
-                  showArrows={true}
-                  className={styles.youtubeCarousel}
-                />
+                <YouTubeAutoCarousel />
               </div>
             </motion.div>
           </div>
