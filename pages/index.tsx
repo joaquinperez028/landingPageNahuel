@@ -1018,33 +1018,6 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </div>
         </section>
 
-        {/* Números con datos actualizables - Exactos del spreadsheet */}
-        <section className={styles.stats}>
-          <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <div className={styles.statsGrid}>
-                <div className={styles.statItem}>
-                  <h3 className={styles.statNumber}>7</h3>
-                  <p className={styles.statLabel}>Años trabajando con el mercado</p>
-                </div>
-                <div className={styles.statItem}>
-                  <h3 className={styles.statNumber}>+1,500</h3>
-                  <p className={styles.statLabel}>Alumnos</p>
-                </div>
-                <div className={styles.statItem}>
-                  <h3 className={styles.statNumber}>+300</h3>
-                  <p className={styles.statLabel}>Horas de formación</p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
         {/* Testimonios Section */}
         <section className={styles.testimonios}>
           <div className="container">

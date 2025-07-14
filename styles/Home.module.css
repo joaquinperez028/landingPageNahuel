@@ -765,44 +765,7 @@
   font-size: 0.875rem;
 }
 
-/* Stats Section */
-.stats {
-  padding: 6rem 0;
-  background: var(--primary-color);
-  color: white;
-  text-align: center;
-}
-
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 3rem;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.statItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.statNumber {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: #fbbf24;
-  line-height: 1;
-}
-
-.statLabel {
-  font-size: 1rem;
-  opacity: 0.9;
-  margin: 0;
-  text-align: center;
-}
-
-/* Responsive Design for Popup and Stats */
+/* Responsive Design for Popup */
 @media (max-width: 768px) {
   .popupContent {
     margin: 1rem;
@@ -811,19 +774,6 @@
 
   .popupHeader h2 {
     font-size: 1.5rem;
-  }
-
-  .statsGrid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .statNumber {
-    font-size: 2.5rem;
-  }
-
-  .statLabel {
-    font-size: 0.9rem;
   }
 }
 
@@ -842,10 +792,6 @@
 
   .popupHeader p {
     font-size: 1rem;
-  }
-
-  .statNumber {
-    font-size: 2rem;
   }
 }
 
