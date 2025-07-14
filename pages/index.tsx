@@ -768,7 +768,53 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </div>
         </section>
 
-        {/* Cursos Section - DESPUÉS DE LA SECCIÓN ACERCA DE NOSOTROS */}
+        {/* Sección de Estadísticas */}
+        <section className={styles.statsSection}>
+          <div className="container">
+            <motion.div
+              className={styles.statsContent}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <motion.div
+                className={styles.statItem}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                viewport={{ once: true }}
+              >
+                <div className={styles.statNumber}>8</div>
+                <div className={styles.statLabel}>Años de experiencia</div>
+              </motion.div>
+
+              <motion.div
+                className={styles.statItem}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                <div className={styles.statNumber}>+1500</div>
+                <div className={styles.statLabel}>Inversores confiaron en nosotros</div>
+              </motion.div>
+
+              <motion.div
+                className={styles.statItem}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true }}
+              >
+                <div className={styles.statNumber}>97%</div>
+                <div className={styles.statLabel}>Satisfacción</div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Cursos Section - DESPUÉS DE LA SECCIÓN DE ESTADÍSTICAS */}
         {(siteConfig?.cursos?.visible !== false) && (courseCards.length > 0 || entrenamientos.length > 0) && (
           <section className={styles.cursos}>
             <div className="container">
