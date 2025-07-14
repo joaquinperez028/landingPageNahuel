@@ -19,15 +19,10 @@ const Footer: React.FC = () => {
               <Image
                 src="/logos/logo notificaciones.png"
                 alt="Lozano Nahuel Logo"
-                width={80}
-                height={80}
+                width={120}
+                height={120}
                 className={styles.footerLogo}
               />
-              <div className={styles.logoText}>
-                <div className={styles.logoName}>LOZANO</div>
-                <div className={styles.logoNameHighlight}>NAHUEL</div>
-                <div className={styles.logoSubtitle}>TRADING & TRADERS</div>
-              </div>
             </div>
             <p className={styles.brandDescription}>
               Desde 2016 promoviendo la educación financiera para mejorar la calidad de vida de las personas
