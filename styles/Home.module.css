@@ -256,34 +256,7 @@
   }
 }
 
-/* Empresas Section */
-.empresas {
-  padding: 4rem 0;
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
-}
 
-.empresasTitle {
-  text-align: center;
-  margin-bottom: 3rem;
-  color: var(--text-muted);
-  font-size: 1.5rem;
-  font-weight: 500;
-}
-
-.empresasCarousel {
-  max-width: 100%;
-}
-
-.empresaLogo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  height: 100px;
-}
-
-/* Estilos removidos para evitar conflictos con la sección de empresas */
 
 /* Servicios Section con Videos */
 .serviciosSection {

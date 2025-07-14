@@ -174,15 +174,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
     setIsSubmitting(false);
   };
   
-  const empresasLogos = [
-    '/images/bull-market-brokers.png',
-    '/images/tradingview.png', 
-    '/images/dolarhoy.png',
-    '/images/inviu.png',
-    '/images/balanz.png',
-    '/images/inversiones-andinas.png',
-    '/images/forbes-argentina.png'
-  ];
+
 
   const testimonios = [
     {
@@ -963,60 +955,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </section>
         )}
 
-        {/* Empresas que confiaron en mí */}
-        <section className={styles.empresas}>
-          <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h2 className={styles.empresasTitle}>Empresas que confiaron en mí</h2>
-              <Carousel 
-                items={empresasLogos.map((empresa, index) => {
-                  const empresaNombres = [
-                    'Bull Market Brokers',
-                    'TradingView', 
-                    'DólarHoy',
-                    'Inviu',
-                    'Balanz',
-                    'Inversiones Andinas',
-                    'Forbes Argentina'
-                  ];
-                  
-                  return (
-                    <div key={empresa} className={styles.empresaLogo}>
-                      <img 
-                        src={empresa} 
-                        alt={empresaNombres[index]}
-                        onError={(e) => {
-                          // En lugar de via.placeholder.com usar un data URL inline
-                          const canvas = document.createElement('canvas');
-                          canvas.width = 150;
-                          canvas.height = 80;
-                          const ctx = canvas.getContext('2d');
-                          if (ctx) {
-                            ctx.fillStyle = '#e2e8f0';
-                            ctx.fillRect(0, 0, 150, 80);
-                            ctx.fillStyle = '#64748b';
-                            ctx.font = '12px Arial';
-                            ctx.textAlign = 'center';
-                            ctx.fillText(empresaNombres[index], 75, 45);
-                            (e.target as HTMLImageElement).src = canvas.toDataURL();
-                          }
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-                autoplay={true}
-                showDots={false}
-                className={styles.empresasCarousel}
-              />
-            </motion.div>
-          </div>
-        </section>
+
 
         {/* Testimonios Section */}
         <section className={styles.testimonios}>
