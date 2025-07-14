@@ -1019,6 +1019,50 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </div>
         </section>
 
+        {/* CTA Section - ¿Listo para llevar tus inversiones al siguiente nivel? */}
+        <section className={styles.ctaInvestmentSection}>
+          <div className="container">
+            <motion.div
+              className={styles.ctaInvestmentContent}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <h2 className={styles.ctaInvestmentTitle}>
+                ¿Listo para llevar tus inversiones al siguiente nivel?
+              </h2>
+              <p className={styles.ctaInvestmentSubtitle}>
+                Únete a nuestra comunidad y comienza construir tu libertad financiera
+              </p>
+              
+              <div className={styles.ctaInvestmentActions}>
+                {session ? (
+                  <Link href="/alertas" className={styles.ctaInvestmentButtonPrimary}>
+                    Comenzar ahora
+                  </Link>
+                ) : (
+                  <button 
+                    onClick={() => signIn('google')} 
+                    className={styles.ctaInvestmentButtonPrimary}
+                  >
+                    Comenzar ahora
+                  </button>
+                )}
+                
+                <a 
+                  href="https://plataformacursos.lozanonahuel.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.ctaInvestmentButtonSecondary}
+                >
+                  Ir a Mentoring 🚀
+                </a>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Sistema de cobros personalizado */}
         <section className={styles.sistemaCobranza}>
           <div className="container">
