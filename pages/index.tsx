@@ -1176,62 +1176,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </div>
         </section>
 
-        {/* Sistema de cobros personalizado */}
-        <section className={styles.sistemaCobranza}>
-          <div className="container">
-            <motion.div
-              className={styles.cobranzaContent}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h2 className={styles.cobranzaTitle}>Sistema de Cobros Personalizado</h2>
-              <p className={styles.cobranzaDescription}>
-                Ofrecemos múltiples opciones de pago para adaptarnos a tu ubicación y preferencias. 
-                Pagos seguros y procesados por las plataformas más confiables del mercado.
-              </p>
 
-              <div className={styles.paymentMethods}>
-                <motion.div
-                  className={styles.paymentCard}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <div className={styles.paymentIcon}>💰</div>
-                  <h3>Mercado Pago</h3>
-                  <p>Pagos locales en ARS. Mercado Pago, Rapipago, PagoFácil y transferencias bancarias.</p>
-                </motion.div>
-
-                <motion.div
-                  className={styles.paymentCard}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  viewport={{ once: true }}
-                >
-                  <div className={styles.paymentIcon}>🏦</div>
-                  <h3>Transferencias</h3>
-                  <p>Transferencias bancarias directas para montos mayores. Soporte personalizado.</p>
-                </motion.div>
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                viewport={{ once: true }}
-              >
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '2rem' }}>
-                  🔒 Todos los pagos están protegidos con encriptación SSL de 256 bits. 
-                  No almacenamos información de tarjetas de crédito.
-                </p>
-              </motion.div>
-            </motion.div>
-          </div>
-        </section>
 
         {/* CTA Final */}
         <section className={styles.cta}>

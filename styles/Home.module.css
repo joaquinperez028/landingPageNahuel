@@ -504,71 +504,11 @@
   flex-wrap: wrap;
 }
 
-/* Sistema de Cobros Section */
-.sistemaCobranza {
-  padding: 6rem 0;
-  background: var(--bg-primary);
-}
 
-.cobranzaContent {
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.cobranzaTitle {
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
-}
-
-.cobranzaDescription {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  margin-bottom: 3rem;
-  line-height: 1.6;
-}
-
-.paymentMethods {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
-}
-
-.paymentCard {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  padding: 2rem;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.paymentCard:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--primary-color);
-}
-
-.paymentIcon {
-  color: var(--primary-color);
-  margin-bottom: 1rem;
-}
-
-.paymentCard h3 {
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.paymentCard p {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .servicios, .testimonios, .sistemaCobranza {
+  .servicios, .testimonios {
     padding: 4rem 0;
   }
   
@@ -605,15 +545,6 @@
   .ctaActions {
     flex-direction: column;
     align-items: center;
-  }
-  
-  .paymentMethods {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-  
-  .cobranzaTitle {
-    font-size: 2rem;
   }
 }
 
