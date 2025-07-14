@@ -1086,34 +1086,47 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
               <div className={styles.youtubeVideoContainer}>
                 <Carousel 
                   items={[
-                    {
-                      id: '0NpdClGWaY8',
-                      title: 'Video 1'
-                    },
-                    {
-                      id: 'jl3lUCIluAs', 
-                      title: 'Video 2'
-                    },
-                    {
-                      id: '_AMDVmj9_jw',
-                      title: 'Video 3'
-                    },
-                    {
-                      id: 'sUktp76givU',
-                      title: 'Video 4'
-                    }
-                  ].map((video, index) => (
-                    <div key={video.id} className={styles.youtubeVideoWrapper}>
-                      <YouTubePlayer
-                        videoId={video.id}
-                        title={video.title}
-                        autoplay={false}
-                        muted={true}
-                        loop={false}
+                    <div key="video-1" className={styles.youtubeVideoWrapper}>
+                      <iframe
+                        src="https://www.youtube.com/embed/0NpdClGWaY8"
+                        title="Video 1"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className={styles.youtubeVideoPlayer}
+                      />
+                    </div>,
+                    <div key="video-2" className={styles.youtubeVideoWrapper}>
+                      <iframe
+                        src="https://www.youtube.com/embed/jl3lUCIluAs"
+                        title="Video 2"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className={styles.youtubeVideoPlayer}
+                      />
+                    </div>,
+                    <div key="video-3" className={styles.youtubeVideoWrapper}>
+                      <iframe
+                        src="https://www.youtube.com/embed/_AMDVmj9_jw"
+                        title="Video 3"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className={styles.youtubeVideoPlayer}
+                      />
+                    </div>,
+                    <div key="video-4" className={styles.youtubeVideoWrapper}>
+                      <iframe
+                        src="https://www.youtube.com/embed/sUktp76givU"
+                        title="Video 4"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
                         className={styles.youtubeVideoPlayer}
                       />
                     </div>
-                  ))}
+                  ]}
                   autoplay={false}
                   showDots={false}
                   showArrows={true}
