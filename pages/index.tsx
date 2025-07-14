@@ -747,7 +747,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                   </motion.div>
                 </div>
 
-                {/* Sección de Nahuel Lozano */}
+                {/* Sección de Nahuel Lozano - Solo imagen */}
                 <motion.div
                   className={styles.nahuelSection}
                   initial={{ opacity: 0, y: 20 }}
@@ -755,26 +755,12 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                   transition={{ duration: 0.6, delay: 0.4 }}
                   viewport={{ once: true }}
                 >
-                  <div className={styles.nahuelContent}>
-                    <div className={styles.nahuelText}>
-                      <h3 className={styles.nahuelName}>Nahuel Lozano</h3>
-                      <p className={styles.nahuelBio}>
-                        Desde 2016 trabajo en los mercados financieros, es por eso que pude incorporar conocimientos importantísimos acerca del funcionamiento del mercado. A día de hoy, no solo puede especializarme en el análisis técnico, sino que también soy idóneo en el mercado de capitales, estando legalmente autorizado por la CNV para asesorar al público inversor.
-                      </p>
-                      <div className={styles.nahuelQuote}>
-                        <div className={styles.quoteIcon}>"</div>
-                        <p className={styles.quoteText}>
-                          Mi objetivo es promover la educación financiera, lo que considero una herramienta esencial para mejorar la calidad de vida de las personas.
-                        </p>
-                      </div>
-                    </div>
-                    <div className={styles.nahuelImage}>
-                      <img 
-                        src="/logos/nahuelsobremi.png" 
-                        alt="Nahuel Lozano" 
-                        className={styles.nahuelPhoto}
-                      />
-                    </div>
+                  <div className={styles.nahuelImageContainer}>
+                    <img 
+                      src="/logos/nahuelsobremi.png" 
+                      alt="Nahuel Lozano" 
+                      className={styles.nahuelImage}
+                    />
                   </div>
                 </motion.div>
               </div>
