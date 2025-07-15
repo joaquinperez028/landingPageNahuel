@@ -3517,4 +3517,319 @@
     padding: 0.75rem;
     font-size: 0.8rem;
   }
+}
+
+/* Alert Card Expanded for better image display */
+.alertCardExpanded {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  margin-bottom: 16px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.alertCardExpanded:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+.analysisSection {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.analysisLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.analysisText {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Image Buttons Section */
+.imageButtonsSection {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.imageButton {
+  background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.imageButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+  background: linear-gradient(135deg, #2563eb 0%, #6d28d9 100%);
+}
+
+.imageButton:active {
+  transform: translateY(0);
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.imageModal {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  max-width: 900px;
+  max-height: 90vh;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.additionalImagesModal {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  max-width: 1200px;
+  max-height: 90vh;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.imageModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.imageModalHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.closeModalButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  color: #f1f5f9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.closeModalButton:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+.imageModalContent {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.modalImage {
+  max-width: 100%;
+  max-height: 60vh;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.additionalImagesContent {
+  padding: 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.additionalImageItem {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.additionalImageItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+.additionalImage {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.imageCaption {
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+}
+
+.imageInfo {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Responsive Design for Modals */
+@media (max-width: 768px) {
+  .imageButtonsSection {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .imageButton {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .modalOverlay {
+    padding: 10px;
+  }
+  
+  .imageModal,
+  .additionalImagesModal {
+    max-height: 95vh;
+  }
+  
+  .imageModalHeader {
+    padding: 16px 20px;
+  }
+  
+  .imageModalContent {
+    padding: 20px;
+  }
+  
+  .additionalImagesContent {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+  
+  .modalImage {
+    max-height: 50vh;
+  }
+  
+  .imageInfo {
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .alertCardExpanded {
+    padding: 12px;
+  }
+  
+  .analysisSection {
+    padding: 12px;
+  }
+  
+  .imageModalHeader {
+    padding: 12px 16px;
+  }
+  
+  .imageModalHeader h3 {
+    font-size: 1.1rem;
+  }
+  
+  .imageModalContent {
+    padding: 16px;
+  }
+  
+  .additionalImagesContent {
+    padding: 16px;
+    gap: 16px;
+  }
+  
+  .additionalImageItem {
+    padding: 16px;
+  }
+  
+  .closeModalButton {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
 } 

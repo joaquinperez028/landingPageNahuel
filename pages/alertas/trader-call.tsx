@@ -437,6 +437,12 @@ const SubscriberView: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState('');
   const [filterDate, setFilterDate] = useState('');
   
+  // Estados para modales de imágenes
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<CloudinaryImage | null>(null);
+  const [showAdditionalImagesModal, setShowAdditionalImagesModal] = useState(false);
+  const [selectedAlertImages, setSelectedAlertImages] = useState<CloudinaryImage[]>([]);
+  
   // Estados para información del mercado
   const [marketStatus, setMarketStatus] = useState<string>('');
   const [isUsingSimulatedPrices, setIsUsingSimulatedPrices] = useState(false);
@@ -1392,6 +1398,26 @@ const SubscriberView: React.FC = () => {
                         <p className={styles.analysisText}>{alert.analysis}</p>
                       </div>
                     )}
+
+                    {/* Botones para ver imágenes */}
+                    <div className={styles.imageButtonsSection}>
+                      {alert.chartImage && (
+                        <button
+                          className={styles.imageButton}
+                          onClick={() => handleShowChart(alert.chartImage)}
+                        >
+                          📊 Ver Gráfico
+                        </button>
+                      )}
+                      {alert.images && alert.images.length > 0 && (
+                        <button
+                          className={styles.imageButton}
+                          onClick={() => handleShowAdditionalImages(alert.images)}
+                        >
+                          📸 Ver Imágenes Extras ({alert.images.length})
+                        </button>
+                      )}
+                    </div>
 
                     {/* Performance visual */}
                     <div className={styles.performanceBar}>
@@ -2512,6 +2538,27 @@ const SubscriberView: React.FC = () => {
     handlePortfolioRangeChange('30d', 30);
   }, [handlePortfolioRangeChange]);
 
+  // Funciones para manejar modales de imágenes
+  const handleShowChart = (chartImage: CloudinaryImage) => {
+    setSelectedImage(chartImage);
+    setShowImageModal(true);
+  };
+
+  const handleShowAdditionalImages = (images: CloudinaryImage[]) => {
+    setSelectedAlertImages(images);
+    setShowAdditionalImagesModal(true);
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+    setSelectedImage(null);
+  };
+
+  const closeAdditionalImagesModal = () => {
+    setShowAdditionalImagesModal(false);
+    setSelectedAlertImages([]);
+  };
+
   return (
     <div className={styles.subscriberView}>
       <div className={styles.container}>
@@ -2574,6 +2621,66 @@ const SubscriberView: React.FC = () => {
 
       {/* Modal para crear alertas */}
       {renderCreateAlertModal()}
+
+      {/* Modal para ver gráfico principal */}
+      {showImageModal && selectedImage && (
+        <div className={styles.modalOverlay} onClick={closeImageModal}>
+          <div className={styles.imageModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.imageModalHeader}>
+              <h3>📊 Gráfico de TradingView</h3>
+              <button className={styles.closeModalButton} onClick={closeImageModal}>
+                ✕
+              </button>
+            </div>
+            <div className={styles.imageModalContent}>
+              <img 
+                src={selectedImage.secure_url} 
+                alt={selectedImage.caption || "Gráfico de TradingView"}
+                className={styles.modalImage}
+              />
+              {selectedImage.caption && (
+                <p className={styles.imageCaption}>{selectedImage.caption}</p>
+              )}
+              <div className={styles.imageInfo}>
+                <span>Dimensiones: {selectedImage.width}x{selectedImage.height}</span>
+                <span>Tamaño: {(selectedImage.bytes / 1024).toFixed(1)} KB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para ver imágenes adicionales */}
+      {showAdditionalImagesModal && selectedAlertImages.length > 0 && (
+        <div className={styles.modalOverlay} onClick={closeAdditionalImagesModal}>
+          <div className={styles.additionalImagesModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.imageModalHeader}>
+              <h3>📸 Imágenes Adicionales</h3>
+              <button className={styles.closeModalButton} onClick={closeAdditionalImagesModal}>
+                ✕
+              </button>
+            </div>
+            <div className={styles.additionalImagesContent}>
+              {selectedAlertImages.map((image, index) => (
+                <div key={index} className={styles.additionalImageItem}>
+                  <img 
+                    src={image.secure_url} 
+                    alt={image.caption || `Imagen ${index + 1}`}
+                    className={styles.additionalImage}
+                  />
+                  {image.caption && (
+                    <p className={styles.imageCaption}>{image.caption}</p>
+                  )}
+                  <div className={styles.imageInfo}>
+                    <span>Dimensiones: {image.width}x{image.height}</span>
+                    <span>Tamaño: {(image.bytes / 1024).toFixed(1)} KB</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
