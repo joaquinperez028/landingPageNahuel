@@ -15,27 +15,28 @@
 
 /* Sección del logo y marca */
 .footerBrand {
-  max-width: 320px;
+  max-width: 400px;
 }
 
 .logoContainer {
   display: flex;
   justify-content: flex-start;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .footerLogo {
   border-radius: 50%;
-  width: 120px;
-  height: 120px;
+  width: 180px;
+  height: 180px;
   object-fit: cover;
 }
 
 .brandDescription {
   color: #cccccc;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.6;
   margin: 0;
+  font-weight: 400;
 }
 
 /* Columnas de enlaces */
@@ -167,6 +168,11 @@
     justify-content: center;
   }
   
+  .footerLogo {
+    width: 160px;
+    height: 160px;
+  }
+  
   .footerBottomContent {
     flex-direction: column;
     gap: 1.5rem;
@@ -191,6 +197,11 @@
   
   .logoContainer {
     justify-content: center;
+  }
+  
+  .footerLogo {
+    width: 140px;
+    height: 140px;
   }
   
   .socialLinks {

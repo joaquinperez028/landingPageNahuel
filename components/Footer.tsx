@@ -19,8 +19,8 @@ const Footer: React.FC = () => {
               <Image
                 src="/logos/logo notificaciones.png"
                 alt="Lozano Nahuel Logo"
-                width={120}
-                height={120}
+                width={180}
+                height={180}
                 className={styles.footerLogo}
               />
             </div>
