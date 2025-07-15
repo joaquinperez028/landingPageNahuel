@@ -1066,8 +1066,6 @@ const SubscriberView: React.FC = () => {
         <PortfolioTimeRange
           selectedRange={portfolioRange}
           onRangeChange={handlePortfolioRangeChange}
-          data={portfolioData}
-          loading={portfolioLoading}
         />
       </div>
       

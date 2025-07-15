@@ -1100,6 +1100,15 @@ const SubscriberView: React.FC = () => {
     <div className={styles.dashboardContent}>
       <h2 className={styles.sectionTitle}>Dashboard de Trabajo</h2>
       
+      {/* **NUEVO: SPY500 y Portfolio lado a lado** */}
+      <div className={styles.marketOverview}>
+        <SPY500Indicator />
+        <PortfolioTimeRange
+          selectedRange={portfolioRange}
+          onRangeChange={handlePortfolioRangeChange}
+        />
+      </div>
+      
       {/* Métricas principales modernizadas */}
       <div className={styles.modernMetricsGrid}>
         <div className={`${styles.modernMetricCard} ${styles.activeCard}`}>

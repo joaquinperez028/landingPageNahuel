@@ -27,6 +27,8 @@ import {
 import styles from '@/styles/SmartMoney.module.css';
 import { useRouter } from 'next/router';
 import ImageUploader, { CloudinaryImage } from '@/components/ImageUploader';
+import SPY500Indicator from '@/components/SPY500Indicator';
+import PortfolioTimeRange from '@/components/PortfolioTimeRange';
 
 // Interfaces para Cloudinary - usando la importada de ImageUploader
 
@@ -435,6 +437,9 @@ const SubscriberView: React.FC = () => {
   const [marketStatus, setMarketStatus] = useState<string>('');
   const [isUsingSimulatedPrices, setIsUsingSimulatedPrices] = useState(false);
 
+  // Estados para Portfolio Time Range
+  const [portfolioRange, setPortfolioRange] = useState('30d');
+
   // Funciones para manejar modales de imágenes
   const handleShowChart = (chartImage: CloudinaryImage) => {
     setSelectedImage(chartImage);
@@ -454,6 +459,12 @@ const SubscriberView: React.FC = () => {
   const closeAdditionalImagesModal = () => {
     setShowAdditionalImagesModal(false);
     setSelectedAlertImages([]);
+  };
+
+  // Función para manejar cambios en el rango del portfolio
+  const handlePortfolioRangeChange = async (range: string, days: number) => {
+    setPortfolioRange(range);
+    // Aquí podrías agregar lógica adicional si necesitas cargar datos específicos
   };
 
   const { data: session } = useSession();
@@ -1089,6 +1100,15 @@ const SubscriberView: React.FC = () => {
   const renderDashboard = () => (
     <div className={styles.dashboardContent}>
       <h2 className={styles.sectionTitle}>Dashboard de Trabajo</h2>
+      
+      {/* **NUEVO: SPY500 y Portfolio lado a lado** */}
+      <div className={styles.marketOverview}>
+        <SPY500Indicator />
+        <PortfolioTimeRange
+          selectedRange={portfolioRange}
+          onRangeChange={handlePortfolioRangeChange}
+        />
+      </div>
       
       {/* Métricas principales modernizadas */}
       <div className={styles.modernMetricsGrid}>
