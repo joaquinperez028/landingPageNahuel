@@ -550,6 +550,25 @@
   margin: 0 auto;
 }
 
+/* Market Overview - SPY500 y Portfolio lado a lado */
+.marketOverview {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.marketOverview > * {
+  flex: 1;
+}
+
+/* Responsive para Market Overview */
+@media (max-width: 768px) {
+  .marketOverview {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
 .sectionTitle {
   font-size: 2.25rem;
   font-weight: 800;

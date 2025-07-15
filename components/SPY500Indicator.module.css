@@ -1,25 +1,10 @@
 .spyIndicator {
-  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-  border-radius: 16px;
+  background: #1e293b;
+  border-radius: 12px;
   padding: 20px;
   color: white;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.spyIndicator::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, #3b82f6, #1d4ed8, #0f172a);
-  border-radius: 18px;
-  z-index: -1;
-  opacity: 0.3;
+  border: 1px solid #334155;
+  margin-bottom: 0;
 }
 
 .header {
@@ -46,7 +31,7 @@
 }
 
 .subtitle {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.7);
   font-weight: 400;
 }
@@ -99,12 +84,12 @@
 }
 
 .priceLabel {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.7);
 }
 
 .priceValue {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: white;
 }
@@ -113,18 +98,19 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  gap: 6px;
 }
 
 .performanceHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .performanceLabel {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
 }
 
 .performanceIcon {
@@ -140,15 +126,14 @@
 }
 
 .percentageChange {
-  font-size: 1.8rem;
-  font-weight: 800;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .absoluteChange {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
+  opacity: 0.8;
 }
 
 .positive {
@@ -162,25 +147,23 @@
 .additionalInfo {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  padding: 12px 0;
+  padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 12px;
+  gap: 16px;
 }
 
 .infoItem {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .infoLabel {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-weight: 500;
 }
 
 .infoValue {
@@ -189,36 +172,18 @@
   color: white;
 }
 
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.lastUpdate {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.errorIndicator {
-  font-size: 0.75rem;
-  color: #fbbf24;
-  cursor: help;
-}
-
 .loadingContent {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
   padding: 20px;
   color: rgba(255, 255, 255, 0.7);
 }
 
 .loadingSpinner {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top: 2px solid white;
   border-radius: 50%;
@@ -227,34 +192,35 @@
 
 .errorContent {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 8px;
   padding: 20px;
+  color: #ef4444;
   text-align: center;
 }
 
 .errorIcon {
-  font-size: 2rem;
+  font-size: 1.2rem;
 }
 
 .retryButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 8px 16px;
-  color: white;
+  gap: 4px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: #ef4444;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  margin-left: 8px;
 }
 
 .retryButton:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+  background: rgba(239, 68, 68, 0.2);
 }
 
 /* Responsive Design */
@@ -269,21 +235,6 @@
     gap: 12px;
   }
   
-  .yearPerformance {
-    align-items: flex-start;
-    width: 100%;
-  }
-  
-  .performanceHeader {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .performanceValues {
-    align-items: flex-start;
-    width: 100%;
-  }
-  
   .additionalInfo {
     flex-direction: column;
     gap: 8px;
@@ -293,12 +244,6 @@
     flex-direction: row;
     justify-content: space-between;
   }
-  
-  .footer {
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
-  }
 }
 
 @media (max-width: 480px) {
@@ -306,11 +251,15 @@
     padding: 12px;
   }
   
+  .title {
+    font-size: 1rem;
+  }
+  
   .priceValue {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
   }
   
   .percentageChange {
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 } 
