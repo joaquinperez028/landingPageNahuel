@@ -1,17 +1,50 @@
 .portfolioTimeRange {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(226, 232, 240, 0.5);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 32px;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.portfolioTimeRange::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+}
+
+.portfolioTimeRange::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.03) 0%, transparent 70%);
+  z-index: -1;
+  animation: pulseGlow 8s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  gap: 20px;
 }
 
 .titleSection {
@@ -21,116 +54,140 @@
 .title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 0 4px 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #1e293b;
+  gap: 12px;
+  margin: 0 0 6px 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.title svg {
+  color: #3b82f6;
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
 }
 
 .subtitle {
   margin: 0;
-  font-size: 0.9rem;
-  color: #64748b;
+  font-size: 0.95rem;
+  color: #94a3b8;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 .performanceIndicator {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
 }
 
 .performanceLabel {
-  font-size: 0.875rem;
-  color: #64748b;
+  font-size: 0.85rem;
+  color: #94a3b8;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .performanceValue {
-  font-size: 1.5rem;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(226, 232, 240, 0.5);
+  font-size: 1.75rem;
+  font-weight: 800;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
-.performanceValue.positive {
-  color: #16a34a;
-  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-  border-color: #16a34a;
+.positive {
+  color: #10b981;
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
 }
 
-.performanceValue.negative {
-  color: #dc2626;
-  background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
-  border-color: #dc2626;
+.negative {
+  color: #ef4444;
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
 }
 
 .rangeSelector {
   display: flex;
   gap: 8px;
-  margin-bottom: 20px;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
 }
 
 .rangeButton {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 16px 12px;
-  border: 2px solid #e2e8f0;
+  background: transparent;
+  border: none;
   border-radius: 12px;
-  background: white;
+  padding: 16px 20px;
+  color: #94a3b8;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  font-weight: 500;
+  text-align: center;
+  min-width: 120px;
 }
 
-.rangeButton:hover {
-  border-color: #3b82f6;
-  background: #f8fafc;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(59, 130, 246, 0.1);
-}
-
-.rangeButton.active {
-  border-color: #3b82f6;
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  box-shadow: 0 4px 14px -2px rgba(59, 130, 246, 0.2);
-}
-
-.rangeButton.active::before {
+.rangeButton::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 12px;
 }
 
-.rangeButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
+.rangeButton:hover::before {
+  opacity: 1;
+}
+
+.rangeButton:hover {
+  color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.rangeButton.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
+  color: white;
+  box-shadow: 
+    0 8px 32px rgba(59, 130, 246, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.rangeButton.active::before {
+  opacity: 0;
 }
 
 .rangeLabel {
+  display: block;
   font-size: 1rem;
   font-weight: 600;
-  color: #1e293b;
   margin-bottom: 2px;
 }
 
 .rangeDescription {
-  font-size: 0.8rem;
-  color: #64748b;
-  text-align: center;
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.8;
+  font-weight: 400;
 }
 
 .loadingIndicator {
@@ -138,18 +195,18 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
-  font-size: 0.9rem;
+  padding: 32px;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 24px;
 }
 
 .loadingSpinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #e2e8f0;
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(59, 130, 246, 0.3);
   border-top: 2px solid #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -160,60 +217,71 @@
   100% { transform: rotate(360deg); }
 }
 
-.summaryStats {
+.statsRow {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 16px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 8px;
-  border: 1px solid rgba(226, 232, 240, 0.5);
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .statItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
+  gap: 4px;
+  flex: 1;
 }
 
 .statLabel {
-  font-size: 0.8rem;
-  color: #64748b;
-  margin-bottom: 4px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
 }
 
 .statValue {
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: #f1f5f9;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .portfolioTimeRange {
-    padding: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
   }
   
   .header {
     flex-direction: column;
+    align-items: flex-start;
     gap: 16px;
   }
   
   .performanceIndicator {
+    align-self: stretch;
     align-items: flex-start;
+  }
+  
+  .title {
+    font-size: 1.25rem;
   }
   
   .rangeSelector {
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
   
   .rangeButton {
-    padding: 12px 16px;
+    padding: 14px 16px;
+    min-width: unset;
   }
   
-  .summaryStats {
+  .statsRow {
     flex-direction: column;
     gap: 12px;
   }
@@ -221,19 +289,24 @@
   .statItem {
     flex-direction: row;
     justify-content: space-between;
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
   .portfolioTimeRange {
-    padding: 12px;
+    padding: 16px;
   }
   
   .title {
-    font-size: 1.1rem;
+    font-size: 1.125rem;
   }
   
   .performanceValue {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
+  }
+  
+  .rangeButton {
+    padding: 12px 14px;
   }
 } 
