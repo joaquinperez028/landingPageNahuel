@@ -1043,6 +1043,35 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
 
 
 
+        {/* YouTube Community Section */}
+        <section className={styles.youtubeSection}>
+          <div className="container">
+            <motion.div
+              className={styles.youtubeContent}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className={styles.youtubeText}>
+                <h2 className={styles.youtubeTitle}>
+                  ¡Sumate a nuestra comunidad<br />
+                  en YouTube!
+                </h2>
+                <p className={styles.youtubeSubtitle}>
+                  No te pierdas nuestros últimos videos
+                </p>
+              </div>
+
+              <div className={styles.youtubeVideoContainer}>
+                <YouTubeAutoCarousel />
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+
+
         {/* Testimonios Section */}
         <section className={styles.testimonios}>
           <div className="container">
@@ -1100,35 +1129,6 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     <p className={styles.testimonioTexto}>"{testimonio.texto}"</p>
                   </motion.div>
                 ))}
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-
-
-        {/* YouTube Community Section */}
-        <section className={styles.youtubeSection}>
-          <div className="container">
-            <motion.div
-              className={styles.youtubeContent}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <div className={styles.youtubeText}>
-                <h2 className={styles.youtubeTitle}>
-                  ¡Sumate a nuestra comunidad<br />
-                  en YouTube!
-                </h2>
-                <p className={styles.youtubeSubtitle}>
-                  No te pierdas nuestros últimos videos
-                </p>
-              </div>
-
-              <div className={styles.youtubeVideoContainer}>
-                <YouTubeAutoCarousel />
               </div>
             </motion.div>
           </div>
