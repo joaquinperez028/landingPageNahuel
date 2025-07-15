@@ -1071,85 +1071,143 @@ const SubscriberView: React.FC = () => {
         />
       </div>
       
-      {/* Métricas principales */}
-      <div className={styles.metricsGrid}>
-        <div className={styles.metricCard}>
-          <div className={styles.metricIcon}>
-            <Activity size={24} />
+      {/* Métricas principales modernizadas */}
+      <div className={styles.modernMetricsGrid}>
+        <div className={`${styles.modernMetricCard} ${styles.activeCard}`}>
+          <div className={styles.cardHeader}>
+            <div className={styles.iconContainer}>
+              <Activity size={20} />
+            </div>
+            <div className={styles.statusDot}></div>
           </div>
-          <h3>Alertas Activas</h3>
-          <p className={styles.metricNumber}>{dashboardMetrics.alertasActivas}</p>
-          <span className={styles.metricLabel}>Posiciones abiertas</span>
+          <div className={styles.metricContent}>
+            <h3 className={styles.metricTitle}>ALERTAS ACTIVAS</h3>
+            <div className={styles.metricValue}>{dashboardMetrics.alertasActivas}</div>
+            <p className={styles.metricSubtext}>Posiciones abiertas</p>
+          </div>
+          <div className={styles.cardTrend}>
+            <span className={styles.trendIndicator}>●</span>
+          </div>
         </div>
         
-        <div className={styles.metricCard}>
-          <div className={styles.metricIcon} style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-            <TrendingUp size={24} />
+        <div className={`${styles.modernMetricCard} ${styles.successCard}`}>
+          <div className={styles.cardHeader}>
+            <div className={styles.iconContainer}>
+              <TrendingUp size={20} />
+            </div>
+            <div className={styles.statusDot}></div>
           </div>
-          <h3>Alertas Ganadoras</h3>
-          <p className={styles.metricNumber} style={{ color: 'var(--success-color)' }}>
-            {dashboardMetrics.alertasGanadoras}
-          </p>
-          <span className={styles.metricLabel}>Cerradas con ganancia</span>
+          <div className={styles.metricContent}>
+            <h3 className={styles.metricTitle}>ALERTAS GANADORAS</h3>
+            <div className={styles.metricValue}>{dashboardMetrics.alertasGanadoras}</div>
+            <p className={styles.metricSubtext}>Cerradas con ganancia</p>
+          </div>
+          <div className={styles.cardTrend}>
+            <span className={styles.trendIndicator}>●</span>
+          </div>
         </div>
         
-        <div className={styles.metricCard}>
-          <div className={styles.metricIcon} style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}>
-            <TrendingDown size={24} />
+        <div className={`${styles.modernMetricCard} ${styles.errorCard}`}>
+          <div className={styles.cardHeader}>
+            <div className={styles.iconContainer}>
+              <TrendingDown size={20} />
+            </div>
+            <div className={styles.statusDot}></div>
           </div>
-          <h3>Alertas Perdedoras</h3>
-          <p className={styles.metricNumber} style={{ color: 'var(--error-color)' }}>
-            {dashboardMetrics.alertasPerdedoras}
-          </p>
-          <span className={styles.metricLabel}>Cerradas con pérdida</span>
+          <div className={styles.metricContent}>
+            <h3 className={styles.metricTitle}>ALERTAS PERDEDORAS</h3>
+            <div className={styles.metricValue}>{dashboardMetrics.alertasPerdedoras}</div>
+            <p className={styles.metricSubtext}>Cerradas con pérdida</p>
+          </div>
+          <div className={styles.cardTrend}>
+            <span className={styles.trendIndicator}>●</span>
+          </div>
         </div>
         
-        <div className={styles.metricCard}>
-          <div className={styles.metricIcon} style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
-            <BarChart3 size={24} />
+        <div className={`${styles.modernMetricCard} ${styles.warningCard}`}>
+          <div className={styles.cardHeader}>
+            <div className={styles.iconContainer}>
+              <BarChart3 size={20} />
+            </div>
+            <div className={styles.statusDot}></div>
           </div>
-          <h3>Rentabilidad Anual</h3>
-          <p className={styles.metricNumber} style={{ color: 'var(--warning-color)' }}>
-            {dashboardMetrics.rentabilidadAnual}
-          </p>
-          <span className={styles.metricLabel}>Año {new Date().getFullYear()}</span>
+          <div className={styles.metricContent}>
+            <h3 className={styles.metricTitle}>RENTABILIDAD ANUAL</h3>
+            <div className={styles.metricValue}>{dashboardMetrics.rentabilidadAnual}</div>
+            <p className={styles.metricSubtext}>Año {new Date().getFullYear()}</p>
+          </div>
+          <div className={styles.cardTrend}>
+            <span className={styles.trendIndicator}>●</span>
+          </div>
         </div>
         
-        <div className={styles.metricCard}>
-          <div className={styles.metricIcon}>
-            <Users size={24} />
+        <div className={`${styles.modernMetricCard} ${styles.infoCard}`}>
+          <div className={styles.cardHeader}>
+            <div className={styles.iconContainer}>
+              <Users size={20} />
+            </div>
+            <div className={styles.statusDot}></div>
           </div>
-          <h3>Alertas Anuales</h3>
-          <p className={styles.metricNumber}>{dashboardMetrics.alertasAnuales}</p>
-          <span className={styles.metricLabel}>Enviadas este año</span>
+          <div className={styles.metricContent}>
+            <h3 className={styles.metricTitle}>ALERTAS ANUALES</h3>
+            <div className={styles.metricValue}>{dashboardMetrics.alertasAnuales}</div>
+            <p className={styles.metricSubtext}>Enviadas este año</p>
+          </div>
+          <div className={styles.cardTrend}>
+            <span className={styles.trendIndicator}>●</span>
+          </div>
         </div>
       </div>
 
-      {/* Resumen de Performance */}
-      <div className={styles.performanceSection}>
-        <h3>Resumen de Performance</h3>
-        <div className={styles.performanceGrid}>
-          <div className={styles.performanceCard}>
-            <h4>Win Rate</h4>
-            <p className={styles.performanceValue}>
+      {/* Resumen de Performance modernizado */}
+      <div className={styles.modernPerformanceSection}>
+        <div className={styles.performanceHeader}>
+          <h3 className={styles.performanceTitle}>Resumen de Performance</h3>
+          <div className={styles.performanceBadge}>En tiempo real</div>
+        </div>
+        <div className={styles.modernPerformanceGrid}>
+          <div className={styles.performanceStat}>
+            <div className={styles.statHeader}>
+              <span className={styles.statLabel}>Win Rate</span>
+              <div className={styles.statIcon}>📊</div>
+            </div>
+            <div className={styles.statValue}>
               {dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras > 0 
                 ? ((dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras)) * 100).toFixed(1) 
                 : '0.0'}%
-            </p>
+            </div>
+            <div className={styles.statProgress}>
+              <div 
+                className={styles.progressBar} 
+                style={{ 
+                  width: `${dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras > 0 
+                    ? ((dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras)) * 100) 
+                    : 0}%` 
+                }}
+              ></div>
+            </div>
           </div>
-          <div className={styles.performanceCard}>
-            <h4>Total Alertas</h4>
-            <p className={styles.performanceValue}>
-              {realAlerts.length}
-            </p>
+          
+          <div className={styles.performanceStat}>
+            <div className={styles.statHeader}>
+              <span className={styles.statLabel}>Total Alertas</span>
+              <div className={styles.statIcon}>🎯</div>
+            </div>
+            <div className={styles.statValue}>{realAlerts.length}</div>
+            <div className={styles.statSubtext}>Alertas procesadas</div>
           </div>
-          <div className={styles.performanceCard}>
-            <h4>Ratio G/P</h4>
-            <p className={styles.performanceValue}>
+          
+          <div className={styles.performanceStat}>
+            <div className={styles.statHeader}>
+              <span className={styles.statLabel}>Ratio G/P</span>
+              <div className={styles.statIcon}>⚖️</div>
+            </div>
+            <div className={styles.statValue}>
               {dashboardMetrics.alertasPerdedoras > 0 
-                ? (dashboardMetrics.alertasGanadoras / dashboardMetrics.alertasPerdedoras).toFixed(1) 
-                : dashboardMetrics.alertasGanadoras > 0 ? '∞' : '0.0'}:1
-            </p>
+                ? (dashboardMetrics.alertasGanadoras / dashboardMetrics.alertasPerdedoras).toFixed(2) 
+                : dashboardMetrics.alertasGanadoras > 0 ? '∞' : '0.01'}
+            </div>
+            <div className={styles.statSubtext}>Ganancia vs Pérdida</div>
           </div>
         </div>
       </div>
