@@ -1,5 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+// Esquema para imágenes de Cloudinary (igual que en Report)
+export interface CloudinaryImage {
+  public_id: string;
+  url: string;
+  secure_url: string;
+  width: number;
+  height: number;
+  format: string;
+  bytes: number;
+  caption?: string;
+  order?: number;
+}
+
 export interface IAlert extends Document {
   _id: string;
   symbol: string;
@@ -19,7 +32,35 @@ export interface IAlert extends Document {
   exitPrice?: number;
   exitDate?: Date;
   exitReason?: 'TAKE_PROFIT' | 'STOP_LOSS' | 'MANUAL';
+  // Nuevos campos para imágenes
+  chartImage?: CloudinaryImage; // Imagen principal del gráfico
+  images?: CloudinaryImage[]; // Imágenes adicionales
 }
+
+// Esquema para imágenes de Cloudinary
+const CloudinaryImageSchema = new mongoose.Schema({
+  public_id: {
+    type: String,
+    required: true
+  },
+  url: {
+    type: String,
+    required: true
+  },
+  secure_url: {
+    type: String,
+    required: true
+  },
+  width: Number,
+  height: Number,
+  format: String,
+  bytes: Number,
+  caption: String,
+  order: {
+    type: Number,
+    default: 0
+  }
+});
 
 const AlertSchema: Schema = new Schema({
   symbol: {
@@ -92,7 +133,10 @@ const AlertSchema: Schema = new Schema({
   exitReason: {
     type: String,
     enum: ['TAKE_PROFIT', 'STOP_LOSS', 'MANUAL']
-  }
+  },
+  // Nuevos campos para imágenes
+  chartImage: CloudinaryImageSchema, // Imagen principal del gráfico
+  images: [CloudinaryImageSchema] // Imágenes adicionales
 }, {
   timestamps: true
 });

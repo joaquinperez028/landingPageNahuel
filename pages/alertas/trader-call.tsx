@@ -415,6 +415,11 @@ const SubscriberView: React.FC = () => {
   });
   const [stockPrice, setStockPrice] = useState<number | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
+  // Estados para imágenes del gráfico de TradingView
+  const [chartImage, setChartImage] = useState<CloudinaryImage | null>(null);
+  const [additionalImages, setAdditionalImages] = useState<CloudinaryImage[]>([]);
+  const [uploadingChart, setUploadingChart] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [realAlerts, setRealAlerts] = useState<any[]>([]);
   const [loadingAlerts, setLoadingAlerts] = useState(false);
   const [updatingPrices, setUpdatingPrices] = useState(false);
@@ -917,6 +922,33 @@ const SubscriberView: React.FC = () => {
     }
   };
 
+  // Funciones para manejar imágenes
+  const handleChartImageUploaded = (image: CloudinaryImage) => {
+    setChartImage(image);
+    setUploadingChart(false);
+    console.log('✅ Gráfico de TradingView subido:', image.public_id);
+  };
+
+  const handleAdditionalImageUploaded = (image: CloudinaryImage) => {
+    setAdditionalImages(prev => [...prev, image]);
+    setUploadingImages(false);
+    console.log('✅ Imagen adicional subida:', image.public_id);
+  };
+
+  const removeChartImage = () => {
+    setChartImage(null);
+  };
+
+  const removeAdditionalImage = (indexToRemove: number) => {
+    setAdditionalImages(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  const updateImageCaption = (index: number, caption: string) => {
+    setAdditionalImages(prev => prev.map((img, i) => 
+      i === index ? { ...img, caption } : img
+    ));
+  };
+
   const handleCreateAlert = async () => {
     if (!newAlert.symbol || !stockPrice) {
       alert('Por favor completa todos los campos obligatorios');
@@ -939,7 +971,9 @@ const SubscriberView: React.FC = () => {
           stopLoss: parseFloat(newAlert.stopLoss),
           takeProfit: parseFloat(newAlert.takeProfit),
           analysis: newAlert.analysis || '',
-          date: new Date().toISOString()
+          date: new Date().toISOString(),
+          chartImage: chartImage,
+          images: additionalImages
         }),
       });
 
@@ -957,6 +991,8 @@ const SubscriberView: React.FC = () => {
           analysis: ''
         });
         setStockPrice(null);
+        setChartImage(null);
+        setAdditionalImages([]);
         setShowCreateAlert(false);
         
         alert('¡Alerta de Trader Call creada exitosamente!');
@@ -2300,6 +2336,106 @@ const SubscriberView: React.FC = () => {
                 className={styles.textarea}
                 rows={4}
               />
+            </div>
+
+            {/* Gráfico Principal de TradingView */}
+            <div className={styles.inputGroup}>
+              <label>📊 Gráfico de TradingView</label>
+              <p className={styles.imageHint}>
+                Sube tu análisis gráfico de TradingView para complementar la alerta
+              </p>
+              {!chartImage ? (
+                <ImageUploader
+                  onImageUploaded={handleChartImageUploaded}
+                  onUploadStart={() => setUploadingChart(true)}
+                  onUploadProgress={() => {}}
+                  onError={(error) => {
+                    console.error('Error subiendo gráfico:', error);
+                    alert('Error subiendo gráfico: ' + error);
+                    setUploadingChart(false);
+                  }}
+                  maxFiles={1}
+                  multiple={false}
+                  buttonText="Subir Gráfico de TradingView"
+                  className={styles.chartUploader}
+                />
+              ) : (
+                <div className={styles.uploadedImagePreview}>
+                  <img 
+                    src={chartImage.secure_url} 
+                    alt="Gráfico de TradingView"
+                    className={styles.previewImage}
+                  />
+                  <div className={styles.previewActions}>
+                    <span className={styles.imageInfo}>
+                      {chartImage.width} × {chartImage.height} | 
+                      {Math.round(chartImage.bytes / 1024)}KB
+                    </span>
+                    <button 
+                      type="button" 
+                      onClick={removeChartImage}
+                      className={styles.removeImageButton}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Imágenes Adicionales */}
+            <div className={styles.inputGroup}>
+              <label>📸 Imágenes Adicionales</label>
+              <p className={styles.imageHint}>
+                Agrega más imágenes de análisis, indicadores o contexto adicional
+              </p>
+              
+              <ImageUploader
+                onImageUploaded={handleAdditionalImageUploaded}
+                onUploadStart={() => setUploadingImages(true)}
+                onUploadProgress={() => {}}
+                onError={(error) => {
+                  console.error('Error subiendo imagen adicional:', error);
+                  alert('Error subiendo imagen: ' + error);
+                  setUploadingImages(false);
+                }}
+                maxFiles={3}
+                multiple={true}
+                buttonText="Subir Imágenes Adicionales"
+                className={styles.additionalImagesUploader}
+              />
+
+              {/* Preview de imágenes adicionales */}
+              {additionalImages.length > 0 && (
+                <div className={styles.additionalImagesPreview}>
+                  <h4>Imágenes Adicionales ({additionalImages.length})</h4>
+                  {additionalImages.map((image, index) => (
+                    <div key={image.public_id} className={styles.additionalImageItem}>
+                      <img 
+                        src={image.secure_url} 
+                        alt={`Imagen adicional ${index + 1}`}
+                        className={styles.additionalImageThumb}
+                      />
+                      <div className={styles.additionalImageControls}>
+                        <input
+                          type="text"
+                          placeholder="Descripción de la imagen..."
+                          value={image.caption || ''}
+                          onChange={(e) => updateImageCaption(index, e.target.value)}
+                          className={styles.captionInput}
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => removeAdditionalImage(index)}
+                          className={styles.removeAdditionalImageButton}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

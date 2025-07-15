@@ -26,21 +26,11 @@ import {
 } from 'lucide-react';
 import styles from '@/styles/CashFlow.module.css';
 import { useRouter } from 'next/router';
-import ImageUploader from '@/components/ImageUploader';
+import ImageUploader, { CloudinaryImage } from '@/components/ImageUploader';
 import SPY500Indicator from '@/components/SPY500Indicator';
 import PortfolioTimeRange from '@/components/PortfolioTimeRange';
 
-// Interfaces para Cloudinary
-interface CloudinaryImage {
-  public_id: string;
-  secure_url: string;
-  url: string;
-  width: number;
-  height: number;
-  format: string;
-  bytes: number;
-  caption?: string;
-}
+// Interfaces para Cloudinary - usando la importada de ImageUploader
 
 interface CashFlowPageProps {
   isSubscribed: boolean;
@@ -415,6 +405,11 @@ const SubscriberView: React.FC = () => {
   });
   const [stockPrice, setStockPrice] = useState<number | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
+  // Estados para imágenes del gráfico de TradingView
+  const [chartImage, setChartImage] = useState<CloudinaryImage | null>(null);
+  const [additionalImages, setAdditionalImages] = useState<CloudinaryImage[]>([]);
+  const [uploadingChart, setUploadingChart] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [realAlerts, setRealAlerts] = useState<any[]>([]);
   const [loadingAlerts, setLoadingAlerts] = useState(false);
   const [updatingPrices, setUpdatingPrices] = useState(false);
@@ -957,6 +952,33 @@ const SubscriberView: React.FC = () => {
     }
   };
 
+  // Funciones para manejar imágenes
+  const handleChartImageUploaded = (image: CloudinaryImage) => {
+    setChartImage(image);
+    setUploadingChart(false);
+    console.log('✅ Gráfico de TradingView subido:', image.public_id);
+  };
+
+  const handleAdditionalImageUploaded = (image: CloudinaryImage) => {
+    setAdditionalImages(prev => [...prev, image]);
+    setUploadingImages(false);
+    console.log('✅ Imagen adicional subida:', image.public_id);
+  };
+
+  const removeChartImage = () => {
+    setChartImage(null);
+  };
+
+  const removeAdditionalImage = (indexToRemove: number) => {
+    setAdditionalImages(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  const updateImageCaption = (index: number, caption: string) => {
+    setAdditionalImages(prev => prev.map((img, i) => 
+      i === index ? { ...img, caption } : img
+    ));
+  };
+
   const handleCreateAlert = async () => {
     if (!newAlert.symbol || !stockPrice) {
       alert('Por favor completa todos los campos obligatorios');
@@ -980,7 +1002,9 @@ const SubscriberView: React.FC = () => {
           stopLoss: newAlert.stopLoss,
           takeProfit: newAlert.takeProfit,
           analysis: newAlert.analysis || '',
-          status: 'ACTIVE'
+          status: 'ACTIVE',
+          chartImage: chartImage,
+          images: additionalImages
         }),
       });
 
@@ -988,6 +1012,8 @@ const SubscriberView: React.FC = () => {
         setShowCreateAlert(false);
         setNewAlert({ symbol: '', action: 'DIVIDEND', stopLoss: '', takeProfit: '', analysis: '' });
         setStockPrice(null);
+        setChartImage(null);
+        setAdditionalImages([]);
         await loadAlerts(); // Recargar la lista de alertas
         alert('Oportunidad de dividendo agregada exitosamente!');
       } else {

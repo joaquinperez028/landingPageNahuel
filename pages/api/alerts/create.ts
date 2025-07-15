@@ -19,6 +19,28 @@ interface AlertRequest {
   analysis: string;
   date: string;
   tipo?: 'TraderCall' | 'SmartMoney' | 'CashFlow';
+  chartImage?: {
+    public_id: string;
+    url: string;
+    secure_url: string;
+    width: number;
+    height: number;
+    format: string;
+    bytes: number;
+    caption?: string;
+    order?: number;
+  };
+  images?: Array<{
+    public_id: string;
+    url: string;
+    secure_url: string;
+    width: number;
+    height: number;
+    format: string;
+    bytes: number;
+    caption?: string;
+    order?: number;
+  }>;
 }
 
 interface AlertResponse {
@@ -62,7 +84,7 @@ export default async function handler(
     }
 
     // Validar datos de entrada
-    const { symbol, action, entryPrice, stopLoss, takeProfit, analysis, date, tipo = 'TraderCall' }: AlertRequest = req.body;
+    const { symbol, action, entryPrice, stopLoss, takeProfit, analysis, date, tipo = 'TraderCall', chartImage, images }: AlertRequest = req.body;
 
     if (!symbol || !action || !entryPrice || !stopLoss || !takeProfit) {
       return res.status(400).json({ error: 'Todos los campos son requeridos' });
@@ -89,7 +111,9 @@ export default async function handler(
       date: date ? new Date(date) : new Date(),
       analysis: analysis || '',
       createdBy: user._id,
-      tipo // Recibido desde el frontend
+      tipo, // Recibido desde el frontend
+      chartImage: chartImage || null, // Imagen principal del gráfico
+      images: images || [] // Imágenes adicionales
     });
 
     console.log('Nueva alerta creada por usuario:', user.name || user.email, newAlert._id);
