@@ -2233,13 +2233,23 @@ const SubscriberView: React.FC = () => {
               </div>
             </div>
 
-            {/* Precio actual */}
-            {stockPrice && (
-              <div className={styles.priceDisplay}>
-                <label>Precio Actual:</label>
-                <span className={styles.currentPrice}>${Number(stockPrice || 0).toFixed(2)}</span>
+            {/* Precio actual - Editable */}
+            <div className={styles.inputGroup}>
+              <label>Precio de Entrada</label>
+              <div className={styles.priceInputContainer}>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Precio de entrada"
+                  value={stockPrice || ''}
+                  onChange={(e) => setStockPrice(parseFloat(e.target.value) || null)}
+                  className={styles.input}
+                />
+                <span className={styles.priceHint}>
+                  {stockPrice ? `$${Number(stockPrice).toFixed(2)}` : 'Obtén el precio primero'}
+                </span>
               </div>
-            )}
+            </div>
 
             {/* Acción */}
             <div className={styles.inputGroup}>
