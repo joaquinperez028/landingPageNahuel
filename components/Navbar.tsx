@@ -22,6 +22,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Obtener conteo de notificaciones
   const fetchNotificationCount = async () => {
@@ -44,6 +45,15 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
       fetchNotificationCount();
     }
   }, [session]);
+
+  // Limpiar timeout al desmontar
+  useEffect(() => {
+    return () => {
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+      }
+    };
+  }, [hoverTimeout]);
 
   const navItems = [
     {
@@ -152,8 +162,25 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                   <li
                     key={item.label}
                     className={styles.navItem}
-                    onMouseEnter={() => item.dropdown && setOpenDropdown(item.label)}
-                    onMouseLeave={() => item.dropdown && setOpenDropdown(null)}
+                    onMouseEnter={() => {
+                      if (item.dropdown) {
+                        // Limpiar cualquier timeout pendiente
+                        if (hoverTimeout) {
+                          clearTimeout(hoverTimeout);
+                          setHoverTimeout(null);
+                        }
+                        setOpenDropdown(item.label);
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      if (item.dropdown) {
+                        // Agregar un pequeño delay antes de cerrar
+                        const timeout = setTimeout(() => {
+                          setOpenDropdown(null);
+                        }, 150);
+                        setHoverTimeout(timeout);
+                      }
+                    }}
                   >
                     <div className={`${styles.navLink} ${item.dropdown ? styles.hasDropdown : ''}`}>
                       <Link
@@ -177,7 +204,24 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
 
                     {/* Dropdown Menu */}
                     {item.dropdown && openDropdown === item.label && (
-                      <div className={styles.dropdown}>
+                      <div 
+                        className={styles.dropdown}
+                        onMouseEnter={() => {
+                          // Limpiar cualquier timeout pendiente
+                          if (hoverTimeout) {
+                            clearTimeout(hoverTimeout);
+                            setHoverTimeout(null);
+                          }
+                          setOpenDropdown(item.label);
+                        }}
+                        onMouseLeave={() => {
+                          // Agregar un pequeño delay antes de cerrar
+                          const timeout = setTimeout(() => {
+                            setOpenDropdown(null);
+                          }, 150);
+                          setHoverTimeout(timeout);
+                        }}
+                      >
                         {item.dropdown.map((dropdownItem) => (
                           <Link
                             key={dropdownItem.label}
