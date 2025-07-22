@@ -675,8 +675,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     <img 
                       src="/logos/logoinviu.png" 
                       alt="Inviu" 
-                      width={120} 
-                      height={40}
+                      width={156} 
+                      height={52}
                     />
                   </motion.a>
 
@@ -694,8 +694,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     <img 
                       src="/logos/tradingviewlogo.png" 
                       alt="TradingView" 
-                      width={120} 
-                      height={40}
+                      width={156} 
+                      height={52}
                     />
                   </motion.a>
 
@@ -713,8 +713,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     <img 
                       src="/logos/bullmarketlogo.png" 
                       alt="BullMarket" 
-                      width={120} 
-                      height={40}
+                      width={156} 
+                      height={52}
                     />
                   </motion.a>
 
@@ -732,8 +732,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     <img 
                       src="/logos/dolarhoylogo.png" 
                       alt="DolarHoy.com" 
-                      width={120} 
-                      height={40}
+                      width={156} 
+                      height={52}
                     />
                   </motion.a>
 
@@ -751,8 +751,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                     <img 
                       src="/logos/balanzlogo.png" 
                       alt="BALANZ" 
-                      width={120} 
-                      height={40}
+                      width={156} 
+                      height={52}
                     />
                   </motion.a>
                 </div>

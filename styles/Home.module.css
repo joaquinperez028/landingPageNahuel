@@ -1494,8 +1494,8 @@
 
 
 .empresaLogo img {
-  width: 120px;
-  height: 40px;
+  width: 156px;
+  height: 52px;
   object-fit: contain;
   transition: all 0.3s ease;
   filter: brightness(1.1) contrast(1.05);
@@ -1521,8 +1521,8 @@
   }
 
   .empresaLogo img {
-    width: 100px;
-    height: 35px;
+    width: 130px;
+    height: 45px;
   }
 }
 
@@ -1544,8 +1544,8 @@
   }
 
   .empresaLogo img {
-    width: 80px;
-    height: 30px;
+    width: 104px;
+    height: 39px;
   }
 } 
 
