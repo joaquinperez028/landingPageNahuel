@@ -648,7 +648,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
           </section>
         )}
 
-        {/* Sección de Empresas que confían en nosotros */}
+        {/* Sección de Empresas que confiaron en mi */}
         <section className={styles.empresasSection}>
           <div className="container">
             <motion.div
@@ -658,7 +658,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
               viewport={{ once: true }}
             >
               <div className={styles.empresasContent}>
-                <h2 className={styles.empresasTitle}>Empresas que confían en nosotros</h2>
+                <h2 className={styles.empresasTitle}>EMPRESAS QUE CONFIARON EN MI</h2>
                 
                 <div className={styles.empresasGrid}>
                   <motion.a
@@ -676,8 +676,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                       <img 
                         src="/logos/tradingviewlogo.png" 
                         alt="TradingView" 
-                        width={120} 
-                        height={40}
+                        width={300} 
+                        height={100}
                       />
                     </div>
                   </motion.a>
@@ -697,8 +697,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                       <img 
                         src="/logos/bullmarketlogo.png" 
                         alt="BullMarket" 
-                        width={120} 
-                        height={40}
+                        width={300} 
+                        height={100}
                       />
                     </div>
                   </motion.a>
@@ -718,8 +718,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                       <img 
                         src="/logos/dolarhoylogo.png" 
                         alt="DolarHoy.com" 
-                        width={120} 
-                        height={40}
+                        width={300} 
+                        height={100}
                       />
                     </div>
                   </motion.a>
@@ -739,8 +739,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                       <img 
                         src="/logos/balanzlogo.png" 
                         alt="BALANZ" 
-                        width={120} 
-                        height={40}
+                        width={300} 
+                        height={100}
                       />
                     </div>
                   </motion.a>
@@ -760,8 +760,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                       <img 
                         src="/logos/logoinviu.png" 
                         alt="Inviu" 
-                        width={120} 
-                        height={40}
+                        width={300} 
+                        height={100}
                       />
                     </div>
                   </motion.a>
