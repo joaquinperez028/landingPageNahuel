@@ -42,7 +42,7 @@
   width: 100%;
   max-width: 1300px;
   margin: 0 auto;
-  padding: 0 1rem 0 0.5rem;
+  padding: 0 1rem;
 }
 
 .heroText {
@@ -51,7 +51,7 @@
   gap: 0;
   justify-content: center;
   padding-left: 0;
-  margin-left: -1rem;
+  margin-left: 0;
 }
 
 .heroTitle {
@@ -1046,7 +1046,7 @@
   width: 100%;
   max-width: 1300px;
   margin: 0 auto;
-  padding: 0 1rem 0 0.5rem;
+  padding: 0 1rem;
 }
 
 .learningText {
@@ -1055,7 +1055,7 @@
   gap: 0;
   justify-content: center;
   padding-left: 0;
-  margin-left: -1rem;
+  margin-left: 0;
 }
 
 .learningTitle {
