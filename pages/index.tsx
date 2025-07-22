@@ -658,112 +658,102 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
               viewport={{ once: true }}
             >
               <div className={styles.empresasContent}>
-                <h2 className={styles.empresasTitle}>EMPRESAS QUE CONFIARON EN MI</h2>
+                <h2 className={styles.empresasTitle}>Empresas que confían en nosotros</h2>
                 
                 <div className={styles.empresasGrid}>
                   <motion.a
-                    href="https://www.tradingview.com/"
+                    href="https://www.inviu.com.ar/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles.empresaCard}
+                    className={styles.empresaLogo}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.1 }}
                     viewport={{ once: true }}
-                    whileHover={{ y: -5 }}
+                    whileHover={{ scale: 1.05 }}
                   >
-                    <div className={styles.empresaLogo}>
-                      <img 
-                        src="/logos/tradingviewlogo.png" 
-                        alt="TradingView" 
-                        width={300} 
-                        height={100}
-                      />
-                    </div>
+                    <img 
+                      src="/logos/logoinviu.png" 
+                      alt="Inviu" 
+                      width={120} 
+                      height={40}
+                    />
+                  </motion.a>
+
+                  <motion.a
+                    href="https://www.tradingview.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.empresaLogo}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <img 
+                      src="/logos/tradingviewlogo.png" 
+                      alt="TradingView" 
+                      width={120} 
+                      height={40}
+                    />
                   </motion.a>
 
                   <motion.a
                     href="https://bullmarketus.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles.empresaCard}
+                    className={styles.empresaLogo}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
                     viewport={{ once: true }}
-                    whileHover={{ y: -5 }}
+                    whileHover={{ scale: 1.05 }}
                   >
-                    <div className={styles.empresaLogo}>
-                      <img 
-                        src="/logos/bullmarketlogo.png" 
-                        alt="BullMarket" 
-                        width={300} 
-                        height={100}
-                      />
-                    </div>
+                    <img 
+                      src="/logos/bullmarketlogo.png" 
+                      alt="BullMarket" 
+                      width={120} 
+                      height={40}
+                    />
                   </motion.a>
 
                   <motion.a
                     href="https://dolarhoy.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles.empresaCard}
+                    className={styles.empresaLogo}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.3 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
                     viewport={{ once: true }}
-                    whileHover={{ y: -5 }}
+                    whileHover={{ scale: 1.05 }}
                   >
-                    <div className={styles.empresaLogo}>
-                      <img 
-                        src="/logos/dolarhoylogo.png" 
-                        alt="DolarHoy.com" 
-                        width={300} 
-                        height={100}
-                      />
-                    </div>
+                    <img 
+                      src="/logos/dolarhoylogo.png" 
+                      alt="DolarHoy.com" 
+                      width={120} 
+                      height={40}
+                    />
                   </motion.a>
 
                   <motion.a
                     href="https://balanz.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles.empresaCard}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                    viewport={{ once: true }}
-                    whileHover={{ y: -5 }}
-                  >
-                    <div className={styles.empresaLogo}>
-                      <img 
-                        src="/logos/balanzlogo.png" 
-                        alt="BALANZ" 
-                        width={300} 
-                        height={100}
-                      />
-                    </div>
-                  </motion.a>
-
-                  <motion.a
-                    href="https://www.inviu.com.ar/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.empresaCard}
+                    className={styles.empresaLogo}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.5 }}
                     viewport={{ once: true }}
-                    whileHover={{ y: -5 }}
+                    whileHover={{ scale: 1.05 }}
                   >
-                    <div className={styles.empresaLogo}>
-                      <img 
-                        src="/logos/logoinviu.png" 
-                        alt="Inviu" 
-                        width={300} 
-                        height={100}
-                      />
-                    </div>
+                    <img 
+                      src="/logos/balanzlogo.png" 
+                      alt="BALANZ" 
+                      width={120} 
+                      height={40}
+                    />
                   </motion.a>
                 </div>
               </div>
