@@ -136,7 +136,7 @@
 /* Trainings Section */
 .trainingsSection {
   padding: 6rem 0;
-  background: white;
+  background: var(--bg-secondary);
 }
 
 .sectionTitle {
@@ -168,11 +168,11 @@
 }
 
 .trainingCard {
-  background: white;
+  background: var(--bg-tertiary);
   border-radius: 1.5rem;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
   transition: all 0.3s ease;
   position: relative;
 }
@@ -375,7 +375,7 @@
 /* Benefits Section */
 .benefitsSection {
   padding: 6rem 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
 }
 
 .benefitsGrid {
@@ -386,12 +386,12 @@
 }
 
 .benefitCard {
-  background: white;
+  background: var(--bg-tertiary);
   padding: 2rem;
   border-radius: 1rem;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -672,9 +672,9 @@
 /* Roadmap Section */
 .roadmapSection {
   padding: 80px 0;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .roadmapSection .container {
