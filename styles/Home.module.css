@@ -587,7 +587,7 @@
 }
 
 .popupContent {
-  background: white;
+  background: var(--bg-secondary);
   border-radius: 1rem;
   max-width: 500px;
   width: 100%;
