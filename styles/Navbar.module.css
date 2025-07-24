@@ -65,6 +65,32 @@
   opacity: 0.8;
 }
 
+/* Mentoring Logo Styles */
+.mentoringLogo {
+  display: flex;
+  align-items: center;
+  margin-left: 32px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.mentoringLogo:hover {
+  transform: translateY(-1px);
+}
+
+.mentoringImage {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.mentoringImage:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
 .desktopNav {
   display: none;
   flex: 1;
@@ -81,55 +107,6 @@
   display: flex;
   align-items: center;
   gap: 32px;
-}
-
-/* Mentoring Button Styles */
-.mentoringButton {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 24px;
-  background: transparent;
-  border: 2px solid var(--primary-color);
-  border-radius: 8px;
-  color: var(--primary-color);
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  letter-spacing: 0.5px;
-  text-decoration: none;
-}
-
-.mentoringButton:hover {
-  background: rgba(187, 134, 252, 0.1);
-  border-color: var(--primary-hover);
-  color: var(--primary-hover);
-}
-
-.mobileMentoringButton {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 14px 20px;
-  background: transparent;
-  border: 2px solid var(--primary-color);
-  border-radius: 8px;
-  color: var(--primary-color);
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-  text-decoration: none;
-}
-
-.mobileMentoringButton:hover {
-  background: rgba(187, 134, 252, 0.1);
-  border-color: var(--primary-hover);
-  color: var(--primary-hover);
 }
 
 .navList {
@@ -560,6 +537,40 @@
   color: var(--primary-color);
 }
 
+/* Mobile Mentoring Logo Styles */
+.mobileMentoringLogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+}
+
+.mobileMentoringLogo:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.mobileMentoringImage {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+  transition: all 0.3s ease;
+}
+
 .mobileUserSection {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 16px;
@@ -578,4 +589,25 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments for mentoring logo */
+@media (max-width: 768px) {
+  .mentoringLogo {
+    margin-left: 16px;
+  }
+  
+  .mentoringImage {
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mentoringLogo {
+    margin-left: 12px;
+  }
+  
+  .mentoringImage {
+    height: 35px;
+  }
 } 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { ChevronDown, Menu, X, User, LogOut, Settings, Bell, MessageCircle, Rocket } from 'lucide-react';
+import { ChevronDown, Menu, X, User, LogOut, Settings, Bell, MessageCircle } from 'lucide-react';
 import NotificationDropdown from '@/components/NotificationDropdown';
 import ContactForm from '@/components/ContactForm';
 import styles from '@/styles/Navbar.module.css';
@@ -133,7 +133,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
     <>
       <nav className={`${styles.navbar} ${className}`}>
         <div className={styles.container}>
-          {/* Logo */}
+          {/* Logo Principal */}
           <Link href="/" className={styles.logo}>
             <div className={styles.logoText}>
               <div className={styles.logoMain}>LOZANO</div>
@@ -142,20 +142,24 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
             </div>
           </Link>
 
+          {/* Logo Mentoring - Posicionado después del logo principal */}
+          <a 
+            href="https://plataformacursos.lozanonahuel.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.mentoringLogo}
+            title="Ir a Plataforma de Mentoring"
+          >
+            <img 
+              src="/logos/LOGOTIPO_NARANJA_SIN_FONDO.png" 
+              alt="Mentoring"
+              className={styles.mentoringImage}
+            />
+          </a>
+
           {/* Desktop Navigation */}
           <div className={styles.desktopNav}>
             <div className={styles.navContent}>
-              {/* Mentoring Button */}
-              <a 
-                href="https://plataformacursos.lozanonahuel.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.mentoringButton}
-              >
-                <Rocket size={18} />
-                <span>Mentoring</span>
-              </a>
-
               {/* Navigation Links */}
               <ul className={styles.navList}>
                 {navItems.map((item) => (
@@ -356,17 +360,22 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         {isMenuOpen && (
           <div className={styles.mobileMenu}>
             <div className={styles.mobileMenuContent}>
-              {/* Mobile Mentoring Button */}
+              {/* Mobile Mentoring Logo */}
               <div className={styles.mobileNavItem}>
                 <a 
                   href="https://plataformacursos.lozanonahuel.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={styles.mobileMentoringButton}
+                  className={styles.mobileMentoringLogo}
                   onClick={() => setIsMenuOpen(false)}
+                  title="Ir a Plataforma de Mentoring"
                 >
-                  <Rocket size={16} />
-                  Mentoring
+                  <img 
+                    src="/logos/LOGOTIPO_NARANJA_SIN_FONDO.png" 
+                    alt="Mentoring"
+                    className={styles.mobileMentoringImage}
+                  />
+                  <span>Mentoring</span>
                 </a>
               </div>
 
