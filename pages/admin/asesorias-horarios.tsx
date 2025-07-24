@@ -128,7 +128,7 @@ const AdminAsesoriasHorariosPage = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al guardar horario');
+      toast.error('Error al guardar horario.');
     }
   };
 
