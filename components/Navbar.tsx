@@ -133,13 +133,13 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
     <>
       <nav className={`${styles.navbar} ${className}`}>
         <div className={styles.container}>
-          {/* Logo Principal */}
+          {/* Logo Principal - Ahora con imagen */}
           <Link href="/" className={styles.logo}>
-            <div className={styles.logoText}>
-              <div className={styles.logoMain}>LOZANO</div>
-              <div className={styles.logoName}>NAHUEL</div>
-              <div className={styles.logoSubtitle}>TRADING & TRADERS</div>
-            </div>
+            <img 
+              src="/logos/logo notificaciones.png" 
+              alt="Nahuel Lozano Trading"
+              className={styles.logoImage}
+            />
           </Link>
 
           {/* Logo Mentoring - Posicionado después del logo principal */}
@@ -151,7 +151,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
             title="Ir a Plataforma de Mentoring"
           >
             <img 
-              src="/logos/LOGOTIPO_NARANJA_SIN_FONDO.png" 
+              src="/logos/LOGOTIPO NARANJA SIN FONDO.png" 
               alt="Mentoring"
               className={styles.mentoringImage}
             />
@@ -371,7 +371,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
                   title="Ir a Plataforma de Mentoring"
                 >
                   <img 
-                    src="/logos/LOGOTIPO_NARANJA_SIN_FONDO.png" 
+                    src="/logos/LOGOTIPO NARANJA SIN FONDO.png" 
                     alt="Mentoring"
                     className={styles.mobileMentoringImage}
                   />

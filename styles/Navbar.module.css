@@ -20,8 +20,28 @@
   display: flex;
   align-items: center;
   text-decoration: none;
+  transition: all 0.3s ease;
 }
 
+.logo:hover {
+  transform: translateY(-1px);
+}
+
+/* Estilos para el logo principal como imagen */
+.logoImage {
+  height: 45px;
+  width: auto;
+  object-fit: contain;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.logoImage:hover {
+  transform: scale(1.02);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Estilos del logo de texto (mantenemos por compatibilidad) */
 .logoText {
   display: flex;
   flex-direction: column;
@@ -52,17 +72,6 @@
   letter-spacing: 1.5px;
   text-transform: uppercase;
   margin-top: 2px;
-}
-
-.logoImage {
-  height: 40px;
-  width: auto;
-  object-fit: contain;
-  transition: opacity 0.2s ease;
-}
-
-.logoImage:hover {
-  opacity: 0.8;
 }
 
 /* Mentoring Logo Styles */
@@ -591,13 +600,17 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive adjustments for mentoring logo */
+/* Responsive adjustments for both logos */
 @media (max-width: 768px) {
   .mentoringLogo {
     margin-left: 16px;
   }
   
   .mentoringImage {
+    height: 40px;
+  }
+  
+  .logoImage {
     height: 40px;
   }
 }
@@ -608,6 +621,10 @@
   }
   
   .mentoringImage {
+    height: 35px;
+  }
+  
+  .logoImage {
     height: 35px;
   }
 } 
