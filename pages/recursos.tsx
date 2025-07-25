@@ -74,6 +74,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
       <main className={styles.main}>
         {/* Hero Section con Video Explicativo */}
         <section className={styles.heroSection}>
+          <div className={styles.heroOverlay}></div>
           <div className={styles.container}>
             <motion.div 
               className={styles.heroContent}
@@ -82,44 +83,26 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
               transition={{ duration: 0.8 }}
             >
               <div className={styles.heroText}>
-                <h1 className={styles.heroTitle}>
-                  Herramientas Útiles
-                  <span className={styles.heroSubtitle}>Para hacer Análisis Técnico</span>
-                </h1>
+                <h1 className={styles.heroTitle}>Recursos</h1>
                 <p className={styles.heroDescription}>
-                  El aliado que necesitas. Accede a fórmulas personalizadas de TradingView, links esenciales, 
-                  material complementario y los mejores libros para perfeccionar tu análisis técnico.
+                  <em>Herramientas útiles e indispensables para aumentar el control sobre tus inversiones en bolsa. Recursos para TradingView, información actualizada y material educativo</em>
                 </p>
-                <div className={styles.heroStats}>
-                  <div className={styles.stat}>
-                    <span className={styles.statNumber}>15+</span>
-                    <span className={styles.statLabel}>Fórmulas TradingView</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statNumber}>100%</span>
-                    <span className={styles.statLabel}>Gratuito</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statNumber}>24/7</span>
-                    <span className={styles.statLabel}>Acceso Libre</span>
-                  </div>
-                </div>
+                <a href="#recursos-lista" className={styles.heroButtonWhite}>
+                  Empezá ahora &gt;
+                </a>
               </div>
               <div className={styles.heroVideo}>
                 <div className={styles.videoContainer}>
-                  {/* Placeholder de video explicativo */}
-                  <div className={styles.videoPlaceholder}>
-                    <div className={styles.placeholderIcon}>🎯</div>
-                    <h3 className={styles.placeholderTitle}>Video: Explicación de las Herramientas</h3>
-                    <p className={styles.placeholderText}>
-                      Descubre cómo utilizar todas las herramientas disponibles para optimizar tu análisis técnico
-                    </p>
-                    <div className={styles.placeholderFeatures}>
-                      <span>📈 Fórmulas TradingView</span>
-                      <span>🔗 Links Importantes</span>
-                      <span>📚 Material Educativo</span>
-                    </div>
-                  </div>
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                    title="Video Recursos"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
+                  ></iframe>
                 </div>
               </div>
             </motion.div>
