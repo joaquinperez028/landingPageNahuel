@@ -853,21 +853,21 @@
 }
 
 .ctaButton {
-  background: transparent;
-  color: #fff;
-  border: 3px solid #00ff00;
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
   border-radius: 12px;
   padding: 1.2rem 2.5rem;
   font-size: 1.3rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 0 20px rgba(0,255,0,0.3);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 .ctaButton:hover {
-  background: #00ff00;
+  background: #f8f8f8;
   color: #000;
-  box-shadow: 0 0 30px rgba(0,255,0,0.5);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.15);
   transform: translateY(-2px);
 }
 
