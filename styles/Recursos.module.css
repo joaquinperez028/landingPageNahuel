@@ -733,3 +733,83 @@
   .bibliotecaImg { height: 70%; }
   .bibliotecaCardText { padding: 0.7rem 0.5rem; }
 } 
+
+.infoTradersSection {
+  width: 100%;
+  padding: 4rem 0 4rem 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.infoTradersTitle {
+  color: #fff;
+  font-size: 3rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}
+
+.infoTradersGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.2rem;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.infoTradersCard {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  min-height: 180px;
+  height: 180px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: #181d23;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.infoTradersCard:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+}
+
+.infoTradersImg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  filter: brightness(0.7) grayscale(0.1);
+}
+
+.infoTradersOverlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0.68) 100%);
+  z-index: 2;
+}
+
+.infoTradersText {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding: 1.2rem 1.2rem 1.2rem 1.2rem;
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+@media (max-width: 900px) {
+  .infoTradersTitle { font-size: 2rem; }
+  .infoTradersGrid { grid-template-columns: 1fr; gap: 1.2rem; }
+  .infoTradersCard { min-height: 120px; height: 120px; }
+  .infoTradersText { font-size: 1.1rem; }
+} 
