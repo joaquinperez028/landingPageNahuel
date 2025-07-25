@@ -29,7 +29,7 @@
 
 /* Estilos para el logo principal como imagen */
 .logoImage {
-  height: 90px;
+  height: 120px;
   width: auto;
   object-fit: contain;
   transition: all 0.3s ease;
@@ -88,7 +88,7 @@
 }
 
 .mentoringImage {
-  height: 80px;
+  height: 110px;
   width: auto;
   object-fit: contain;
   transition: all 0.3s ease;
@@ -607,11 +607,11 @@
   }
   
   .mentoringImage {
-    height: 65px;
+    height: 90px;
   }
   
   .logoImage {
-    height: 75px;
+    height: 100px;
   }
 }
 
@@ -621,10 +621,10 @@
   }
   
   .mentoringImage {
-    height: 50px;
+    height: 70px;
   }
   
   .logoImage {
-    height: 60px;
+    height: 80px;
   }
 } 
