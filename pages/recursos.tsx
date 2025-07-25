@@ -353,6 +353,45 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
         </section>
         {/* Fin de Información para Traders */}
         {/* Aquí terminan las secciones modernas, eliminamos las viejas */}
+
+        {/* Material Complementario */}
+        <section className={styles.section}>
+          <div className={styles.container}>
+            <h2 className={styles.sectionTitle}>Material Complementario</h2>
+            <p className={styles.sectionDescription}>Recursos adicionales para profundizar tu conocimiento</p>
+            <div className={styles.cardsGrid}>
+              {materialComplementario.map((item, index) => (
+                <div key={index} className={styles.card}>
+                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
+                  <p className={styles.cardDescription}>{item.descripcion}</p>
+                  <a href={item.descarga} className={styles.cardButton} download>
+                    <span>Descargar</span>
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Libros Recomendados */}
+        <section className={styles.sectionAlt}>
+          <div className={styles.container}>
+            <h2 className={styles.sectionTitle}>Libros Recomendados</h2>
+            <p className={styles.sectionDescription}>Biblioteca esencial para formar tu educación financiera</p>
+            <div className={styles.cardsGrid}>
+              {librosRecomendados.map((item, index) => (
+                <div key={index} className={styles.card}>
+                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
+                  <p className={styles.cardAuthor}>Por {item.autor}</p>
+                  <p className={styles.cardDescription}>{item.descripcion}</p>
+                  <a href={item.descarga} className={styles.cardButton} download>
+                    <span>Descargar</span>
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />
