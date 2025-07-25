@@ -563,7 +563,7 @@
 
 /* === SECCIÓN 5: LEARNING - VIOLETA OSCURO === */
 .learningSection {
-  background: var(--section-purple);
+  background: #001F3F;
   padding: 5rem 0;
   color: white;
   position: relative;
@@ -665,20 +665,20 @@
 .mentoringLogoBlock {
   display: flex;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 2rem;
+  gap: 36px;
+  margin-bottom: 2.5rem;
 }
 
 .mentoringLogoImg {
-  height: 90px;
+  height: 160px;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+  filter: drop-shadow(0 2px 12px rgba(0,0,0,0.18));
 }
 
 .mentoringLogoText {
-  font-size: 3.5rem;
-  font-weight: 800;
+  font-size: 4.5rem;
+  font-weight: 900;
   color: #ff9800;
   letter-spacing: -1px;
   font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
@@ -1631,14 +1631,14 @@
 
 @media (max-width: 768px) {
   .mentoringLogoBlock {
-    gap: 16px;
+    gap: 20px;
     margin-bottom: 1.5rem;
   }
   .mentoringLogoImg {
-    height: 60px;
+    height: 100px;
   }
   .mentoringLogoText {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
   }
   .learningButtonVioleta {
     font-size: 1rem;
@@ -1652,10 +1652,10 @@
     margin-bottom: 1rem;
   }
   .mentoringLogoImg {
-    height: 40px;
+    height: 60px;
   }
   .mentoringLogoText {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
   }
   .learningButtonVioleta {
     font-size: 0.95rem;
