@@ -318,6 +318,18 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
             </div>
           </div>
         </section>
+
+        {/* CTA Principal */}
+        <section className={styles.ctaSection}>
+          <div className={styles.ctaContainer}>
+            <h2 className={styles.ctaTitle}>¿Listo para llevar tus inversiones al siguiente nivel?</h2>
+            <p className={styles.ctaSubtitle}>Únete a nuestra comunidad y comienza construir tu libertad financiera</p>
+            <button className={styles.ctaButton}>Elegí tu Broker &gt;</button>
+          </div>
+        </section>
+        {/* Fin de Información para Traders */}
+        {/* Aquí terminan las secciones modernas, eliminamos las viejas */}
+        
          {/* Sección YouTube */}
          <section className={styles.youtubeSection}>
           <div className={styles.youtubeContainer}>
@@ -345,16 +357,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
             </div>
           </div>
         </section>
-                {/* CTA Principal */}
-                <section className={styles.ctaSection}>
-          <div className={styles.ctaContainer}>
-            <h2 className={styles.ctaTitle}>¿Listo para llevar tus inversiones al siguiente nivel?</h2>
-            <p className={styles.ctaSubtitle}>Únete a nuestra comunidad y comienza construir tu libertad financiera</p>
-            <button className={styles.ctaButton}>Elegí tu Broker &gt;</button>
-          </div>
-        </section>
-        {/* Fin de Información para Traders */}
-        {/* Aquí terminan las secciones modernas, eliminamos las viejas */}
+
       </main>
 
       <Footer />
