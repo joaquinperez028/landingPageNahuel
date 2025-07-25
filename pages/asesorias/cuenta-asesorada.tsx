@@ -118,6 +118,7 @@ const CuentaAsesoradaPage: React.FC<CuentaAsesoradaPageProps> = ({
       <main className={styles.main}>
         {/* Hero Section con Video Explicativo */}
         <section className={styles.heroSection}>
+          <div className={styles.heroOverlay}></div>
           <div className={styles.container}>
             <motion.div 
               className={styles.heroContent}
@@ -126,56 +127,27 @@ const CuentaAsesoradaPage: React.FC<CuentaAsesoradaPageProps> = ({
               transition={{ duration: 0.8 }}
             >
               <div className={styles.heroText}>
-                <h1 className={styles.heroTitle}>
-                  Cuenta Asesorada
-                  <span className={styles.heroSubtitle}>Gestión Profesional de Inversiones</span>
-                </h1>
+                <h1 className={styles.heroTitle}>Cuenta Asesorada</h1>
                 <p className={styles.heroDescription}>
-                  Servicio Premium donde gestionamos profesionalmente tu cuenta de inversiones. 
-                  Estrategias avanzadas, monitoreo continuo y optimización mensual para maximizar tus retornos.
+                  Servicio integral de inversión con gestión profesional, donde te recomendamos como manejar tu portafolio con estrategias avanzadas y reportes detallados.
                 </p>
-                <div className={styles.heroPricing}>
-                  <div className={styles.priceCard}>
-                    <span className={styles.priceBadge}>Premium</span>
-                    <span className={styles.priceAmount}>$999 USD</span>
-                    <span className={styles.priceDescription}>Servicio mensual</span>
-                    <span className={styles.priceIncludes}>Gestión completa + reportes detallados</span>
-                  </div>
-                </div>
-                <div className={styles.heroFeatures}>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Gestión profesional diaria de tu cuenta</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Estrategias institucionales adaptadas</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Reportes mensuales detallados</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Acceso directo con el gestor</span>
-                  </div>
-                </div>
+                <a href="#formulario-turno" className={styles.heroButtonGold}>
+                  Agendar Turno &gt;
+                </a>
               </div>
               <div className={styles.heroVideo}>
                 <div className={styles.videoContainer}>
-                  {/* Placeholder de video explicativo */}
-                  <div className={styles.videoPlaceholder}>
-                    <div className={styles.placeholderIcon}>📊</div>
-                    <h3 className={styles.placeholderTitle}>Video: Explicación de la Asesoría</h3>
-                    <p className={styles.placeholderText}>
-                      Descubre cómo la gestión profesional puede transformar tu estrategia de inversión
-                    </p>
-                    <div className={styles.placeholderFeatures}>
-                      <span>💼 Gestión Profesional</span>
-                      <span>📈 Estrategias Avanzadas</span>
-                      <span>📊 Reportes Detallados</span>
-                    </div>
-                  </div>
+                  {/* Aquí puedes reemplazar el iframe por tu reproductor real */}
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                    title="Video Cuenta Asesorada"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
+                  ></iframe>
                 </div>
               </div>
             </motion.div>
@@ -242,7 +214,7 @@ const CuentaAsesoradaPage: React.FC<CuentaAsesoradaPageProps> = ({
         </section>
 
         {/* Formulario Cambio de Asesor */}
-        <section className={styles.formularioSection}>
+        <section className={styles.formularioSection} id="formulario-turno">
           <div className={styles.container}>
             <motion.h2 
               className={styles.sectionTitle}

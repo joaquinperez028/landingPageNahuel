@@ -15,7 +15,19 @@
   display: flex;
   align-items: center;
   padding: 4rem 0;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%);
+  position: relative;
+  background: url('/images/ejemplo-inversion.jpg') center center/cover no-repeat;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.18) 0%, rgba(255, 215, 0, 0.18) 100%);
+  z-index: 1;
+  pointer-events: none;
 }
 
 .heroContent {
@@ -23,20 +35,22 @@
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 .heroText {
-  space-y: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: flex-start;
 }
 
 .heroTitle {
   font-size: 3.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  line-height: 1.1;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.25);
   margin-bottom: 1rem;
 }
 
@@ -49,10 +63,35 @@
 }
 
 .heroDescription {
+  font-size: 1.3rem;
+  color: #fff;
+  font-style: italic;
+  line-height: 1.5;
+  margin-bottom: 2.5rem;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.heroButtonGold {
+  background: transparent;
+  color: #FFD700;
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  padding: 0.9rem 2.2rem;
   font-size: 1.2rem;
-  color: #cbd5e1;
-  line-height: 1.6;
-  margin-bottom: 2rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 2px 12px rgba(255,215,0,0.08);
+  margin-top: 1.2rem;
+  display: inline-block;
+}
+
+.heroButtonGold:hover {
+  background: #FFD700;
+  color: #222;
+  box-shadow: 0 6px 24px rgba(255,215,0,0.18);
+  transform: translateY(-2px) scale(1.04);
 }
 
 .heroPricing {
@@ -125,6 +164,7 @@
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .videoContainer {
@@ -133,6 +173,7 @@
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  background: #111;
 }
 
 .videoPlaceholder {
@@ -535,51 +576,22 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .heroContent {
     grid-template-columns: 1fr;
     gap: 2rem;
     text-align: center;
   }
-
-  .heroTitle {
-    font-size: 2.5rem;
-  }
-
-  .heroSubtitle {
-    font-size: 1.4rem;
-  }
-
-  .brokersGrid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .brokerCard {
-    padding: 1.5rem;
-  }
-
-  .formGrid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .formulario {
-    padding: 2rem 1.5rem;
-  }
-
-  .loginAlert {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
-
-  .sectionTitle {
-    font-size: 2rem;
-  }
-
-  .placeholderFeatures {
-    flex-direction: column;
+  .heroText {
     align-items: center;
+  }
+  .heroTitle {
+    font-size: 2.2rem;
+  }
+  .heroDescription {
+    font-size: 1.1rem;
+  }
+  .videoContainer {
+    margin-top: 2rem;
   }
 } 
