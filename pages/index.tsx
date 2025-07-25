@@ -454,37 +454,38 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
               viewport={{ once: true }}
             >
               <div className={styles.learningText}>
-                <h2 className={styles.learningTitle}>
-                  Aprende a invertir<br />
-                  desde cero
-                </h2>
+                <div className={styles.mentoringLogoBlock}>
+                  <img
+                    src="/logos/LOGOTIPO NARANJA SIN FONDO.png"
+                    alt="Mentoring"
+                    className={styles.mentoringLogoImg}
+                  />
+                  <span className={styles.mentoringLogoText}>Mentoring</span>
+                </div>
                 <p className={styles.learningDescription}>
-                  Aprende a invertir en bolsa con nuestros cursos especializados. Comienza tu camino hacia la independencia financiera.
+                  Aprende a invertir en bolsa con nuestros cursos especializados. Comienza tu camino hacia la libertad financiera.
                 </p>
-                
                 <div className={styles.learningActions}>
                   <a 
                     href="https://plataformacursos.lozanonahuel.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles.learningButton}
+                    className={styles.learningButtonVioleta}
                   >
-                    Ir a Mentoring🚀
+                    Ir a Mentoring🚀 &gt;
                   </a>
                 </div>
               </div>
 
               {/* Video de Cursos */}
-              <div className={styles.learningVideo}>
-                <YouTubePlayer
-                  videoId={siteConfig.learningVideo.youtubeId}
-                  title={siteConfig.learningVideo.title}
-                  autoplay={siteConfig.learningVideo.autoplay}
-                  muted={siteConfig.learningVideo.muted}
-                  loop={siteConfig.learningVideo.loop}
-                  className={styles.learningVideoPlayer}
-                />
-              </div>
+              <YouTubePlayer
+                videoId={siteConfig.learningVideo.youtubeId}
+                title={siteConfig.learningVideo.title}
+                autoplay={siteConfig.learningVideo.autoplay}
+                muted={siteConfig.learningVideo.muted}
+                loop={siteConfig.learningVideo.loop}
+                className={styles.learningVideoPlayer}
+              />
             </motion.div>
           </div>
         </section>

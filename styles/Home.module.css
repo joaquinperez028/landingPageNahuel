@@ -662,6 +662,51 @@
   border-radius: 16px;
 }
 
+.mentoringLogoBlock {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 2rem;
+}
+
+.mentoringLogoImg {
+  height: 90px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+}
+
+.mentoringLogoText {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #ff9800;
+  letter-spacing: -1px;
+  font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.learningButtonVioleta {
+  background: #7c3aed;
+  color: #fff;
+  padding: 18px 36px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.15);
+}
+
+.learningButtonVioleta:hover {
+  background: #5b21b6;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.25);
+}
+
 /* === SECCIÓN 6: ESTADÍSTICAS - AZUL MARINO OSCURO === */
 .statisticsSection {
   padding: 2rem 0;
@@ -1582,4 +1627,38 @@
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+} 
+
+@media (max-width: 768px) {
+  .mentoringLogoBlock {
+    gap: 16px;
+    margin-bottom: 1.5rem;
+  }
+  .mentoringLogoImg {
+    height: 60px;
+  }
+  .mentoringLogoText {
+    font-size: 2.2rem;
+  }
+  .learningButtonVioleta {
+    font-size: 1rem;
+    padding: 14px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mentoringLogoBlock {
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .mentoringLogoImg {
+    height: 40px;
+  }
+  .mentoringLogoText {
+    font-size: 1.3rem;
+  }
+  .learningButtonVioleta {
+    font-size: 0.95rem;
+    padding: 10px 16px;
+  }
 } 
