@@ -229,50 +229,36 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
           </div>
         </section>
 
-        {/* Lista de Seguimiento */}
-        <section className={styles.section}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Lista de Seguimiento
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Contiene todos los activos que utilizo para realizar mis análisis
-            </motion.p>
-            
-            <div className={styles.cardsGrid}>
-              {listasActivos.map((item, index) => (
-                <motion.a 
-                  key={index}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.card}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <span className={styles.iconEmoji}>{item.icon}</span>
+        {/* Biblioteca del Inversor */}
+        <section className={styles.bibliotecaSection}>
+          <div className={styles.bibliotecaContainer}>
+            <h2 className={styles.bibliotecaTitle}>Biblioteca del Inversor</h2>
+            <div className={styles.bibliotecaCarousel}>
+              <button className={styles.carouselArrow} aria-label="Anterior">&#60;</button>
+              <div className={styles.bibliotecaCards}>
+                <div className={styles.bibliotecaCard}>
+                  <img src="/images/wickoff.jpg" alt="El Método Wickoff" className={styles.bibliotecaImg} />
+                  <div className={styles.bibliotecaCardText}>
+                    <div className={styles.bibliotecaBookTitle}>El Método Wickoff</div>
+                    <div className={styles.bibliotecaBookAuthor}><em>Enrique Díaz Valdecantos</em></div>
                   </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <div className={styles.cardAction}>
-                    <ExternalLink size={20} />
-                    <span>Ver Lista</span>
+                </div>
+                <div className={styles.bibliotecaCard}>
+                  <img src="/images/padrerico.jpg" alt="Padre Rico, Padre Pobre" className={styles.bibliotecaImg} />
+                  <div className={styles.bibliotecaCardText}>
+                    <div className={styles.bibliotecaBookTitle}>Padre Rico, Padre Pobre</div>
+                    <div className={styles.bibliotecaBookAuthor}><em>Robert T. Kiyosaki</em></div>
                   </div>
-                </motion.a>
-              ))}
+                </div>
+                <div className={styles.bibliotecaCard}>
+                  <img src="/images/murphy.jpg" alt="Análisis Técnico de los Mercados Financieros" className={styles.bibliotecaImg} />
+                  <div className={styles.bibliotecaCardText}>
+                    <div className={styles.bibliotecaBookTitle}>Análisis Técnico de los Mercados Financieros</div>
+                    <div className={styles.bibliotecaBookAuthor}><em>John J. Murphy</em></div>
+                  </div>
+                </div>
+              </div>
+              <button className={styles.carouselArrow} aria-label="Siguiente">&#62;</button>
             </div>
           </div>
         </section>
