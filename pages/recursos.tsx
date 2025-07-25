@@ -229,6 +229,43 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
           </div>
         </section>
 
+        {/* CTA Principal */}
+        <section className={styles.ctaSection}>
+          <div className={styles.ctaContainer}>
+            <h2 className={styles.ctaTitle}>¿Listo para llevar tus inversiones al siguiente nivel?</h2>
+            <p className={styles.ctaSubtitle}>Únete a nuestra comunidad y comienza construir tu libertad financiera</p>
+            <button className={styles.ctaButton}>Comenzar ahora</button>
+          </div>
+        </section>
+
+        {/* Sección YouTube */}
+        <section className={styles.youtubeSection}>
+          <div className={styles.youtubeContainer}>
+            <div className={styles.youtubeText}>
+              <h2 className={styles.youtubeTitle}>¡Sumate a nuestra comunidad<br/>en YouTube!</h2>
+              <p className={styles.youtubeSubtitle}>No te pierdas nuestros últimos videos</p>
+            </div>
+            <div className={styles.youtubeVideoContainer}>
+              <button className={styles.videoArrow} aria-label="Anterior">&#60;</button>
+              <div className={styles.videoPlayer}>
+                <div className={styles.videoPlaceholder}>
+                  <div className={styles.playIcon}>▶</div>
+                </div>
+                <div className={styles.videoControls}>
+                  <button className={styles.playButton}>▶</button>
+                  <div className={styles.progressBar}>
+                    <div className={styles.progressFill}></div>
+                  </div>
+                  <span className={styles.timeDisplay}>2:21 / 20:00</span>
+                  <button className={styles.settingsButton}>⚙</button>
+                  <button className={styles.fullscreenButton}>⛶</button>
+                </div>
+              </div>
+              <button className={styles.videoArrow} aria-label="Siguiente">&#62;</button>
+            </div>
+          </div>
+        </section>
+
         {/* Biblioteca del Inversor */}
         <section className={styles.bibliotecaSection}>
           <div className={styles.bibliotecaContainer}>

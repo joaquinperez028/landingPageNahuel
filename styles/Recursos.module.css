@@ -813,3 +813,207 @@
   .infoTradersCard { min-height: 120px; height: 120px; }
   .infoTradersText { font-size: 1.1rem; }
 } 
+
+.ctaSection {
+  width: 100%;
+  background: #000000;
+  padding: 4rem 0 4rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ctaContainer {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.ctaTitle {
+  color: #fff;
+  font-size: 3.5rem;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.2;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}
+
+.ctaSubtitle {
+  color: #fff;
+  font-size: 1.4rem;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.ctaButton {
+  background: transparent;
+  color: #fff;
+  border: 3px solid #00ff00;
+  border-radius: 12px;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0,255,0,0.3);
+}
+.ctaButton:hover {
+  background: #00ff00;
+  color: #000;
+  box-shadow: 0 0 30px rgba(0,255,0,0.5);
+  transform: translateY(-2px);
+}
+
+.youtubeSection {
+  width: 100%;
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+  padding: 4rem 0 4rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.youtubeContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+.youtubeText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.youtubeTitle {
+  color: #fff;
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}
+
+.youtubeSubtitle {
+  color: #fff;
+  font-size: 1.3rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.youtubeVideoContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.videoArrow {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s, transform 0.2s;
+  padding: 0 1rem;
+}
+.videoArrow:hover {
+  color: #ffd700;
+  transform: scale(1.15);
+}
+
+.videoPlayer {
+  background: #000;
+  border-radius: 16px;
+  overflow: hidden;
+  width: 400px;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
+.videoPlaceholder {
+  flex: 1;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.playIcon {
+  color: #fff;
+  font-size: 4rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.playIcon:hover {
+  transform: scale(1.1);
+}
+
+.videoControls {
+  background: #222;
+  padding: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.playButton {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.progressBar {
+  flex: 1;
+  height: 4px;
+  background: #444;
+  border-radius: 2px;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  background: #ff0000;
+  border-radius: 2px;
+  width: 12%;
+}
+
+.timeDisplay {
+  color: #fff;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.settingsButton, .fullscreenButton {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.2rem;
+}
+
+@media (max-width: 900px) {
+  .ctaTitle { font-size: 2.5rem; }
+  .ctaSubtitle { font-size: 1.2rem; }
+  .youtubeContainer { flex-direction: column; gap: 2rem; text-align: center; }
+  .youtubeTitle { font-size: 2.2rem; }
+  .youtubeSubtitle { font-size: 1.1rem; }
+  .videoPlayer { width: 100%; max-width: 400px; height: 200px; }
+} 
