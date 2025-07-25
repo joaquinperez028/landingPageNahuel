@@ -148,7 +148,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
         </section>
 
         {/* Fórmulas TradingView */}
-        <section className={styles.sectionAlt}>
+        <section className={styles.sectionAlt} id="recursos-lista">
           <div className={styles.container}>
             <motion.h2 
               className={styles.sectionTitle}
@@ -156,7 +156,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              Fórmulas para TradingView
+              Herramientas para TradingView
             </motion.h2>
             <motion.p 
               className={styles.sectionDescription}
@@ -168,32 +168,63 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
             </motion.p>
             
             <div className={styles.cardsGridLarge}>
-              {formulasTradingView.map((item, index) => (
-                <motion.div 
-                  key={index}
-                  className={`${styles.card} ${styles.formulaCard}`}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <span className={styles.iconEmoji}>{item.icon}</span>
-                  </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <div className={styles.formulaCode}>
-                    <code>{item.formula}</code>
-                  </div>
-                  <button 
-                    className={styles.cardButton}
-                    onClick={() => navigator.clipboard.writeText(item.formula)}
-                  >
-                    <BarChart3 size={20} />
-                    <span>Copiar Fórmula</span>
-                  </button>
-                </motion.div>
-              ))}
+              {/* Ejemplo de imágenes, puedes personalizar cada una luego */}
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/wallstreet.jpg" className={styles.cardImage} alt="Wall Street" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Lista de Seguimiento<br/>Wall Street</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/argentina.jpg" className={styles.cardImage} alt="Merval" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Lista de Seguimiento<br/>Merval</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/dolares.jpg" className={styles.cardImage} alt="Dólar CCL" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula<br/>Dólar CCL</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/acciones.jpg" className={styles.cardImage} alt="Acciones en CCL" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula<br/>Acciones en CCL</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/merval-ccl.jpg" className={styles.cardImage} alt="Merval en CCL" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula<br/>Merval en CCL</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/wallstreet-bull.jpg" className={styles.cardImage} alt="Promedio Wall Street" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula Promedio<br/>Índices Wall Street</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/mer-val-sp.jpg" className={styles.cardImage} alt="MerVal vs SP500" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula Comparación<br/>Merval vs S&amp;P500</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/nasdaq-dow.jpg" className={styles.cardImage} alt="Nasdaq vs Dow Jones" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula Comparación<br/>Nasdaq vs Dow Jones</div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
