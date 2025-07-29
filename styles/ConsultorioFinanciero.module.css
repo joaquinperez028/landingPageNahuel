@@ -1008,7 +1008,7 @@
 .calendarioTitle {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #333;
+  color: #000000;
   margin: 0;
 }
 
@@ -1046,16 +1046,17 @@
   justify-content: center;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #000000;
 }
 
 .fecha {
   font-weight: 600;
   font-size: 1.1rem;
+  color: #000000;
 }
 
 .disponibles {
-  color: #6C757D;
+  color: #333333;
   font-size: 0.9rem;
 }
 
@@ -1066,7 +1067,7 @@
 .horariosTitle {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #333;
+  color: #000000;
   margin-bottom: 1rem;
 }
 
@@ -1088,7 +1089,7 @@
   justify-content: center;
   gap: 0.5rem;
   font-size: 0.95rem;
-  color: #333;
+  color: #000000;
 }
 
 .horarioButton:hover {
