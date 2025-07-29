@@ -18,7 +18,15 @@ import {
   Star,
   ChevronDown,
   ChevronUp,
-  AlertCircle
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Pause,
+  SkipForward,
+  Volume2,
+  Maximize2,
+  Settings
 } from 'lucide-react';
 import styles from '@/styles/ConsultorioFinanciero.module.css';
 import { useBookings } from '@/hooks/useBookings';
@@ -410,64 +418,303 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       <Navbar />
 
       <main className={styles.main}>
-        {/* Hero Section con Video Explicativo */}
+        {/* Hero Section */}
         <section className={styles.heroSection}>
-          <div className={styles.container}>
-            <motion.div 
-              className={styles.heroContent}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className={styles.heroText}>
-                <h1 className={styles.heroTitle}>
-                  Consultorio Financiero
-                  <span className={styles.heroSubtitle}>Consulta Individual Personalizada</span>
-                </h1>
-                <p className={styles.heroDescription}>
-                  Sesión one-on-one de 60 minutos para analizar tu situación financiera 
-                  y diseñar una estrategia de inversión personalizada según tu perfil de riesgo y objetivos.
-                </p>
-                <div className={styles.heroPricing}>
-                  <div className={styles.priceCard}>
-                    <span className={styles.priceAmount}>$199 USD</span>
-                    <span className={styles.priceDescription}>Sesión de 60 minutos</span>
-                    <span className={styles.priceIncludes}>Incluye seguimiento por 30 días</span>
+          <div className={styles.heroOverlay}></div>
+          <div className={styles.heroContent}>
+            <div className={styles.heroText}>
+              <h1 className={styles.heroTitle}>Consultorio Financiero</h1>
+              <p className={styles.heroDescription}>
+                Sesiones virtuales e individuales para analizar tu situación financiera actual y diseñar una estrategia de inversión personalizada según tu perfil de riesgo y objetivos.
+              </p>
+              <a href="#formulario-turno" className={styles.heroButtonGold}>
+                Agendar Turno &gt;
+              </a>
+            </div>
+            <div className={styles.heroVideo}>
+              <div className={styles.videoContainer}>
+                <div className={styles.videoPlayer}>
+                  <div className={styles.videoPlaceholder}>
+                    <div className={styles.playIcon}>▶</div>
                   </div>
-                </div>
-                <div className={styles.heroFeatures}>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Análisis completo de tu portafolio actual</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Estrategia personalizada según tu perfil</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Plan de acción con objetivos claros</span>
+                  <div className={styles.videoControls}>
+                    <button className={styles.playButton}>⏸</button>
+                    <button className={styles.skipButton}>⏭</button>
+                    <div className={styles.progressBar}>
+                      <div className={styles.progressFill}></div>
+                    </div>
+                    <span className={styles.timeDisplay}>2:21 / 20:00</span>
+                    <button className={styles.volumeButton}>🔊</button>
+                    <button className={styles.settingsButton}>⚙</button>
+                    <button className={styles.pipButton}>⛶</button>
+                    <button className={styles.fullscreenButton}>⛶</button>
                   </div>
                 </div>
               </div>
-              <div className={styles.heroVideo}>
-                <div className={styles.videoContainer}>
-                  {/* Placeholder de video explicativo */}
+            </div>
+          </div>
+        </section>
+
+        {/* Sección Asesoramiento Personalizado */}
+        <section className={styles.asesoramientoSection}>
+          <div className={styles.asesoramientoContainer}>
+            <div className={styles.asesoramientoImage}>
+              <img 
+                src="/logos/asesoria foto.png" 
+                alt="Nahuel Lozano - Asesor Financiero"
+                className={styles.nahuelImage}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Formulario de Reserva */}
+        <section className={styles.reservaSection} id="formulario-turno">
+          <div className={styles.reservaContainer}>
+            <h2 className={styles.reservaTitle}>Próximos Turnos</h2>
+            
+            <div className={styles.reservaCard}>
+              <div className={styles.reservaContent}>
+                {/* Calendario y Horarios */}
+                <div className={styles.calendarioSection}>
+                  <h3 className={styles.calendarioTitle}>Selecciona una fecha y hora</h3>
+                  
+                  {loadingTurnos ? (
+                    <div className={styles.loadingTurnos}>
+                      <p>Cargando turnos disponibles...</p>
+                    </div>
+                  ) : proximosTurnos.length === 0 ? (
+                    <div className={styles.noTurnos}>
+                      <p>No hay turnos disponibles en este momento. Intenta más tarde.</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Selector de Fechas */}
+                      <div className={styles.fechasGrid}>
+                        {proximosTurnos.map((turno, index) => (
+                          <div 
+                            key={index}
+                            className={`${styles.fechaCard} ${selectedDate === turno.fecha ? styles.fechaSelected : ''}`}
+                            onClick={() => handleDateSelect(turno.fecha)}
+                          >
+                            <div className={styles.fechaHeader}>
+                              <Calendar size={20} />
+                              <span className={styles.fecha}>{turno.fecha}</span>
+                            </div>
+                            <span className={styles.disponibles}>
+                              {turno.disponibles} turnos disponibles
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Selector de Horarios */}
+                      {selectedDate && (
+                        <div className={styles.horariosSection}>
+                          <h4 className={styles.horariosTitle}>
+                            Horarios disponibles para {selectedDate}
+                          </h4>
+                          <div className={styles.horariosGrid}>
+                            {proximosTurnos
+                              .find(turno => turno.fecha === selectedDate)
+                              ?.horarios.map((horario, index) => (
+                                <button
+                                  key={index}
+                                  className={`${styles.horarioButton} ${selectedTime === horario ? styles.horarioSelected : ''}`}
+                                  onClick={() => handleTimeSelect(horario)}
+                                >
+                                  <Clock size={16} />
+                                  {horario}
+                                </button>
+                              ))
+                            }
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Formulario de Datos */}
+                <div className={styles.formularioSection}>
+                  <h3 className={styles.formularioTitle}>Introduzca los detalles</h3>
+                  
+                  <form className={styles.formulario}>
+                    <div className={styles.formGrid}>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="nombre" className={styles.formLabel}>
+                          Nombre *
+                        </label>
+                        <input
+                          type="text"
+                          id="nombre"
+                          name="nombre"
+                          className={styles.formInput}
+                          defaultValue="Nahuel"
+                          required
+                        />
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label htmlFor="apellido" className={styles.formLabel}>
+                          Apellido *
+                        </label>
+                        <input
+                          type="text"
+                          id="apellido"
+                          name="apellido"
+                          className={styles.formInput}
+                          defaultValue="Lozano"
+                          required
+                        />
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label htmlFor="email" className={styles.formLabel}>
+                          Correo electrónico *
+                        </label>
+                        <input
+                          type="email"
+                          id="email"
+                          name="email"
+                          className={styles.formInput}
+                          defaultValue="lozanonahuel@gmail.com"
+                          required
+                        />
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label htmlFor="whatsapp" className={styles.formLabel}>
+                          Número de Whatsapp *
+                        </label>
+                        <input
+                          type="tel"
+                          id="whatsapp"
+                          name="whatsapp"
+                          className={styles.formInput}
+                          placeholder="+54 9 11 1234-5678"
+                          required
+                        />
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label htmlFor="comoConociste" className={styles.formLabel}>
+                          Donde o como conociste
+                        </label>
+                        <textarea
+                          id="comoConociste"
+                          name="comoConociste"
+                          className={styles.formTextarea}
+                          rows={3}
+                          placeholder="Cuéntanos cómo llegaste a nosotros..."
+                        ></textarea>
+                      </div>
+                    </div>
+                    
+                    <div className={styles.precioSection}>
+                      <span className={styles.precioLabel}>Valor de la consulta:</span>
+                      <span className={styles.precioValor}>$50.000</span>
+                    </div>
+                    
+                    {session ? (
+                      <button 
+                        type="button"
+                        className={styles.confirmarButton}
+                        onClick={handleSacarTurno}
+                        disabled={!selectedDate || !selectedTime || loading}
+                      >
+                        {loading ? 'Procesando...' : 'Confirmar Turno >'}
+                      </button>
+                    ) : (
+                      <div className={styles.loginRequired}>
+                        <p>Necesitas iniciar sesión para reservar un turno</p>
+                        <button 
+                          type="button"
+                          className={styles.loginButton}
+                          onClick={handleLogin}
+                        >
+                          Iniciar Sesión
+                        </button>
+                      </div>
+                    )}
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Recordatorio para Agendar Turno */}
+        <section className={styles.recordatorioSection}>
+          <div className={styles.recordatorioContainer}>
+            <h2 className={styles.recordatorioTitle}>
+              ¿Listo para llevar tus inversiones al siguiente nivel?
+            </h2>
+            <p className={styles.recordatorioSubtitle}>
+              Únete a nuestra comunidad y comienza a construir tu libertad financiera
+            </p>
+            <a href="#formulario-turno" className={styles.recordatorioButton}>
+              Agendar Turno {'>'}
+            </a>
+          </div>
+        </section>
+
+        {/* Recordatorio YouTube */}
+        <section className={styles.youtubeSection}>
+          <div className={styles.youtubeContainer}>
+            <div className={styles.youtubeContent}>
+              <div className={styles.youtubeText}>
+                <h2 className={styles.youtubeTitle}>
+                  ¡Sumate a nuestra comunidad
+                  <br />
+                  <span className={styles.youtubeHighlight}>en YouTube!</span>
+                </h2>
+                <p className={styles.youtubeSubtitle}>
+                  No te pierdas nuestros últimos videos
+                </p>
+              </div>
+              
+              <div className={styles.youtubeVideoContainer}>
+                <div className={styles.videoArrow}>
+                  <ChevronLeft size={24} />
+                </div>
+                
+                <div className={styles.videoPlayer}>
                   <div className={styles.videoPlaceholder}>
-                    <div className={styles.placeholderIcon}>🩺</div>
-                    <h3 className={styles.placeholderTitle}>Video: Explicación de la Asesoría</h3>
-                    <p className={styles.placeholderText}>
-                      Descubre cómo una sesión de Consultorio Financiero puede transformar tu estrategia de inversión
-                    </p>
-                    <div className={styles.placeholderFeatures}>
-                      <span>📊 Análisis Personalizado</span>
-                      <span>🎯 Estrategia Específica</span>
-                      <span>📈 Plan de Acción</span>
+                    <div className={styles.playIcon}>
+                      <Play size={32} />
                     </div>
                   </div>
+                  <div className={styles.videoControls}>
+                    <span className={styles.videoTime}>2:21</span>
+                    <button className={styles.controlButton}>
+                      <Pause size={16} />
+                    </button>
+                    <button className={styles.controlButton}>
+                      <SkipForward size={16} />
+                    </button>
+                    <button className={styles.controlButton}>
+                      <Volume2 size={16} />
+                    </button>
+                    <div className={styles.progressBar}>
+                      <div className={styles.progressFilled}></div>
+                      <div className={styles.progressEmpty}></div>
+                    </div>
+                    <span className={styles.videoDuration}>20:00</span>
+                    <button className={styles.controlButton}>
+                      <Maximize2 size={16} />
+                    </button>
+                    <button className={styles.controlButton}>
+                      <Settings size={16} />
+                    </button>
+                  </div>
+                </div>
+                
+                <div className={styles.videoArrow}>
+                  <ChevronRight size={24} />
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
@@ -526,168 +773,6 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
             </div>
           </section>
         )}
-
-        {/* Próximos Turnos */}
-        <section className={styles.turnosSection}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Próximos Turnos
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Selecciona la fecha y horario que mejor se adapte a tu agenda
-            </motion.p>
-            
-            <div className={styles.calendarioContainer}>
-              {loadingTurnos ? (
-                <div className={styles.loadingTurnos}>
-                  <p>Cargando turnos disponibles...</p>
-                </div>
-              ) : proximosTurnos.length === 0 ? (
-                <div className={styles.noTurnos}>
-                  <p>No hay turnos disponibles en este momento. Intenta más tarde.</p>
-                </div>
-              ) : (
-                <>
-                  {/* Selector de Fechas */}
-                  <div className={styles.fechasGrid}>
-                    {proximosTurnos.map((turno, index) => (
-                      <motion.div 
-                        key={index}
-                        className={`${styles.fechaCard} ${selectedDate === turno.fecha ? styles.fechaSelected : ''}`}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
-                        onClick={() => handleDateSelect(turno.fecha)}
-                      >
-                        <div className={styles.fechaHeader}>
-                          <Calendar size={20} />
-                          <span className={styles.fecha}>{turno.fecha}</span>
-                        </div>
-                        <span className={styles.disponibles}>
-                          {turno.disponibles} turnos disponibles
-                        </span>
-                        <div className={styles.horariosPreview}>
-                          {turno.horarios.slice(0, 3).map((horario, idx) => (
-                            <span key={idx} className={styles.horarioChip}>{horario}</span>
-                          ))}
-                          {turno.horarios.length > 3 && (
-                            <span className={styles.horarioMas}>+{turno.horarios.length - 3}</span>
-                          )}
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  {/* Selector de Horarios */}
-                  {selectedDate && (
-                    <motion.div 
-                      className={styles.horariosSection}
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <h3 className={styles.horariosTitle}>
-                        Horarios disponibles para {selectedDate}
-                      </h3>
-                      <div className={styles.horariosGrid}>
-                        {proximosTurnos
-                          .find(turno => turno.fecha === selectedDate)
-                          ?.horarios.map((horario, index) => (
-                            <button
-                              key={index}
-                              className={`${styles.horarioButton} ${selectedTime === horario ? styles.horarioSelected : ''}`}
-                              onClick={() => handleTimeSelect(horario)}
-                            >
-                              <Clock size={16} />
-                              {horario}
-                            </button>
-                          ))
-                        }
-                      </div>
-                    </motion.div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Sacar Turno */}
-        <section className={styles.sacarTurnoSection}>
-          <div className={styles.container}>
-            <motion.div 
-              className={styles.sacarTurnoCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <div className={styles.turnoInfo}>
-                <h3 className={styles.turnoTitle}>¿Listo para tu consulta?</h3>
-                <p className={styles.turnoDescription}>
-                  {selectedDate && selectedTime ? (
-                    <>
-                      Has seleccionado: <strong>{selectedDate}</strong> a las <strong>{selectedTime}</strong>
-                    </>
-                  ) : (
-                    'Selecciona una fecha y horario para proceder con el pago'
-                  )}
-                </p>
-                
-                {session ? (
-                  // Solo mostrar mensaje de error si hay un turno seleccionado Y no está disponible
-                  selectedTime && selectedDate && !isSelectedTimeStillAvailable() ? (
-                    <div className={styles.turnoNoDisponible}>
-                      <span>❌ Este horario ya no está disponible</span>
-                      <button 
-                        onClick={() => {
-                          setSelectedTime('');
-                          loadProximosTurnos();
-                        }}
-                        className={styles.recargarButton}
-                      >
-                        🔄 Actualizar turnos
-                      </button>
-                    </div>
-                  ) : (
-                    <button 
-                      className={styles.sacarTurnoButton}
-                      onClick={handleSacarTurno}
-                      disabled={loading || !selectedDate || !selectedTime}
-                    >
-                      {loading ? 'Procesando...' : 'Confirmar y Pagar'}
-                      {!loading && <ArrowRight size={20} />}
-                    </button>
-                  )
-                ) : (
-                  <div className={styles.loginRequired}>
-                    <div className={styles.loginMessage}>
-                      <AlertCircle size={20} />
-                      <span>Necesitas una cuenta para agendar tu consulta</span>
-                    </div>
-                    <button 
-                      className={styles.loginButton}
-                      onClick={handleLogin}
-                    >
-                      <User size={20} />
-                      Iniciar Sesión para Continuar
-                    </button>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        </section>
 
         {/* Preguntas Frecuentes - Solo mostrar si hay FAQs */}
         {faqs && faqs.length > 0 && (

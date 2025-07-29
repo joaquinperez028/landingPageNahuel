@@ -284,8 +284,8 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(187, 134, 252, 0.4);
   background: var(--primary-hover);
-}
-
+  }
+  
 /* === SECCIÓN 3: TESTIMONIOS - VIOLETA OSCURO === */
 .testimonios {
   padding: 6rem 0;
@@ -995,11 +995,11 @@
 }
 
 /* === SECCIÓN 10: CTA INVESTMENT - AZUL MARINO OSCURO === */
-.ctaInvestmentSection {
-  padding: 6rem 0;
+  .ctaInvestmentSection {
+    padding: 6rem 0;
   background: var(--section-blue);
-  position: relative;
-}
+    position: relative;
+  }
 
 .ctaInvestmentSection::before {
   content: '';
@@ -1011,89 +1011,89 @@
   background: radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.06) 0%, transparent 50%);
   pointer-events: none;
 }
-
-.ctaInvestmentContent {
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
+  
+  .ctaInvestmentContent {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
   position: relative;
   z-index: 1;
-}
-
-.ctaInvestmentTitle {
-  font-size: 2.5rem;
-  font-weight: 700;
+  }
+  
+  .ctaInvestmentTitle {
+    font-size: 2.5rem;
+    font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 1.5rem;
-  line-height: 1.2;
-}
-
-.ctaInvestmentSubtitle {
-  font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+  }
+  
+  .ctaInvestmentSubtitle {
+    font-size: 1.2rem;
   color: var(--text-secondary);
-  margin-bottom: 3rem;
-  font-weight: 400;
-  line-height: 1.5;
-  font-style: italic;
-}
-
-.ctaInvestmentActions {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.ctaInvestmentButtonPrimary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
+    margin-bottom: 3rem;
+    font-weight: 400;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  
+  .ctaInvestmentActions {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .ctaInvestmentButtonPrimary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
   background: var(--secondary-color);
   color: var(--bg-primary);
-  text-decoration: none;
+    text-decoration: none;
   border: 2px solid var(--secondary-color);
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  min-width: 200px;
-  justify-content: center;
-}
-
-.ctaInvestmentButtonPrimary:hover {
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-width: 200px;
+    justify-content: center;
+  }
+  
+  .ctaInvestmentButtonPrimary:hover {
   background: rgba(3, 218, 198, 0.8);
   border-color: rgba(3, 218, 198, 0.8);
-  transform: translateY(-2px);
+    transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(3, 218, 198, 0.3);
-}
-
-.ctaInvestmentButtonSecondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
+  }
+  
+  .ctaInvestmentButtonSecondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
   background: var(--primary-color);
   color: var(--bg-primary);
-  text-decoration: none;
+    text-decoration: none;
   border: 2px solid var(--primary-color);
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  min-width: 200px;
-  justify-content: center;
-}
-
-.ctaInvestmentButtonSecondary:hover {
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-width: 200px;
+    justify-content: center;
+  }
+  
+  .ctaInvestmentButtonSecondary:hover {
   background: var(--primary-hover);
   border-color: var(--primary-hover);
-  transform: translateY(-2px);
+    transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(187, 134, 252, 0.3);
-}
-
+  }
+  
 /* === SECCIÓN 11: YOUTUBE - VIOLETA OSCURO === */
 .youtubeSection {
   padding: 6rem 0;
@@ -1336,7 +1336,7 @@
   .heroActions {
     margin-top: 1.75rem;
   }
-  
+
   .heroVideoPlayer {
     height: 200px;
   }
@@ -1399,11 +1399,11 @@
   .sectionHeader h2 {
     font-size: 2rem;
   }
-  
+
   .sectionHeader p {
     font-size: 1.1rem;
   }
-  
+
   .serviciosGrid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -1469,7 +1469,7 @@
   padding: 0.5rem;
   border-radius: 50%;
   transition: all 0.3s ease;
-}
+  }
 
 .popupClose:hover {
   background: var(--light-bg);
@@ -1478,10 +1478,10 @@
 
 .popupHeader h2 {
   color: var(--primary-color);
-  font-size: 1.75rem;
+    font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-}
+  }
 
 .popupHeader p {
   color: var(--text-secondary);
@@ -1498,16 +1498,16 @@
   padding: 0.875rem 1rem;
   border: 2px solid var(--border-color);
   border-radius: 0.5rem;
-  font-size: 1rem;
+    font-size: 1rem;
   margin-bottom: 1rem;
   transition: border-color 0.3s ease;
-}
+  }
 
 .popupInput:focus {
   outline: none;
   border-color: var(--primary-color);
-}
-
+  }
+  
 .popupButton {
   width: 100%;
   background: var(--primary-color);
@@ -1515,12 +1515,12 @@
   border: none;
   padding: 0.875rem 1.5rem;
   border-radius: 0.5rem;
-  font-size: 1rem;
+    font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-}
-
+  }
+  
 .popupButton:hover:not(:disabled) {
   background: var(--primary-dark);
   transform: translateY(-1px);
@@ -1551,8 +1551,8 @@
   margin: 0.5rem 0;
   color: var(--text-secondary);
   font-size: 0.875rem;
-}
-
+  }
+  
 /* Responsive Design for Popup */
 @media (max-width: 768px) {
   .popupContent {
