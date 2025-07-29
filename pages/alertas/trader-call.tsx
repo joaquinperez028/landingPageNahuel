@@ -471,45 +471,6 @@ const SubscriberView: React.FC = () => {
     }
   }, [session]);
 
-  // Alertas vigentes (definir primero para evitar dependencias circulares)
-  const alertasVigentes = [
-    {
-      id: 1,
-      symbol: 'AAPL',
-      action: 'BUY',
-      entryPrice: '$185.50',
-      currentPrice: '$189.20',
-      stopLoss: '$182.00',
-      takeProfit: '$195.00',
-      profit: '+2.0%',
-      status: 'ACTIVE',
-      date: '2024-01-15'
-    },
-    {
-      id: 2,
-      symbol: 'TSLA',
-      action: 'SELL',
-      entryPrice: '$248.90',
-      currentPrice: '$245.30',
-      stopLoss: '$255.00',
-      takeProfit: '$235.00',
-      profit: '+1.4%',
-      status: 'ACTIVE',
-      date: '2024-01-14'
-    }
-  ];
-
-  // Datos históricos de alertas (simulando base de datos)
-  const alertasHistoricas = [
-    { id: 1, symbol: 'AAPL', action: 'BUY', entryPrice: 185.50, exitPrice: 189.20, profit: 2.0, status: 'CLOSED', date: '2024-01-10', type: 'WIN' },
-    { id: 2, symbol: 'TSLA', action: 'SELL', entryPrice: 248.90, exitPrice: 245.30, profit: 1.4, status: 'CLOSED', date: '2024-01-11', type: 'WIN' },
-    { id: 3, symbol: 'MSFT', action: 'BUY', entryPrice: 380.50, exitPrice: 375.20, profit: -1.4, status: 'CLOSED', date: '2024-01-12', type: 'LOSS' },
-    { id: 4, symbol: 'NVDA', action: 'BUY', entryPrice: 520.30, exitPrice: 535.80, profit: 2.98, status: 'CLOSED', date: '2024-01-13', type: 'WIN' },
-    { id: 5, symbol: 'GOOGL', action: 'SELL', entryPrice: 142.10, exitPrice: 139.45, profit: 1.87, status: 'CLOSED', date: '2024-01-14', type: 'WIN' },
-    { id: 6, symbol: 'META', action: 'BUY', entryPrice: 365.20, exitPrice: 358.90, profit: -1.73, status: 'CLOSED', date: '2024-01-14', type: 'LOSS' },
-    { id: 7, symbol: 'AMD', action: 'BUY', entryPrice: 148.50, exitPrice: 155.30, profit: 4.58, status: 'CLOSED', date: '2024-01-15', type: 'WIN' }
-  ];
-
   // Función para calcular métricas reales del dashboard usando alertas reales
   const calculateDashboardMetrics = () => {
     // Usar alertas reales en lugar de datos simulados
@@ -955,6 +916,27 @@ const SubscriberView: React.FC = () => {
     ));
   };
 
+  // Funciones para manejar modales de imágenes
+  const handleShowChart = (chartImage: CloudinaryImage) => {
+    setSelectedImage(chartImage);
+    setShowImageModal(true);
+  };
+
+  const handleShowAdditionalImages = (images: CloudinaryImage[]) => {
+    setSelectedAlertImages(images);
+    setShowAdditionalImagesModal(true);
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+    setSelectedImage(null);
+  };
+
+  const closeAdditionalImagesModal = () => {
+    setShowAdditionalImagesModal(false);
+    setSelectedAlertImages([]);
+  };
+
   const handleCreateAlert = async () => {
     if (!newAlert.symbol || !stockPrice) {
       alert('Por favor completa todos los campos obligatorios');
@@ -1056,20 +1038,61 @@ const SubscriberView: React.FC = () => {
     }
   };
 
+  // **NUEVO: Estado para manejo de rango temporal del portafolio**
+  const [portfolioRange, setPortfolioRange] = useState('30d');
+  const [portfolioData, setPortfolioData] = useState<any[]>([]);
+  const [portfolioLoading, setPortfolioLoading] = useState(false);
+
+  // **NUEVO: Función para manejar cambio de rango temporal**
+  const handlePortfolioRangeChange = useCallback(async (range: string, days: number) => {
+    setPortfolioRange(range);
+    setPortfolioLoading(true);
+    
+    try {
+      // Simular carga de datos del portafolio
+      // En producción, esto haría fetch a una API real
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Generar datos simulados basados en el rango
+      const mockData = generatePortfolioData(days);
+      setPortfolioData(mockData);
+    } catch (error) {
+      console.error('Error al cargar datos del portafolio:', error);
+    } finally {
+      setPortfolioLoading(false);
+    }
+  }, []);
+
+  // **NUEVO: Función para generar datos simulados del portafolio**
+  const generatePortfolioData = (days: number) => {
+    const data = [];
+    const baseValue = 10000;
+    let currentValue = baseValue;
+    
+    for (let i = 0; i < days; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - (days - i));
+      
+      // Simular variación diaria
+      const dailyChange = (Math.random() - 0.5) * 0.02; // ±1% diario
+      currentValue *= (1 + dailyChange);
+      
+      data.push({
+        date: date.toISOString(),
+        value: currentValue,
+        change: dailyChange * 100
+      });
+    }
+    
+    return data;
+  };
+
+  // Funciones de renderizado
   const renderDashboard = () => (
     <div className={styles.dashboardContent}>
       <h2 className={styles.sectionTitle}>Dashboard de Trabajo</h2>
       
-      {/* **NUEVO: SPY500 y Portfolio lado a lado** */}
-      <div className={styles.marketOverview}>
-        <SPY500Indicator />
-        <PortfolioTimeRange
-          selectedRange={portfolioRange}
-          onRangeChange={handlePortfolioRangeChange}
-        />
-      </div>
-      
-      {/* Métricas principales modernizadas */}
+      {/* Métricas principales */}
       <div className={styles.modernMetricsGrid}>
         <div className={`${styles.modernMetricCard} ${styles.activeCard}`}>
           <div className={styles.cardHeader}>
@@ -1082,9 +1105,6 @@ const SubscriberView: React.FC = () => {
             <h3 className={styles.metricTitle}>ALERTAS ACTIVAS</h3>
             <div className={styles.metricValue}>{dashboardMetrics.alertasActivas}</div>
             <p className={styles.metricSubtext}>Posiciones abiertas</p>
-          </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
           </div>
         </div>
         
@@ -1100,9 +1120,6 @@ const SubscriberView: React.FC = () => {
             <div className={styles.metricValue}>{dashboardMetrics.alertasGanadoras}</div>
             <p className={styles.metricSubtext}>Cerradas con ganancia</p>
           </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
         </div>
         
         <div className={`${styles.modernMetricCard} ${styles.errorCard}`}>
@@ -1117,9 +1134,6 @@ const SubscriberView: React.FC = () => {
             <div className={styles.metricValue}>{dashboardMetrics.alertasPerdedoras}</div>
             <p className={styles.metricSubtext}>Cerradas con pérdida</p>
           </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
         </div>
         
         <div className={`${styles.modernMetricCard} ${styles.warningCard}`}>
@@ -1133,79 +1147,6 @@ const SubscriberView: React.FC = () => {
             <h3 className={styles.metricTitle}>RENTABILIDAD ANUAL</h3>
             <div className={styles.metricValue}>{dashboardMetrics.rentabilidadAnual}</div>
             <p className={styles.metricSubtext}>Año {new Date().getFullYear()}</p>
-          </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
-        </div>
-        
-        <div className={`${styles.modernMetricCard} ${styles.infoCard}`}>
-          <div className={styles.cardHeader}>
-            <div className={styles.iconContainer}>
-              <Users size={20} />
-            </div>
-            <div className={styles.statusDot}></div>
-          </div>
-          <div className={styles.metricContent}>
-            <h3 className={styles.metricTitle}>ALERTAS ANUALES</h3>
-            <div className={styles.metricValue}>{dashboardMetrics.alertasAnuales}</div>
-            <p className={styles.metricSubtext}>Enviadas este año</p>
-          </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Resumen de Performance modernizado */}
-      <div className={styles.modernPerformanceSection}>
-        <div className={styles.performanceHeader}>
-          <h3 className={styles.performanceTitle}>Resumen de Performance</h3>
-          <div className={styles.performanceBadge}>En tiempo real</div>
-        </div>
-        <div className={styles.modernPerformanceGrid}>
-          <div className={styles.performanceStat}>
-            <div className={styles.statHeader}>
-              <span className={styles.statLabel}>Win Rate</span>
-              <div className={styles.statIcon}>📊</div>
-            </div>
-            <div className={styles.statValue}>
-              {dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras > 0 
-                ? ((dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras)) * 100).toFixed(1) 
-                : '0.0'}%
-            </div>
-            <div className={styles.statProgress}>
-              <div 
-                className={styles.progressBar} 
-                style={{ 
-                  width: `${dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras > 0 
-                    ? ((dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras)) * 100) 
-                    : 0}%` 
-                }}
-              ></div>
-            </div>
-          </div>
-          
-          <div className={styles.performanceStat}>
-            <div className={styles.statHeader}>
-              <span className={styles.statLabel}>Total Alertas</span>
-              <div className={styles.statIcon}>🎯</div>
-            </div>
-            <div className={styles.statValue}>{realAlerts.length}</div>
-            <div className={styles.statSubtext}>Alertas procesadas</div>
-          </div>
-          
-          <div className={styles.performanceStat}>
-            <div className={styles.statHeader}>
-              <span className={styles.statLabel}>Ratio G/P</span>
-              <div className={styles.statIcon}>⚖️</div>
-            </div>
-            <div className={styles.statValue}>
-              {dashboardMetrics.alertasPerdedoras > 0 
-                ? (dashboardMetrics.alertasGanadoras / dashboardMetrics.alertasPerdedoras).toFixed(2) 
-                : dashboardMetrics.alertasGanadoras > 0 ? '∞' : '0.01'}
-            </div>
-            <div className={styles.statSubtext}>Ganancia vs Pérdida</div>
           </div>
         </div>
       </div>
@@ -1240,24 +1181,6 @@ const SubscriberView: React.FC = () => {
           ))}
         </div>
       </div>
-
-      {/* **MODIFICADO: Gráfico de evolución del portafolio con selector de rango** */}
-      <div className={styles.chartContainer}>
-        <h3>Evolución del Portafolio - {portfolioRange.toUpperCase()}</h3>
-        <div className={styles.chartPlaceholder}>
-          <BarChart3 size={64} />
-          <p>Gráfico de Chart.js se implementaría aquí</p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-            Mostrará la evolución del rendimiento del portafolio para el período seleccionado
-          </p>
-          {portfolioData.length > 0 && (
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Datos cargados: {portfolioData.length} puntos desde {' '}
-              {new Date(portfolioData[0]?.date).toLocaleDateString('es-ES')}
-            </p>
-          )}
-        </div>
-      </div>
     </div>
   );
 
@@ -1283,7 +1206,6 @@ const SubscriberView: React.FC = () => {
           onChange={(e) => setFilterSymbol(e.target.value)}
         >
           <option value="">Filtrar por símbolo</option>
-          {/* Generar opciones dinámicamente basándose en alertas existentes */}
           {Array.from(new Set(realAlerts.map(alert => alert.symbol))).map(symbol => (
             <option key={symbol} value={symbol}>{symbol}</option>
           ))}
@@ -1305,7 +1227,6 @@ const SubscriberView: React.FC = () => {
           value={filterDate}
           onChange={(e) => setFilterDate(e.target.value)}
         />
-        {/* Botón para limpiar filtros */}
         {(filterSymbol || filterStatus || filterDate) && (
           <button 
             className={styles.clearFilters}
@@ -1317,7 +1238,7 @@ const SubscriberView: React.FC = () => {
         )}
       </div>
 
-      {/* Tabla de alertas mejorada */}
+      {/* Tabla de alertas */}
       <div className={styles.alertasTableContainer}>
         {(() => {
           const filteredAlerts = getFilteredAlerts();
@@ -1368,23 +1289,19 @@ const SubscriberView: React.FC = () => {
           return (
             <div className={styles.alertsGrid}>
               {filteredAlerts.map((alert) => {
-                // Calcular información adicional para mostrar
                 const entryPrice = parseFloat(String(alert.entryPrice || '0').replace('$', ''));
                 const currentPrice = parseFloat(String(alert.currentPrice || '0').replace('$', ''));
                 const exitPrice = alert.exitPrice ? parseFloat(String(alert.exitPrice).replace('$', '')) : null;
                 const profitPercent = parseFloat(String(alert.profit || '0%').replace('%', '').replace('+', ''));
                 
-                // Calcular ganancia/pérdida en dólares
                 const priceChange = exitPrice ? (exitPrice - entryPrice) : (currentPrice - entryPrice);
                 const dollarPL = priceChange.toFixed(2);
                 
-                // Determinar color del P&L
                 const isProfit = profitPercent >= 0;
                 const pnlColor = isProfit ? 'var(--success-color)' : 'var(--error-color)';
                 
                 return (
                   <div key={alert.id} className={styles.alertCard}>
-                    {/* Header de la alerta */}
                     <div className={styles.alertCardHeader}>
                       <div className={styles.alertSymbolSection}>
                         <h3 className={styles.alertSymbolTitle}>{alert.symbol}</h3>
@@ -1400,7 +1317,6 @@ const SubscriberView: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Información de precios */}
                     <div className={styles.priceInfoGrid}>
                       <div className={styles.priceInfo}>
                         <span className={styles.priceLabel}>Entrada</span>
@@ -1422,7 +1338,6 @@ const SubscriberView: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* P&L destacado */}
                     <div className={styles.pnlSection}>
                       <div className={styles.pnlMain}>
                         <span className={styles.pnlLabel}>P&L Total</span>
@@ -1435,59 +1350,6 @@ const SubscriberView: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      {alert.status === 'CLOSED' && alert.exitReason && (
-                        <div className={styles.exitReason}>
-                          <span className={styles.exitReasonLabel}>Razón:</span>
-                          <span className={styles.exitReasonValue}>
-                            {alert.exitReason === 'MANUAL' ? '✋ Manual' : 
-                             alert.exitReason === 'TAKE_PROFIT' ? '🎯 Take Profit' : 
-                             alert.exitReason === 'STOP_LOSS' ? '🛑 Stop Loss' : alert.exitReason}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Análisis si existe */}
-                    {alert.analysis && (
-                      <div className={styles.analysisSection}>
-                        <span className={styles.analysisLabel}>💡 Análisis:</span>
-                        <p className={styles.analysisText}>{alert.analysis}</p>
-                      </div>
-                    )}
-
-                    {/* Botones para ver imágenes */}
-                    <div className={styles.imageButtonsSection}>
-                      {alert.chartImage && (
-                        <button
-                          className={styles.imageButton}
-                          onClick={() => handleShowChart(alert.chartImage)}
-                        >
-                          📊 Ver Gráfico
-                        </button>
-                      )}
-                      {alert.images && alert.images.length > 0 && (
-                        <button
-                          className={styles.imageButton}
-                          onClick={() => handleShowAdditionalImages(alert.images)}
-                        >
-                          📸 Ver Imágenes Extras ({alert.images.length})
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Performance visual */}
-                    <div className={styles.performanceBar}>
-                      <div className={styles.performanceTrack}>
-                        <div 
-                          className={`${styles.performanceFill} ${isProfit ? styles.profitFill : styles.lossFill}`}
-                          style={{ 
-                            width: `${Math.min(Math.abs(profitPercent) * 2, 100)}%` 
-                          }}
-                        ></div>
-                      </div>
-                      <span className={styles.performanceText}>
-                        {isProfit ? '📈' : '📉'} {Math.abs(profitPercent).toFixed(1)}% {isProfit ? 'ganancia' : 'pérdida'}
-                      </span>
                     </div>
                   </div>
                 );
@@ -1500,7 +1362,6 @@ const SubscriberView: React.FC = () => {
   );
 
   const renderAlertasVigentes = () => {
-    // Filtrar solo alertas activas de las alertas reales
     const alertasActivas = realAlerts.filter(alert => alert.status === 'ACTIVE');
     
     return (
@@ -1508,6 +1369,15 @@ const SubscriberView: React.FC = () => {
         <div className={styles.vigentesHeader}>
           <h2 className={styles.sectionTitle}>Alertas Vigentes</h2>
           <div className={styles.priceUpdateControls}>
+            {userRole === 'admin' && (
+              <button 
+                className={styles.createAlertButton}
+                onClick={() => setShowCreateAlert(true)}
+                title="Crear nueva alerta"
+              >
+                + Crear Alerta
+              </button>
+            )}
             <button 
               className={styles.updatePricesButton}
               onClick={() => updatePrices(false)}
@@ -1515,27 +1385,6 @@ const SubscriberView: React.FC = () => {
             >
               {updatingPrices ? '🔄 Actualizando...' : '📈 Actualizar Precios'}
             </button>
-            <div className={styles.marketInfo}>
-              {lastPriceUpdate && (
-                <span className={styles.lastUpdateTime}>
-                  Última actualización: {lastPriceUpdate.toLocaleTimeString()}
-                </span>
-              )}
-              {marketStatus && (
-                <span className={`${styles.marketStatus} ${styles[`status${marketStatus}`]}`}>
-                  {marketStatus === 'OPEN' ? '🟢 Mercado Abierto' : 
-                   marketStatus === 'CLOSED_WEEKEND' ? '🔴 Mercado Cerrado (Fin de semana)' :
-                   marketStatus === 'CLOSED_AFTER_HOURS' ? '🟡 Mercado Cerrado (After hours)' :
-                   marketStatus === 'CLOSED_PRE_MARKET' ? '🟡 Mercado Cerrado (Pre-market)' :
-                   '🟡 Estado desconocido'}
-                </span>
-              )}
-              {isUsingSimulatedPrices && (
-                <span className={styles.simulatedWarning}>
-                  ⚠️ Precios simulados
-                </span>
-              )}
-            </div>
           </div>
         </div>
         
@@ -1546,9 +1395,6 @@ const SubscriberView: React.FC = () => {
         ) : alertasActivas.length === 0 ? (
           <div className={styles.emptyState}>
             <p>No hay alertas vigentes en este momento.</p>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-              Las alertas aparecerán aquí cuando las crees.
-            </p>
           </div>
         ) : (
           alertasActivas.map((alert) => (
@@ -1631,9 +1477,6 @@ const SubscriberView: React.FC = () => {
                 <span className={styles.informeDate}>
                   {new Date(informe.publishedAt || informe.createdAt).toLocaleDateString('es-ES')}
                 </span>
-                {informe.isFeature && (
-                  <span className={styles.featuredBadge}>⭐ Destacado</span>
-                )}
               </div>
               
               <div className={styles.informeMeta}>
@@ -1641,23 +1484,11 @@ const SubscriberView: React.FC = () => {
                   {informe.type === 'video' ? '🎥' : informe.type === 'analisis' ? '📊' : '📄'} 
                   {informe.type === 'video' ? 'Video' : informe.type === 'analisis' ? 'Análisis' : 'Informe'}
                 </span>
-                {informe.readTime && (
-                  <span className={styles.readTime}>⏱️ {informe.readTime} min lectura</span>
-                )}
-                <span className={styles.views}>👁️ {informe.views} vistas</span>
               </div>
 
               <p className={styles.informeDescription}>
                 {informe.summary}
               </p>
-
-              {informe.tags && informe.tags.length > 0 && (
-                <div className={styles.informeTags}>
-                  {informe.tags.slice(0, 3).map((tag: string, index: number) => (
-                    <span key={index} className={styles.tag}>#{tag}</span>
-                  ))}
-                </div>
-              )}
 
               <div className={styles.informeActions}>
                 <button 
@@ -1666,12 +1497,6 @@ const SubscriberView: React.FC = () => {
                 >
                   {informe.type === 'video' ? 'Ver Video' : 'Leer Informe'}
                 </button>
-                {informe.pdfUrl && (
-                  <button className={styles.downloadButton}>
-                    <Download size={16} />
-                    Descargar PDF
-                  </button>
-                )}
               </div>
             </div>
           ))}
@@ -1681,117 +1506,7 @@ const SubscriberView: React.FC = () => {
           <div className={styles.emptyIcon}>📄</div>
           <h3>No hay informes disponibles</h3>
           <p>Los informes y análisis aparecerán aquí cuando estén disponibles.</p>
-          {userRole === 'admin' && (
-            <div className={styles.emptyActions}>
-              <p className={styles.emptyHint}>
-                Puedes crear el primer informe para comenzar.
-              </p>
-              <button 
-                className={styles.emptyCreateButton}
-                onClick={() => setShowCreateReportModal(true)}
-              >
-                Crear Primer Informe
-              </button>
-            </div>
-          )}
         </div>
-      )}
-
-      {/* Modal para mostrar informe completo */}
-      {selectedReport && (
-        <div className={styles.modalOverlay} onClick={() => setSelectedReport(null)}>
-          <div className={styles.reportModal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.reportHeader}>
-              <h2>{selectedReport.title}</h2>
-              <button 
-                className={styles.closeModal}
-                onClick={() => setSelectedReport(null)}
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className={styles.reportMeta}>
-              <span>Por {typeof selectedReport.author === 'object' ? selectedReport.author?.name : selectedReport.author || 'Autor desconocido'}</span>
-              <span>{new Date(selectedReport.publishedAt || selectedReport.createdAt).toLocaleDateString('es-ES')}</span>
-            </div>
-
-            <div className={styles.reportContent}>
-              {/* Imagen de portada usando Cloudinary */}
-              {(selectedReport.coverImage?.secure_url || selectedReport.imageUrl) && (
-                <div className={styles.reportCoverImage}>
-                  <img 
-                    src={selectedReport.coverImage?.secure_url || selectedReport.imageUrl} 
-                    alt={`Imagen de portada: ${selectedReport.title}`}
-                    className={styles.coverImage}
-                    onError={(e) => {
-                      console.error('Error cargando imagen de portada:', selectedReport.coverImage?.secure_url || selectedReport.imageUrl);
-                      const target = e.currentTarget;
-                      target.style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* Video si existe */}
-              {selectedReport.type === 'video' && selectedReport.muxAssetId ? (
-                <div className={styles.videoContainer}>
-                  <VideoPlayerMux 
-                    playbackId={selectedReport.playbackId || selectedReport.muxAssetId} 
-                    autoplay={false}
-                    className={styles.reportVideo}
-                  />
-                </div>
-              ) : null}
-              
-              <div className={styles.reportText}>
-                {selectedReport.content.split('\n').map((paragraph: string, index: number) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
-              </div>
-
-              {/* Imágenes adicionales usando Cloudinary */}
-              {((selectedReport.images && selectedReport.images.length > 0) || (selectedReport.optimizedImages && selectedReport.optimizedImages.length > 0)) && (
-                <div className={styles.reportImages}>
-                  <h3 className={styles.imagesTitle}>Imágenes del Informe</h3>
-                  <div className={styles.imagesGrid}>
-                    {(selectedReport.images || selectedReport.optimizedImages || [])
-                      .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
-                      .map((image: any, index: number) => (
-                        <div key={index} className={styles.reportImage}>
-                          <img 
-                            src={image.url} 
-                            alt={image.caption || `Imagen ${index + 1} del informe`}
-                            className={styles.additionalImage}
-                            onError={(e) => {
-                              console.error('Error cargando imagen adicional:', image.url);
-                              const target = e.currentTarget;
-                              target.style.display = 'none';
-                            }}
-                          />
-                          {image.caption && (
-                            <p className={styles.imageCaption}>{image.caption}</p>
-                          )}
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Sección de comentarios */}
-              <ReportComments reportId={selectedReport.id || selectedReport._id} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal para crear informe */}
-      {showCreateReportModal && (
-        <CreateReportModal 
-          onClose={() => setShowCreateReportModal(false)}
-          onSubmit={handleCreateReport}
-          loading={creatingReport}
-        />
       )}
     </div>
   );
@@ -1819,7 +1534,7 @@ const SubscriberView: React.FC = () => {
 
     const fetchMessages = async () => {
       try {
-        const response = await fetch('/api/chat/messages');
+        const response = await fetch('/api/chat/messages?chatType=trader-call');
         if (response.ok) {
           const data = await response.json();
           setMessages(data.messages || []);
@@ -1921,134 +1636,95 @@ const SubscriberView: React.FC = () => {
     return (
       <div className={styles.comunidadContent}>
         <div className={styles.chatContainer}>
-          {/* Header del Chat */}
           <div className={styles.chatHeader}>
             <div className={styles.chatTitle}>
               <h2>💬 Comunidad Trader Call</h2>
             </div>
           </div>
-
-          {/* Área Principal del Chat - Sin panel lateral */}
+          
           <div className={styles.chatMainFull}>
-            <div className={styles.messagesContainer}>
-              {messages.length === 0 ? (
-                <div className={styles.emptyChat}>
-                  <div className={styles.emptyChatIcon}>💬</div>
-                  <p>¡Sé el primero en escribir un mensaje!</p>
-                </div>
-              ) : (
-                messages.map((msg) => (
-                  <div 
-                    key={msg._id || msg.id} 
-                    className={`${styles.chatMessage} ${msg.type === 'highlight' ? styles.highlightMessage : ''}`}
-                  >
-                    {/* Mostrar cita si el mensaje es una respuesta */}
-                    {msg.replyTo && (
-                      <div className={styles.replyReference}>
-                        <div className={styles.replyLine}></div>
-                        <div className={styles.replyContent}>
-                          <span className={styles.replyUser}>@{msg.replyTo.userName}</span>
-                          <span className={styles.replyText}>
-                            {msg.replyTo.message.length > 50 
-                              ? msg.replyTo.message.substring(0, 50) + '...' 
-                              : msg.replyTo.message}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
+            {messages.length === 0 ? (
+              <div className={styles.emptyChat}>
+                <div className={styles.emptyChatIcon}>💬</div>
+                <p>¡Sé el primero en escribir un mensaje!</p>
+              </div>
+            ) : (
+              <div className={styles.messagesContainer}>
+                {messages.map((msg, index) => (
+                  <div key={msg._id || index} className={styles.chatMessage}>
                     <div className={styles.messageHeader}>
-                      <span className={styles.messageUser}>
-                        {/* Imagen de perfil del usuario */}
-                        {msg.userImage ? (
-                          <img 
-                            src={msg.userImage} 
-                            alt={`Foto de ${msg.userName}`}
-                            className={styles.userAvatar}
-                            onError={(e) => {
-                              // Si falla la carga de la imagen, mostrar placeholder
-                              const target = e.currentTarget;
-                              target.style.display = 'none';
-                              const placeholder = target.nextElementSibling as HTMLElement;
-                              if (placeholder) {
-                                placeholder.style.display = 'flex';
-                              }
-                            }}
-                          />
-                        ) : null}
-                        {/* Placeholder para usuarios sin imagen */}
-                        <div 
-                          className={styles.userAvatarPlaceholder}
-                          style={{ display: msg.userImage ? 'none' : 'flex' }}
-                        >
-                          {msg.userName ? msg.userName.charAt(0).toUpperCase() : '?'}
+                      <div className={styles.messageUser}>
+                        <div className={styles.userAvatar}>
+                          <div className={styles.userAvatarPlaceholder}>
+                            {msg.userName?.charAt(0)?.toUpperCase() || 'U'}
+                          </div>
                         </div>
-                        {msg.userName}
-                      </span>
+                        <span className={styles.userName}>{msg.userName || 'Usuario'}</span>
+                      </div>
                       <span className={styles.messageTime}>
                         {formatTime(msg.timestamp)}
                       </span>
                     </div>
+                    
                     <div className={styles.messageContent}>
-                      {msg.message}
+                      {msg.replyTo && (
+                        <div className={styles.replyReference}>
+                          <div className={styles.replyLine}></div>
+                          <div className={styles.replyContent}>
+                            <span className={styles.replyUser}>{msg.replyTo.userName}</span>
+                            <span className={styles.replyText}>{msg.replyTo.message}</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className={styles.messageText}>{msg.message}</div>
                     </div>
-
-                    {/* Botón de respuesta (aparece en hover) */}
+                    
                     <div className={styles.messageActions}>
                       <button 
                         className={styles.replyButton}
                         onClick={() => handleReply(msg)}
-                        title="Responder mensaje"
                       >
-                        ↩️ Responder
+                        <Reply size={14} />
+                        Responder
                       </button>
                     </div>
                   </div>
-                ))
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input para enviar mensajes */}
-            <div className={styles.chatInput}>
-              {/* Mostrar cita cuando se está respondiendo */}
-              {replyingTo && (
-                <div className={styles.replyingTo}>
-                  <div className={styles.replyingHeader}>
-                    <span>Respondiendo a @{replyingTo.userName}</span>
-                    <button className={styles.cancelReply} onClick={cancelReply}>
-                      ✕
-                    </button>
-                  </div>
-                  <div className={styles.replyingText}>
-                    {replyingTo.message.length > 100 
-                      ? replyingTo.message.substring(0, 100) + '...' 
-                      : replyingTo.message}
-                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </div>
+          
+          <div className={styles.chatInput}>
+            {replyingTo && (
+              <div className={styles.replyingTo}>
+                <div className={styles.replyingHeader}>
+                  <span>Respondiendo a {replyingTo.userName}</span>
+                  <button onClick={cancelReply} className={styles.cancelReply}>
+                    <X size={14} />
+                  </button>
                 </div>
-              )}
-
-              <div className={styles.inputContainer}>
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder={replyingTo ? "Escribe tu respuesta..." : "Escribe un mensaje..."}
-                  className={`${styles.messageInput} messageInput`}
-                  maxLength={200}
-                />
-                <button 
-                  onClick={sendMessage}
-                  className={styles.sendButton}
-                  disabled={!message.trim()}
-                >
-                  🚀
-                </button>
+                <div className={styles.replyingText}>{replyingTo.message}</div>
               </div>
-              <div className={styles.chatInfo}>
-                <span>Presiona Enter para enviar • Escape para cancelar respuesta • {message.length}/200</span>
-              </div>
+            )}
+            
+            <div className={styles.inputContainer}>
+              <textarea
+                className={`${styles.messageInput} messageInput`}
+                placeholder="Escribe tu mensaje..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                rows={1}
+              />
+              <button 
+                className={styles.sendButton}
+                onClick={sendMessage}
+                disabled={!message.trim()}
+              >
+                <Send size={16} />
+              </button>
             </div>
           </div>
         </div>
@@ -2057,260 +1733,6 @@ const SubscriberView: React.FC = () => {
   };
 
   const renderComunidad = () => <CommunityChat />;
-
-  // Componente para los comentarios de informes
-  const ReportComments = ({ reportId }: { reportId: string }) => {
-    const { data: session } = useSession();
-    const [comments, setComments] = useState<any[]>([]);
-    const [newComment, setNewComment] = useState('');
-    const [loadingComments, setLoadingComments] = useState(true);
-    const [submittingComment, setSubmittingComment] = useState(false);
-    const [replyingTo, setReplyingTo] = useState<any>(null);
-
-    // Cargar comentarios cuando se monta el componente
-    useEffect(() => {
-      if (reportId) {
-        fetchComments();
-      }
-    }, [reportId]);
-
-    const fetchComments = async () => {
-      try {
-        const response = await fetch(`/api/reports/comments?reportId=${reportId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setComments(data.comments || []);
-        }
-      } catch (error) {
-        console.error('Error cargando comentarios:', error);
-      } finally {
-        setLoadingComments(false);
-      }
-    };
-
-    const submitComment = async () => {
-      if (!newComment.trim() || !session) return;
-      
-      setSubmittingComment(true);
-      try {
-        const commentData: any = {
-          reportId,
-          comment: newComment.trim()
-        };
-
-        if (replyingTo) {
-          commentData.replyTo = {
-            commentId: replyingTo._id || replyingTo.id,
-            userName: replyingTo.userName,
-            comment: replyingTo.comment
-          };
-        }
-
-        const response = await fetch('/api/reports/comments', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(commentData),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setComments(prev => [...prev, data.comment]);
-          setNewComment('');
-          setReplyingTo(null);
-        }
-      } catch (error) {
-        console.error('Error enviando comentario:', error);
-      } finally {
-        setSubmittingComment(false);
-      }
-    };
-
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        submitComment();
-      } else if (e.key === 'Escape') {
-        setReplyingTo(null);
-      }
-    };
-
-    const formatCommentTime = (timestamp: string) => {
-      const date = new Date(timestamp);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffMins = Math.floor(diffMs / (1000 * 60));
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-      if (diffMins < 1) return 'Hace un momento';
-      if (diffMins < 60) return `Hace ${diffMins} min`;
-      if (diffHours < 24) return `Hace ${diffHours}h`;
-      if (diffDays < 7) return `Hace ${diffDays}d`;
-      return date.toLocaleDateString('es-ES');
-    };
-
-    const getCharCountClass = () => {
-      if (newComment.length >= 450) return 'error';
-      if (newComment.length >= 400) return 'warning';
-      return '';
-    };
-
-    return (
-      <div className={styles.reportComments}>
-        <div className={styles.commentsHeader}>
-          <h3 className={styles.commentsTitle}>
-            💬 Comentarios
-            {comments.length > 0 && (
-              <span className={styles.commentsCount}>{comments.length}</span>
-            )}
-          </h3>
-        </div>
-
-        {/* Formulario para nuevo comentario */}
-        {session ? (
-          <div className={styles.commentForm}>
-            {replyingTo && (
-              <div className={styles.commentReply}>
-                <div className={styles.commentReplyUser}>
-                  Respondiendo a @{replyingTo.userName}
-                </div>
-                <div className={styles.commentReplyText}>
-                  {replyingTo.comment.length > 100 
-                    ? `${replyingTo.comment.substring(0, 100)}...` 
-                    : replyingTo.comment}
-                </div>
-                <button 
-                  onClick={() => setReplyingTo(null)}
-                  style={{ 
-                    background: 'none', 
-                    border: 'none', 
-                    color: '#ef4444', 
-                    fontSize: '0.75rem',
-                    cursor: 'pointer',
-                    marginTop: '0.5rem'
-                  }}
-                >
-                  ✕ Cancelar respuesta
-                </button>
-              </div>
-            )}
-            
-            <div className={styles.commentInputContainer}>
-              {session.user.image ? (
-                <img 
-                  src={session.user.image} 
-                  alt={session.user.name} 
-                  className={styles.commentUserAvatar}
-                />
-              ) : (
-                <div className={styles.commentUserPlaceholder}>
-                  {session.user.name?.charAt(0).toUpperCase()}
-                </div>
-              )}
-              
-              <div className={styles.commentInputWrapper}>
-                <textarea
-                  className={styles.commentTextarea}
-                  placeholder={replyingTo ? `Responder a ${replyingTo.userName}...` : "Escribe tu comentario..."}
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  maxLength={500}
-                />
-                
-                <div className={styles.commentActions}>
-                  <span className={`${styles.commentCharCount} ${styles[getCharCountClass()]}`}>
-                    {newComment.length}/500
-                  </span>
-                  
-                  <button 
-                    className={styles.commentSubmitButton}
-                    onClick={submitComment}
-                    disabled={!newComment.trim() || submittingComment || newComment.length > 500}
-                  >
-                    {submittingComment ? 'Enviando...' : (replyingTo ? 'Responder' : 'Comentar')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className={styles.commentForm}>
-            <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-              Debes iniciar sesión para comentar
-            </p>
-          </div>
-        )}
-
-        {/* Lista de comentarios */}
-        {loadingComments ? (
-          <div className={styles.commentsLoading}>
-            <div>⏳ Cargando comentarios...</div>
-          </div>
-        ) : comments.length > 0 ? (
-          <div className={styles.commentsList}>
-            {comments.map((comment) => (
-              <div key={comment._id || comment.id} className={styles.comment}>
-                {comment.replyTo && (
-                  <div className={styles.commentReply}>
-                    <div className={styles.commentReplyUser}>
-                      @{comment.replyTo.userName}
-                    </div>
-                    <div className={styles.commentReplyText}>
-                      {comment.replyTo.comment.length > 100 
-                        ? `${comment.replyTo.comment.substring(0, 100)}...` 
-                        : comment.replyTo.comment}
-                    </div>
-                  </div>
-                )}
-                
-                <div className={styles.commentHeader}>
-                  <div className={styles.commentUser}>
-                    {comment.userImage ? (
-                      <img 
-                        src={comment.userImage} 
-                        alt={comment.userName} 
-                        className={styles.commentAvatar}
-                      />
-                    ) : (
-                      <div className={styles.commentAvatarPlaceholder}>
-                        {comment.userName?.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    {comment.userName}
-                  </div>
-                  <span className={styles.commentTime}>
-                    {formatCommentTime(comment.timestamp)}
-                  </span>
-                </div>
-                
-                <div className={styles.commentContent}>
-                  {comment.comment}
-                </div>
-                
-                {session && (
-                  <button 
-                    className={styles.commentReplyButton}
-                    onClick={() => setReplyingTo(comment)}
-                  >
-                    ↩️ Responder
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className={styles.commentsEmpty}>
-            <div className={styles.commentsEmptyIcon}>💬</div>
-            <h4>Aún no hay comentarios</h4>
-            <p>Sé el primero en comentar este informe</p>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   // Modal para crear nueva alerta
   const renderCreateAlertModal = () => {
@@ -2330,7 +1752,6 @@ const SubscriberView: React.FC = () => {
           </div>
 
           <div className={styles.modalBody}>
-            {/* Símbolo de la acción */}
             <div className={styles.inputGroup}>
               <label>Símbolo de la Acción</label>
               <div className={styles.symbolInput}>
@@ -2351,7 +1772,6 @@ const SubscriberView: React.FC = () => {
               </div>
             </div>
 
-            {/* Precio actual - Editable */}
             <div className={styles.inputGroup}>
               <label>Precio de Entrada</label>
               <div className={styles.priceInputContainer}>
@@ -2363,13 +1783,9 @@ const SubscriberView: React.FC = () => {
                   onChange={(e) => setStockPrice(parseFloat(e.target.value) || null)}
                   className={styles.input}
                 />
-                <span className={styles.priceHint}>
-                  {stockPrice ? `$${Number(stockPrice).toFixed(2)}` : 'Obtén el precio primero'}
-                </span>
               </div>
             </div>
 
-            {/* Acción */}
             <div className={styles.inputGroup}>
               <label>Acción</label>
               <select
@@ -2382,7 +1798,6 @@ const SubscriberView: React.FC = () => {
               </select>
             </div>
 
-            {/* Stop Loss */}
             <div className={styles.inputGroup}>
               <label>Stop Loss</label>
               <input
@@ -2395,7 +1810,6 @@ const SubscriberView: React.FC = () => {
               />
             </div>
 
-            {/* Take Profit */}
             <div className={styles.inputGroup}>
               <label>Take Profit</label>
               <input
@@ -2408,7 +1822,6 @@ const SubscriberView: React.FC = () => {
               />
             </div>
 
-            {/* Análisis */}
             <div className={styles.inputGroup}>
               <label>Análisis / Descripción</label>
               <textarea
@@ -2418,106 +1831,6 @@ const SubscriberView: React.FC = () => {
                 className={styles.textarea}
                 rows={4}
               />
-            </div>
-
-            {/* Gráfico Principal de TradingView */}
-            <div className={styles.inputGroup}>
-              <label>📊 Gráfico de TradingView</label>
-              <p className={styles.imageHint}>
-                Sube tu análisis gráfico de TradingView para complementar la alerta
-              </p>
-              {!chartImage ? (
-                <ImageUploader
-                  onImageUploaded={handleChartImageUploaded}
-                  onUploadStart={() => setUploadingChart(true)}
-                  onUploadProgress={() => {}}
-                  onError={(error) => {
-                    console.error('Error subiendo gráfico:', error);
-                    alert('Error subiendo gráfico: ' + error);
-                    setUploadingChart(false);
-                  }}
-                  maxFiles={1}
-                  multiple={false}
-                  buttonText="Subir Gráfico de TradingView"
-                  className={styles.chartUploader}
-                />
-              ) : (
-                <div className={styles.uploadedImagePreview}>
-                  <img 
-                    src={chartImage.secure_url} 
-                    alt="Gráfico de TradingView"
-                    className={styles.previewImage}
-                  />
-                  <div className={styles.previewActions}>
-                    <span className={styles.imageInfo}>
-                      {chartImage.width} × {chartImage.height} | 
-                      {Math.round(chartImage.bytes / 1024)}KB
-                    </span>
-                    <button 
-                      type="button" 
-                      onClick={removeChartImage}
-                      className={styles.removeImageButton}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Imágenes Adicionales */}
-            <div className={styles.inputGroup}>
-              <label>📸 Imágenes Adicionales</label>
-              <p className={styles.imageHint}>
-                Agrega más imágenes de análisis, indicadores o contexto adicional
-              </p>
-              
-              <ImageUploader
-                onImageUploaded={handleAdditionalImageUploaded}
-                onUploadStart={() => setUploadingImages(true)}
-                onUploadProgress={() => {}}
-                onError={(error) => {
-                  console.error('Error subiendo imagen adicional:', error);
-                  alert('Error subiendo imagen: ' + error);
-                  setUploadingImages(false);
-                }}
-                maxFiles={3}
-                multiple={true}
-                buttonText="Subir Imágenes Adicionales"
-                className={styles.additionalImagesUploader}
-              />
-
-              {/* Preview de imágenes adicionales */}
-              {additionalImages.length > 0 && (
-                <div className={styles.additionalImagesPreview}>
-                  <h4>Imágenes Adicionales ({additionalImages.length})</h4>
-                  {additionalImages.map((image, index) => (
-                    <div key={image.public_id} className={styles.additionalImageItem}>
-                      <img 
-                        src={image.secure_url} 
-                        alt={`Imagen adicional ${index + 1}`}
-                        className={styles.additionalImageThumb}
-                      />
-                      <div className={styles.additionalImageControls}>
-                        <input
-                          type="text"
-                          placeholder="Descripción de la imagen..."
-                          value={image.caption || ''}
-                          onChange={(e) => updateImageCaption(index, e.target.value)}
-                          className={styles.captionInput}
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => removeAdditionalImage(index)}
-                          className={styles.removeAdditionalImageButton}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 
@@ -2541,195 +1854,150 @@ const SubscriberView: React.FC = () => {
     );
   };
 
-  // **NUEVO: Estado para manejo de rango temporal del portafolio**
-  const [portfolioRange, setPortfolioRange] = useState('30d');
-  const [portfolioData, setPortfolioData] = useState<any[]>([]);
-  const [portfolioLoading, setPortfolioLoading] = useState(false);
-
-  // **NUEVO: Función para manejar cambio de rango temporal**
-  const handlePortfolioRangeChange = useCallback(async (range: string, days: number) => {
-    setPortfolioRange(range);
-    setPortfolioLoading(true);
-    
-    try {
-      // Simular carga de datos del portafolio
-      // En producción, esto haría fetch a una API real
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Generar datos simulados basados en el rango
-      const mockData = generatePortfolioData(days);
-      setPortfolioData(mockData);
-    } catch (error) {
-      console.error('Error al cargar datos del portafolio:', error);
-    } finally {
-      setPortfolioLoading(false);
-    }
-  }, []);
-
-  // **NUEVO: Función para generar datos simulados del portafolio**
-  const generatePortfolioData = (days: number) => {
-    const data = [];
-    const baseValue = 10000;
-    let currentValue = baseValue;
-    
-    for (let i = 0; i < days; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - (days - i));
-      
-      // Simular variación diaria
-      const dailyChange = (Math.random() - 0.5) * 0.02; // ±1% por día
-      currentValue *= (1 + dailyChange);
-      
-      data.push({
-        date: date.toISOString(),
-        value: parseFloat(currentValue.toFixed(2))
-      });
-    }
-    
-    return data;
-  };
-
-  // Inicializar datos del portafolio
-  useEffect(() => {
-    handlePortfolioRangeChange('30d', 30);
-  }, [handlePortfolioRangeChange]);
-
-  // Funciones para manejar modales de imágenes
-  const handleShowChart = (chartImage: CloudinaryImage) => {
-    setSelectedImage(chartImage);
-    setShowImageModal(true);
-  };
-
-  const handleShowAdditionalImages = (images: CloudinaryImage[]) => {
-    setSelectedAlertImages(images);
-    setShowAdditionalImagesModal(true);
-  };
-
-  const closeImageModal = () => {
-    setShowImageModal(false);
-    setSelectedImage(null);
-  };
-
-  const closeAdditionalImagesModal = () => {
-    setShowAdditionalImagesModal(false);
-    setSelectedAlertImages([]);
-  };
-
   return (
     <div className={styles.subscriberView}>
-      <div className={styles.container}>
-        {/* Header de suscriptor */}
-        <div className={styles.subscriberHeader}>
-          <h1 className={styles.subscriberTitle}>Trader Call - Dashboard</h1>
-          <p className={styles.subscriberWelcome}>
-            Bienvenido a tu área exclusiva de Trader Call. Aquí tienes acceso completo a todas las alertas y recursos.
+      {/* Header de Bienvenida Personalizado */}
+      <div className={styles.welcomeHeader}>
+        <div className={styles.welcomeContent}>
+          <h1 className={styles.welcomeTitle}>
+            Hola {session?.user?.name || 'Nahuel'}! Ésta es tu área exclusiva de Trader Call
+          </h1>
+          <p className={styles.welcomeSubtitle}>
+            Aquí tienes acceso completo a todas las alertas y recursos
           </p>
         </div>
+      </div>
 
-        {/* Navegación de pestañas */}
-        <nav className={styles.subscriberNav}>
-          <button 
-            className={`${styles.navButton} ${activeTab === 'dashboard' ? styles.navActive : ''}`}
-            onClick={() => setActiveTab('dashboard')}
-          >
-            <BarChart3 size={20} />
-            Dashboard de Trabajo
-          </button>
-          <button 
-            className={`${styles.navButton} ${activeTab === 'seguimiento' ? styles.navActive : ''}`}
-            onClick={() => setActiveTab('seguimiento')}
-          >
-            <Activity size={20} />
-            Seguimiento de Alertas
-          </button>
-          <button 
-            className={`${styles.navButton} ${activeTab === 'vigentes' ? styles.navActive : ''}`}
-            onClick={() => setActiveTab('vigentes')}
-          >
-            <TrendingUp size={20} />
-            Alertas Vigentes
-          </button>
-          <button 
-            className={`${styles.navButton} ${activeTab === 'informes' ? styles.navActive : ''}`}
-            onClick={() => setActiveTab('informes')}
-          >
-            <Download size={20} />
-            Informes
-          </button>
-          <button 
-            className={`${styles.navButton} ${activeTab === 'comunidad' ? styles.navActive : ''}`}
-            onClick={() => setActiveTab('comunidad')}
-          >
-            <Users size={20} />
-            Comunidad
-          </button>
-        </nav>
+      {/* Layout Principal con Sidebar */}
+      <div className={styles.mainLayout}>
+        {/* Sidebar de Accesos Rápidos */}
+        <aside className={styles.sidebar}>
+          <nav className={styles.sidebarNav}>
+            <button 
+              className={`${styles.sidebarButton} ${activeTab === 'dashboard' ? styles.sidebarActive : ''}`}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              <BarChart3 size={20} />
+              Dashboard
+            </button>
+            <button 
+              className={`${styles.sidebarButton} ${activeTab === 'seguimiento' ? styles.sidebarActive : ''}`}
+              onClick={() => setActiveTab('seguimiento')}
+            >
+              <Activity size={20} />
+              Seguimiento
+            </button>
+            <button 
+              className={`${styles.sidebarButton} ${activeTab === 'vigentes' ? styles.sidebarActive : ''}`}
+              onClick={() => setActiveTab('vigentes')}
+            >
+              <Bell size={20} />
+              Alertas Vigentes
+            </button>
+            <button 
+              className={`${styles.sidebarButton} ${activeTab === 'informes' ? styles.sidebarActive : ''}`}
+              onClick={() => setActiveTab('informes')}
+            >
+              <Download size={20} />
+              Informes
+            </button>
+            <button 
+              className={`${styles.sidebarButton} ${activeTab === 'comunidad' ? styles.sidebarActive : ''}`}
+              onClick={() => setActiveTab('comunidad')}
+            >
+              <MessageCircle size={20} />
+              Consultas
+            </button>
+          </nav>
 
-        {/* Contenido dinámico */}
-        <div className={styles.subscriberContent}>
+          {/* Accesos Rápidos */}
+          <div className={styles.quickAccess}>
+            <h3 className={styles.quickAccessTitle}>Accesos Rápidos</h3>
+            <div className={styles.quickAccessLinks}>
+              <Link href="/entrenamientos" className={styles.quickLink}>
+                <TrendingUp size={16} />
+                Entrenamientos
+              </Link>
+              <Link href="/asesorias" className={styles.quickLink}>
+                <Users size={16} />
+                Asesorías
+              </Link>
+              <Link href="/recursos" className={styles.quickLink}>
+                <Download size={16} />
+                Recursos
+              </Link>
+            </div>
+          </div>
+        </aside>
+
+        {/* Contenido Principal */}
+        <main className={styles.mainContent}>
           {activeTab === 'dashboard' && renderDashboard()}
           {activeTab === 'seguimiento' && renderSeguimientoAlertas()}
           {activeTab === 'vigentes' && renderAlertasVigentes()}
           {activeTab === 'informes' && renderInformes()}
           {activeTab === 'comunidad' && renderComunidad()}
-        </div>
+        </main>
       </div>
 
-      {/* Modal para crear alertas */}
+      {/* Modales */}
       {renderCreateAlertModal()}
+      {showCreateReportModal && (
+        <CreateReportModal 
+          onClose={() => setShowCreateReportModal(false)}
+          onSubmit={handleCreateReport}
+          loading={creatingReport}
+        />
+      )}
 
-      {/* Modal para ver gráfico principal */}
+      {/* Modales de Imágenes */}
       {showImageModal && selectedImage && (
         <div className={styles.modalOverlay} onClick={closeImageModal}>
           <div className={styles.imageModal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.imageModalHeader}>
-              <h3>📊 Gráfico de TradingView</h3>
+              <h3>Gráfico de TradingView</h3>
               <button className={styles.closeModalButton} onClick={closeImageModal}>
-                ✕
+                ×
               </button>
             </div>
             <div className={styles.imageModalContent}>
               <img 
                 src={selectedImage.secure_url} 
-                alt={selectedImage.caption || "Gráfico de TradingView"}
+                alt="Gráfico de TradingView"
                 className={styles.modalImage}
               />
-              {selectedImage.caption && (
-                <p className={styles.imageCaption}>{selectedImage.caption}</p>
-              )}
               <div className={styles.imageInfo}>
-                <span>Dimensiones: {selectedImage.width}x{selectedImage.height}</span>
-                <span>Tamaño: {(selectedImage.bytes / 1024).toFixed(1)} KB</span>
+                <span>{selectedImage.width} × {selectedImage.height}</span>
+                <span>{Math.round(selectedImage.bytes / 1024)}KB</span>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal para ver imágenes adicionales */}
       {showAdditionalImagesModal && selectedAlertImages.length > 0 && (
         <div className={styles.modalOverlay} onClick={closeAdditionalImagesModal}>
           <div className={styles.additionalImagesModal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.imageModalHeader}>
-              <h3>📸 Imágenes Adicionales</h3>
+              <h3>Imágenes Adicionales ({selectedAlertImages.length})</h3>
               <button className={styles.closeModalButton} onClick={closeAdditionalImagesModal}>
-                ✕
+                ×
               </button>
             </div>
             <div className={styles.additionalImagesContent}>
               {selectedAlertImages.map((image, index) => (
-                <div key={index} className={styles.additionalImageItem}>
+                <div key={image.public_id} className={styles.additionalImageItem}>
                   <img 
                     src={image.secure_url} 
-                    alt={image.caption || `Imagen ${index + 1}`}
+                    alt={`Imagen adicional ${index + 1}`}
                     className={styles.additionalImage}
                   />
                   {image.caption && (
                     <p className={styles.imageCaption}>{image.caption}</p>
                   )}
                   <div className={styles.imageInfo}>
-                    <span>Dimensiones: {image.width}x{image.height}</span>
-                    <span>Tamaño: {(image.bytes / 1024).toFixed(1)} KB</span>
+                    <span>{image.width} × {image.height}</span>
+                    <span>{Math.round(image.bytes / 1024)}KB</span>
                   </div>
                 </div>
               ))}
