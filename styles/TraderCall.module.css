@@ -2475,3 +2475,354 @@
     font-size: 0.875rem;
   }
 }
+
+/* Gráfico de Torta 3D Mejorado */
+.pieChart3D {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0;
+  perspective: 1000px;
+}
+
+.chartSvg3D {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+  transform: rotateX(15deg) rotateY(-5deg);
+  transition: transform 0.3s ease;
+}
+
+.chartSvg3D:hover {
+  transform: rotateX(10deg) rotateY(-2deg) scale(1.05);
+}
+
+.chartBackground3D {
+  fill: var(--bg-tertiary);
+  stroke: var(--border-color);
+  stroke-width: 2;
+  filter: url(#shadow3D);
+}
+
+.chartSegment3D {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.chartSegment3D:hover {
+  transform: scale(1.02);
+}
+
+.segmentShadow {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.segmentPath3D {
+  transition: all 0.3s ease;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 1;
+}
+
+.segmentPath3D:hover {
+  filter: brightness(1.2) url(#glow);
+  stroke-width: 2;
+}
+
+.segmentBorder {
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.segmentLabel {
+  pointer-events: none;
+  font-family: 'Inter', sans-serif;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+.chartCenter3D {
+  fill: var(--bg-secondary);
+  stroke: var(--primary-color);
+  stroke-width: 3;
+  filter: url(#shadow3D);
+}
+
+.chartCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.chartStats3D {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+}
+
+.statItem3D {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.statLabel3D {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.statValue3D {
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Leyenda 3D Mejorada */
+.chartLegend3D {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--bg-tertiary);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.legendTitle {
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.legendGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.legendItem3D {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.legendItem3D:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.legendColor3D {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.legendItem3D:hover .legendColor3D {
+  transform: scale(1.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.legendInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.legendSymbol {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.legendProfit {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.legendStatus {
+  font-size: 0.75rem;
+}
+
+/* Tooltip 3D Mejorado */
+.chartTooltip3D {
+  position: absolute;
+  display: none;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  min-width: 250px;
+  max-width: 300px;
+  animation: tooltipFadeIn 0.3s ease;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tooltipContent3D {
+  color: var(--text-primary);
+}
+
+.tooltipContent3D h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+}
+
+.tooltipDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.tooltipRow span:first-child {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.tooltipRow span:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tooltipAction {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.buyAction {
+  background: var(--success-color);
+  color: white;
+}
+
+.sellAction {
+  background: var(--error-color);
+  color: white;
+}
+
+.tooltipPnl {
+  font-weight: 700;
+}
+
+.profit {
+  color: var(--success-color);
+}
+
+.loss {
+  color: var(--error-color);
+}
+
+.tooltipStatus {
+  font-weight: 600;
+}
+
+.activeStatus {
+  color: var(--success-color);
+}
+
+.closedStatus {
+  color: var(--error-color);
+}
+
+/* Responsive para gráfico 3D */
+@media (max-width: 768px) {
+  .chartSvg3D {
+    max-width: 300px;
+    transform: rotateX(10deg) rotateY(-2deg);
+  }
+  
+  .legendGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .legendItem3D {
+    padding: 0.5rem;
+  }
+  
+  .statValue3D {
+    font-size: 1.25rem;
+  }
+  
+  .chartTooltip3D {
+    min-width: 200px;
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chartSvg3D {
+    max-width: 250px;
+    transform: none;
+  }
+  
+  .chartStats3D {
+    padding: 0.75rem;
+  }
+  
+  .statValue3D {
+    font-size: 1rem;
+  }
+  
+  .legendTitle {
+    font-size: 1rem;
+  }
+  
+  .legendSymbol {
+    font-size: 0.8rem;
+  }
+  
+  .chartTooltip3D {
+    min-width: 180px;
+    max-width: 220px;
+    font-size: 0.8rem;
+  }
+}
