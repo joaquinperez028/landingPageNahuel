@@ -576,11 +576,26 @@ const SubscriberView: React.FC = () => {
 
     const rentabilidadSemanal = gananciasSemanal.toFixed(1);
 
+    // **CAMBIO: Calcular rentabilidad anual usando alertas reales**
+    const inicioAño = new Date(new Date().getFullYear(), 0, 1);
+    const alertasAnualConGanancias = realAlerts.filter(alert => {
+      const fechaAlert = new Date(alert.date);
+      return fechaAlert >= inicioAño;
+    });
+
+    const gananciasAnual = alertasAnualConGanancias.reduce((total, alert) => {
+      const profitValue = parseFloat(alert.profit.replace('%', '').replace('+', ''));
+      return total + profitValue;
+    }, 0);
+
+    const rentabilidadAnual = gananciasAnual.toFixed(1);
+
     return {
       alertasActivas,
       alertasGanadoras,
       alertasPerdedoras,
       rentabilidadSemanal: `${gananciasSemanal >= 0 ? '+' : ''}${rentabilidadSemanal}%`,
+      rentabilidadAnual: `${gananciasAnual >= 0 ? '+' : ''}${rentabilidadAnual}%`,
       alertasSemanales
     };
   };
@@ -1107,16 +1122,7 @@ const SubscriberView: React.FC = () => {
     <div className={styles.dashboardContent}>
       <h2 className={styles.sectionTitle}>Dashboard de Trabajo</h2>
       
-      {/* **NUEVO: SPY500 y Portfolio lado a lado** */}
-      <div className={styles.marketOverview}>
-        <SPY500Indicator />
-        <PortfolioTimeRange
-          selectedRange={portfolioRange}
-          onRangeChange={handlePortfolioRangeChange}
-        />
-      </div>
-      
-      {/* Métricas principales modernizadas */}
+      {/* Métricas principales */}
       <div className={styles.modernMetricsGrid}>
         <div className={`${styles.modernMetricCard} ${styles.activeCard}`}>
           <div className={styles.cardHeader}>
@@ -1129,9 +1135,6 @@ const SubscriberView: React.FC = () => {
             <h3 className={styles.metricTitle}>ALERTAS ACTIVAS</h3>
             <div className={styles.metricValue}>{dashboardMetrics.alertasActivas}</div>
             <p className={styles.metricSubtext}>Posiciones abiertas</p>
-          </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
           </div>
         </div>
         
@@ -1147,9 +1150,6 @@ const SubscriberView: React.FC = () => {
             <div className={styles.metricValue}>{dashboardMetrics.alertasGanadoras}</div>
             <p className={styles.metricSubtext}>Cerradas con ganancia</p>
           </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
         </div>
         
         <div className={`${styles.modernMetricCard} ${styles.errorCard}`}>
@@ -1164,9 +1164,6 @@ const SubscriberView: React.FC = () => {
             <div className={styles.metricValue}>{dashboardMetrics.alertasPerdedoras}</div>
             <p className={styles.metricSubtext}>Cerradas con pérdida</p>
           </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
         </div>
         
         <div className={`${styles.modernMetricCard} ${styles.warningCard}`}>
@@ -1177,149 +1174,41 @@ const SubscriberView: React.FC = () => {
             <div className={styles.statusDot}></div>
           </div>
           <div className={styles.metricContent}>
-            <h3 className={styles.metricTitle}>RENTABILIDAD SEMANAL</h3>
-            <div className={styles.metricValue}>{dashboardMetrics.rentabilidadSemanal}</div>
-            <p className={styles.metricSubtext}>Últimos 7 días</p>
-          </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
-        </div>
-        
-        <div className={`${styles.modernMetricCard} ${styles.infoCard}`}>
-          <div className={styles.cardHeader}>
-            <div className={styles.iconContainer}>
-              <Users size={20} />
-            </div>
-            <div className={styles.statusDot}></div>
-          </div>
-          <div className={styles.metricContent}>
-            <h3 className={styles.metricTitle}>ALERTAS SEMANALES</h3>
-            <div className={styles.metricValue}>{dashboardMetrics.alertasSemanales}</div>
-            <p className={styles.metricSubtext}>Enviadas esta semana</p>
-          </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Resumen de Performance modernizado */}
-      <div className={styles.modernPerformanceSection}>
-        <div className={styles.performanceHeader}>
-          <h3 className={styles.performanceTitle}>Resumen de Performance</h3>
-          <div className={styles.performanceBadge}>En tiempo real</div>
-        </div>
-        <div className={styles.modernPerformanceGrid}>
-          <div className={styles.performanceStat}>
-            <div className={styles.statHeader}>
-              <span className={styles.statLabel}>Win Rate</span>
-              <div className={styles.statIcon}>📊</div>
-            </div>
-            <div className={styles.statValue}>
-              {dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras > 0 
-                ? ((dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras)) * 100).toFixed(1) 
-                : '0.0'}%
-            </div>
-            <div className={styles.statProgress}>
-              <div 
-                className={styles.progressBar} 
-                style={{ 
-                  width: `${dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras > 0 
-                    ? ((dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras)) * 100) 
-                    : 0}%` 
-                }}
-              ></div>
-            </div>
-          </div>
-          
-          <div className={styles.performanceStat}>
-            <div className={styles.statHeader}>
-              <span className={styles.statLabel}>Total Alertas</span>
-              <div className={styles.statIcon}>🎯</div>
-            </div>
-            <div className={styles.statValue}>{realAlerts.length}</div>
-            <div className={styles.statSubtext}>Alertas procesadas</div>
-          </div>
-          
-          <div className={styles.performanceStat}>
-            <div className={styles.statHeader}>
-              <span className={styles.statLabel}>Ratio G/P</span>
-              <div className={styles.statIcon}>⚖️</div>
-            </div>
-            <div className={styles.statValue}>
-              {dashboardMetrics.alertasPerdedoras > 0 
-                ? (dashboardMetrics.alertasGanadoras / dashboardMetrics.alertasPerdedoras).toFixed(2) 
-                : dashboardMetrics.alertasGanadoras > 0 ? '∞' : '0.01'}
-            </div>
-            <div className={styles.statSubtext}>Ganancia vs Pérdida</div>
+            <h3 className={styles.metricTitle}>RENTABILIDAD ANUAL</h3>
+            <div className={styles.metricValue}>{dashboardMetrics.rentabilidadAnual}</div>
+            <p className={styles.metricSubtext}>Año {new Date().getFullYear()}</p>
           </div>
         </div>
       </div>
 
       {/* Actividad Reciente */}
       <div className={styles.activitySection}>
-        <h3>Última actividad</h3>
-                        <p className={styles.activitySubtitle}>Actividad reciente en Smart Money</p>
-        
-        <div className={styles.activityFeed}>
-          {recentActivity.length > 0 ? (
-            recentActivity.map((activity) => (
-              <div 
-                key={activity.id} 
-                className={`${styles.activityItem} ${activity.type === 'informe' ? styles.clickableActivity : ''}`}
-                onClick={activity.type === 'informe' ? () => openReport(activity.id) : undefined}
-                style={activity.type === 'informe' ? { cursor: 'pointer' } : {}}
-              >
-                <div className={styles.activityContent}>
-                  <div className={styles.activityText}>
-                    {activity.message}
-                  </div>
-                  <div className={styles.activityMeta}>
-                    <span className={styles.activityTime}>hace {activity.timestamp}</span>
-                    <span className={styles.activityType}>
-                      {activity.type === 'informe' ? '📰 INFORME' : '🔄 ACTUALIZACIÓN'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className={styles.emptyActivity}>
-              <span>📋</span>
-              <p>No hay actividad reciente.</p>
-              <p>Las alertas e informes aparecerán aquí cuando se generen.</p>
+        <div className={styles.activityHeader}>
+          <h3>Actividad Reciente</h3>
+          <div className={styles.activityActions}>
+            <button 
+              className={styles.viewAllButton}
+              onClick={() => setActiveTab('seguimiento')}
+            >
+              Ver toda la actividad
+            </button>
+            <button 
+              className={styles.refreshButton}
+              onClick={() => refreshActivity()}
+              disabled={refreshingActivity}
+            >
+              <Activity size={16} />
+              {refreshingActivity ? 'Actualizando...' : 'Actualizar'}
+            </button>
+          </div>
+        </div>
+        <div className={styles.activityList}>
+          {recentActivity.slice(0, 5).map((activity, index) => (
+            <div key={activity.id || index} className={styles.activityItem}>
+              <span className={styles.activityTime}>{activity.timestamp}</span>
+              <span className={styles.activityMessage}>{activity.message}</span>
             </div>
-          )}
-        </div>
-        
-        <div className={styles.activityActions}>
-          <button 
-            className={styles.viewAllButton}
-            onClick={() => setActiveTab('seguimiento')}
-          >
-            Ver toda la actividad
-          </button>
-          <button 
-            className={styles.refreshButton}
-            onClick={() => refreshActivity()}
-            disabled={refreshingActivity}
-          >
-            <Activity size={16} />
-            {refreshingActivity ? 'Actualizando...' : 'Actualizar'}
-          </button>
-        </div>
-      </div>
-
-      {/* Gráfico de rendimiento */}
-      <div className={styles.chartContainer}>
-        <h3>Evolución del Portafolio (Últimos 30 días)</h3>
-        <div className={styles.chartPlaceholder}>
-          <BarChart3 size={64} />
-          <p>Gráfico de Chart.js se implementaría aquí</p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-            Mostrará la evolución diaria del rendimiento del portafolio
-          </p>
+          ))}
         </div>
       </div>
     </div>
