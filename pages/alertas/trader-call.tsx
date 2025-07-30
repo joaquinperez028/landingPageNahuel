@@ -427,6 +427,7 @@ const SubscriberView: React.FC = () => {
   const [informes, setInformes] = useState<any[]>([]);
   const [loadingInformes, setLoadingInformes] = useState(true);
   const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [showCreateReportModal, setShowCreateReportModal] = useState(false);
   const [creatingReport, setCreatingReport] = useState(false);
   const [userRole, setUserRole] = React.useState<string>('');
@@ -724,6 +725,7 @@ const SubscriberView: React.FC = () => {
         });
         
         setSelectedReport(report);
+        setShowReportModal(true);
       } else {
         console.error('Error al cargar informe:', response.status);
         alert('Error al cargar el informe');
@@ -732,6 +734,11 @@ const SubscriberView: React.FC = () => {
       console.error('Error al cargar informe:', error);
       alert('Error al cargar el informe');
     }
+  };
+
+  const closeReportModal = () => {
+    setShowReportModal(false);
+    setSelectedReport(null);
   };
 
   const handleCreateReport = async (formData: any) => {
@@ -2014,6 +2021,12 @@ const SubscriberView: React.FC = () => {
           loading={creatingReport}
         />
       )}
+      {showReportModal && selectedReport && (
+        <ReportViewModal 
+          report={selectedReport}
+          onClose={closeReportModal}
+        />
+      )}
 
       {/* Modales de Imágenes */}
       {showImageModal && selectedImage && (
@@ -2071,6 +2084,224 @@ const SubscriberView: React.FC = () => {
         </div>
       )}
     </div>
+  );
+};
+
+// Componente para modal de visualización de informes
+const ReportViewModal = ({ report, onClose }: {
+  report: any;
+  onClose: () => void;
+}) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showImageModal, setShowImageModal] = useState(false);
+
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setShowImageModal(true);
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+  };
+
+  const nextImage = () => {
+    if (report.images && currentImageIndex < report.images.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <>
+      <div className={styles.modalOverlay} onClick={onClose}>
+        <div className={styles.reportViewModal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <div className={styles.modalTitle}>
+              <h2>{report.title}</h2>
+              <div className={styles.reportMeta}>
+                <span className={styles.reportDate}>
+                  {formatDate(report.publishedAt || report.createdAt)}
+                </span>
+                <span className={styles.reportType}>
+                  {report.type === 'video' ? '🎥 Video' : report.type === 'analisis' ? '📊 Análisis' : '📄 Informe'}
+                </span>
+                {report.author && (
+                  <span className={styles.reportAuthor}>
+                    Por: {report.author}
+                  </span>
+                )}
+              </div>
+            </div>
+            <button 
+              className={styles.closeModal}
+              onClick={onClose}
+            >
+              ×
+            </button>
+          </div>
+
+          <div className={styles.reportContent}>
+            {/* Imagen de portada */}
+            {report.coverImage && (
+              <div className={styles.reportCover}>
+                <img 
+                  src={report.coverImage.secure_url || report.coverImage.url} 
+                  alt={report.title}
+                  className={styles.coverImage}
+                />
+              </div>
+            )}
+
+            {/* Contenido del informe */}
+            <div className={styles.reportText}>
+              <div 
+                className={styles.reportBody}
+                dangerouslySetInnerHTML={{ __html: report.content }}
+              />
+            </div>
+
+            {/* Imágenes adicionales */}
+            {report.images && report.images.length > 0 && (
+              <div className={styles.reportImages}>
+                <h3>Imágenes del Informe</h3>
+                <div className={styles.imagesGrid}>
+                  {report.images.map((image: any, index: number) => (
+                    <div 
+                      key={image.public_id} 
+                      className={styles.imageThumbnail}
+                      onClick={() => handleImageClick(index)}
+                    >
+                      <img 
+                        src={image.secure_url || image.url} 
+                        alt={`Imagen ${index + 1}`}
+                      />
+                      {image.caption && (
+                        <div className={styles.imageCaption}>
+                          {image.caption}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Tags del informe */}
+            {report.tags && report.tags.length > 0 && (
+              <div className={styles.reportTags}>
+                <h3>Etiquetas</h3>
+                <div className={styles.tagsList}>
+                  {report.tags.map((tag: string, index: number) => (
+                    <span key={index} className={styles.tag}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Estadísticas del informe */}
+            <div className={styles.reportStats}>
+              <div className={styles.statItem}>
+                <span className={styles.statLabel}>Vistas</span>
+                <span className={styles.statValue}>{report.views || 0}</span>
+              </div>
+              {report.readTime && (
+                <div className={styles.statItem}>
+                  <span className={styles.statLabel}>Tiempo de Lectura</span>
+                  <span className={styles.statValue}>{report.readTime} min</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.modalFooter}>
+            <button 
+              className={styles.downloadButton}
+              onClick={() => {
+                // Aquí se puede implementar la descarga del informe
+                alert('Función de descarga próximamente disponible');
+              }}
+            >
+              📥 Descargar Informe
+            </button>
+            <button 
+              className={styles.shareButton}
+              onClick={() => {
+                // Aquí se puede implementar el compartir
+                if (navigator.share) {
+                  navigator.share({
+                    title: report.title,
+                    text: report.summary || report.title,
+                    url: window.location.href
+                  });
+                } else {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert('Enlace copiado al portapapeles');
+                }
+              }}
+            >
+              📤 Compartir
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal para imágenes */}
+      {showImageModal && report.images && (
+        <div className={styles.imageModalOverlay} onClick={closeImageModal}>
+          <div className={styles.imageModal} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closeImageModal} onClick={closeImageModal}>
+              ×
+            </button>
+            <div className={styles.imageModalContent}>
+              <button 
+                className={styles.imageNavButton} 
+                onClick={prevImage}
+                disabled={currentImageIndex === 0}
+              >
+                ‹
+              </button>
+              <img 
+                src={report.images[currentImageIndex].secure_url || report.images[currentImageIndex].url}
+                alt={`Imagen ${currentImageIndex + 1}`}
+                className={styles.modalImage}
+              />
+              <button 
+                className={styles.imageNavButton} 
+                onClick={nextImage}
+                disabled={currentImageIndex === report.images.length - 1}
+              >
+                ›
+              </button>
+            </div>
+            <div className={styles.imageModalInfo}>
+              <span className={styles.imageCounter}>
+                {currentImageIndex + 1} de {report.images.length}
+              </span>
+              {report.images[currentImageIndex].caption && (
+                <span className={styles.imageCaption}>
+                  {report.images[currentImageIndex].caption}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
