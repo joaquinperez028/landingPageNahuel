@@ -703,36 +703,90 @@ const SubscriberView: React.FC = () => {
     }
   };
 
-  // Función para abrir informe completo
+  // Función para abrir informe completo mejorada
   const openReport = async (reportId: string) => {
     try {
-      const response = await fetch(`/api/reports/${reportId}`);
+      console.log('🔍 Abriendo informe:', reportId);
+      
+      // Mostrar loading state
+      setSelectedReport(null);
+      setShowReportModal(true);
+      
+      const response = await fetch(`/api/reports/${reportId}`, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
       if (response.ok) {
         const data = await response.json();
         const report = data.data.report;
         
-        // Debug: Mostrar qué datos estamos recibiendo
-        console.log('📊 Datos del informe recibidos:', {
+        // Procesar y enriquecer los datos del informe
+        const enrichedReport = {
+          ...report,
+          // Asegurar que tenemos un ID válido
           id: report.id || report._id,
-          title: report.title,
-          hasImageUrl: !!report.imageUrl,
-          imageUrl: report.imageUrl,
-          hasImageMuxId: !!report.imageMuxId,
-          imageMuxId: report.imageMuxId,
-          hasImages: !!report.images,
-          imagesCount: report.images?.length || 0,
-          images: report.images
+          // Procesar autor
+          author: report.author ? 
+            (typeof report.author === 'object' ? 
+              report.author.name || report.author.email : 
+              report.author) : 
+            'Anónimo',
+          // Procesar imágenes
+          images: report.images || [],
+          coverImage: report.coverImage || null,
+          // Procesar tags
+          tags: report.tags || [],
+          // Procesar estadísticas
+          views: report.views || 0,
+          // Procesar fechas
+          publishedAt: report.publishedAt || report.createdAt,
+          // Procesar contenido
+          content: report.content || 'Sin contenido disponible',
+          // Procesar tipo y categoría
+          type: report.type || 'text',
+          category: report.category || 'general'
+        };
+        
+        // Debug: Mostrar qué datos estamos recibiendo
+        console.log('📊 Informe enriquecido:', {
+          id: enrichedReport.id,
+          title: enrichedReport.title,
+          author: enrichedReport.author,
+          type: enrichedReport.type,
+          category: enrichedReport.category,
+          hasCoverImage: !!enrichedReport.coverImage,
+          imagesCount: enrichedReport.images.length,
+          tagsCount: enrichedReport.tags.length,
+          views: enrichedReport.views,
+          contentLength: enrichedReport.content.length
         });
         
-        setSelectedReport(report);
-        setShowReportModal(true);
+        setSelectedReport(enrichedReport);
+        
+        // Incrementar contador de vistas (opcional)
+        try {
+          await fetch(`/api/reports/${reportId}/view`, {
+            method: 'POST',
+            credentials: 'same-origin'
+          });
+        } catch (viewError) {
+          console.log('No se pudo incrementar el contador de vistas:', viewError);
+        }
+        
       } else {
         console.error('Error al cargar informe:', response.status);
-        alert('Error al cargar el informe');
+        const errorData = await response.json().catch(() => ({}));
+        alert(`Error al cargar el informe: ${errorData.message || 'Error desconocido'}`);
+        setShowReportModal(false);
       }
     } catch (error) {
       console.error('Error al cargar informe:', error);
-      alert('Error al cargar el informe');
+      alert('Error de conexión al cargar el informe. Verifica tu internet e intenta nuevamente.');
+      setShowReportModal(false);
     }
   };
 
@@ -1523,14 +1577,15 @@ const SubscriberView: React.FC = () => {
   const renderInformes = () => (
     <div className={styles.informesContent}>
       <div className={styles.informesHeader}>
-        <h2 className={styles.sectionTitle}>Informes</h2>
+        <h2 className={styles.sectionTitle}>📊 Informes y Análisis</h2>
         {userRole === 'admin' && (
           <button 
             className={styles.createButton}
             onClick={() => setShowCreateReportModal(true)}
             title="Crear nuevo informe"
           >
-            + Crear Informe
+            <PlusCircle size={16} />
+            Crear Informe
           </button>
         )}
       </div>
@@ -1542,36 +1597,99 @@ const SubscriberView: React.FC = () => {
         </div>
       ) : informes.length > 0 ? (
         <div className={styles.informesList}>
-          {informes.map((informe) => (
-            <div key={informe.id || informe._id} className={styles.informeCard}>
-              <div className={styles.informeHeader}>
-                <h3>{informe.title}</h3>
-                <span className={styles.informeDate}>
-                  {new Date(informe.publishedAt || informe.createdAt).toLocaleDateString('es-ES')}
-                </span>
-              </div>
-              
-              <div className={styles.informeMeta}>
-                <span className={styles.informeType}>
-                  {informe.type === 'video' ? '🎥' : informe.type === 'analisis' ? '📊' : '📄'} 
-                  {informe.type === 'video' ? 'Video' : informe.type === 'analisis' ? 'Análisis' : 'Informe'}
-                </span>
-              </div>
+          {informes.map((informe: any) => {
+            const reportDate = new Date(informe.publishedAt || informe.createdAt);
+            const isRecent = (Date.now() - reportDate.getTime()) < 7 * 24 * 60 * 60 * 1000; // 7 días
+            const readTime = Math.ceil((informe.content?.length || 0) / 1000);
+            
+            return (
+              <div key={informe.id || informe._id} className={styles.informeCard}>
+                <div className={styles.informeHeader}>
+                  <h3>{informe.title}</h3>
+                  <div className={styles.informeMeta}>
+                    <span className={styles.informeDate}>
+                      📅 {reportDate.toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                      {isRecent && (
+                        <span className={styles.recentBadge}>NUEVO</span>
+                      )}
+                    </span>
+                    <span className={styles.informeType}>
+                      {informe.type === 'video' ? '🎥 Video' : 
+                       informe.type === 'analisis' ? '📊 Análisis' : 
+                       informe.type === 'mixed' ? '📋 Mixto' : '📄 Informe'}
+                    </span>
+                    {informe.category && (
+                      <span className={styles.informeCategory}>
+                        📂 {informe.category.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Imagen de portada si existe */}
+                {informe.coverImage && (
+                  <div className={styles.informeCover}>
+                    <img 
+                      src={informe.coverImage.secure_url || informe.coverImage.url} 
+                      alt={informe.title}
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                
+                <p className={styles.informeDescription}>
+                  {informe.content ? 
+                    (informe.content.length > 200 ? 
+                      informe.content.substring(0, 200) + '...' : 
+                      informe.content) : 
+                    'Sin descripción disponible'
+                  }
+                </p>
 
-              <p className={styles.informeDescription}>
-                {informe.summary}
-              </p>
+                {/* Estadísticas del informe */}
+                <div className={styles.informeStats}>
+                  <span className={styles.informeStat}>
+                    👁️ {informe.views || 0} vistas
+                  </span>
+                  <span className={styles.informeStat}>
+                    ⏱️ {readTime} min lectura
+                  </span>
+                  {informe.images && informe.images.length > 0 && (
+                    <span className={styles.informeStat}>
+                      📸 {informe.images.length} imágenes
+                    </span>
+                  )}
+                </div>
 
-              <div className={styles.informeActions}>
-                <button 
-                  className={styles.readButton}
-                  onClick={() => openReport(informe.id || informe._id)}
-                >
-                  {informe.type === 'video' ? 'Ver Video' : 'Leer Informe'}
-                </button>
+                {/* Tags del informe */}
+                {informe.tags && informe.tags.length > 0 && (
+                  <div className={styles.informeTags}>
+                    {informe.tags.slice(0, 3).map((tag: string, index: number) => (
+                      <span key={index} className={styles.tag}>
+                        {tag}
+                      </span>
+                    ))}
+                    {informe.tags.length > 3 && (
+                      <span className={styles.tag}>+{informe.tags.length - 3}</span>
+                    )}
+                  </div>
+                )}
+
+                <div className={styles.informeActions}>
+                  <button 
+                    className={styles.readButton}
+                    onClick={() => openReport(informe.id || informe._id)}
+                  >
+                    📖 Leer Informe Completo
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className={styles.emptyState}>
@@ -2087,13 +2205,14 @@ const SubscriberView: React.FC = () => {
   );
 };
 
-// Componente para modal de visualización de informes
+// Componente para modal de visualización de informes mejorado
 const ReportViewModal = ({ report, onClose }: {
   report: any;
   onClose: () => void;
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleImageClick = (index: number) => {
     setCurrentImageIndex(index);
@@ -2120,9 +2239,101 @@ const ReportViewModal = ({ report, onClose }: {
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
+
+  const getReportTypeIcon = (type: string) => {
+    switch (type) {
+      case 'video':
+        return '🎥';
+      case 'analisis':
+        return '📊';
+      case 'mixed':
+        return '📋';
+      default:
+        return '📄';
+    }
+  };
+
+  const getReportTypeLabel = (type: string) => {
+    switch (type) {
+      case 'video':
+        return 'Video';
+      case 'analisis':
+        return 'Análisis';
+      case 'mixed':
+        return 'Mixto';
+      default:
+        return 'Informe';
+    }
+  };
+
+  const handleDownload = async () => {
+    setIsLoading(true);
+    try {
+      // Aquí se puede implementar la descarga del informe
+      // Por ahora simulamos una descarga
+      const link = document.createElement('a');
+      link.href = `data:text/html;charset=utf-8,${encodeURIComponent(`
+        <html>
+          <head>
+            <title>${report.title}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 40px; }
+              h1 { color: #333; }
+              .meta { color: #666; margin-bottom: 20px; }
+              .content { line-height: 1.6; }
+            </style>
+          </head>
+          <body>
+            <h1>${report.title}</h1>
+            <div class="meta">
+              <p>Fecha: ${formatDate(report.publishedAt || report.createdAt)}</p>
+              <p>Tipo: ${getReportTypeLabel(report.type)}</p>
+              ${report.author ? `<p>Autor: ${report.author}</p>` : ''}
+            </div>
+            <div class="content">${report.content}</div>
+          </body>
+        </html>
+      `)}`;
+      link.download = `${report.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+      link.click();
+    } catch (error) {
+      console.error('Error al descargar:', error);
+      alert('Error al descargar el informe');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: report.title,
+          text: report.content?.substring(0, 200) + '...' || report.title,
+          url: window.location.href
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('✅ Enlace copiado al portapapeles');
+      }
+    } catch (error) {
+      console.error('Error al compartir:', error);
+      alert('Error al compartir el informe');
+    }
+  };
+
+  const calculateReadTime = (content: string) => {
+    const wordsPerMinute = 200;
+    const words = content?.split(' ').length || 0;
+    return Math.ceil(words / wordsPerMinute);
+  };
+
+  const readTime = calculateReadTime(report.content);
 
   return (
     <>
@@ -2133,14 +2344,19 @@ const ReportViewModal = ({ report, onClose }: {
               <h2>{report.title}</h2>
               <div className={styles.reportMeta}>
                 <span className={styles.reportDate}>
-                  {formatDate(report.publishedAt || report.createdAt)}
+                  📅 {formatDate(report.publishedAt || report.createdAt)}
                 </span>
                 <span className={styles.reportType}>
-                  {report.type === 'video' ? '🎥 Video' : report.type === 'analisis' ? '📊 Análisis' : '📄 Informe'}
+                  {getReportTypeIcon(report.type)} {getReportTypeLabel(report.type)}
                 </span>
                 {report.author && (
                   <span className={styles.reportAuthor}>
-                    Por: {report.author}
+                    👤 {typeof report.author === 'object' ? report.author.name || report.author.email : report.author}
+                  </span>
+                )}
+                {report.category && (
+                  <span className={styles.reportType}>
+                    📂 {report.category.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
                   </span>
                 )}
               </div>
@@ -2148,6 +2364,7 @@ const ReportViewModal = ({ report, onClose }: {
             <button 
               className={styles.closeModal}
               onClick={onClose}
+              aria-label="Cerrar modal"
             >
               ×
             </button>
@@ -2161,6 +2378,7 @@ const ReportViewModal = ({ report, onClose }: {
                   src={report.coverImage.secure_url || report.coverImage.url} 
                   alt={report.title}
                   className={styles.coverImage}
+                  loading="lazy"
                 />
               </div>
             )}
@@ -2176,17 +2394,19 @@ const ReportViewModal = ({ report, onClose }: {
             {/* Imágenes adicionales */}
             {report.images && report.images.length > 0 && (
               <div className={styles.reportImages}>
-                <h3>Imágenes del Informe</h3>
+                <h3>📸 Imágenes del Informe ({report.images.length})</h3>
                 <div className={styles.imagesGrid}>
                   {report.images.map((image: any, index: number) => (
                     <div 
                       key={image.public_id} 
                       className={styles.imageThumbnail}
                       onClick={() => handleImageClick(index)}
+                      title={image.caption || `Imagen ${index + 1}`}
                     >
                       <img 
                         src={image.secure_url || image.url} 
-                        alt={`Imagen ${index + 1}`}
+                        alt={image.caption || `Imagen ${index + 1}`}
+                        loading="lazy"
                       />
                       {image.caption && (
                         <div className={styles.imageCaption}>
@@ -2202,7 +2422,7 @@ const ReportViewModal = ({ report, onClose }: {
             {/* Tags del informe */}
             {report.tags && report.tags.length > 0 && (
               <div className={styles.reportTags}>
-                <h3>Etiquetas</h3>
+                <h3>🏷️ Etiquetas</h3>
                 <div className={styles.tagsList}>
                   {report.tags.map((tag: string, index: number) => (
                     <span key={index} className={styles.tag}>
@@ -2216,13 +2436,17 @@ const ReportViewModal = ({ report, onClose }: {
             {/* Estadísticas del informe */}
             <div className={styles.reportStats}>
               <div className={styles.statItem}>
-                <span className={styles.statLabel}>Vistas</span>
+                <span className={styles.statLabel}>👁️ Vistas</span>
                 <span className={styles.statValue}>{report.views || 0}</span>
               </div>
-              {report.readTime && (
+              <div className={styles.statItem}>
+                <span className={styles.statLabel}>⏱️ Tiempo de Lectura</span>
+                <span className={styles.statValue}>{readTime} min</span>
+              </div>
+              {report.images && report.images.length > 0 && (
                 <div className={styles.statItem}>
-                  <span className={styles.statLabel}>Tiempo de Lectura</span>
-                  <span className={styles.statValue}>{report.readTime} min</span>
+                  <span className={styles.statLabel}>📸 Imágenes</span>
+                  <span className={styles.statValue}>{report.images.length}</span>
                 </div>
               )}
             </div>
@@ -2231,28 +2455,14 @@ const ReportViewModal = ({ report, onClose }: {
           <div className={styles.modalFooter}>
             <button 
               className={styles.downloadButton}
-              onClick={() => {
-                // Aquí se puede implementar la descarga del informe
-                alert('Función de descarga próximamente disponible');
-              }}
+              onClick={handleDownload}
+              disabled={isLoading}
             >
-              📥 Descargar Informe
+              {isLoading ? '⏳ Descargando...' : '📥 Descargar Informe'}
             </button>
             <button 
               className={styles.shareButton}
-              onClick={() => {
-                // Aquí se puede implementar el compartir
-                if (navigator.share) {
-                  navigator.share({
-                    title: report.title,
-                    text: report.summary || report.title,
-                    url: window.location.href
-                  });
-                } else {
-                  navigator.clipboard.writeText(window.location.href);
-                  alert('Enlace copiado al portapapeles');
-                }
-              }}
+              onClick={handleShare}
             >
               📤 Compartir
             </button>
@@ -2264,7 +2474,11 @@ const ReportViewModal = ({ report, onClose }: {
       {showImageModal && report.images && (
         <div className={styles.imageModalOverlay} onClick={closeImageModal}>
           <div className={styles.imageModal} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.closeImageModal} onClick={closeImageModal}>
+            <button 
+              className={styles.closeImageModal} 
+              onClick={closeImageModal}
+              aria-label="Cerrar modal de imagen"
+            >
               ×
             </button>
             <div className={styles.imageModalContent}>
@@ -2272,18 +2486,21 @@ const ReportViewModal = ({ report, onClose }: {
                 className={styles.imageNavButton} 
                 onClick={prevImage}
                 disabled={currentImageIndex === 0}
+                aria-label="Imagen anterior"
               >
                 ‹
               </button>
               <img 
                 src={report.images[currentImageIndex].secure_url || report.images[currentImageIndex].url}
-                alt={`Imagen ${currentImageIndex + 1}`}
+                alt={report.images[currentImageIndex].caption || `Imagen ${currentImageIndex + 1}`}
                 className={styles.modalImage}
+                loading="lazy"
               />
               <button 
                 className={styles.imageNavButton} 
                 onClick={nextImage}
                 disabled={currentImageIndex === report.images.length - 1}
+                aria-label="Imagen siguiente"
               >
                 ›
               </button>
