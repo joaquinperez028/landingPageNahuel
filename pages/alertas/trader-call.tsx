@@ -1360,116 +1360,175 @@ const SubscriberView: React.FC = () => {
           </div>
         ) : (
           <div className={styles.chartContainer}>
-            <div className={styles.pieChart3D}>
-              <svg viewBox="0 0 300 300" className={styles.chartSvg3D}>
-                {/* Sombra del gráfico para efecto 3D */}
-                <defs>
-                  <filter id="shadow3D" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="3" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.3"/>
-                  </filter>
-                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                    <feMerge> 
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                  </filter>
-                </defs>
-                
-                {/* Fondo del gráfico con efecto 3D */}
-                <circle cx="150" cy="150" r="120" className={styles.chartBackground3D} />
-                
-                {/* Segmentos del gráfico 3D */}
-                {chartSegments.map((segment, index) => (
-                  <g key={segment.id} className={styles.chartSegment3D}>
-                    {/* Sombra del segmento */}
-                    <path
-                      d={describeArc(150, 150, 120, segment.startAngle, segment.endAngle)}
-                      fill={segment.darkColor}
-                      filter="url(#shadow3D)"
-                      className={styles.segmentShadow}
-                    />
-                    {/* Segmento principal */}
-                    <path
-                      d={describeArc(150, 150, 120, segment.startAngle, segment.endAngle)}
-                      fill={segment.color}
-                      className={styles.segmentPath3D}
-                      onMouseEnter={(e) => showTooltip(e, segment)}
-                      onMouseLeave={hideTooltip}
-                      filter="url(#glow)"
-                    />
-                    {/* Borde del segmento */}
-                    <path
-                      d={describeArc(150, 150, 120, segment.startAngle, segment.endAngle)}
-                      fill="none"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                      opacity="0.3"
-                      className={styles.segmentBorder}
-                    />
-                    {/* Etiqueta del símbolo */}
-                    {segment.size > 5 && (
-                      <text
-                        x={150 + Math.cos((segment.centerAngle - 90) * Math.PI / 180) * 80}
-                        y={150 + Math.sin((segment.centerAngle - 90) * Math.PI / 180) * 80}
-                        className={styles.segmentLabel}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        fontSize="12"
-                        fontWeight="bold"
-                        fill="#ffffff"
+            <div className={styles.chartLayout}>
+              {/* Gráfico de torta 3D - Lado izquierdo */}
+              <div className={styles.pieChart3D}>
+                <svg viewBox="0 0 300 300" className={styles.chartSvg3D}>
+                  {/* Sombra del gráfico para efecto 3D */}
+                  <defs>
+                    <filter id="shadow3D" x="-50%" y="-50%" width="200%" height="200%">
+                      <feDropShadow dx="3" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.3"/>
+                    </filter>
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                      <feMerge> 
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  
+                  {/* Fondo del gráfico con efecto 3D */}
+                  <circle cx="150" cy="150" r="120" className={styles.chartBackground3D} />
+                  
+                  {/* Segmentos del gráfico 3D */}
+                  {chartSegments.map((segment, index) => (
+                    <g key={segment.id} className={styles.chartSegment3D}>
+                      {/* Sombra del segmento */}
+                      <path
+                        d={describeArc(150, 150, 120, segment.startAngle, segment.endAngle)}
+                        fill={segment.darkColor}
                         filter="url(#shadow3D)"
-                      >
-                        {segment.symbol}
-                      </text>
-                    )}
-                  </g>
-                ))}
+                        className={styles.segmentShadow}
+                      />
+                      {/* Segmento principal */}
+                      <path
+                        d={describeArc(150, 150, 120, segment.startAngle, segment.endAngle)}
+                        fill={segment.color}
+                        className={styles.segmentPath3D}
+                        onMouseEnter={(e) => showTooltip(e, segment)}
+                        onMouseLeave={hideTooltip}
+                        filter="url(#glow)"
+                      />
+                      {/* Borde del segmento */}
+                      <path
+                        d={describeArc(150, 150, 120, segment.startAngle, segment.endAngle)}
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeWidth="2"
+                        opacity="0.3"
+                        className={styles.segmentBorder}
+                      />
+                      {/* Etiqueta del símbolo */}
+                      {segment.size > 5 && (
+                        <text
+                          x={150 + Math.cos((segment.centerAngle - 90) * Math.PI / 180) * 80}
+                          y={150 + Math.sin((segment.centerAngle - 90) * Math.PI / 180) * 80}
+                          className={styles.segmentLabel}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fontSize="12"
+                          fontWeight="bold"
+                          fill="#ffffff"
+                          filter="url(#shadow3D)"
+                        >
+                          {segment.symbol}
+                        </text>
+                      )}
+                    </g>
+                  ))}
+                  
+                  {/* Círculo central con efecto 3D */}
+                  <circle cx="150" cy="150" r="40" className={styles.chartCenter3D} />
+                </svg>
                 
-                {/* Círculo central con efecto 3D */}
-                <circle cx="150" cy="150" r="40" className={styles.chartCenter3D} />
-              </svg>
-              
-              {/* Estadísticas centrales */}
-              <div className={styles.chartCenter}>
-                <div className={styles.chartStats3D}>
-                  <div className={styles.statItem3D}>
-                    <span className={styles.statLabel3D}>📊 Total</span>
-                    <span className={styles.statValue3D}>{chartData.length}</span>
-                  </div>
-                  <div className={styles.statItem3D}>
-                    <span className={styles.statLabel3D}>🟢 Activas</span>
-                    <span className={styles.statValue3D}>{alertasActivas.length}</span>
-                  </div>
-                  <div className={styles.statItem3D}>
-                    <span className={styles.statLabel3D}>🔴 Cerradas</span>
-                    <span className={styles.statValue3D}>{alertasCerradas.length}</span>
+                {/* Estadísticas centrales */}
+                <div className={styles.chartCenter}>
+                  <div className={styles.chartStats3D}>
+                    <div className={styles.statItem3D}>
+                      <span className={styles.statLabel3D}>📊 Total</span>
+                      <span className={styles.statValue3D}>{chartData.length}</span>
+                    </div>
+                    <div className={styles.statItem3D}>
+                      <span className={styles.statLabel3D}>🟢 Activas</span>
+                      <span className={styles.statValue3D}>{alertasActivas.length}</span>
+                    </div>
+                    <div className={styles.statItem3D}>
+                      <span className={styles.statLabel3D}>🔴 Cerradas</span>
+                      <span className={styles.statValue3D}>{alertasCerradas.length}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Leyenda mejorada con colores dinámicos */}
-            <div className={styles.chartLegend3D}>
-              <h3 className={styles.legendTitle}>🎨 Alertas por Color</h3>
-              <div className={styles.legendGrid}>
-                {chartSegments.map((segment, index) => (
-                  <div key={segment.id} className={styles.legendItem3D}>
-                    <div 
-                      className={styles.legendColor3D}
-                      style={{ backgroundColor: segment.color }}
-                    ></div>
-                    <div className={styles.legendInfo}>
-                      <span className={styles.legendSymbol}>{segment.symbol}</span>
-                      <span className={styles.legendProfit}>
-                        {segment.profit >= 0 ? '+' : ''}{segment.profit.toFixed(2)}%
+              
+              {/* Información complementaria - Lado derecho */}
+              <div className={styles.chartInfoPanel}>
+                <div className={styles.infoHeader}>
+                  <h3 className={styles.infoTitle}>📈 Detalles de Alertas</h3>
+                  <p className={styles.infoSubtitle}>Información detallada de cada alerta activa</p>
+                </div>
+                
+                {/* Resumen estadístico */}
+                <div className={styles.statsSummary}>
+                  <div className={styles.summaryCard}>
+                    <div className={styles.summaryIcon}>📊</div>
+                    <div className={styles.summaryContent}>
+                      <span className={styles.summaryLabel}>Total Alertas</span>
+                      <span className={styles.summaryValue}>{chartData.length}</span>
+                    </div>
+                  </div>
+                  <div className={styles.summaryCard}>
+                    <div className={styles.summaryIcon}>🟢</div>
+                    <div className={styles.summaryContent}>
+                      <span className={styles.summaryLabel}>Activas</span>
+                      <span className={styles.summaryValue}>{alertasActivas.length}</span>
+                    </div>
+                  </div>
+                  <div className={styles.summaryCard}>
+                    <div className={styles.summaryIcon}>🔴</div>
+                    <div className={styles.summaryContent}>
+                      <span className={styles.summaryLabel}>Cerradas</span>
+                      <span className={styles.summaryValue}>{alertasCerradas.length}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Leyenda mejorada con colores dinámicos */}
+                <div className={styles.chartLegend3D}>
+                  <h3 className={styles.legendTitle}>🎨 Alertas por Color</h3>
+                  <div className={styles.legendList}>
+                    {chartSegments.map((segment, index) => (
+                      <div key={segment.id} className={styles.legendItem3D}>
+                        <div 
+                          className={styles.legendColor3D}
+                          style={{ backgroundColor: segment.color }}
+                        ></div>
+                        <div className={styles.legendInfo}>
+                          <span className={styles.legendSymbol}>{segment.symbol}</span>
+                          <span className={styles.legendProfit}>
+                            {segment.profit >= 0 ? '+' : ''}{segment.profit.toFixed(2)}%
+                          </span>
+                          <span className={styles.legendStatus}>
+                            {segment.status === 'ACTIVE' ? '🟢' : '🔴'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Información adicional */}
+                <div className={styles.additionalInfo}>
+                  <h4 className={styles.additionalTitle}>💡 Información Adicional</h4>
+                  <div className={styles.infoGrid}>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Mejor Rendimiento:</span>
+                      <span className={styles.infoValue}>
+                        {chartSegments.length > 0 ? 
+                          chartSegments.reduce((max, segment) => 
+                            segment.profit > max.profit ? segment : max
+                          ).symbol : 'N/A'}
                       </span>
-                      <span className={styles.legendStatus}>
-                        {segment.status === 'ACTIVE' ? '🟢' : '🔴'}
+                    </div>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Promedio P&L:</span>
+                      <span className={styles.infoValue}>
+                        {chartSegments.length > 0 ? 
+                          (chartSegments.reduce((sum, segment) => sum + segment.profit, 0) / chartSegments.length).toFixed(2) + '%' : '0%'}
                       </span>
                     </div>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>

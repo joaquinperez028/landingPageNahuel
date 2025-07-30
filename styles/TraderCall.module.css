@@ -2826,3 +2826,282 @@
     font-size: 0.8rem;
   }
 }
+
+/* Layout del gráfico con información lateral */
+.chartLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+  margin: 2rem 0;
+}
+
+/* Panel de información lateral */
+.chartInfoPanel {
+  background: var(--bg-tertiary);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+  height: fit-content;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.infoHeader {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.infoTitle {
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.infoSubtitle {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* Resumen estadístico */
+.statsSummary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summaryCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.summaryIcon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.summaryContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.summaryLabel {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.summaryValue {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Leyenda mejorada para layout lateral */
+.legendList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.legendItem3D {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.legendItem3D:hover {
+  transform: translateX(5px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.legendColor3D {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.legendItem3D:hover .legendColor3D {
+  transform: scale(1.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.legendInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.legendSymbol {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.legendProfit {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.legendStatus {
+  font-size: 0.75rem;
+}
+
+/* Información adicional */
+.additionalInfo {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.additionalTitle {
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.infoItem:hover {
+  border-color: var(--primary-color);
+  background: var(--bg-tertiary);
+}
+
+.infoLabel {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.infoValue {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Responsive para layout lateral */
+@media (max-width: 1024px) {
+  .chartLayout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .chartInfoPanel {
+    max-height: none;
+    overflow-y: visible;
+  }
+  
+  .statsSummary {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .legendList {
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chartLayout {
+    gap: 1rem;
+  }
+  
+  .chartInfoPanel {
+    padding: 1rem;
+  }
+  
+  .statsSummary {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .summaryCard {
+    padding: 0.75rem;
+  }
+  
+  .summaryValue {
+    font-size: 1.125rem;
+  }
+  
+  .legendList {
+    max-height: 150px;
+  }
+  
+  .legendItem3D {
+    padding: 0.5rem;
+  }
+  
+  .infoItem {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .chartInfoPanel {
+    padding: 0.75rem;
+  }
+  
+  .infoTitle {
+    font-size: 1.125rem;
+  }
+  
+  .summaryIcon {
+    font-size: 1.25rem;
+  }
+  
+  .summaryValue {
+    font-size: 1rem;
+  }
+  
+  .legendSymbol {
+    font-size: 0.8rem;
+  }
+  
+  .infoLabel,
+  .infoValue {
+    font-size: 0.8rem;
+  }
+}
