@@ -1431,24 +1431,6 @@ const SubscriberView: React.FC = () => {
                   {/* Círculo central con efecto 3D */}
                   <circle cx="150" cy="150" r="40" className={styles.chartCenter3D} />
                 </svg>
-                
-                {/* Estadísticas centrales */}
-                <div className={styles.chartCenter}>
-                  <div className={styles.chartStats3D}>
-                    <div className={styles.statItem3D}>
-                      <span className={styles.statLabel3D}>📊 Total</span>
-                      <span className={styles.statValue3D}>{chartData.length}</span>
-                    </div>
-                    <div className={styles.statItem3D}>
-                      <span className={styles.statLabel3D}>🟢 Activas</span>
-                      <span className={styles.statValue3D}>{alertasActivas.length}</span>
-                    </div>
-                    <div className={styles.statItem3D}>
-                      <span className={styles.statLabel3D}>🔴 Cerradas</span>
-                      <span className={styles.statValue3D}>{alertasCerradas.length}</span>
-                    </div>
-                  </div>
-                </div>
               </div>
               
               {/* Información complementaria - Lado derecho */}
