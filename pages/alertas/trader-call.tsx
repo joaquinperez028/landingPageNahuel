@@ -1184,182 +1184,247 @@ const SubscriberView: React.FC = () => {
     </div>
   );
 
-  const renderSeguimientoAlertas = () => (
-    <div className={styles.alertasContent}>
-      <div className={styles.alertasHeader}>
-        <h2 className={styles.sectionTitle}>Seguimiento de Alertas</h2>
-        {userRole === 'admin' && (
-          <button 
-            className={styles.createAlertButton}
-            onClick={() => setShowCreateAlert(true)}
-          >
-            + Crear Nueva Alerta
-          </button>
-        )}
-      </div>
+  const renderSeguimientoAlertas = () => {
+    const alertasActivas = realAlerts.filter(alert => alert.status === 'ACTIVE');
+    const alertasCerradas = realAlerts.filter(alert => alert.status === 'CLOSED');
+    
+    // Preparar datos para el gráfico de torta
+    const chartData = [...alertasActivas, ...alertasCerradas].map(alert => {
+      const profitValue = parseFloat(alert.profit.replace(/[+%]/g, ''));
+      return {
+        id: alert.id,
+        symbol: alert.symbol,
+        profit: profitValue,
+        status: alert.status,
+        entryPrice: alert.entryPrice,
+        currentPrice: alert.currentPrice,
+        stopLoss: alert.stopLoss,
+        takeProfit: alert.takeProfit,
+        action: alert.action,
+        date: alert.date,
+        analysis: alert.analysis
+      };
+    });
+
+    // Calcular el tamaño de cada segmento basado en el profit
+    const totalProfit = chartData.reduce((sum, alert) => sum + Math.abs(alert.profit), 0);
+    const chartSegments = chartData.map((alert, index) => {
+      const size = totalProfit > 0 ? (Math.abs(alert.profit) / totalProfit) * 100 : 100 / chartData.length;
+      const startAngle = chartData.slice(0, index).reduce((sum, a) => sum + (Math.abs(a.profit) / totalProfit) * 360, 0);
+      const endAngle = startAngle + (Math.abs(alert.profit) / totalProfit) * 360;
       
-      {/* Filtros */}
-      <div className={styles.alertFilters}>
-        <select 
-          className={styles.filterSelect}
-          value={filterSymbol}
-          onChange={(e) => setFilterSymbol(e.target.value)}
-        >
-          <option value="">Filtrar por símbolo</option>
-          {Array.from(new Set(realAlerts.map(alert => alert.symbol))).map(symbol => (
-            <option key={symbol} value={symbol}>{symbol}</option>
-          ))}
-        </select>
-        <select 
-          className={styles.filterSelect}
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="">Filtrar por estado</option>
-          <option value="ACTIVE">Activa</option>
-          <option value="CLOSED">Cerrada</option>
-          <option value="STOPPED">Stop Loss</option>
-        </select>
-        <input 
-          type="date" 
-          className={styles.filterDate}
-          placeholder="Fecha desde"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-        />
-        {(filterSymbol || filterStatus || filterDate) && (
-          <button 
-            className={styles.clearFilters}
-            onClick={clearFilters}
-            title="Limpiar todos los filtros"
-          >
-            ✕ Limpiar
-          </button>
-        )}
-      </div>
+      return {
+        ...alert,
+        size,
+        startAngle,
+        endAngle,
+        centerAngle: (startAngle + endAngle) / 2
+      };
+    });
 
-      {/* Tabla de alertas */}
-      <div className={styles.alertasTableContainer}>
-        {(() => {
-          const filteredAlerts = getFilteredAlerts();
-          
-          if (loadingAlerts) {
-            return (
-              <div className={styles.loadingState}>
-                <div className={styles.loadingSpinner}></div>
-                <span>Cargando alertas...</span>
-              </div>
-            );
-          }
-          
-          if (realAlerts.length === 0) {
-            return (
-              <div className={styles.emptyState}>
-                <div className={styles.emptyIcon}>📊</div>
-                <h3>No hay alertas creadas aún</h3>
-                <p>¡Crea tu primera alerta para empezar el seguimiento!</p>
-                {userRole === 'admin' && (
-                  <button 
-                    className={styles.createFirstAlertButton}
-                    onClick={() => setShowCreateAlert(true)}
-                  >
-                    + Crear Primera Alerta
-                  </button>
-                )}
-              </div>
-            );
-          }
-          
-          if (filteredAlerts.length === 0) {
-            return (
-              <div className={styles.emptyState}>
-                <div className={styles.emptyIcon}>🔍</div>
-                <h3>No se encontraron alertas</h3>
-                <p>No hay alertas que coincidan con los filtros aplicados.</p>
-                <button 
-                  className={styles.clearFiltersButton}
-                  onClick={clearFilters}
-                >
-                  🗑️ Limpiar Filtros
-                </button>
-              </div>
-            );
-          }
-          
-          return (
-            <div className={styles.alertsGrid}>
-              {filteredAlerts.map((alert) => {
-                const entryPrice = parseFloat(String(alert.entryPrice || '0').replace('$', ''));
-                const currentPrice = parseFloat(String(alert.currentPrice || '0').replace('$', ''));
-                const exitPrice = alert.exitPrice ? parseFloat(String(alert.exitPrice).replace('$', '')) : null;
-                const profitPercent = parseFloat(String(alert.profit || '0%').replace('%', '').replace('+', ''));
-                
-                const priceChange = exitPrice ? (exitPrice - entryPrice) : (currentPrice - entryPrice);
-                const dollarPL = priceChange.toFixed(2);
-                
-                const isProfit = profitPercent >= 0;
-                const pnlColor = isProfit ? 'var(--success-color)' : 'var(--error-color)';
-                
-                return (
-                  <div key={alert.id} className={styles.alertCard}>
-                    <div className={styles.alertCardHeader}>
-                      <div className={styles.alertSymbolSection}>
-                        <h3 className={styles.alertSymbolTitle}>{alert.symbol}</h3>
-                        <span className={`${styles.alertActionBadge} ${alert.action === 'BUY' ? styles.buyBadge : styles.sellBadge}`}>
-                          {alert.action}
-                        </span>
-                      </div>
-                      <div className={styles.alertStatusSection}>
-                        <span className={`${styles.statusBadge} ${alert.status === 'ACTIVE' ? styles.statusActiveBadge : styles.statusClosedBadge}`}>
-                          {alert.status === 'ACTIVE' ? '🟢 ACTIVA' : '🔴 CERRADA'}
-                        </span>
-                        <span className={styles.alertDate}>{alert.date}</span>
-                      </div>
-                    </div>
-
-                    <div className={styles.priceInfoGrid}>
-                      <div className={styles.priceInfo}>
-                        <span className={styles.priceLabel}>Entrada</span>
-                        <span className={styles.priceValue}>{alert.entryPrice}</span>
-                      </div>
-                      <div className={styles.priceInfo}>
-                        <span className={styles.priceLabel}>{alert.status === 'CLOSED' ? 'Salida' : 'Actual'}</span>
-                        <span className={styles.priceValue}>
-                          {alert.status === 'CLOSED' ? (alert.exitPrice || alert.currentPrice) : alert.currentPrice}
-                        </span>
-                      </div>
-                      <div className={styles.priceInfo}>
-                        <span className={styles.priceLabel}>Stop Loss</span>
-                        <span className={`${styles.priceValue} ${styles.stopLoss}`}>{alert.stopLoss || '-'}</span>
-                      </div>
-                      <div className={styles.priceInfo}>
-                        <span className={styles.priceLabel}>Take Profit</span>
-                        <span className={`${styles.priceValue} ${styles.takeProfit}`}>{alert.takeProfit || '-'}</span>
-                      </div>
-                    </div>
-
-                    <div className={styles.pnlSection}>
-                      <div className={styles.pnlMain}>
-                        <span className={styles.pnlLabel}>P&L Total</span>
-                        <div className={styles.pnlValues}>
-                          <span className={styles.pnlPercent} style={{ color: pnlColor }}>
-                            {isProfit ? '+' : ''}{profitPercent.toFixed(2)}%
-                          </span>
-                          <span className={styles.pnlDollar} style={{ color: pnlColor }}>
-                            {priceChange >= 0 ? '+' : ''}${dollarPL}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+    return (
+      <div className={styles.seguimientoContent}>
+        <div className={styles.seguimientoHeader}>
+          <h2 className={styles.sectionTitle}>Seguimiento de Alertas</h2>
+          <div className={styles.chartControls}>
+            {userRole === 'admin' && (
+              <button 
+                className={styles.createAlertButton}
+                onClick={() => setShowCreateAlert(true)}
+                title="Crear nueva alerta"
+              >
+                + Crear Nueva Alerta
+              </button>
+            )}
+            <div className={styles.filtersContainer}>
+              <input
+                type="text"
+                placeholder="Filtrar por símbolo..."
+                value={filterSymbol}
+                onChange={(e) => setFilterSymbol(e.target.value)}
+                className={styles.filterInput}
+              />
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="">Todos los estados</option>
+                <option value="ACTIVE">Activas</option>
+                <option value="CLOSED">Cerradas</option>
+                <option value="STOPPED">Detenidas</option>
+              </select>
+              <input
+                type="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                className={styles.filterDate}
+              />
+              <button onClick={clearFilters} className={styles.clearFilters}>
+                Limpiar Filtros
+              </button>
             </div>
-          );
-        })()}
+          </div>
+        </div>
+        
+        {loadingAlerts ? (
+          <div className={styles.loadingState}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Cargando alertas...</p>
+          </div>
+        ) : realAlerts.length === 0 ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>📊</div>
+            <h3>No hay alertas disponibles</h3>
+            <p>Las alertas aparecerán aquí cuando sean creadas por el administrador.</p>
+            {userRole === 'admin' && (
+              <button 
+                className={styles.createFirstAlertButton}
+                onClick={() => setShowCreateAlert(true)}
+              >
+                + Crear Primera Alerta
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className={styles.chartContainer}>
+            <div className={styles.pieChart}>
+              <svg viewBox="0 0 200 200" className={styles.chartSvg}>
+                <circle cx="100" cy="100" r="80" className={styles.chartBackground} />
+                {chartSegments.map((segment, index) => (
+                  <g key={segment.id} className={styles.chartSegment}>
+                    <path
+                      d={describeArc(100, 100, 80, segment.startAngle, segment.endAngle)}
+                      fill={segment.profit >= 0 ? '#10b981' : '#ef4444'}
+                      className={styles.segmentPath}
+                      onMouseEnter={(e) => showTooltip(e, segment)}
+                      onMouseLeave={hideTooltip}
+                    />
+                  </g>
+                ))}
+              </svg>
+              <div className={styles.chartCenter}>
+                <div className={styles.chartStats}>
+                  <div className={styles.statItem}>
+                    <span className={styles.statLabel}>Total Alertas</span>
+                    <span className={styles.statValue}>{chartData.length}</span>
+                  </div>
+                  <div className={styles.statItem}>
+                    <span className={styles.statLabel}>Activas</span>
+                    <span className={styles.statValue}>{alertasActivas.length}</span>
+                  </div>
+                  <div className={styles.statItem}>
+                    <span className={styles.statLabel}>Cerradas</span>
+                    <span className={styles.statValue}>{alertasCerradas.length}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className={styles.chartLegend}>
+              <div className={styles.legendItem}>
+                <div className={`${styles.legendColor} ${styles.profitColor}`}></div>
+                <span>Ganancia</span>
+              </div>
+              <div className={styles.legendItem}>
+                <div className={`${styles.legendColor} ${styles.lossColor}`}></div>
+                <span>Pérdida</span>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Tooltip para mostrar información de alerta */}
+        <div id="chartTooltip" className={styles.chartTooltip}>
+          <div className={styles.tooltipContent}>
+            <h4 className={styles.tooltipSymbol}></h4>
+            <div className={styles.tooltipDetails}>
+              <div className={styles.tooltipRow}>
+                <span>Acción:</span>
+                <span className={styles.tooltipAction}></span>
+              </div>
+              <div className={styles.tooltipRow}>
+                <span>Entrada:</span>
+                <span className={styles.tooltipEntry}></span>
+              </div>
+              <div className={styles.tooltipRow}>
+                <span>Actual:</span>
+                <span className={styles.tooltipCurrent}></span>
+              </div>
+              <div className={styles.tooltipRow}>
+                <span>P&L:</span>
+                <span className={styles.tooltipPnl}></span>
+              </div>
+              <div className={styles.tooltipRow}>
+                <span>Estado:</span>
+                <span className={styles.tooltipStatus}></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
+
+  // Funciones auxiliares para el gráfico de torta
+  const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
+    const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
+  };
+
+  const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
+    const start = polarToCartesian(x, y, radius, endAngle);
+    const end = polarToCartesian(x, y, radius, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+    return [
+      "M", start.x, start.y,
+      "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y,
+      "L", x, y,
+      "Z"
+    ].join(" ");
+  };
+
+  const showTooltip = (event: React.MouseEvent, segment: any) => {
+    const tooltip = document.getElementById('chartTooltip') as HTMLElement;
+    if (tooltip) {
+      const symbol = tooltip.querySelector(`.${styles.tooltipSymbol}`) as HTMLElement;
+      const action = tooltip.querySelector(`.${styles.tooltipAction}`) as HTMLElement;
+      const entry = tooltip.querySelector(`.${styles.tooltipEntry}`) as HTMLElement;
+      const current = tooltip.querySelector(`.${styles.tooltipCurrent}`) as HTMLElement;
+      const pnl = tooltip.querySelector(`.${styles.tooltipPnl}`) as HTMLElement;
+      const status = tooltip.querySelector(`.${styles.tooltipStatus}`) as HTMLElement;
+
+      if (symbol) symbol.textContent = segment.symbol;
+      if (action) {
+        action.textContent = segment.action;
+        action.className = `${styles.tooltipAction} ${segment.action === 'BUY' ? styles.buyAction : styles.sellAction}`;
+      }
+      if (entry) entry.textContent = segment.entryPrice;
+      if (current) entry.textContent = segment.currentPrice;
+      if (pnl) {
+        pnl.textContent = `${segment.profit >= 0 ? '+' : ''}${segment.profit.toFixed(2)}%`;
+        pnl.className = `${styles.tooltipPnl} ${segment.profit >= 0 ? styles.profit : styles.loss}`;
+      }
+      if (status) {
+        status.textContent = segment.status === 'ACTIVE' ? '🟢 ACTIVA' : '🔴 CERRADA';
+        status.className = `${styles.tooltipStatus} ${segment.status === 'ACTIVE' ? styles.activeStatus : styles.closedStatus}`;
+      }
+
+      tooltip.style.display = 'block';
+      tooltip.style.left = event.pageX + 10 + 'px';
+      tooltip.style.top = event.pageY - 10 + 'px';
+    }
+  };
+
+  const hideTooltip = () => {
+    const tooltip = document.getElementById('chartTooltip') as HTMLElement;
+    if (tooltip) {
+      tooltip.style.display = 'none';
+    }
+  };
 
   const renderAlertasVigentes = () => {
     const alertasActivas = realAlerts.filter(alert => alert.status === 'ACTIVE');
