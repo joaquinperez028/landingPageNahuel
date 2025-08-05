@@ -9,6 +9,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
 import YouTubePlayer from '@/components/YouTubePlayer';
+import { usePopupFrequency } from '@/hooks/usePopupFrequency';
 import styles from '@/styles/Home.module.css';
 
 interface Training {
@@ -218,67 +219,17 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
   console.log('📚 cursos visible:', siteConfig?.cursos?.visible);
   console.log('🎓 entrenamientos:', entrenamientos);
   
-  const [showPopup, setShowPopup] = useState(false);
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
 
-  // Función para verificar si debe mostrar el popup
-  const shouldShowPopup = (frequency: 'weekly' | 'monthly' = 'weekly') => {
-    if (typeof window === 'undefined') return false; // SSR check
-    
-    const lastShown = localStorage.getItem('popupLastShown');
-    if (!lastShown) return true;
-    
-    const lastShownDate = new Date(lastShown);
-    const now = new Date();
-    const diffInMs = now.getTime() - lastShownDate.getTime();
-    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-    
-    if (frequency === 'weekly') {
-      return diffInDays >= 7;
-    } else if (frequency === 'monthly') {
-      return diffInDays >= 30;
-    }
-    
-    return false;
-  };
-
-  // Función para marcar el popup como mostrado
-  const markPopupAsShown = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('popupLastShown', new Date().toISOString());
-    }
-  };
-
-  // Función para resetear el popup (útil para testing)
-  const resetPopup = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('popupLastShown');
-    }
-  };
-
-  // Mostrar popup después de 3 segundos si no está logueado y no se mostró recientemente
-  useEffect(() => {
-    if (!session) {
-      const timer = setTimeout(() => {
-        // Cambiar 'weekly' por 'monthly' si quieres que aparezca una vez por mes
-        // También puedes usar resetPopup() en la consola del navegador para resetear
-        if (shouldShowPopup('weekly')) {
-          setShowPopup(true);
-          markPopupAsShown();
-        }
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [session]);
-
-  // Hacer resetPopup disponible en la consola para testing
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).resetPopup = resetPopup;
-    }
-  }, []);
+  // Hook para manejar la frecuencia del popup
+  const { isVisible: showPopup, closePopupExtended } = usePopupFrequency({
+    frequencyDays: 7, // Mostrar cada semana (cambiar a 30 para mensual)
+    manualCloseExtraDays: 14, // Si cierra manualmente, no mostrar por 2 semanas más
+    delayMs: 3000, // Delay de 3 segundos
+    isAuthenticated: !!session
+  });
 
   const handlePopupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -296,8 +247,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
       if (response.ok) {
         setSubmitMessage('¡Perfecto! Revisa tu email para confirmar tu suscripción y recibir tu curso gratuito.');
         setEmail('');
-        markPopupAsShown();
-        setTimeout(() => setShowPopup(false), 3000);
+        setTimeout(() => closePopupExtended(), 3000);
       } else {
         setSubmitMessage('Error al suscribirse. Por favor intenta nuevamente.');
       }
@@ -385,10 +335,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => {
-              setShowPopup(false);
-              markPopupAsShown();
-            }}
+            onClick={closePopupExtended}
           >
             <motion.div
               className={styles.popupContent}
@@ -399,10 +346,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
             >
               <button
                 className={styles.popupClose}
-                onClick={() => {
-                  setShowPopup(false);
-                  markPopupAsShown();
-                }}
+                onClick={closePopupExtended}
               >
                 <X size={24} />
               </button>
@@ -508,38 +452,37 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
               viewport={{ once: true }}
             >
               <div className={styles.learningText}>
-                <div className={styles.mentoringLogoBlock}>
-                  <img
-                    src="/logos/LOGOTIPO NARANJA SIN FONDO.png"
-                    alt="Mentoring"
-                    className={styles.mentoringLogoImg}
-                  />
-                  <span className={styles.mentoringLogoText}>Mentoring</span>
-                </div>
+                <h2 className={styles.learningTitle}>
+                  Aprende a invertir<br />
+                  desde cero
+                </h2>
                 <p className={styles.learningDescription}>
-                  Aprende a invertir en bolsa con nuestros cursos especializados. Comienza tu camino hacia la libertad financiera.
+                  Aprende a invertir en bolsa con nuestros cursos especializados. Comienza tu camino hacia la independencia financiera.
                 </p>
+                
                 <div className={styles.learningActions}>
                   <a 
                     href="https://plataformacursos.lozanonahuel.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles.learningButtonVioleta}
+                    className={styles.learningButton}
                   >
-                    Ir a Mentoring🚀 &gt;
+                    Ir a Mentoring🚀
                   </a>
                 </div>
               </div>
 
               {/* Video de Cursos */}
-              <YouTubePlayer
-                videoId={siteConfig.learningVideo.youtubeId}
-                title={siteConfig.learningVideo.title}
-                autoplay={siteConfig.learningVideo.autoplay}
-                muted={siteConfig.learningVideo.muted}
-                loop={siteConfig.learningVideo.loop}
-                className={styles.learningVideoPlayer}
-              />
+              <div className={styles.learningVideo}>
+                <YouTubePlayer
+                  videoId={siteConfig.learningVideo.youtubeId}
+                  title={siteConfig.learningVideo.title}
+                  autoplay={siteConfig.learningVideo.autoplay}
+                  muted={siteConfig.learningVideo.muted}
+                  loop={siteConfig.learningVideo.loop}
+                  className={styles.learningVideoPlayer}
+                />
+              </div>
             </motion.div>
           </div>
         </section>
