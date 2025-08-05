@@ -22,6 +22,7 @@ import {
   FileText,
   RefreshCw,
   Plus,
+  PlusCircle,
   X
 } from 'lucide-react';
 import styles from '@/styles/SmartMoney.module.css';
@@ -1586,6 +1587,15 @@ const SubscriberView: React.FC = () => {
         <div className={styles.vigentesHeader}>
           <h2 className={styles.sectionTitle}>Alertas Vigentes</h2>
           <div className={styles.priceUpdateControls}>
+            {userRole === 'admin' && (
+              <button 
+                className={styles.createAlertButton}
+                onClick={() => setShowCreateAlert(true)}
+                title="Crear nueva alerta"
+              >
+                + Crear Alerta
+              </button>
+            )}
             <button 
               className={styles.updatePricesButton}
               onClick={() => updatePrices(false)}
@@ -1593,27 +1603,6 @@ const SubscriberView: React.FC = () => {
             >
               {updatingPrices ? '🔄 Actualizando...' : '📈 Actualizar Precios'}
             </button>
-            <div className={styles.marketInfo}>
-              {lastPriceUpdate && (
-                <span className={styles.lastUpdateTime}>
-                  Última actualización: {lastPriceUpdate.toLocaleTimeString()}
-                </span>
-              )}
-              {marketStatus && (
-                <span className={`${styles.marketStatus} ${styles[`status${marketStatus}`]}`}>
-                  {marketStatus === 'OPEN' ? '🟢 Mercado Abierto' : 
-                   marketStatus === 'CLOSED_WEEKEND' ? '🔴 Mercado Cerrado (Fin de semana)' :
-                   marketStatus === 'CLOSED_AFTER_HOURS' ? '🟡 Mercado Cerrado (After hours)' :
-                   marketStatus === 'CLOSED_PRE_MARKET' ? '🟡 Mercado Cerrado (Pre-market)' :
-                   '🟡 Estado desconocido'}
-                </span>
-              )}
-              {isUsingSimulatedPrices && (
-                <span className={styles.simulatedWarning}>
-                  ⚠️ Precios simulados
-                </span>
-              )}
-            </div>
           </div>
         </div>
         
@@ -1624,41 +1613,38 @@ const SubscriberView: React.FC = () => {
         ) : alertasActivas.length === 0 ? (
           <div className={styles.emptyState}>
             <p>No hay alertas vigentes en este momento.</p>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-              Las alertas aparecerán aquí cuando las crees.
-            </p>
           </div>
         ) : (
           alertasActivas.map((alert) => (
             <div key={alert.id} className={styles.alertCard}>
               <div className={styles.alertHeader}>
                 <h3 className={styles.alertSymbol}>{alert.symbol}</h3>
-                <span className={`${styles.alertAction} ${alert.flow === 'ENTRADA' ? styles.buyAction : styles.sellAction}`}>
-                  {alert.flow}
+                <span className={`${styles.alertAction} ${alert.action === 'BUY' ? styles.buyAction : styles.sellAction}`}>
+                  {alert.action}
                 </span>
               </div>
               
               <div className={styles.alertDetails}>
                 <div className={styles.alertDetail}>
-                  <span>Volumen Detectado:</span>
-                  <strong>{alert.volume || alert.entryPrice}</strong>
+                  <span>Precio Entrada:</span>
+                  <strong>{alert.entryPrice}</strong>
                 </div>
                 <div className={styles.alertDetail}>
                   <span>Precio Actual:</span>
                   <strong>{alert.currentPrice}</strong>
                 </div>
                 <div className={styles.alertDetail}>
-                  <span>Flujo Mínimo:</span>
-                  <strong>{alert.volume || alert.stopLoss}</strong>
+                  <span>Stop Loss:</span>
+                  <strong>{alert.stopLoss}</strong>
                 </div>
                 <div className={styles.alertDetail}>
-                  <span>Objetivo de Movimiento:</span>
-                  <strong>{alert.expectedMovement || alert.takeProfit}</strong>
+                  <span>Take Profit:</span>
+                  <strong>{alert.takeProfit}</strong>
                 </div>
                 <div className={styles.alertDetail}>
-                  <span>Impacto:</span>
+                  <span>P&L:</span>
                   <strong className={alert.profit.includes('+') ? styles.profit : styles.loss}>
-                    {alert.movement || alert.profit}
+                    {alert.profit}
                   </strong>
                 </div>
               </div>
@@ -1683,14 +1669,15 @@ const SubscriberView: React.FC = () => {
   const renderInformes = () => (
     <div className={styles.informesContent}>
       <div className={styles.informesHeader}>
-        <h2 className={styles.sectionTitle}>Informes</h2>
-        {session && userRole === 'admin' && (
+        <h2 className={styles.sectionTitle}>📊 Informes y Análisis</h2>
+        {userRole === 'admin' && (
           <button 
             className={styles.createButton}
             onClick={() => setShowCreateReportModal(true)}
             title="Crear nuevo informe"
           >
-            + Crear Informe
+            <PlusCircle size={16} />
+            Crear Informe
           </button>
         )}
       </div>
