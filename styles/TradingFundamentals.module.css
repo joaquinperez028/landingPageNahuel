@@ -549,7 +549,7 @@
   content: '';
   position: absolute;
   width: 2px;
-  background: #333333;
+  background: #333333; 
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
