@@ -4323,4 +4323,621 @@
     height: 32px;
     font-size: 16px;
   }
+}
+
+/* Sección Seguimiento de Alertas - Gráfico de Torta */
+.seguimientoContent {
+  padding: 2rem;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  margin: 1rem;
+}
+
+.seguimientoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.chartControls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.createAlertButton {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.createAlertButton:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.filtersContainer {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filterInput,
+.filterSelect,
+.filterDate {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  background: #1f2937;
+  color: white;
+  font-size: 0.875rem;
+  min-width: 120px;
+}
+
+.filterInput:focus,
+.filterSelect:focus,
+.filterDate:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.clearFilters {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.clearFilters:hover {
+  background: #4b5563;
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.emptyState h3 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.createFirstAlertButton {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.createFirstAlertButton:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+/* Layout del gráfico con información lateral */
+.chartLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+  margin: 2rem 0;
+}
+
+/* Panel de información lateral */
+.chartInfoPanel {
+  background: var(--bg-tertiary);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+  height: fit-content;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.infoHeader {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.infoTitle {
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.infoSubtitle {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* Resumen estadístico */
+.statsSummary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summaryCard {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.summaryIcon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.summaryContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.summaryLabel {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.summaryValue {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Leyenda mejorada para layout lateral */
+.legendList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.legendItem3D {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.legendItem3D:hover {
+  transform: translateX(5px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+.legendColor3D {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.legendItem3D:hover .legendColor3D {
+  transform: scale(1.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.legendInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.legendSymbol {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.legendProfit {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.legendStatus {
+  font-size: 0.75rem;
+}
+
+/* Información adicional */
+.additionalInfo {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.additionalTitle {
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.infoItem:hover {
+  border-color: var(--primary-color);
+  background: var(--bg-tertiary);
+}
+
+.infoLabel {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.infoValue {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Gráfico de Torta 3D Mejorado */
+.pieChart3D {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0;
+  perspective: 1000px;
+}
+
+.chartSvg3D {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+  transform: rotateX(15deg) rotateY(-5deg);
+  transition: transform 0.3s ease;
+}
+
+.chartSvg3D:hover {
+  transform: rotateX(10deg) rotateY(-2deg) scale(1.05);
+}
+
+.chartBackground3D {
+  fill: var(--bg-tertiary);
+  stroke: var(--border-color);
+  stroke-width: 2;
+  filter: url(#shadow3D);
+}
+
+.chartSegment3D {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.chartSegment3D:hover {
+  transform: scale(1.02);
+}
+
+.segmentShadow {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.segmentPath3D {
+  transition: all 0.3s ease;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 1;
+}
+
+.segmentPath3D:hover {
+  filter: brightness(1.2) url(#glow);
+  stroke-width: 2;
+}
+
+.segmentBorder {
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.segmentLabel {
+  pointer-events: none;
+  font-family: 'Inter', sans-serif;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+.chartCenter3D {
+  fill: var(--bg-secondary);
+  stroke: var(--primary-color);
+  stroke-width: 3;
+  filter: url(#shadow3D);
+}
+
+/* Tooltip 3D Mejorado */
+.chartTooltip3D {
+  position: absolute;
+  display: none;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  min-width: 250px;
+  max-width: 300px;
+  animation: tooltipFadeIn 0.3s ease;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.tooltipContent3D {
+  color: var(--text-primary);
+}
+
+.tooltipContent3D h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+}
+
+.tooltipDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.tooltipRow span:first-child {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.tooltipRow span:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tooltipAction {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.buyAction {
+  background: var(--success-color);
+  color: white;
+}
+
+.sellAction {
+  background: var(--error-color);
+  color: white;
+}
+
+.tooltipPnl {
+  font-weight: 700;
+}
+
+.profit {
+  color: var(--success-color);
+}
+
+.loss {
+  color: var(--error-color);
+}
+
+.tooltipStatus {
+  font-weight: 600;
+}
+
+.activeStatus {
+  color: var(--success-color);
+}
+
+.closedStatus {
+  color: var(--error-color);
+}
+
+/* Responsive para layout lateral */
+@media (max-width: 1024px) {
+  .chartLayout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .chartInfoPanel {
+    max-height: none;
+    overflow-y: visible;
+  }
+  
+  .statsSummary {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .legendList {
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chartLayout {
+    gap: 1rem;
+  }
+  
+  .chartInfoPanel {
+    padding: 1rem;
+  }
+  
+  .statsSummary {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .summaryCard {
+    padding: 0.75rem;
+  }
+  
+  .summaryValue {
+    font-size: 1.125rem;
+  }
+  
+  .legendList {
+    max-height: 150px;
+  }
+  
+  .legendItem3D {
+    padding: 0.5rem;
+  }
+  
+  .infoItem {
+    padding: 0.5rem;
+  }
+  
+  .chartSvg3D {
+    max-width: 300px;
+    transform: rotateX(10deg) rotateY(-2deg);
+  }
+}
+
+@media (max-width: 480px) {
+  .chartInfoPanel {
+    padding: 0.75rem;
+  }
+  
+  .infoTitle {
+    font-size: 1.125rem;
+  }
+  
+  .summaryIcon {
+    font-size: 1.25rem;
+  }
+  
+  .summaryValue {
+    font-size: 1rem;
+  }
+  
+  .legendSymbol {
+    font-size: 0.8rem;
+  }
+  
+  .infoLabel,
+  .infoValue {
+    font-size: 0.8rem;
+  }
+  
+  .chartSvg3D {
+    max-width: 250px;
+    transform: none;
+  }
+  
+  .chartTooltip3D {
+    min-width: 180px;
+    max-width: 220px;
+    font-size: 0.8rem;
+  }
 } 

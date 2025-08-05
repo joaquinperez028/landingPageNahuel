@@ -11,14 +11,32 @@
 
 /* Hero Section */
 .heroSection {
-  min-height: 90vh;
+  min-height: 100vh;
+  background: url('/images/trading-office.jpg') center center/cover no-repeat;
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 4rem 0;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%);
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 215, 0, 0.25) 100%);
+  z-index: 1;
 }
 
 .heroContent {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
@@ -26,18 +44,19 @@
 }
 
 .heroText {
-  space-y: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: flex-start;
 }
 
 .heroTitle {
-  font-size: 3.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  line-height: 1.1;
-  margin-bottom: 1rem;
+  font-size: 4rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+  margin: 0;
+  line-height: 1.2;
 }
 
 .heroSubtitle {
@@ -49,10 +68,33 @@
 }
 
 .heroDescription {
-  font-size: 1.2rem;
-  color: #cbd5e1;
+  font-size: 1.3rem;
+  color: #FFFFFF;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
   line-height: 1.6;
-  margin-bottom: 2rem;
+  margin: 0;
+  max-width: 500px;
+}
+
+.heroButtonGold {
+  background: transparent;
+  color: #FFFFFF;
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.heroButtonGold:hover {
+  background: rgba(255, 215, 0, 0.1);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
 }
 
 .heroPricing {
@@ -122,84 +164,123 @@
 }
 
 .heroVideo {
-  height: 100%;
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 
 .videoContainer {
   width: 100%;
-  aspect-ratio: 16/9;
+  max-width: 500px;
+  background: #111;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.videoPlayer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
 }
 
 .videoPlaceholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  text-align: center;
-  border: 2px solid #8b5cf6;
+  background: #111;
+  position: relative;
 }
 
-.placeholderIcon {
+.playIcon {
   font-size: 4rem;
-  margin-bottom: 1rem;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.placeholderTitle {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #e2e8f0;
-  margin-bottom: 0.5rem;
+.playIcon:hover {
+  transform: scale(1.1);
+  color: #FFD700;
 }
 
-.placeholderText {
-  color: #94a3b8;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
-}
-
-.placeholderFeatures {
+.videoControls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.8);
+  padding: 1rem;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.placeholderFeatures span {
-  background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  border: 1px solid rgba(139, 92, 246, 0.2);
+.playButton, .skipButton, .volumeButton, .settingsButton, .pipButton, .fullscreenButton {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
-/* Brokers Section */
+.playButton:hover, .skipButton:hover, .volumeButton:hover, .settingsButton:hover, .pipButton:hover, .fullscreenButton:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.progressBar {
+  flex: 1;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  position: relative;
+  margin: 0 1rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: #FF0000;
+  border-radius: 2px;
+  width: 12%;
+}
+
+.timeDisplay {
+  color: #FFFFFF;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* Sección de Brokers */
 .brokersSection {
-  padding: 6rem 0;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  background: #1a1a1a;
+  padding: 4rem 0;
 }
 
-.sectionTitle {
+.brokersContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.brokersTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #FFFFFF;
   text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #f1f5f9;
   margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
 }
 
-.sectionDescription {
+.brokersSubtitle {
+  font-size: 1.2rem;
+  color: #DDDDDD;
   text-align: center;
-  font-size: 1.1rem;
-  color: #94a3b8;
   margin-bottom: 3rem;
   max-width: 600px;
   margin-left: auto;
@@ -214,25 +295,20 @@
 }
 
 .brokerCard {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border-radius: 20px;
+  background: #2a2a2a;
+  border-radius: 16px;
   padding: 2rem;
-  border: 2px solid rgba(59, 130, 246, 0.1);
-  cursor: pointer;
+  border: 1px solid #333;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .brokerCard:hover {
-  border-color: rgba(59, 130, 246, 0.3);
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15);
-}
-
-.brokerSelected {
-  border-color: #3b82f6;
-  background: linear-gradient(135deg, #1e40af 0%, #3730a3 100%);
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  border-color: #FFD700;
 }
 
 .brokerHeader {
@@ -242,344 +318,656 @@
   margin-bottom: 1.5rem;
 }
 
-.brokerLogo {
+.brokerLogoPlaceholder {
   width: 60px;
   height: 60px;
+  background: #333;
   border-radius: 12px;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  border: 2px dashed #555;
+  color: #888;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
-.brokerInfo {
+.brokerName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.brokerContent {
   flex: 1;
-}
-
-.brokerNombre {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #f1f5f9;
-  margin-bottom: 0.5rem;
-}
-
-.brokerRating {
-  display: flex;
-  gap: 0.25rem;
-  color: #fbbf24;
-}
-
-.brokerDescripcion {
-  color: #cbd5e1;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-}
-
-.brokerCaracteristicas {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
-.caracteristica {
+.brokerDescription {
+  color: #DDDDDD;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.brokerFeatures {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.brokerFeatures li {
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #e2e8f0;
+  font-size: 0.95rem;
 }
 
-.caracteristica svg {
-  color: #10b981;
-  flex-shrink: 0;
+.brokerFeatures li::before {
+  content: "✓";
+  color: #00FF00;
+  font-weight: bold;
+  font-size: 1rem;
 }
 
-/* Formulario Section */
+.brokerButton {
+  background: #000000;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: auto;
+  width: 100%;
+}
+
+.brokerButton:hover {
+  background: #FFFFFF;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255,255,255,0.2);
+}
+
+/* Responsive para brokers */
+@media (max-width: 768px) {
+  .brokersTitle {
+    font-size: 2.5rem;
+  }
+  
+  .brokersGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .brokerCard {
+    padding: 1.5rem;
+  }
+  
+  .brokerLogoPlaceholder {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .brokerName {
+    font-size: 1.3rem;
+  }
+}
+
+/* Formulario de Turno */
 .formularioSection {
-  padding: 6rem 0;
-  background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+  background: #1a1a1a;
+  padding: 4rem 0;
 }
 
 .formularioContainer {
   max-width: 800px;
   margin: 0 auto;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.formularioTitulo {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 2rem;
+  line-height: 1.3;
+}
+
+.formularioCard {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 3rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.formularioSubtitulo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #8B5CF6;
+  margin-bottom: 2rem;
+  line-height: 1.3;
 }
 
 .formulario {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border-radius: 20px;
-  padding: 3rem;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-.formGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
-  margin-bottom: 2rem;
 }
 
-.formGroup {
+.formularioGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.campoFormulario {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.formLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #f1f5f9;
-  font-weight: 500;
-  font-size: 0.95rem;
+.campoFormulario:nth-child(5),
+.campoFormulario:nth-child(6) {
+  grid-column: 1 / -1;
 }
 
-.formLabel svg {
-  color: #3b82f6;
+.labelFormulario {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
 }
 
-.formInput,
-.formSelect {
-  background: rgba(30, 41, 59, 0.7);
-  border: 2px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+.asterisco {
+  color: #FF0000;
+  font-weight: bold;
+}
+
+.inputFormulario,
+.selectFormulario,
+.textareaFormulario {
   padding: 1rem;
-  color: #f1f5f9;
+  border: 2px solid #E5E7EB;
+  border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
+  background: #FFFFFF;
 }
 
-.formInput:focus,
-.formSelect:focus {
+.inputFormulario:focus,
+.selectFormulario:focus,
+.textareaFormulario:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
 }
 
-.formInput::placeholder {
-  color: #94a3b8;
+.textareaFormulario {
+  resize: vertical;
+  min-height: 100px;
 }
 
-.formSelect option {
-  background: #1e293b;
-  color: #f1f5f9;
-}
-
-.formCheckbox {
+.checkboxContainer {
   display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(59, 130, 246, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.1);
-}
-
-.checkbox {
-  margin-top: 0.125rem;
-  width: 1.125rem;
-  height: 1.125rem;
-  accent-color: #3b82f6;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 1rem;
 }
 
 .checkboxLabel {
-  color: #cbd5e1;
-  line-height: 1.5;
-  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #333;
 }
 
-.link {
-  color: #3b82f6;
+.checkboxFormulario {
+  width: 18px;
+  height: 18px;
+  accent-color: #8B5CF6;
+}
+
+.checkboxText {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.terminosLink {
+  color: #8B5CF6;
   text-decoration: underline;
-  transition: color 0.3s ease;
-}
-
-.link:hover {
-  color: #60a5fa;
-}
-
-.loginAlert {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  background: rgba(239, 68, 68, 0.1);
-  color: #f87171;
-  padding: 1rem;
-  border-radius: 12px;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  margin-bottom: 1rem;
-}
-
-.loginAlert span {
-  flex: 1;
-}
-
-.loginButton {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 10px;
   font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
 }
 
-.loginButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+.terminosLink:hover {
+  color: #7C3AED;
 }
 
-.submitButton {
-  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
-  color: white;
-  padding: 1.25rem 2rem;
+.botonEnviar {
+  background: #8B5CF6;
+  color: #FFFFFF;
   border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1.1rem;
+  border-radius: 8px;
+  padding: 1.2rem 3rem;
+  font-size: 1.2rem;
+  font-weight: 700;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-  width: 100%;
+  margin-top: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.submitButton:hover {
+.botonEnviar:hover {
+  background: #7C3AED;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
 }
 
-.loginRequiredButton {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  padding: 1.25rem 2rem;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-  width: 100%;
+/* Responsive para formulario */
+@media (max-width: 768px) {
+  .formularioTitulo {
+    font-size: 1.5rem;
+  }
+  
+  .formularioCard {
+    padding: 2rem;
+  }
+  
+  .formularioSubtitulo {
+    font-size: 1.3rem;
+  }
+  
+  .formularioGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .campoFormulario:nth-child(5),
+  .campoFormulario:nth-child(6) {
+    grid-column: 1;
+  }
+  
+  .botonEnviar {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
 }
 
-.loginRequiredButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-}
-
-/* FAQ Section */
+/* Preguntas Frecuentes */
 .faqSection {
-  padding: 6rem 0;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: #1a1a1a;
+  padding: 4rem 0;
 }
 
 .faqContainer {
   max-width: 800px;
   margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.faqTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  text-align: center;
+  margin-bottom: 3rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.faqList {
+  background: #2a2a2a;
+  border: 1px solid #FFFFFF;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .faqItem {
-  background: rgba(30, 41, 59, 0.5);
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  border: 1px solid rgba(59, 130, 246, 0.1);
-  overflow: hidden;
+  border-bottom: 1px solid #FFFFFF;
+}
+
+.faqItem:last-child {
+  border-bottom: none;
 }
 
 .faqQuestion {
   width: 100%;
-  padding: 1.5rem;
-  background: none;
+  background: #2a2a2a;
   border: none;
-  color: #f1f5f9;
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-align: left;
+  padding: 1.5rem 2rem;
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  color: #FFFFFF;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: left;
 }
 
 .faqQuestion:hover {
-  background: rgba(59, 130, 246, 0.05);
+  background: #333;
 }
 
-.faqQuestion svg {
-  color: #3b82f6;
+.faqIcon {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #FFFFFF;
   transition: transform 0.3s ease;
 }
 
 .faqAnswer {
-  padding: 0 1.5rem 1.5rem;
-  color: #cbd5e1;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: #333;
+}
+
+.faqAnswer.faqOpen {
+  max-height: 200px;
+}
+
+.faqAnswer p {
+  padding: 1.5rem 2rem;
+  margin: 0;
+  color: #DDDDDD;
   line-height: 1.6;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 1rem;
+}
+
+/* Responsive para FAQ */
+@media (max-width: 768px) {
+  .faqTitle {
+    font-size: 2rem;
+  }
+  
+  .faqQuestion {
+    padding: 1.2rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .faqAnswer p {
+    padding: 1.2rem 1.5rem;
+  }
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .heroContent {
     grid-template-columns: 1fr;
     gap: 2rem;
     text-align: center;
   }
-
+  .heroText {
+    align-items: center;
+  }
   .heroTitle {
-    font-size: 2.5rem;
+    font-size: 3rem;
   }
-
-  .heroSubtitle {
-    font-size: 1.4rem;
+  .heroDescription {
+    font-size: 1.1rem;
   }
-
-  .brokersGrid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  .videoContainer {
+    max-width: 100%;
   }
+} 
 
-  .brokerCard {
-    padding: 1.5rem;
-  }
+/* CTA Final */
+.ctaFinalSection {
+  background: #000000;
+  padding: 4rem 0;
+}
 
-  .formGrid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+.ctaFinalContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  text-align: center;
+}
 
-  .formulario {
-    padding: 2rem 1.5rem;
-  }
+.ctaFinalTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
 
-  .loginAlert {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
+.ctaFinalSubtitle {
+  font-size: 1.3rem;
+  color: #FFFFFF;
+  font-style: italic;
+  margin-bottom: 2.5rem;
+  line-height: 1.4;
+}
 
-  .sectionTitle {
+.ctaFinalButton {
+  background: #FFFFFF;
+  color: #000000;
+  border: 2px solid #000000;
+  border-radius: 8px;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.ctaFinalButton:hover {
+  background: #F8F8F8;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255,255,255,0.2);
+}
+
+/* Responsive para CTA Final */
+@media (max-width: 768px) {
+  .ctaFinalTitle {
     font-size: 2rem;
   }
+  
+  .ctaFinalSubtitle {
+    font-size: 1.1rem;
+  }
+  
+  .ctaFinalButton {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+} 
 
-  .placeholderFeatures {
-    flex-direction: column;
-    align-items: center;
+/* Sección YouTube Final */
+.youtubeFinalSection {
+  background: linear-gradient(90deg, #8B5CF6 0%, #7C3AED 100%);
+  padding: 4rem 0;
+}
+
+.youtubeFinalContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.youtubeFinalText {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.youtubeFinalTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.youtubeFinalSubtitle {
+  font-size: 1.2rem;
+  color: #FFFFFF;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.youtubeFinalVideoContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.youtubeFinalArrow {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.youtubeFinalArrow:hover {
+  background: rgba(255,255,255,0.1);
+  transform: scale(1.1);
+}
+
+.youtubeFinalVideoPlayer {
+  width: 100%;
+  max-width: 500px;
+  background: #333;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.youtubeFinalVideoPlaceholder {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.youtubeFinalPlayIcon {
+  font-size: 3rem;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.youtubeFinalPlayIcon:hover {
+  transform: scale(1.1);
+  color: #FFD700;
+}
+
+.youtubeFinalVideoControls {
+  background: rgba(0,0,0,0.8);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.youtubeFinalPlayButton,
+.youtubeFinalSkipButton,
+.youtubeFinalVolumeButton,
+.youtubeFinalSettingsButton,
+.youtubeFinalPipButton,
+.youtubeFinalFullscreenButton {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.youtubeFinalPlayButton:hover,
+.youtubeFinalSkipButton:hover,
+.youtubeFinalVolumeButton:hover,
+.youtubeFinalSettingsButton:hover,
+.youtubeFinalPipButton:hover,
+.youtubeFinalFullscreenButton:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.youtubeFinalProgressBar {
+  flex: 1;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  position: relative;
+  margin: 0 1rem;
+}
+
+.youtubeFinalProgressFill {
+  height: 100%;
+  background: #FF0000;
+  border-radius: 2px;
+  width: 12%;
+}
+
+.youtubeFinalTimeDisplay {
+  color: #FFFFFF;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* Responsive para YouTube Final */
+@media (max-width: 900px) {
+  .youtubeFinalContainer {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  .youtubeFinalTitle {
+    font-size: 2rem;
+  }
+  
+  .youtubeFinalSubtitle {
+    font-size: 1.1rem;
+  }
+  
+  .youtubeFinalVideoPlayer {
+    max-width: 100%;
+  }
+  
+  .youtubeFinalArrow {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
   }
 } 

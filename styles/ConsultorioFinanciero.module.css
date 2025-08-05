@@ -11,14 +11,32 @@
 
 /* Hero Section */
 .heroSection {
-  min-height: 90vh;
+  min-height: 100vh;
+  background: url('/images/trading-office.jpg') center center/cover no-repeat;
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 4rem 0;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%);
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 215, 0, 0.25) 100%);
+  z-index: 1;
 }
 
 .heroContent {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
@@ -26,18 +44,19 @@
 }
 
 .heroText {
-  space-y: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: flex-start;
 }
 
 .heroTitle {
-  font-size: 3.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  line-height: 1.1;
-  margin-bottom: 1rem;
+  font-size: 4rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+  margin: 0;
+  line-height: 1.2;
 }
 
 .heroSubtitle {
@@ -49,10 +68,33 @@
 }
 
 .heroDescription {
-  font-size: 1.2rem;
-  color: #cbd5e1;
+  font-size: 1.3rem;
+  color: #FFFFFF;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
   line-height: 1.6;
-  margin-bottom: 2rem;
+  margin: 0;
+  max-width: 500px;
+}
+
+.heroButtonGold {
+  background: transparent;
+  color: #FFFFFF;
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.heroButtonGold:hover {
+  background: rgba(255, 215, 0, 0.1);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
 }
 
 .heroPricing {
@@ -108,64 +150,96 @@
 }
 
 .heroVideo {
-  height: 100%;
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 
 .videoContainer {
   width: 100%;
-  aspect-ratio: 16/9;
+  max-width: 500px;
+  background: #111;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.videoPlayer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
 }
 
 .videoPlaceholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  text-align: center;
-  border: 2px solid #3b82f6;
+  background: #111;
+  position: relative;
 }
 
-.placeholderIcon {
+.playIcon {
   font-size: 4rem;
-  margin-bottom: 1rem;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.placeholderTitle {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #e2e8f0;
-  margin-bottom: 0.5rem;
+.playIcon:hover {
+  transform: scale(1.1);
+  color: #FFD700;
 }
 
-.placeholderText {
-  color: #94a3b8;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
-}
-
-.placeholderFeatures {
+.videoControls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.8);
+  padding: 1rem;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.placeholderFeatures span {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+.playButton, .skipButton, .volumeButton, .settingsButton, .pipButton, .fullscreenButton {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.playButton:hover, .skipButton:hover, .volumeButton:hover, .settingsButton:hover, .pipButton:hover, .fullscreenButton:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.progressBar {
+  flex: 1;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  position: relative;
+  margin: 0 1rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: #FF0000;
+  border-radius: 2px;
+  width: 12%;
+}
+
+.timeDisplay {
+  color: #FFFFFF;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 /* Testimonios Section */
@@ -607,6 +681,31 @@
   }
 }
 
+/* Responsive */
+@media (max-width: 900px) {
+  .heroContent {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  .heroText {
+    align-items: center;
+  }
+  
+  .heroTitle {
+    font-size: 3rem;
+  }
+  
+  .heroDescription {
+    font-size: 1.1rem;
+  }
+  
+  .videoContainer {
+    max-width: 100%;
+  }
+}
+
 /* Modal de Éxito */
 .modalOverlay {
   position: fixed;
@@ -827,4 +926,612 @@
   background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
+} 
+
+/* Sección Asesoramiento Personalizado */
+.asesoramientoSection {
+  background: #1a1a1a;
+  padding: 4rem 0;
+  border: 2px solid #8B5CF6;
+  margin: 2rem 0;
+}
+
+.asesoramientoContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.asesoramientoImage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nahuelImage {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+/* Responsive para Asesoramiento */
+@media (max-width: 900px) {
+  .nahuelImage {
+    max-width: 90%;
+  }
+} 
+
+/* Formulario de Reserva */
+.reservaSection {
+  background: #1a1a1a;
+  padding: 4rem 0;
+}
+
+.reservaContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.reservaTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.reservaCard {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 3rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.reservaContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+}
+
+/* Calendario Section */
+.calendarioSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.calendarioTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+}
+
+.fechasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.fechaCard {
+  background: #F8F9FA;
+  border: 2px solid #E9ECEF;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.fechaCard:hover {
+  border-color: #8B5CF6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+}
+
+.fechaSelected {
+  border-color: #8B5CF6;
+  background: rgba(139, 92, 246, 0.1);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+}
+
+.fechaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #000000;
+}
+
+.fecha {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #000000;
+}
+
+.disponibles {
+  color: #333333;
+  font-size: 0.9rem;
+}
+
+.horariosSection {
+  margin-top: 1rem;
+}
+
+.horariosTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 1rem;
+}
+
+.horariosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.horarioButton {
+  background: #FFFFFF;
+  border: 2px solid #E9ECEF;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #000000;
+}
+
+.horarioButton:hover {
+  border-color: #8B5CF6;
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.horarioSelected {
+  border-color: #8B5CF6;
+  background: #8B5CF6;
+  color: #FFFFFF;
+}
+
+/* Formulario Section */
+.formularioSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.formularioTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.formGroup:nth-child(5) {
+  grid-column: 1 / -1;
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #E9ECEF;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #FFFFFF;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.precioSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #F8F9FA;
+  border-radius: 8px;
+  border: 1px solid #E9ECEF;
+}
+
+.precioLabel {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.precioValor {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #8B5CF6;
+}
+
+.confirmarButton {
+  background: #FFFFFF;
+  color: #000000;
+  border: 2px solid #000000;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.confirmarButton:hover:not(:disabled) {
+  background: #F8F8F8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.confirmarButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loginRequired {
+  text-align: center;
+  padding: 2rem;
+  background: #F8F9FA;
+  border-radius: 8px;
+  border: 1px solid #E9ECEF;
+}
+
+.loginRequired p {
+  color: #6C757D;
+  margin-bottom: 1rem;
+}
+
+.loginButton {
+  background: #8B5CF6;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.loginButton:hover {
+  background: #7C3AED;
+  transform: translateY(-2px);
+}
+
+.loadingTurnos,
+.noTurnos {
+  text-align: center;
+  padding: 2rem;
+  color: #6C757D;
+}
+
+/* Responsive para Reserva */
+@media (max-width: 900px) {
+  .reservaContent {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .reservaTitle {
+    font-size: 2rem;
+  }
+  
+  .reservaCard {
+    padding: 2rem;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .formGroup:nth-child(5) {
+    grid-column: 1;
+  }
+  
+  .fechasGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .horariosGrid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+}
+
+/* Recordatorio Section */
+.recordatorioSection {
+  background: #1a1a1a;
+  padding: 4rem 0;
+  position: relative;
+}
+
+.recordatorioSection::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #8B5CF6 0%, #A855F7 100%);
+}
+
+.recordatorioContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.recordatorioTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.recordatorioSubtitle {
+  font-size: 1.2rem;
+  color: #FFFFFF;
+  font-style: italic;
+  margin-bottom: 2.5rem;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.recordatorioButton {
+  display: inline-block;
+  background: transparent;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.recordatorioButton:hover {
+  background: #FFFFFF;
+  color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255,255,255,0.2);
+}
+
+/* Responsive para Recordatorio */
+@media (max-width: 768px) {
+  .recordatorioTitle {
+    font-size: 2rem;
+  }
+  
+  .recordatorioSubtitle {
+    font-size: 1.1rem;
+  }
+  
+  .recordatorioButton {
+    font-size: 1rem;
+    padding: 0.875rem 1.75rem;
+  }
+}
+
+/* YouTube Section */
+.youtubeSection {
+  background: linear-gradient(90deg, #6A0DAD 0%, #8B5CF6 100%);
+  padding: 4rem 0;
+}
+
+.youtubeContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.youtubeContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.youtubeText {
+  color: #FFFFFF;
+}
+
+.youtubeTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.youtubeHighlight {
+  font-size: 3rem;
+  font-weight: 900;
+}
+
+.youtubeSubtitle {
+  font-size: 1.2rem;
+  font-style: italic;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.youtubeVideoContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.videoArrow {
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.videoArrow:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.videoPlayer {
+  background: #2a2a2a;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  flex: 1;
+  max-width: 400px;
+}
+
+.videoPlaceholder {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.videoPlaceholder:hover {
+  background: #333;
+}
+
+.playIcon {
+  color: #FFFFFF;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.videoPlaceholder:hover .playIcon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.videoControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #1a1a1a;
+  color: #FFFFFF;
+  font-size: 0.9rem;
+}
+
+.controlButton {
+  background: none;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controlButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.progressBar {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.25rem;
+}
+
+.progressFilled {
+  height: 4px;
+  background: #FF0000;
+  border-radius: 2px;
+  width: 15%;
+}
+
+.progressEmpty {
+  height: 4px;
+  background: #666;
+  border-radius: 2px;
+  flex: 1;
+}
+
+.videoTime,
+.videoDuration {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+/* Responsive para YouTube */
+@media (max-width: 900px) {
+  .youtubeContent {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  .youtubeTitle {
+    font-size: 2rem;
+  }
+  
+  .youtubeHighlight {
+    font-size: 2.5rem;
+  }
+  
+  .youtubeSubtitle {
+    font-size: 1.1rem;
+  }
+  
+  .youtubeVideoContainer {
+    justify-content: center;
+  }
+  
+  .videoPlayer {
+    max-width: 100%;
+  }
 } 

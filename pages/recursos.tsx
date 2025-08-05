@@ -74,6 +74,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
       <main className={styles.main}>
         {/* Hero Section con Video Explicativo */}
         <section className={styles.heroSection}>
+          <div className={styles.heroOverlay}></div>
           <div className={styles.container}>
             <motion.div 
               className={styles.heroContent}
@@ -82,44 +83,26 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
               transition={{ duration: 0.8 }}
             >
               <div className={styles.heroText}>
-                <h1 className={styles.heroTitle}>
-                  Herramientas Útiles
-                  <span className={styles.heroSubtitle}>Para hacer Análisis Técnico</span>
-                </h1>
+                <h1 className={styles.heroTitle}>Recursos</h1>
                 <p className={styles.heroDescription}>
-                  El aliado que necesitas. Accede a fórmulas personalizadas de TradingView, links esenciales, 
-                  material complementario y los mejores libros para perfeccionar tu análisis técnico.
+                  <em>Herramientas útiles e indispensables para aumentar el control sobre tus inversiones en bolsa. Recursos para TradingView, información actualizada y material educativo</em>
                 </p>
-                <div className={styles.heroStats}>
-                  <div className={styles.stat}>
-                    <span className={styles.statNumber}>15+</span>
-                    <span className={styles.statLabel}>Fórmulas TradingView</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statNumber}>100%</span>
-                    <span className={styles.statLabel}>Gratuito</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statNumber}>24/7</span>
-                    <span className={styles.statLabel}>Acceso Libre</span>
-                  </div>
-                </div>
+                <a href="#recursos-lista" className={styles.heroButtonWhite}>
+                  Empezá ahora &gt;
+                </a>
               </div>
               <div className={styles.heroVideo}>
                 <div className={styles.videoContainer}>
-                  {/* Placeholder de video explicativo */}
-                  <div className={styles.videoPlaceholder}>
-                    <div className={styles.placeholderIcon}>🎯</div>
-                    <h3 className={styles.placeholderTitle}>Video: Explicación de las Herramientas</h3>
-                    <p className={styles.placeholderText}>
-                      Descubre cómo utilizar todas las herramientas disponibles para optimizar tu análisis técnico
-                    </p>
-                    <div className={styles.placeholderFeatures}>
-                      <span>📈 Fórmulas TradingView</span>
-                      <span>🔗 Links Importantes</span>
-                      <span>📚 Material Educativo</span>
-                    </div>
-                  </div>
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                    title="Video Recursos"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
+                  ></iframe>
                 </div>
               </div>
             </motion.div>
@@ -165,7 +148,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
         </section>
 
         {/* Fórmulas TradingView */}
-        <section className={styles.sectionAlt}>
+        <section className={styles.sectionAlt} id="recursos-lista">
           <div className={styles.container}>
             <motion.h2 
               className={styles.sectionTitle}
@@ -173,7 +156,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              Fórmulas para TradingView
+              Herramientas para TradingView
             </motion.h2>
             <motion.p 
               className={styles.sectionDescription}
@@ -185,222 +168,196 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
             </motion.p>
             
             <div className={styles.cardsGridLarge}>
-              {formulasTradingView.map((item, index) => (
-                <motion.div 
-                  key={index}
-                  className={`${styles.card} ${styles.formulaCard}`}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <span className={styles.iconEmoji}>{item.icon}</span>
-                  </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <div className={styles.formulaCode}>
-                    <code>{item.formula}</code>
-                  </div>
-                  <button 
-                    className={styles.cardButton}
-                    onClick={() => navigator.clipboard.writeText(item.formula)}
-                  >
-                    <BarChart3 size={20} />
-                    <span>Copiar Fórmula</span>
-                  </button>
-                </motion.div>
-              ))}
+              {/* Ejemplo de imágenes, puedes personalizar cada una luego */}
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/wallstreet.jpg" className={styles.cardImage} alt="Wall Street" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Lista de Seguimiento<br/>Wall Street</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/argentina.jpg" className={styles.cardImage} alt="Merval" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Lista de Seguimiento<br/>Merval</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/dolares.jpg" className={styles.cardImage} alt="Dólar CCL" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula<br/>Dólar CCL</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/acciones.jpg" className={styles.cardImage} alt="Acciones en CCL" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula<br/>Acciones en CCL</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/merval-ccl.jpg" className={styles.cardImage} alt="Merval en CCL" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula<br/>Merval en CCL</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/wallstreet-bull.jpg" className={styles.cardImage} alt="Promedio Wall Street" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula Promedio<br/>Índices Wall Street</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/mer-val-sp.jpg" className={styles.cardImage} alt="MerVal vs SP500" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula Comparación<br/>Merval vs S&amp;P500</div>
+                </div>
+              </div>
+              <div className={styles.card} style={{background: 'none'}}>
+                <img src="/images/nasdaq-dow.jpg" className={styles.cardImage} alt="Nasdaq vs Dow Jones" />
+                <div className={styles.cardOverlay}></div>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTitle}>Fórmula Comparación<br/>Nasdaq vs Dow Jones</div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Lista de Seguimiento */}
-        <section className={styles.section}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Lista de Seguimiento
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Contiene todos los activos que utilizo para realizar mis análisis
-            </motion.p>
-            
-            <div className={styles.cardsGrid}>
-              {listasActivos.map((item, index) => (
-                <motion.a 
-                  key={index}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.card}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <span className={styles.iconEmoji}>{item.icon}</span>
+
+
+       
+
+        {/* Biblioteca del Inversor */}
+        <section className={styles.bibliotecaSection}>
+          <div className={styles.bibliotecaContainer}>
+            <h2 className={styles.bibliotecaTitle}>Biblioteca del Inversor</h2>
+            <div className={styles.bibliotecaCarousel}>
+              <button className={styles.carouselArrow} aria-label="Anterior">&#60;</button>
+              <div className={styles.bibliotecaCards}>
+                <div className={styles.bibliotecaCard}>
+                  <img src="/images/wickoff.jpg" alt="El Método Wickoff" className={styles.bibliotecaImg} />
+                  <div className={styles.bibliotecaCardText}>
+                    <div className={styles.bibliotecaBookTitle}>El Método Wickoff</div>
+                    <div className={styles.bibliotecaBookAuthor}><em>Enrique Díaz Valdecantos</em></div>
                   </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <div className={styles.cardAction}>
-                    <ExternalLink size={20} />
-                    <span>Ver Lista</span>
+                </div>
+                <div className={styles.bibliotecaCard}>
+                  <img src="/images/padrerico.jpg" alt="Padre Rico, Padre Pobre" className={styles.bibliotecaImg} />
+                  <div className={styles.bibliotecaCardText}>
+                    <div className={styles.bibliotecaBookTitle}>Padre Rico, Padre Pobre</div>
+                    <div className={styles.bibliotecaBookAuthor}><em>Robert T. Kiyosaki</em></div>
                   </div>
-                </motion.a>
-              ))}
+                </div>
+                <div className={styles.bibliotecaCard}>
+                  <img src="/images/murphy.jpg" alt="Análisis Técnico de los Mercados Financieros" className={styles.bibliotecaImg} />
+                  <div className={styles.bibliotecaCardText}>
+                    <div className={styles.bibliotecaBookTitle}>Análisis Técnico de los Mercados Financieros</div>
+                    <div className={styles.bibliotecaBookAuthor}><em>John J. Murphy</em></div>
+                  </div>
+                </div>
+              </div>
+              <button className={styles.carouselArrow} aria-label="Siguiente">&#62;</button>
             </div>
           </div>
         </section>
 
-        {/* Links que Todo Trader Necesita */}
-        <section className={styles.sectionAlt}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Links que Todo Trader Necesita
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Recursos esenciales para estar al día con los mercados financieros
-            </motion.p>
-            
-            <div className={styles.cardsGridLarge}>
-              {linksImportantes.map((item, index) => (
-                <motion.a 
-                  key={index}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.card}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <span className={styles.iconEmoji}>{item.icon}</span>
-                  </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <div className={styles.cardAction}>
-                    <ExternalLink size={20} />
-                    <span>Acceder</span>
-                  </div>
-                </motion.a>
-              ))}
+        {/* Información para Traders */}
+        <section className={styles.infoTradersSection}>
+          <h2 className={styles.infoTradersTitle}>Información para Traders</h2>
+          <div className={styles.infoTradersGrid}>
+            <div className={styles.infoTradersCard}>
+              <img src="/images/economia.jpg" alt="Económicos USA" className={styles.infoTradersImg} />
+              <div className={styles.infoTradersOverlay}></div>
+              <div className={styles.infoTradersText}>Calendario datos económicos USA</div>
+            </div>
+            <div className={styles.infoTradersCard}>
+              <img src="/images/fed.jpg" alt="Tasa FED" className={styles.infoTradersImg} />
+              <div className={styles.infoTradersOverlay}></div>
+              <div className={styles.infoTradersText}>Calendario datos de tasa de interés FED</div>
+            </div>
+            <div className={styles.infoTradersCard}>
+              <img src="/images/balances.jpg" alt="Balances USA" className={styles.infoTradersImg} />
+              <div className={styles.infoTradersOverlay}></div>
+              <div className={styles.infoTradersText}>Calendario de Balances en USA</div>
+            </div>
+            <div className={styles.infoTradersCard}>
+              <img src="/images/inflacion.jpg" alt="Inflación USA" className={styles.infoTradersImg} />
+              <div className={styles.infoTradersOverlay}></div>
+              <div className={styles.infoTradersText}>Calendario datos de Inflación USA</div>
+            </div>
+            <div className={styles.infoTradersCard}>
+              <img src="/images/barometro.jpg" alt="Barómetro FED" className={styles.infoTradersImg} />
+              <div className={styles.infoTradersOverlay}></div>
+              <div className={styles.infoTradersText}>Barómetro datos de tasa de interés FED</div>
+            </div>
+            <div className={styles.infoTradersCard}>
+              <img src="/images/dividendos.jpg" alt="Dividendos USA" className={styles.infoTradersImg} />
+              <div className={styles.infoTradersOverlay}></div>
+              <div className={styles.infoTradersText}>Calendario de Dividendos en USA</div>
+            </div>
+            <div className={styles.infoTradersCard}>
+              <img src="/images/cedeares.jpg" alt="Ratios CEDEARs" className={styles.infoTradersImg} />
+              <div className={styles.infoTradersOverlay}></div>
+              <div className={styles.infoTradersText}>Ratios de Conversión de CEDEARS</div>
+            </div>
+            <div className={styles.infoTradersCard}>
+              <img src="/images/heatmap.jpg" alt="Mapa Wall Street" className={styles.infoTradersImg} />
+              <div className={styles.infoTradersOverlay}></div>
+              <div className={styles.infoTradersText}>Mapa de Calor Wall Street</div>
+            </div>
+            <div className={styles.infoTradersCard}>
+              <img src="/images/desarbitraje.jpg" alt="Desarbitraje CEDEARs" className={styles.infoTradersImg} />
+              <div className={styles.infoTradersOverlay}></div>
+              <div className={styles.infoTradersText}>Calculadora de Desarbitrajes para CEDEARS</div>
             </div>
           </div>
         </section>
 
-        {/* Material Complementario */}
-        <section className={styles.section}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Material Complementario
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Recursos adicionales para profundizar tu conocimiento
-            </motion.p>
-            
-            <div className={styles.cardsGrid}>
-              {materialComplementario.map((item, index) => (
-                <motion.div 
-                  key={index}
-                  className={styles.card}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <span className={styles.iconEmoji}>{item.icon}</span>
+        {/* CTA Principal */}
+        <section className={styles.ctaSection}>
+          <div className={styles.ctaContainer}>
+            <h2 className={styles.ctaTitle}>¿Listo para llevar tus inversiones al siguiente nivel?</h2>
+            <p className={styles.ctaSubtitle}>Únete a nuestra comunidad y comienza construir tu libertad financiera</p>
+            <button className={styles.ctaButton}>Elegí tu Broker &gt;</button>
+          </div>
+        </section>
+        {/* Fin de Información para Traders */}
+        {/* Aquí terminan las secciones modernas, eliminamos las viejas */}
+        
+         {/* Sección YouTube */}
+         <section className={styles.youtubeSection}>
+          <div className={styles.youtubeContainer}>
+            <div className={styles.youtubeText}>
+              <h2 className={styles.youtubeTitle}>¡Sumate a nuestra comunidad<br/>en YouTube!</h2>
+              <p className={styles.youtubeSubtitle}>No te pierdas nuestros últimos videos</p>
+            </div>
+            <div className={styles.youtubeVideoContainer}>
+              <button className={styles.videoArrow} aria-label="Anterior">&#60;</button>
+              <div className={styles.videoPlayer}>
+                <div className={styles.videoPlaceholder}>
+                  <div className={styles.playIcon}>▶</div>
+                </div>
+                <div className={styles.videoControls}>
+                  <button className={styles.playButton}>▶</button>
+                  <div className={styles.progressBar}>
+                    <div className={styles.progressFill}></div>
                   </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <button className={styles.cardButton}>
-                    <Download size={20} />
-                    <span>Descargar</span>
-                  </button>
-                </motion.div>
-              ))}
+                  <span className={styles.timeDisplay}>2:21 / 20:00</span>
+                  <button className={styles.settingsButton}>⚙</button>
+                  <button className={styles.fullscreenButton}>⛶</button>
+                </div>
+              </div>
+              <button className={styles.videoArrow} aria-label="Siguiente">&#62;</button>
             </div>
           </div>
         </section>
 
-        {/* Libros Recomendados */}
-        <section className={styles.sectionAlt}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Libros Recomendados
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Biblioteca esencial para formar tu educación financiera
-            </motion.p>
-            
-            <div className={styles.cardsGrid}>
-              {librosRecomendados.map((item, index) => (
-                <motion.div 
-                  key={index}
-                  className={styles.card}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.cardIcon}>
-                    <BookOpen size={40} />
-                  </div>
-                  <h3 className={styles.cardTitle}>{item.nombre}</h3>
-                  <p className={styles.cardAuthor}>Por {item.autor}</p>
-                  <p className={styles.cardDescription}>{item.descripcion}</p>
-                  <button className={styles.cardButton}>
-                    <Download size={20} />
-                    <span>Descargar</span>
-                  </button>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
       </main>
 
       <Footer />

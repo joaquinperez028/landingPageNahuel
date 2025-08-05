@@ -417,6 +417,7 @@ const SubscriberView: React.FC = () => {
   const [informes, setInformes] = useState<any[]>([]);
   const [loadingInformes, setLoadingInformes] = useState(true);
   const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [showCreateReportModal, setShowCreateReportModal] = useState(false);
   const [creatingReport, setCreatingReport] = useState(false);
   const [userRole, setUserRole] = React.useState<string>('');
@@ -575,11 +576,26 @@ const SubscriberView: React.FC = () => {
 
     const rentabilidadSemanal = gananciasSemanal.toFixed(1);
 
+    // **CAMBIO: Calcular rentabilidad anual usando alertas reales**
+    const inicioAño = new Date(new Date().getFullYear(), 0, 1);
+    const alertasAnualConGanancias = realAlerts.filter(alert => {
+      const fechaAlert = new Date(alert.date);
+      return fechaAlert >= inicioAño;
+    });
+
+    const gananciasAnual = alertasAnualConGanancias.reduce((total, alert) => {
+      const profitValue = parseFloat(alert.profit.replace('%', '').replace('+', ''));
+      return total + profitValue;
+    }, 0);
+
+    const rentabilidadAnual = gananciasAnual.toFixed(1);
+
     return {
       alertasActivas,
       alertasGanadoras,
       alertasPerdedoras,
       rentabilidadSemanal: `${gananciasSemanal >= 0 ? '+' : ''}${rentabilidadSemanal}%`,
+      rentabilidadAnual: `${gananciasAnual >= 0 ? '+' : ''}${rentabilidadAnual}%`,
       alertasSemanales
     };
   };
@@ -779,6 +795,11 @@ const SubscriberView: React.FC = () => {
   };
 
   // Función para abrir informe completo
+  const closeReportModal = () => {
+    setShowReportModal(false);
+    setSelectedReport(null);
+  };
+
   const openReport = async (reportId: string) => {
     console.log('🔍 Intentando abrir informe con ID:', reportId);
     
@@ -1101,16 +1122,7 @@ const SubscriberView: React.FC = () => {
     <div className={styles.dashboardContent}>
       <h2 className={styles.sectionTitle}>Dashboard de Trabajo</h2>
       
-      {/* **NUEVO: SPY500 y Portfolio lado a lado** */}
-      <div className={styles.marketOverview}>
-        <SPY500Indicator />
-        <PortfolioTimeRange
-          selectedRange={portfolioRange}
-          onRangeChange={handlePortfolioRangeChange}
-        />
-      </div>
-      
-      {/* Métricas principales modernizadas */}
+      {/* Métricas principales */}
       <div className={styles.modernMetricsGrid}>
         <div className={`${styles.modernMetricCard} ${styles.activeCard}`}>
           <div className={styles.cardHeader}>
@@ -1123,9 +1135,6 @@ const SubscriberView: React.FC = () => {
             <h3 className={styles.metricTitle}>ALERTAS ACTIVAS</h3>
             <div className={styles.metricValue}>{dashboardMetrics.alertasActivas}</div>
             <p className={styles.metricSubtext}>Posiciones abiertas</p>
-          </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
           </div>
         </div>
         
@@ -1141,9 +1150,6 @@ const SubscriberView: React.FC = () => {
             <div className={styles.metricValue}>{dashboardMetrics.alertasGanadoras}</div>
             <p className={styles.metricSubtext}>Cerradas con ganancia</p>
           </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
         </div>
         
         <div className={`${styles.modernMetricCard} ${styles.errorCard}`}>
@@ -1158,9 +1164,6 @@ const SubscriberView: React.FC = () => {
             <div className={styles.metricValue}>{dashboardMetrics.alertasPerdedoras}</div>
             <p className={styles.metricSubtext}>Cerradas con pérdida</p>
           </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
         </div>
         
         <div className={`${styles.modernMetricCard} ${styles.warningCard}`}>
@@ -1171,320 +1174,408 @@ const SubscriberView: React.FC = () => {
             <div className={styles.statusDot}></div>
           </div>
           <div className={styles.metricContent}>
-            <h3 className={styles.metricTitle}>RENTABILIDAD SEMANAL</h3>
-            <div className={styles.metricValue}>{dashboardMetrics.rentabilidadSemanal}</div>
-            <p className={styles.metricSubtext}>Últimos 7 días</p>
-          </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
-        </div>
-        
-        <div className={`${styles.modernMetricCard} ${styles.infoCard}`}>
-          <div className={styles.cardHeader}>
-            <div className={styles.iconContainer}>
-              <Users size={20} />
-            </div>
-            <div className={styles.statusDot}></div>
-          </div>
-          <div className={styles.metricContent}>
-            <h3 className={styles.metricTitle}>ALERTAS SEMANALES</h3>
-            <div className={styles.metricValue}>{dashboardMetrics.alertasSemanales}</div>
-            <p className={styles.metricSubtext}>Enviadas esta semana</p>
-          </div>
-          <div className={styles.cardTrend}>
-            <span className={styles.trendIndicator}>●</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Resumen de Performance modernizado */}
-      <div className={styles.modernPerformanceSection}>
-        <div className={styles.performanceHeader}>
-          <h3 className={styles.performanceTitle}>Resumen de Performance</h3>
-          <div className={styles.performanceBadge}>En tiempo real</div>
-        </div>
-        <div className={styles.modernPerformanceGrid}>
-          <div className={styles.performanceStat}>
-            <div className={styles.statHeader}>
-              <span className={styles.statLabel}>Win Rate</span>
-              <div className={styles.statIcon}>📊</div>
-            </div>
-            <div className={styles.statValue}>
-              {dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras > 0 
-                ? ((dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras)) * 100).toFixed(1) 
-                : '0.0'}%
-            </div>
-            <div className={styles.statProgress}>
-              <div 
-                className={styles.progressBar} 
-                style={{ 
-                  width: `${dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras > 0 
-                    ? ((dashboardMetrics.alertasGanadoras / (dashboardMetrics.alertasGanadoras + dashboardMetrics.alertasPerdedoras)) * 100) 
-                    : 0}%` 
-                }}
-              ></div>
-            </div>
-          </div>
-          
-          <div className={styles.performanceStat}>
-            <div className={styles.statHeader}>
-              <span className={styles.statLabel}>Total Alertas</span>
-              <div className={styles.statIcon}>🎯</div>
-            </div>
-            <div className={styles.statValue}>{realAlerts.length}</div>
-            <div className={styles.statSubtext}>Alertas procesadas</div>
-          </div>
-          
-          <div className={styles.performanceStat}>
-            <div className={styles.statHeader}>
-              <span className={styles.statLabel}>Ratio G/P</span>
-              <div className={styles.statIcon}>⚖️</div>
-            </div>
-            <div className={styles.statValue}>
-              {dashboardMetrics.alertasPerdedoras > 0 
-                ? (dashboardMetrics.alertasGanadoras / dashboardMetrics.alertasPerdedoras).toFixed(2) 
-                : dashboardMetrics.alertasGanadoras > 0 ? '∞' : '0.01'}
-            </div>
-            <div className={styles.statSubtext}>Ganancia vs Pérdida</div>
+            <h3 className={styles.metricTitle}>RENTABILIDAD ANUAL</h3>
+            <div className={styles.metricValue}>{dashboardMetrics.rentabilidadAnual}</div>
+            <p className={styles.metricSubtext}>Año {new Date().getFullYear()}</p>
           </div>
         </div>
       </div>
 
       {/* Actividad Reciente */}
       <div className={styles.activitySection}>
-        <h3>Última actividad</h3>
-                        <p className={styles.activitySubtitle}>Actividad reciente en Smart Money</p>
-        
-        <div className={styles.activityFeed}>
-          {recentActivity.length > 0 ? (
-            recentActivity.map((activity) => (
-              <div 
-                key={activity.id} 
-                className={`${styles.activityItem} ${activity.type === 'informe' ? styles.clickableActivity : ''}`}
-                onClick={activity.type === 'informe' ? () => openReport(activity.id) : undefined}
-                style={activity.type === 'informe' ? { cursor: 'pointer' } : {}}
-              >
-                <div className={styles.activityContent}>
-                  <div className={styles.activityText}>
-                    {activity.message}
-                  </div>
-                  <div className={styles.activityMeta}>
-                    <span className={styles.activityTime}>hace {activity.timestamp}</span>
-                    <span className={styles.activityType}>
-                      {activity.type === 'informe' ? '📰 INFORME' : '🔄 ACTUALIZACIÓN'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className={styles.emptyActivity}>
-              <span>📋</span>
-              <p>No hay actividad reciente.</p>
-              <p>Las alertas e informes aparecerán aquí cuando se generen.</p>
+        <div className={styles.activityHeader}>
+          <h3>Actividad Reciente</h3>
+          <div className={styles.activityActions}>
+            <button 
+              className={styles.viewAllButton}
+              onClick={() => setActiveTab('seguimiento')}
+            >
+              Ver toda la actividad
+            </button>
+            <button 
+              className={styles.refreshButton}
+              onClick={() => refreshActivity()}
+              disabled={refreshingActivity}
+            >
+              <Activity size={16} />
+              {refreshingActivity ? 'Actualizando...' : 'Actualizar'}
+            </button>
+          </div>
+        </div>
+        <div className={styles.activityList}>
+          {recentActivity.slice(0, 5).map((activity, index) => (
+            <div key={activity.id || index} className={styles.activityItem}>
+              <span className={styles.activityTime}>{activity.timestamp}</span>
+              <span className={styles.activityMessage}>{activity.message}</span>
             </div>
-          )}
-        </div>
-        
-        <div className={styles.activityActions}>
-          <button 
-            className={styles.viewAllButton}
-            onClick={() => setActiveTab('seguimiento')}
-          >
-            Ver toda la actividad
-          </button>
-          <button 
-            className={styles.refreshButton}
-            onClick={() => refreshActivity()}
-            disabled={refreshingActivity}
-          >
-            <Activity size={16} />
-            {refreshingActivity ? 'Actualizando...' : 'Actualizar'}
-          </button>
-        </div>
-      </div>
-
-      {/* Gráfico de rendimiento */}
-      <div className={styles.chartContainer}>
-        <h3>Evolución del Portafolio (Últimos 30 días)</h3>
-        <div className={styles.chartPlaceholder}>
-          <BarChart3 size={64} />
-          <p>Gráfico de Chart.js se implementaría aquí</p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-            Mostrará la evolución diaria del rendimiento del portafolio
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderSeguimientoAlertas = () => (
-    <div className={styles.alertasContent}>
-      <div className={styles.alertasHeader}>
-        <h2 className={styles.sectionTitle}>Seguimiento de Alertas</h2>
-        {session && userRole === 'admin' && (
-          <button 
-            className={styles.createAlertButton}
-            onClick={() => setShowCreateAlert(true)}
-          >
-            + Crear Nueva Alerta
-          </button>
-        )}
-      </div>
-      
-      {/* Filtros */}
-      <div className={styles.alertFilters}>
-        <select 
-          className={styles.filterSelect}
-          value={filterSymbol}
-          onChange={(e) => setFilterSymbol(e.target.value)}
-        >
-          <option value="">Filtrar por símbolo</option>
-          {/* Generar opciones dinámicamente basándose en alertas existentes */}
-          {Array.from(new Set(realAlerts.map(alert => alert.symbol))).map(symbol => (
-            <option key={symbol} value={symbol}>{symbol}</option>
           ))}
-        </select>
-        <select 
-          className={styles.filterSelect}
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="">Filtrar por estado</option>
-          <option value="ACTIVE">Activa</option>
-          <option value="CLOSED">Cerrada</option>
-          <option value="STOPPED">Stop Loss</option>
-        </select>
-        <input 
-          type="date" 
-          className={styles.filterDate}
-          placeholder="Fecha desde"
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-        />
-        {/* Botón para limpiar filtros */}
-        {(filterSymbol || filterStatus || filterDate) && (
-          <button 
-            className={styles.clearFilters}
-            onClick={clearFilters}
-            title="Limpiar todos los filtros"
-          >
-            ✕ Limpiar
-          </button>
-        )}
-      </div>
-
-      {/* Tabla de alertas */}
-      <div className={styles.alertasTable}>
-        <div className={styles.tableHeader}>
-          <span>Fecha</span>
-          <span>Símbolo</span>
-                          <span>Flujo</span>
-          <span>Volumen</span>
-          <span>Precio Actual</span>
-          <span>Volumen Min</span>
-          <span>Objetivo</span>
-          <span>Impacto</span>
-          <span>Estado</span>
         </div>
-        
-        {/* Mostrar alertas reales filtradas */}
-        {(() => {
-          const filteredAlerts = getFilteredAlerts();
-          
-          if (loadingAlerts) {
-            return (
-              <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem' }}>
-                <span>Cargando alertas...</span>
-              </div>
-            );
-          }
-          
-          if (realAlerts.length === 0) {
-            return (
-              <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                <span>No hay alertas creadas aún. ¡Crea tu primera alerta!</span>
-              </div>
-            );
-          }
-          
-          if (filteredAlerts.length === 0) {
-            return (
-              <div className={styles.tableRow} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                <span>No se encontraron alertas con los filtros aplicados.</span>
-                <br />
-                <button 
-                  onClick={clearFilters}
-                  style={{ 
-                    marginTop: '0.5rem', 
-                    background: 'none', 
-                    border: '1px solid var(--primary-color)', 
-                    color: 'var(--primary-color)', 
-                    padding: '0.25rem 0.5rem', 
-                    borderRadius: '4px', 
-                    cursor: 'pointer' 
-                  }}
-                >
-                  Limpiar filtros
-                </button>
-              </div>
-            );
-          }
-          
-          return filteredAlerts.map((alert) => (
-            <div key={alert.id} className={styles.alertCardExpanded}>
-              <div className={styles.tableRow}>
-                <span>{alert.date}</span>
-                <span className={styles.symbol}>{alert.symbol}</span>
-                <span className={`${styles.action} ${alert.flow === 'ENTRADA' ? styles.buyAction : styles.sellAction}`}>
-                  {alert.flow}
-                </span>
-                <span>{alert.entryPrice}</span>
-                <span>{alert.exitPrice || alert.currentPrice}</span>
-                <span>{alert.stopLoss || '-'}</span>
-                <span>{alert.takeProfit || '-'}</span>
-                <span className={alert.profit.includes('+') ? styles.profit : styles.loss}>
-                  {alert.profit}
-                </span>
-                <span className={`${styles.status} ${alert.status === 'ACTIVE' ? styles.statusActive : ''}`}>
-                  {alert.status === 'ACTIVE' ? 'ACTIVA' : 'CERRADA'}
-                </span>
-              </div>
-
-              {/* Análisis si existe */}
-              {alert.analysis && (
-                <div className={styles.analysisSection}>
-                  <span className={styles.analysisLabel}>💡 Análisis:</span>
-                  <p className={styles.analysisText}>{alert.analysis}</p>
-                </div>
-              )}
-
-              {/* Botones para ver imágenes */}
-              <div className={styles.imageButtonsSection}>
-                {alert.chartImage && (
-                  <button
-                    className={styles.imageButton}
-                    onClick={() => handleShowChart(alert.chartImage)}
-                  >
-                    📊 Ver Gráfico
-                  </button>
-                )}
-                {alert.images && alert.images.length > 0 && (
-                  <button
-                    className={styles.imageButton}
-                    onClick={() => handleShowAdditionalImages(alert.images)}
-                  >
-                    📸 Ver Imágenes Extras ({alert.images.length})
-                  </button>
-                )}
-              </div>
-            </div>
-          ));
-        })()}
       </div>
     </div>
   );
+
+  const renderSeguimientoAlertas = () => {
+    const alertasActivas = realAlerts.filter(alert => alert.status === 'ACTIVE');
+    const alertasCerradas = realAlerts.filter(alert => alert.status === 'CLOSED');
+    
+    // Paleta de colores dinámicos para cada alerta
+    const colorPalette = [
+      '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
+      '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
+      '#14B8A6', '#F43F5E', '#A855F7', '#EAB308', '#22C55E'
+    ];
+    
+    // Preparar datos para el gráfico de torta 3D
+    const chartData = [...alertasActivas, ...alertasCerradas].map((alert, index) => {
+      const profitValue = parseFloat(alert.profit.replace(/[+%]/g, ''));
+      return {
+        id: alert.id,
+        symbol: alert.symbol,
+        profit: profitValue,
+        status: alert.status,
+        entryPrice: alert.entryPrice,
+        currentPrice: alert.currentPrice,
+        stopLoss: alert.stopLoss,
+        takeProfit: alert.takeProfit,
+        flow: alert.flow,
+        date: alert.date,
+        analysis: alert.analysis,
+        // Color único para cada alerta
+        color: colorPalette[index % colorPalette.length],
+        // Color más oscuro para efecto 3D
+        darkColor: colorPalette[index % colorPalette.length] + '80'
+      };
+    });
+
+    // Calcular el tamaño de cada segmento basado en el profit
+    const totalProfit = chartData.reduce((sum, alert) => sum + Math.abs(alert.profit), 0);
+    const chartSegments = chartData.map((alert, index) => {
+      const size = totalProfit > 0 ? (Math.abs(alert.profit) / totalProfit) * 100 : 100 / chartData.length;
+      const startAngle = chartData.slice(0, index).reduce((sum, a) => sum + (Math.abs(a.profit) / totalProfit) * 360, 0);
+      const endAngle = startAngle + (Math.abs(alert.profit) / totalProfit) * 360;
+      
+      return {
+        ...alert,
+        size,
+        startAngle,
+        endAngle,
+        centerAngle: (startAngle + endAngle) / 2
+      };
+    });
+
+    return (
+      <div className={styles.seguimientoContent}>
+        <div className={styles.seguimientoHeader}>
+          <h2 className={styles.sectionTitle}>🎯 Seguimiento de Alertas Smart Money 3D</h2>
+          <div className={styles.chartControls}>
+            {userRole === 'admin' && (
+              <button 
+                className={styles.createAlertButton}
+                onClick={() => setShowCreateAlert(true)}
+                title="Crear nueva alerta"
+              >
+                + Crear Nueva Alerta
+              </button>
+            )}
+            <div className={styles.filtersContainer}>
+              <input
+                type="text"
+                placeholder="Filtrar por símbolo..."
+                value={filterSymbol}
+                onChange={(e) => setFilterSymbol(e.target.value)}
+                className={styles.filterInput}
+              />
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="">Todos los estados</option>
+                <option value="ACTIVE">Activas</option>
+                <option value="CLOSED">Cerradas</option>
+                <option value="STOPPED">Detenidas</option>
+              </select>
+              <input
+                type="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                className={styles.filterDate}
+              />
+              <button onClick={clearFilters} className={styles.clearFilters}>
+                Limpiar Filtros
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {loadingAlerts ? (
+          <div className={styles.loadingState}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Cargando alertas...</p>
+          </div>
+        ) : realAlerts.length === 0 ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>📊</div>
+            <h3>No hay alertas disponibles</h3>
+            <p>Las alertas aparecerán aquí cuando sean creadas por el administrador.</p>
+            {userRole === 'admin' && (
+              <button 
+                className={styles.createFirstAlertButton}
+                onClick={() => setShowCreateAlert(true)}
+              >
+                + Crear Primera Alerta
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className={styles.chartContainer}>
+            <div className={styles.chartLayout}>
+              {/* Gráfico de torta 3D - Lado izquierdo */}
+              <div className={styles.pieChart3D}>
+                <svg viewBox="0 0 300 300" className={styles.chartSvg3D}>
+                  {/* Sombra del gráfico para efecto 3D */}
+                  <defs>
+                    <filter id="shadow3D" x="-50%" y="-50%" width="200%" height="200%">
+                      <feDropShadow dx="3" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.3"/>
+                    </filter>
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                      <feMerge> 
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                      </feMerge>
+                    </filter>
+                  </defs>
+                  
+                  {/* Fondo del gráfico con efecto 3D */}
+                  <circle cx="150" cy="150" r="120" className={styles.chartBackground3D} />
+                  
+                  {/* Segmentos del gráfico 3D */}
+                  {chartSegments.map((segment, index) => (
+                    <g key={segment.id} className={styles.chartSegment3D}>
+                      {/* Sombra del segmento */}
+                      <path
+                        d={describeArc(150, 150, 120, segment.startAngle, segment.endAngle)}
+                        fill={segment.darkColor}
+                        filter="url(#shadow3D)"
+                        className={styles.segmentShadow}
+                      />
+                      {/* Segmento principal */}
+                      <path
+                        d={describeArc(150, 150, 120, segment.startAngle, segment.endAngle)}
+                        fill={segment.color}
+                        className={styles.segmentPath3D}
+                        onMouseEnter={(e) => showTooltip(e, segment)}
+                        onMouseLeave={hideTooltip}
+                        filter="url(#glow)"
+                      />
+                      {/* Borde del segmento */}
+                      <path
+                        d={describeArc(150, 150, 120, segment.startAngle, segment.endAngle)}
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeWidth="2"
+                        opacity="0.3"
+                        className={styles.segmentBorder}
+                      />
+                      {/* Etiqueta del símbolo */}
+                      {segment.size > 5 && (
+                        <text
+                          x={150 + Math.cos((segment.centerAngle - 90) * Math.PI / 180) * 80}
+                          y={150 + Math.sin((segment.centerAngle - 90) * Math.PI / 180) * 80}
+                          className={styles.segmentLabel}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fontSize="12"
+                          fontWeight="bold"
+                          fill="#ffffff"
+                          filter="url(#shadow3D)"
+                        >
+                          {segment.symbol}
+                        </text>
+                      )}
+                    </g>
+                  ))}
+                  
+                  {/* Círculo central con efecto 3D */}
+                  <circle cx="150" cy="150" r="40" className={styles.chartCenter3D} />
+                </svg>
+              </div>
+              
+              {/* Información complementaria - Lado derecho */}
+              <div className={styles.chartInfoPanel}>
+                <div className={styles.infoHeader}>
+                  <h3 className={styles.infoTitle}>📈 Detalles de Alertas Smart Money</h3>
+                  <p className={styles.infoSubtitle}>Información detallada de cada alerta de flujo institucional</p>
+                </div>
+                
+                {/* Resumen estadístico */}
+                <div className={styles.statsSummary}>
+                  <div className={styles.summaryCard}>
+                    <div className={styles.summaryIcon}>📊</div>
+                    <div className={styles.summaryContent}>
+                      <span className={styles.summaryLabel}>Total Alertas</span>
+                      <span className={styles.summaryValue}>{chartData.length}</span>
+                    </div>
+                  </div>
+                  <div className={styles.summaryCard}>
+                    <div className={styles.summaryIcon}>🟢</div>
+                    <div className={styles.summaryContent}>
+                      <span className={styles.summaryLabel}>Activas</span>
+                      <span className={styles.summaryValue}>{alertasActivas.length}</span>
+                    </div>
+                  </div>
+                  <div className={styles.summaryCard}>
+                    <div className={styles.summaryIcon}>🔴</div>
+                    <div className={styles.summaryContent}>
+                      <span className={styles.summaryLabel}>Cerradas</span>
+                      <span className={styles.summaryValue}>{alertasCerradas.length}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Leyenda mejorada con colores dinámicos */}
+                <div className={styles.chartLegend3D}>
+                  <h3 className={styles.legendTitle}>🎨 Alertas por Color</h3>
+                  <div className={styles.legendList}>
+                    {chartSegments.map((segment, index) => (
+                      <div key={segment.id} className={styles.legendItem3D}>
+                        <div 
+                          className={styles.legendColor3D}
+                          style={{ backgroundColor: segment.color }}
+                        ></div>
+                        <div className={styles.legendInfo}>
+                          <span className={styles.legendSymbol}>{segment.symbol}</span>
+                          <span className={styles.legendProfit}>
+                            {segment.profit >= 0 ? '+' : ''}{segment.profit.toFixed(2)}%
+                          </span>
+                          <span className={styles.legendStatus}>
+                            {segment.status === 'ACTIVE' ? '🟢' : '🔴'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Información adicional */}
+                <div className={styles.additionalInfo}>
+                  <h4 className={styles.additionalTitle}>💡 Información Adicional</h4>
+                  <div className={styles.infoGrid}>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Mejor Rendimiento:</span>
+                      <span className={styles.infoValue}>
+                        {chartSegments.length > 0 ? 
+                          chartSegments.reduce((max, segment) => 
+                            segment.profit > max.profit ? segment : max
+                          ).symbol : 'N/A'}
+                      </span>
+                    </div>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Promedio P&L:</span>
+                      <span className={styles.infoValue}>
+                        {chartSegments.length > 0 ? 
+                          (chartSegments.reduce((sum, segment) => sum + segment.profit, 0) / chartSegments.length).toFixed(2) + '%' : '0%'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Tooltip mejorado para mostrar información de alerta */}
+        <div id="chartTooltip" className={styles.chartTooltip3D}>
+          <div className={styles.tooltipContent3D}>
+            <h4 className={styles.tooltipSymbol}></h4>
+            <div className={styles.tooltipDetails}>
+              <div className={styles.tooltipRow}>
+                <span>📈 Flujo:</span>
+                <span className={styles.tooltipAction}></span>
+              </div>
+              <div className={styles.tooltipRow}>
+                <span>💰 Entrada:</span>
+                <span className={styles.tooltipEntry}></span>
+              </div>
+              <div className={styles.tooltipRow}>
+                <span>📊 Actual:</span>
+                <span className={styles.tooltipCurrent}></span>
+              </div>
+              <div className={styles.tooltipRow}>
+                <span>📈 P&L:</span>
+                <span className={styles.tooltipPnl}></span>
+              </div>
+              <div className={styles.tooltipRow}>
+                <span>🎯 Estado:</span>
+                <span className={styles.tooltipStatus}></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Funciones auxiliares para el gráfico de torta 3D
+  const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
+    const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
+  };
+
+  const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
+    const start = polarToCartesian(x, y, radius, endAngle);
+    const end = polarToCartesian(x, y, radius, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+    return [
+      "M", start.x, start.y,
+      "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y,
+      "L", x, y,
+      "Z"
+    ].join(" ");
+  };
+
+  const showTooltip = (event: React.MouseEvent, segment: any) => {
+    const tooltip = document.getElementById('chartTooltip') as HTMLElement;
+    if (tooltip) {
+      const symbol = tooltip.querySelector(`.${styles.tooltipSymbol}`) as HTMLElement;
+      const action = tooltip.querySelector(`.${styles.tooltipAction}`) as HTMLElement;
+      const entry = tooltip.querySelector(`.${styles.tooltipEntry}`) as HTMLElement;
+      const current = tooltip.querySelector(`.${styles.tooltipCurrent}`) as HTMLElement;
+      const pnl = tooltip.querySelector(`.${styles.tooltipPnl}`) as HTMLElement;
+      const status = tooltip.querySelector(`.${styles.tooltipStatus}`) as HTMLElement;
+
+      if (symbol) symbol.textContent = segment.symbol;
+      if (action) {
+        action.textContent = segment.flow;
+        action.className = `${styles.tooltipAction} ${segment.flow === 'ENTRADA' ? styles.buyAction : styles.sellAction}`;
+      }
+      if (entry) entry.textContent = segment.entryPrice;
+      if (current) current.textContent = segment.currentPrice;
+      if (pnl) {
+        pnl.textContent = `${segment.profit >= 0 ? '+' : ''}${segment.profit.toFixed(2)}%`;
+        pnl.className = `${styles.tooltipPnl} ${segment.profit >= 0 ? styles.profit : styles.loss}`;
+      }
+      if (status) {
+        status.textContent = segment.status === 'ACTIVE' ? '🟢 ACTIVA' : '🔴 CERRADA';
+        status.className = `${styles.tooltipStatus} ${segment.status === 'ACTIVE' ? styles.activeStatus : styles.closedStatus}`;
+      }
+
+      tooltip.style.display = 'block';
+      tooltip.style.left = event.pageX + 10 + 'px';
+      tooltip.style.top = event.pageY - 10 + 'px';
+    }
+  };
+
+  const hideTooltip = () => {
+    const tooltip = document.getElementById('chartTooltip') as HTMLElement;
+    if (tooltip) {
+      tooltip.style.display = 'none';
+    }
+  };
 
   const renderAlertasVigentes = () => {
     // Filtrar solo alertas activas de las alertas reales
@@ -2584,6 +2675,14 @@ const SubscriberView: React.FC = () => {
           </div>
         </div>
       )}
+      
+      {/* Modal para ver informes */}
+      {showReportModal && selectedReport && (
+        <ReportViewModal 
+          report={selectedReport} 
+          onClose={closeReportModal} 
+        />
+      )}
     </div>
   );
 };
@@ -2937,6 +3036,290 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
         </form>
       </div>
     </div>
+  );
+};
+
+const ReportViewModal = ({ report, onClose }: {
+  report: any;
+  onClose: () => void;
+}) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setShowImageModal(true);
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+  };
+
+  const nextImage = () => {
+    if (report.images && currentImageIndex < report.images.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getReportTypeIcon = (type: string) => {
+    switch (type) {
+      case 'video':
+        return '🎥';
+      case 'analisis':
+        return '📊';
+      case 'mixed':
+        return '📋';
+      default:
+        return '📄';
+    }
+  };
+
+  const getReportTypeLabel = (type: string) => {
+    switch (type) {
+      case 'video':
+        return 'Video';
+      case 'analisis':
+        return 'Análisis';
+      case 'mixed':
+        return 'Mixto';
+      default:
+        return 'Informe';
+    }
+  };
+
+  const handleDownload = async () => {
+    setIsLoading(true);
+    try {
+      // Aquí se puede implementar la descarga del informe
+      // Por ahora simulamos una descarga
+      const link = document.createElement('a');
+      link.href = `data:text/html;charset=utf-8,${encodeURIComponent(`
+        <html>
+          <head>
+            <title>${report.title}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 40px; }
+              h1 { color: #333; }
+              .meta { color: #666; margin-bottom: 20px; }
+              .content { line-height: 1.6; }
+            </style>
+          </head>
+          <body>
+            <h1>${report.title}</h1>
+            <div class="meta">
+              <p>Fecha: ${formatDate(report.publishedAt || report.createdAt)}</p>
+              <p>Tipo: ${getReportTypeLabel(report.type)}</p>
+              ${report.author ? `<p>Autor: ${report.author}</p>` : ''}
+            </div>
+            <div class="content">${report.content}</div>
+          </body>
+        </html>
+      `)}`;
+      link.download = `${report.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+      link.click();
+    } catch (error) {
+      console.error('Error al descargar:', error);
+      alert('Error al descargar el informe');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: report.title,
+          text: report.content?.substring(0, 200) + '...' || report.title,
+          url: window.location.href
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('✅ Enlace copiado al portapapeles');
+      }
+    } catch (error) {
+      console.error('Error al compartir:', error);
+      alert('Error al compartir el informe');
+    }
+  };
+
+  const calculateReadTime = (content: string) => {
+    const wordsPerMinute = 200;
+    const words = content?.split(' ').length || 0;
+    return Math.ceil(words / wordsPerMinute);
+  };
+
+  const readTime = calculateReadTime(report.content);
+
+  return (
+    <>
+      <div className={styles.modalOverlay} onClick={onClose}>
+        <div className={styles.reportViewModal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <div className={styles.modalTitle}>
+              <h2>{report.title}</h2>
+              <div className={styles.reportMeta}>
+                <span className={styles.reportDate}>
+                  📅 {formatDate(report.publishedAt || report.createdAt)}
+                </span>
+                <span className={styles.reportType}>
+                  {getReportTypeIcon(report.type)} {getReportTypeLabel(report.type)}
+                </span>
+                {report.author && (
+                  <span className={styles.reportAuthor}>
+                    👤 {typeof report.author === 'object' ? report.author.name || report.author.email : report.author}
+                  </span>
+                )}
+                {report.category && (
+                  <span className={styles.reportType}>
+                    📂 {report.category.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                  </span>
+                )}
+              </div>
+            </div>
+            <button 
+              className={styles.closeModal}
+              onClick={onClose}
+              aria-label="Cerrar modal"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className={styles.reportContent}>
+            {/* Imagen de portada */}
+            {report.coverImage && (
+              <div className={styles.reportCover}>
+                <img 
+                  src={report.coverImage.secure_url || report.coverImage.url} 
+                  alt={report.title}
+                  className={styles.coverImage}
+                  loading="lazy"
+                />
+              </div>
+            )}
+
+            {/* Contenido del informe */}
+            <div className={styles.reportText}>
+              <div className={styles.reportBody}>
+                {report.content && (
+                  <div dangerouslySetInnerHTML={{ __html: report.content }} />
+                )}
+              </div>
+
+              {/* Imágenes adicionales */}
+              {report.images && report.images.length > 0 && (
+                <div className={styles.reportImages}>
+                  <h3>📸 Imágenes Adicionales</h3>
+                  <div className={styles.imagesGrid}>
+                    {report.images.map((image: any, index: number) => (
+                      <div key={index} className={styles.imageThumbnail}>
+                        <img 
+                          src={image.secure_url || image.url} 
+                          alt={`Imagen ${index + 1}`}
+                          onClick={() => handleImageClick(index)}
+                          loading="lazy"
+                        />
+                        {image.caption && (
+                          <p className={styles.imageCaption}>{image.caption}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tags */}
+              {report.tags && report.tags.length > 0 && (
+                <div className={styles.reportTags}>
+                  <h3>🏷️ Tags</h3>
+                  <div className={styles.tagsList}>
+                    {report.tags.map((tag: string, index: number) => (
+                      <span key={index} className={styles.tag}>{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Estadísticas */}
+              <div className={styles.reportStats}>
+                <div className={styles.statItem}>
+                  <span className={styles.statLabel}>👁️ Vistas</span>
+                  <span className={styles.statValue}>{report.views || 0}</span>
+                </div>
+                <div className={styles.statItem}>
+                  <span className={styles.statLabel}>⏱️ Tiempo de lectura</span>
+                  <span className={styles.statValue}>{readTime} min</span>
+                </div>
+                <div className={styles.statItem}>
+                  <span className={styles.statLabel}>📸 Imágenes</span>
+                  <span className={styles.statValue}>{report.images?.length || 0}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.modalFooter}>
+            <button 
+              className={styles.downloadButton}
+              onClick={handleDownload}
+              disabled={isLoading}
+            >
+              {isLoading ? '⏳ Descargando...' : '📥 Descargar Informe'}
+            </button>
+            <button 
+              className={styles.shareButton}
+              onClick={handleShare}
+            >
+              📤 Compartir
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal para ver imágenes */}
+      {showImageModal && report.images && (
+        <div className={styles.modalOverlay} onClick={closeImageModal}>
+          <div className={styles.imageModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.imageModalHeader}>
+              <h3>Imagen {currentImageIndex + 1} de {report.images.length}</h3>
+              <button className={styles.closeModal} onClick={closeImageModal}>×</button>
+            </div>
+            <div className={styles.imageModalContent}>
+              <img 
+                src={report.images[currentImageIndex].secure_url || report.images[currentImageIndex].url} 
+                alt={`Imagen ${currentImageIndex + 1}`}
+                className={styles.modalImage}
+              />
+              {report.images[currentImageIndex].caption && (
+                <p className={styles.imageCaption}>{report.images[currentImageIndex].caption}</p>
+              )}
+            </div>
+            <div className={styles.imageModalControls}>
+              <button onClick={prevImage} disabled={currentImageIndex === 0}>← Anterior</button>
+              <button onClick={nextImage} disabled={currentImageIndex === report.images.length - 1}>Siguiente →</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

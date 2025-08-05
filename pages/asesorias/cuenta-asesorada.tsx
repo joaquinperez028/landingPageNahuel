@@ -37,72 +37,12 @@ interface CuentaAsesoradaPageProps {
   }>;
 }
 
-const CuentaAsesoradaPage: React.FC<CuentaAsesoradaPageProps> = ({ 
-  brokers, 
-  faqs 
-}) => {
+export default function CuentaAsesorada() {
   const { data: session } = useSession();
-  const [selectedBroker, setSelectedBroker] = useState<string>('');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [showLoginAlert, setShowLoginAlert] = useState(false);
-  const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
-    email: '',
-    numeroComitente: '',
-    broker: '',
-    aceptaTerminos: false
-  });
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
-  };
-
-  const handleBrokerSelect = (brokerNombre: string) => {
-    setSelectedBroker(brokerNombre);
-    setFormData({ ...formData, broker: brokerNombre });
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    if (type === 'checkbox') {
-      setFormData({ ...formData, [name]: (e.target as HTMLInputElement).checked });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!session) {
-      setShowLoginAlert(true);
-      return;
-    }
-
-    // Validaciones
-    if (!formData.nombre || !formData.apellido || !formData.email || 
-        !formData.numeroComitente || !formData.broker) {
-      alert('Por favor completa todos los campos requeridos');
-      return;
-    }
-
-    if (!formData.aceptaTerminos) {
-      alert('Debes aceptar los términos y condiciones');
-      return;
-    }
-
-    // Redirect to payment with form data
-    const params = new URLSearchParams({
-      ...formData,
-      aceptaTerminos: formData.aceptaTerminos.toString()
-    });
-    window.location.href = `/pago/cuenta-asesorada?${params.toString()}`;
-  };
-
-  const handleLogin = () => {
-    signIn('google');
-    setShowLoginAlert(false);
   };
 
   return (
@@ -116,357 +56,397 @@ const CuentaAsesoradaPage: React.FC<CuentaAsesoradaPageProps> = ({
       <Navbar />
 
       <main className={styles.main}>
-        {/* Hero Section con Video Explicativo */}
+        {/* Hero Section */}
         <section className={styles.heroSection}>
-          <div className={styles.container}>
-            <motion.div 
-              className={styles.heroContent}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className={styles.heroText}>
-                <h1 className={styles.heroTitle}>
-                  Cuenta Asesorada
-                  <span className={styles.heroSubtitle}>Gestión Profesional de Inversiones</span>
-                </h1>
-                <p className={styles.heroDescription}>
-                  Servicio Premium donde gestionamos profesionalmente tu cuenta de inversiones. 
-                  Estrategias avanzadas, monitoreo continuo y optimización mensual para maximizar tus retornos.
-                </p>
-                <div className={styles.heroPricing}>
-                  <div className={styles.priceCard}>
-                    <span className={styles.priceBadge}>Premium</span>
-                    <span className={styles.priceAmount}>$999 USD</span>
-                    <span className={styles.priceDescription}>Servicio mensual</span>
-                    <span className={styles.priceIncludes}>Gestión completa + reportes detallados</span>
-                  </div>
-                </div>
-                <div className={styles.heroFeatures}>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Gestión profesional diaria de tu cuenta</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Estrategias institucionales adaptadas</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Reportes mensuales detallados</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Acceso directo con el gestor</span>
-                  </div>
-                </div>
-              </div>
-              <div className={styles.heroVideo}>
-                <div className={styles.videoContainer}>
-                  {/* Placeholder de video explicativo */}
+          <div className={styles.heroOverlay}></div>
+          <div className={styles.heroContent}>
+            <div className={styles.heroText}>
+              <h1 className={styles.heroTitle}>Cuenta Asesorada</h1>
+              <p className={styles.heroDescription}>
+                Servicio integral de inversión con gestión profesional, donde te recomendamos como manejar tu portafolio con estrategias avanzadas y reportes detallados.
+              </p>
+              <a href="#formulario-turno" className={styles.heroButtonGold}>
+                Agendar Turno &gt;
+              </a>
+            </div>
+            <div className={styles.heroVideo}>
+              <div className={styles.videoContainer}>
+                <div className={styles.videoPlayer}>
                   <div className={styles.videoPlaceholder}>
-                    <div className={styles.placeholderIcon}>📊</div>
-                    <h3 className={styles.placeholderTitle}>Video: Explicación de la Asesoría</h3>
-                    <p className={styles.placeholderText}>
-                      Descubre cómo la gestión profesional puede transformar tu estrategia de inversión
-                    </p>
-                    <div className={styles.placeholderFeatures}>
-                      <span>💼 Gestión Profesional</span>
-                      <span>📈 Estrategias Avanzadas</span>
-                      <span>📊 Reportes Detallados</span>
+                    <div className={styles.playIcon}>▶</div>
+                  </div>
+                  <div className={styles.videoControls}>
+                    <button className={styles.playButton}>⏸</button>
+                    <button className={styles.skipButton}>⏭</button>
+                    <div className={styles.progressBar}>
+                      <div className={styles.progressFill}></div>
                     </div>
+                    <span className={styles.timeDisplay}>2:21 / 20:00</span>
+                    <button className={styles.volumeButton}>🔊</button>
+                    <button className={styles.settingsButton}>⚙</button>
+                    <button className={styles.pipButton}>⛶</button>
+                    <button className={styles.fullscreenButton}>⛶</button>
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Brokers Section */}
-        <section className={styles.brokersSection}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Brokers Compatibles
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Trabajamos con los mejores brokers del mercado para garantizar la mejor ejecución
-            </motion.p>
-            
-            <div className={styles.brokersGrid}>
-              {brokers.map((broker, index) => (
-                <motion.div 
-                  key={index}
-                  className={`${styles.brokerCard} ${selectedBroker === broker.nombre ? styles.brokerSelected : ''}`}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                  onClick={() => handleBrokerSelect(broker.nombre)}
-                >
-                  <div className={styles.brokerHeader}>
-                    <div className={styles.brokerLogo}>
-                      <Building2 size={40} />
-                    </div>
-                    <div className={styles.brokerInfo}>
-                      <h3 className={styles.brokerNombre}>{broker.nombre}</h3>
-                      <div className={styles.brokerRating}>
-                        {[...Array(broker.rating)].map((_, i) => (
-                          <Star key={i} size={16} fill="currentColor" />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <p className={styles.brokerDescripcion}>{broker.descripcion}</p>
-                  <div className={styles.brokerCaracteristicas}>
-                    {broker.caracteristicas.map((caracteristica, idx) => (
-                      <div key={idx} className={styles.caracteristica}>
-                        <CheckCircle size={16} />
-                        <span>{caracteristica}</span>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              ))}
             </div>
           </div>
         </section>
 
-        {/* Formulario Cambio de Asesor */}
-        <section className={styles.formularioSection}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Formulario Cambio de Asesor
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Completa tus datos para comenzar con la gestión profesional de tu cuenta
-            </motion.p>
+        {/* Sección de Brokers */}
+        <section className={styles.brokersSection} id="brokers-section">
+          <div className={styles.brokersContainer}>
+            <h2 className={styles.brokersTitle}>Nuestros Brokers Recomendados</h2>
+            <p className={styles.brokersSubtitle}>Elige el broker que mejor se adapte a tu perfil de inversor</p>
             
-            <motion.div 
-              className={styles.formularioContainer}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <form className={styles.formulario} onSubmit={handleSubmit}>
-                <div className={styles.formGrid}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>
-                      <User size={20} />
-                      Nombre *
+            <div className={styles.brokersGrid}>
+              {/* Tarjeta Inviu */}
+              <div className={styles.brokerCard}>
+                <div className={styles.brokerHeader}>
+                  <div className={styles.brokerLogoPlaceholder}>
+                    {/* Espacio reservado para logo de Inviu */}
+                  </div>
+                  <h3 className={styles.brokerName}>Inviu</h3>
+                </div>
+                <div className={styles.brokerContent}>
+                  <p className={styles.brokerDescription}>
+                    Es una plataforma orientada a inversores novatos, con muchas opciones de inversión para cada perfil
+                  </p>
+                  <ul className={styles.brokerFeatures}>
+                    <li>Plataforma intuitiva para principiantes</li>
+                    <li>Fácil de usar tanto en web cómo en celular</li>
+                    <li>Principales activos de la bolsa</li>
+                  </ul>
+                </div>
+                <button className={styles.brokerButton}>Registrarme &gt;</button>
+              </div>
+
+              {/* Tarjeta Bull Market Brokers */}
+              <div className={styles.brokerCard}>
+                <div className={styles.brokerHeader}>
+                  <div className={styles.brokerLogoPlaceholder}>
+                    {/* Espacio reservado para logo de Bull Market Brokers */}
+                  </div>
+                  <h3 className={styles.brokerName}>Bull Market Brokers</h3>
+                </div>
+                <div className={styles.brokerContent}>
+                  <p className={styles.brokerDescription}>
+                    Ideal para operar activos tanto nacionales como internacionales. Sin necesidad de abrir cuenta en el exterior
+                  </p>
+                  <ul className={styles.brokerFeatures}>
+                    <li>Plataforma de nivel moderado</li>
+                    <li>Permite operar activos internacionales sin tener cuenta en USA</li>
+                    <li>Amplia oferta de FCIs</li>
+                  </ul>
+                </div>
+                <button className={styles.brokerButton}>Registrarme &gt;</button>
+              </div>
+
+              {/* Tarjeta Balanz */}
+              <div className={styles.brokerCard}>
+                <div className={styles.brokerHeader}>
+                  <div className={styles.brokerLogoPlaceholder}>
+                    {/* Espacio reservado para logo de Balanz */}
+                  </div>
+                  <h3 className={styles.brokerName}>Balanz</h3>
+                </div>
+                <div className={styles.brokerContent}>
+                  <p className={styles.brokerDescription}>
+                    Broker intuitivo y fácil de usar. Brinda muy buenos informes y oportunidades de licitación en el mercado primario
+                  </p>
+                  <ul className={styles.brokerFeatures}>
+                    <li>Plataforma fácil de usar para novatos</li>
+                    <li>Excelentes informes realizados por el broker sobre sectores de inversión</li>
+                    <li>Acceso a oportunidades del mercado primario</li>
+                  </ul>
+                </div>
+                <button className={styles.brokerButton}>Registrarme &gt;</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Formulario de Turno */}
+        <section className={styles.formularioSection} id="formulario-turno">
+          <div className={styles.formularioContainer}>
+            <h2 className={styles.formularioTitulo}>
+              Si ya tenes cuenta en estos brokers<br/>
+              necesitas realizar el cambio de asesor
+            </h2>
+            
+            <div className={styles.formularioCard}>
+              <h3 className={styles.formularioSubtitulo}>
+                Enviame Un Correo Y Te Indico Como<br/>
+                Realizarlo.
+              </h3>
+              
+              <form className={styles.formulario}>
+                <div className={styles.formularioGrid}>
+                  <div className={styles.campoFormulario}>
+                    <label htmlFor="nombre" className={styles.labelFormulario}>
+                      Nombre <span className={styles.asterisco}>*</span>
                     </label>
                     <input
                       type="text"
+                      id="nombre"
                       name="nombre"
-                      value={formData.nombre}
-                      onChange={handleInputChange}
-                      className={styles.formInput}
-                      placeholder="Tu nombre"
+                      className={styles.inputFormulario}
                       required
                     />
                   </div>
                   
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>
-                      <User size={20} />
-                      Apellido *
+                  <div className={styles.campoFormulario}>
+                    <label htmlFor="apellido" className={styles.labelFormulario}>
+                      Apellido <span className={styles.asterisco}>*</span>
                     </label>
                     <input
                       type="text"
+                      id="apellido"
                       name="apellido"
-                      value={formData.apellido}
-                      onChange={handleInputChange}
-                      className={styles.formInput}
-                      placeholder="Tu apellido"
+                      className={styles.inputFormulario}
                       required
                     />
                   </div>
                   
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>
-                      <Mail size={20} />
-                      Correo Electrónico *
+                  <div className={styles.campoFormulario}>
+                    <label htmlFor="email" className={styles.labelFormulario}>
+                      Correo electrónico <span className={styles.asterisco}>*</span>
                     </label>
                     <input
                       type="email"
+                      id="email"
                       name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className={styles.formInput}
-                      placeholder="tu@email.com"
+                      className={styles.inputFormulario}
                       required
                     />
                   </div>
                   
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>
-                      <FileText size={20} />
-                      Número de Comitente *
+                  <div className={styles.campoFormulario}>
+                    <label htmlFor="comitente" className={styles.labelFormulario}>
+                      Número de Comitente <span className={styles.asterisco}>*</span>
                     </label>
                     <input
                       type="text"
-                      name="numeroComitente"
-                      value={formData.numeroComitente}
-                      onChange={handleInputChange}
-                      className={styles.formInput}
-                      placeholder="Ej: 12345678"
+                      id="comitente"
+                      name="comitente"
+                      className={styles.inputFormulario}
                       required
                     />
                   </div>
                   
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>
-                      <Building2 size={20} />
-                      Broker *
+                  <div className={styles.campoFormulario}>
+                    <label htmlFor="broker" className={styles.labelFormulario}>
+                      Cual es tu broker? <span className={styles.asterisco}>*</span>
                     </label>
                     <select
+                      id="broker"
                       name="broker"
-                      value={formData.broker}
-                      onChange={handleInputChange}
-                      className={styles.formSelect}
+                      className={styles.selectFormulario}
                       required
                     >
-                      <option value="">Selecciona tu broker</option>
-                      <option value="Bull Market">Bull Market</option>
-                      <option value="Inviu">Inviu</option>
-                      <option value="Balanz">Balanz</option>
+                      <option value="INVIU">INVIU</option>
+                      <option value="BULLMARKET">BULL MARKET BROKERS</option>
+                      <option value="BALANZ">BALANZ</option>
                     </select>
+                  </div>
+                  
+                  <div className={styles.campoFormulario}>
+                    <label htmlFor="mensaje" className={styles.labelFormulario}>
+                      Mensaje:
+                    </label>
+                    <textarea
+                      id="mensaje"
+                      name="mensaje"
+                      className={styles.textareaFormulario}
+                      rows={4}
+                      defaultValue="Quiero que seas mi asesor."
+                    ></textarea>
                   </div>
                 </div>
                 
-                <div className={styles.formCheckbox}>
-                  <input
-                    type="checkbox"
-                    name="aceptaTerminos"
-                    id="aceptaTerminos"
-                    checked={formData.aceptaTerminos}
-                    onChange={handleInputChange}
-                    className={styles.checkbox}
-                    required
-                  />
-                  <label htmlFor="aceptaTerminos" className={styles.checkboxLabel}>
-                    Acepto los{' '}
-                    <Link href="/terminos" className={styles.link}>
-                      términos y condiciones
-                    </Link>
-                    {' '}del servicio de gestión profesional *
+                <div className={styles.checkboxContainer}>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      name="terminos"
+                      className={styles.checkboxFormulario}
+                      required
+                    />
+                    <span className={styles.checkboxText}>
+                      Acepto los <a href="/terminos" className={styles.terminosLink}>Términos y condiciones</a>
+                    </span>
                   </label>
                 </div>
-
-                {showLoginAlert && (
-                  <div className={styles.loginAlert}>
-                    <AlertCircle size={20} />
-                    <span>Necesitas una cuenta para contratar este servicio</span>
-                    <button 
-                      type="button"
-                      className={styles.loginButton}
-                      onClick={handleLogin}
-                    >
-                      <User size={20} />
-                      Iniciar Sesión
-                    </button>
-                  </div>
-                )}
-
-                {session ? (
-                  <button 
-                    type="submit"
-                    className={styles.submitButton}
-                  >
-                    Contratar Servicio Premium
-                    <ArrowRight size={20} />
-                  </button>
-                ) : (
-                  <button 
-                    type="button"
-                    className={styles.loginRequiredButton}
-                    onClick={() => setShowLoginAlert(true)}
-                  >
-                    <User size={20} />
-                    Iniciar Sesión para Continuar
-                  </button>
-                )}
+                
+                <button type="submit" className={styles.botonEnviar}>
+                  ENVIAR
+                </button>
               </form>
-            </motion.div>
+            </div>
           </div>
         </section>
 
         {/* Preguntas Frecuentes */}
         <section className={styles.faqSection}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Preguntas Frecuentes
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Resolvemos las dudas más comunes sobre la Cuenta Asesorada
-            </motion.p>
+          <div className={styles.faqContainer}>
+            <h2 className={styles.faqTitle}>PREGUNTAS FRECUENTES</h2>
             
-            <div className={styles.faqContainer}>
-              {faqs.map((faq, index) => (
-                <motion.div 
-                  key={index}
-                  className={styles.faqItem}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <button 
-                    className={styles.faqQuestion}
-                    onClick={() => toggleFaq(index)}
-                  >
-                    <span>{faq.question}</span>
-                    {openFaq === index ? 
-                      <ChevronUp size={20} /> : 
-                      <ChevronDown size={20} />
-                    }
-                  </button>
-                  
-                  {openFaq === index && (
-                    <motion.div 
-                      className={styles.faqAnswer}
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <p>{faq.answer}</p>
-                    </motion.div>
-                  )}
-                </motion.div>
-              ))}
+            <div className={styles.faqList}>
+              <div className={styles.faqItem}>
+                <button className={styles.faqQuestion} onClick={() => toggleFaq(0)}>
+                  <span>¿En que consiste tener a Nahuel cómo asesor?</span>
+                  <span className={styles.faqIcon}>+</span>
+                </button>
+                <div className={`${styles.faqAnswer} ${openFaq === 0 ? styles.faqOpen : ''}`}>
+                  <p>Nahuel te brinda gestión profesional de tu portafolio, recomendaciones personalizadas, reportes detallados y estrategias avanzadas de inversión.</p>
+                </div>
+              </div>
+
+              <div className={styles.faqItem}>
+                <button className={styles.faqQuestion} onClick={() => toggleFaq(1)}>
+                  <span>Nahuel comparte:</span>
+                  <span className={styles.faqIcon}>+</span>
+                </button>
+                <div className={`${styles.faqAnswer} ${openFaq === 1 ? styles.faqOpen : ''}`}>
+                  <p>Nahuel comparte su experiencia y conocimiento del mercado para ayudarte a tomar decisiones informadas de inversión.</p>
+                </div>
+              </div>
+
+              <div className={styles.faqItem}>
+                <button className={styles.faqQuestion} onClick={() => toggleFaq(2)}>
+                  <span>¿Qué plataforma me conviene?</span>
+                  <span className={styles.faqIcon}>+</span>
+                </button>
+                <div className={`${styles.faqAnswer} ${openFaq === 2 ? styles.faqOpen : ''}`}>
+                  <p>La elección depende de tu perfil de inversor. Inviu es ideal para principiantes, Bull Market para activos internacionales, y Balanz para informes detallados.</p>
+                </div>
+              </div>
+
+              <div className={styles.faqItem}>
+                <button className={styles.faqQuestion} onClick={() => toggleFaq(3)}>
+                  <span>¿Puedo tener más de un broker?</span>
+                  <span className={styles.faqIcon}>+</span>
+                </button>
+                <div className={`${styles.faqAnswer} ${openFaq === 3 ? styles.faqOpen : ''}`}>
+                  <p>Sí, puedes tener cuentas en múltiples brokers para diversificar tus inversiones y aprovechar las mejores ofertas de cada plataforma.</p>
+                </div>
+              </div>
+
+              <div className={styles.faqItem}>
+                <button className={styles.faqQuestion} onClick={() => toggleFaq(4)}>
+                  <span>¿Cómo puedo cambiar de asesor?</span>
+                  <span className={styles.faqIcon}>+</span>
+                </button>
+                <div className={`${styles.faqAnswer} ${openFaq === 4 ? styles.faqOpen : ''}`}>
+                  <p>Completa el formulario de cambio de asesor y te guiaremos paso a paso en el proceso de transferencia.</p>
+                </div>
+              </div>
+
+              <div className={styles.faqItem}>
+                <button className={styles.faqQuestion} onClick={() => toggleFaq(5)}>
+                  <span>¿Puedo hacer consultas de un broker el cual Marcos no tiene convenio?</span>
+                  <span className={styles.faqIcon}>+</span>
+                </button>
+                <div className={`${styles.faqAnswer} ${openFaq === 5 ? styles.faqOpen : ''}`}>
+                  <p>Nuestro servicio está optimizado para los brokers con los que tenemos convenio, pero podemos asesorarte sobre otros brokers según tu caso específico.</p>
+                </div>
+              </div>
+
+              <div className={styles.faqItem}>
+                <button className={styles.faqQuestion} onClick={() => toggleFaq(6)}>
+                  <span>¿Se tiene una consultoría uno a uno?</span>
+                  <span className={styles.faqIcon}>+</span>
+                </button>
+                <div className={`${styles.faqAnswer} ${openFaq === 6 ? styles.faqOpen : ''}`}>
+                  <p>Sí, ofrecemos consultorías personalizadas uno a uno para analizar tu situación específica y crear estrategias a medida.</p>
+                </div>
+              </div>
+
+              <div className={styles.faqItem}>
+                <button className={styles.faqQuestion} onClick={() => toggleFaq(7)}>
+                  <span>¿De cuanto es la comisión a pagar por los servicios?</span>
+                  <span className={styles.faqIcon}>+</span>
+                </button>
+                <div className={`${styles.faqAnswer} ${openFaq === 7 ? styles.faqOpen : ''}`}>
+                  <p>Las comisiones varían según el servicio y el broker. Te proporcionamos información detallada durante la consulta inicial.</p>
+                </div>
+              </div>
+
+              <div className={styles.faqItem}>
+                <button className={styles.faqQuestion} onClick={() => toggleFaq(8)}>
+                  <span>¿Tengo un mínimo de permanencia?</span>
+                  <span className={styles.faqIcon}>+</span>
+                </button>
+                <div className={`${styles.faqAnswer} ${openFaq === 8 ? styles.faqOpen : ''}`}>
+                  <p>No hay un mínimo de permanencia obligatorio. Puedes cancelar el servicio cuando lo desees, aunque recomendamos mantener la relación para mejores resultados.</p>
+                </div>
+              </div>
+
+              <div className={styles.faqItem}>
+                <button className={styles.faqQuestion} onClick={() => toggleFaq(9)}>
+                  <span>¿Hay un mínimo de capital?</span>
+                  <span className={styles.faqIcon}>+</span>
+                </button>
+                <div className={`${styles.faqAnswer} ${openFaq === 9 ? styles.faqOpen : ''}`}>
+                  <p>No hay un mínimo de capital estricto. Trabajamos con inversores de diferentes perfiles y montos de inversión.</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
+
+        {/* CTA Final */}
+        <section className={styles.ctaFinalSection}>
+          <div className={styles.ctaFinalContainer}>
+            <h2 className={styles.ctaFinalTitle}>
+              ¿Listo para llevar tus inversiones al siguiente nivel?
+            </h2>
+            <p className={styles.ctaFinalSubtitle}>
+              Únete a nuestra comunidad y comienza construir tu libertad financiera
+            </p>
+            <a href="#brokers-section" className={styles.ctaFinalButton}>
+              Elegí tu Broker &gt;
+            </a>
+          </div>
+        </section>
+
+        {/* Sección YouTube */}
+        <section className={styles.youtubeFinalSection}>
+          <div className={styles.youtubeFinalContainer}>
+            <div className={styles.youtubeFinalText}>
+              <h2 className={styles.youtubeFinalTitle}>
+                ¡Sumate a nuestra comunidad<br/>
+                en YouTube!
+              </h2>
+              <p className={styles.youtubeFinalSubtitle}>
+                No te pierdas nuestros últimos videos
+              </p>
+            </div>
+            <div className={styles.youtubeFinalVideoContainer}>
+              <button className={styles.youtubeFinalArrow} aria-label="Anterior">&#60;</button>
+              <div className={styles.youtubeFinalVideoPlayer}>
+                <div className={styles.youtubeFinalVideoPlaceholder}>
+                  <div className={styles.youtubeFinalPlayIcon}>▶</div>
+                </div>
+                <div className={styles.youtubeFinalVideoControls}>
+                  <button className={styles.youtubeFinalPlayButton}>⏸</button>
+                  <button className={styles.youtubeFinalSkipButton}>⏭</button>
+                  <div className={styles.youtubeFinalProgressBar}>
+                    <div className={styles.youtubeFinalProgressFill}></div>
+                  </div>
+                  <span className={styles.youtubeFinalTimeDisplay}>2:21 / 20:00</span>
+                  <button className={styles.youtubeFinalVolumeButton}>🔊</button>
+                  <button className={styles.youtubeFinalSettingsButton}>⚙</button>
+                  <button className={styles.youtubeFinalPipButton}>⛶</button>
+                  <button className={styles.youtubeFinalFullscreenButton}>⛶</button>
+                </div>
+              </div>
+              <button className={styles.youtubeFinalArrow} aria-label="Siguiente">&#62;</button>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
       </main>
 
       <Footer />
@@ -555,6 +535,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       faqs
     }
   };
-};
-
-export default CuentaAsesoradaPage; 
+}; 

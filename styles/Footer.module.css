@@ -1,7 +1,7 @@
 /* Footer principal */
 .footer {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: var(--navbar-bg);
+  color: var(--text-primary);
   padding: 4rem 0 0;
 }
 
@@ -29,10 +29,17 @@
   width: 180px;
   height: 180px;
   object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.footerLogo:hover {
+  border-color: var(--primary-color);
+  transform: scale(1.02);
 }
 
 .brandDescription {
-  color: #cccccc;
+  color: var(--text-secondary);
   font-size: 1rem;
   line-height: 1.6;
   margin: 0;
@@ -46,7 +53,7 @@
 }
 
 .columnTitle {
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -67,7 +74,7 @@
 }
 
 .footerLink {
-  color: #cccccc;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.3s ease;
@@ -75,12 +82,13 @@
 }
 
 .footerLink:hover {
-  color: #00ff00;
+  color: var(--secondary-color);
+  transform: translateX(2px);
 }
 
 /* Footer bottom */
 .footerBottom {
-  border-top: 1px solid #333333;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2rem 0;
 }
 
@@ -91,7 +99,7 @@
 }
 
 .copyright {
-  color: #cccccc;
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin: 0;
 }
@@ -119,13 +127,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
 .socialIcon:hover {
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--bg-primary);
 }
 
 /* Responsive Design */
