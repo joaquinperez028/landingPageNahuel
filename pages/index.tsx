@@ -223,15 +223,62 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
 
-  // Mostrar popup después de 3 segundos si no está logueado
+  // Función para verificar si debe mostrar el popup
+  const shouldShowPopup = (frequency: 'weekly' | 'monthly' = 'weekly') => {
+    if (typeof window === 'undefined') return false; // SSR check
+    
+    const lastShown = localStorage.getItem('popupLastShown');
+    if (!lastShown) return true;
+    
+    const lastShownDate = new Date(lastShown);
+    const now = new Date();
+    const diffInMs = now.getTime() - lastShownDate.getTime();
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    
+    if (frequency === 'weekly') {
+      return diffInDays >= 7;
+    } else if (frequency === 'monthly') {
+      return diffInDays >= 30;
+    }
+    
+    return false;
+  };
+
+  // Función para marcar el popup como mostrado
+  const markPopupAsShown = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('popupLastShown', new Date().toISOString());
+    }
+  };
+
+  // Función para resetear el popup (útil para testing)
+  const resetPopup = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('popupLastShown');
+    }
+  };
+
+  // Mostrar popup después de 3 segundos si no está logueado y no se mostró recientemente
   useEffect(() => {
     if (!session) {
       const timer = setTimeout(() => {
-        setShowPopup(true);
+        // Cambiar 'weekly' por 'monthly' si quieres que aparezca una vez por mes
+        // También puedes usar resetPopup() en la consola del navegador para resetear
+        if (shouldShowPopup('weekly')) {
+          setShowPopup(true);
+          markPopupAsShown();
+        }
       }, 3000);
       return () => clearTimeout(timer);
     }
   }, [session]);
+
+  // Hacer resetPopup disponible en la consola para testing
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).resetPopup = resetPopup;
+    }
+  }, []);
 
   const handlePopupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,6 +296,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
       if (response.ok) {
         setSubmitMessage('¡Perfecto! Revisa tu email para confirmar tu suscripción y recibir tu curso gratuito.');
         setEmail('');
+        markPopupAsShown();
         setTimeout(() => setShowPopup(false), 3000);
       } else {
         setSubmitMessage('Error al suscribirse. Por favor intenta nuevamente.');
@@ -337,7 +385,10 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowPopup(false)}
+            onClick={() => {
+              setShowPopup(false);
+              markPopupAsShown();
+            }}
           >
             <motion.div
               className={styles.popupContent}
@@ -348,7 +399,10 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
             >
               <button
                 className={styles.popupClose}
-                onClick={() => setShowPopup(false)}
+                onClick={() => {
+                  setShowPopup(false);
+                  markPopupAsShown();
+                }}
               >
                 <X size={24} />
               </button>
