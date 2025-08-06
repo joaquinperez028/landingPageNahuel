@@ -293,7 +293,8 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al procesar el pago. Inténtalo nuevamente.');
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      toast.error(`Error al procesar el pago: ${errorMessage}`);
     } finally {
       setIsProcessingPayment(false);
     }
