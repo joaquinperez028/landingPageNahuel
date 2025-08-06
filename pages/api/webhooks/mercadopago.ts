@@ -31,7 +31,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('🔔 Webhook recibido para pago:', paymentId);
 
     // Obtener información del pago desde MercadoPago
-    const paymentInfo = await getMercadoPagoPayment(paymentId.toString());
+    const paymentResult = await getMercadoPagoPayment(paymentId.toString());
+    
+    if (!paymentResult.success) {
+      console.error('❌ Error obteniendo información del pago:', paymentResult.error);
+      return res.status(500).json({ error: 'Error obteniendo información del pago' });
+    }
+
+    const paymentInfo = paymentResult.payment;
+    
+    if (!paymentInfo) {
+      console.error('❌ Información del pago no disponible');
+      return res.status(500).json({ error: 'Información del pago no disponible' });
+    }
     
     console.log('📊 Información del pago:', {
       id: paymentInfo.id,
@@ -57,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     payment.paymentTypeId = paymentInfo.payment_type_id;
     payment.installments = paymentInfo.installments || 1;
     payment.status = paymentInfo.status;
-    payment.transactionDate = new Date(paymentInfo.created_at);
+    payment.transactionDate = new Date(); // Usar fecha actual si no está disponible
     payment.updatedAt = new Date();
 
     await payment.save();

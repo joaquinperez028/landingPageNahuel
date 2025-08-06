@@ -83,28 +83,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
+    // Crear URLs de retorno
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const externalReference = `${type}_${service}_${user._id}_${Date.now()}`;
+    
+    const successUrl = `${baseUrl}/payment/success?reference=${externalReference}`;
+    const failureUrl = `${baseUrl}/payment/failure?reference=${externalReference}`;
+    const pendingUrl = `${baseUrl}/payment/pending?reference=${externalReference}`;
+
     // Crear preferencia según el tipo
-    let preferenceData;
+    let preferenceResult;
     if (type === 'subscription') {
-      preferenceData = createSubscriptionPreference(
+      preferenceResult = await createSubscriptionPreference(
         service,
         amount,
-        user.email,
-        user._id.toString(),
-        currency
+        currency,
+        externalReference,
+        successUrl,
+        failureUrl,
+        pendingUrl
       );
     } else {
-      preferenceData = createTrainingPreference(
+      preferenceResult = await createTrainingPreference(
         service,
         amount,
-        user.email,
-        user._id.toString(),
-        currency
+        currency,
+        externalReference,
+        successUrl,
+        failureUrl,
+        pendingUrl
       );
     }
 
-    // Crear preferencia en MercadoPago
-    const checkoutUrl = await createMercadoPagoPreference(preferenceData);
+    if (!preferenceResult.success) {
+      return res.status(500).json({
+        success: false,
+        error: preferenceResult.error || 'Error creando preferencia de pago'
+      });
+    }
+
+    const checkoutUrl = preferenceResult.initPoint;
 
     // Calcular fecha de expiración (30 días desde ahora)
     const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -118,7 +136,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       currency,
       status: 'pending',
       mercadopagoPaymentId: '', // Se actualizará cuando llegue el webhook
-      externalReference: preferenceData.external_reference,
+      externalReference: externalReference,
       paymentMethodId: '', // Se actualizará cuando llegue el webhook
       paymentTypeId: '', // Se actualizará cuando llegue el webhook
       installments: 1,
@@ -126,7 +144,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       expiryDate,
       metadata: {
         type,
-        preferenceId: preferenceData.external_reference
+        preferenceId: preferenceResult.preferenceId
       }
     });
 
@@ -138,13 +156,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       type,
       amount,
       currency,
-      externalReference: preferenceData.external_reference
+      externalReference: externalReference
     });
 
     return res.status(200).json({
       success: true,
       checkoutUrl,
-      externalReference: preferenceData.external_reference,
+      externalReference: externalReference,
       service,
       type,
       amount,

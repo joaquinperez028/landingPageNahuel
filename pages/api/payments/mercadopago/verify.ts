@@ -57,7 +57,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Si el pago ya tiene un ID de MercadoPago, verificar su estado
     if (payment.mercadopagoPaymentId) {
       try {
-        const paymentInfo = await getMercadoPagoPayment(payment.mercadopagoPaymentId);
+        const paymentResult = await getMercadoPagoPayment(payment.mercadopagoPaymentId);
+        
+        if (!paymentResult.success) {
+          throw new Error(paymentResult.error || 'Error obteniendo información del pago');
+        }
+
+        const paymentInfo = paymentResult.payment;
+        
+        if (!paymentInfo) {
+          throw new Error('Información del pago no disponible');
+        }
         
         // Actualizar estado en nuestra base de datos si cambió
         if (payment.status !== paymentInfo.status) {

@@ -34,7 +34,8 @@ import {
   PlusCircle,
   ChevronDown,
   ChevronUp,
-  ExternalLink
+  ExternalLink,
+  Loader
 } from 'lucide-react';
 import styles from '@/styles/SmartMoney.module.css';
 import { useRouter } from 'next/router';
