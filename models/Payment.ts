@@ -24,7 +24,7 @@ const PaymentSchema: Schema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false // Temporalmente false para permitir creación desde webhook
   },
   userEmail: {
     type: String,
@@ -101,7 +101,8 @@ PaymentSchema.index({ userId: 1 });
 PaymentSchema.index({ userEmail: 1 });
 PaymentSchema.index({ service: 1 });
 PaymentSchema.index({ status: 1 });
-PaymentSchema.index({ mercadopagoPaymentId: 1 }, { sparse: true });
+// Comentado temporalmente para evitar conflictos con valores null
+// PaymentSchema.index({ mercadopagoPaymentId: 1 }, { sparse: true });
 PaymentSchema.index({ externalReference: 1 });
 PaymentSchema.index({ transactionDate: -1 });
 PaymentSchema.index({ expiryDate: 1 });

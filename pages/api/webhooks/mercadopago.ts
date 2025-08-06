@@ -54,13 +54,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // Buscar el pago en nuestra base de datos
-    const payment = await Payment.findOne({ 
+    let payment = await Payment.findOne({ 
       externalReference: paymentInfo.external_reference 
     });
 
     if (!payment) {
-      console.log('⚠️ Pago no encontrado en BD:', paymentInfo.external_reference);
-      return res.status(404).json({ error: 'Pago no encontrado' });
+      console.log('🆕 Creando nuevo registro de pago para:', paymentInfo.external_reference);
+      
+      // Crear nuevo registro de pago con los datos del webhook
+      const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      
+      payment = new Payment({
+        userId: null, // Se actualizará cuando procesemos el pago
+        userEmail: paymentInfo.payer?.email || '',
+        service: 'TraderCall', // Se actualizará basado en external_reference
+        amount: paymentInfo.transaction_amount,
+        currency: paymentInfo.currency_id,
+        status: paymentInfo.status,
+        mercadopagoPaymentId: paymentInfo.id,
+        externalReference: paymentInfo.external_reference,
+        paymentMethodId: paymentInfo.payment_method_id || '',
+        paymentTypeId: paymentInfo.payment_type_id || '',
+        installments: paymentInfo.installments || 1,
+        transactionDate: new Date(),
+        expiryDate,
+        metadata: {
+          createdFromWebhook: true,
+          originalStatus: paymentInfo.status
+        }
+      });
+      
+      await payment.save();
     }
 
     // Actualizar información del pago
@@ -69,8 +93,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     payment.paymentTypeId = paymentInfo.payment_type_id || '';
     payment.installments = paymentInfo.installments || 1;
     payment.status = paymentInfo.status;
-    payment.transactionDate = new Date(); // Usar fecha actual si no está disponible
+    payment.transactionDate = new Date();
     payment.updatedAt = new Date();
+    
+    // Si el pago no tiene userId, intentar encontrarlo por email
+    if (!payment.userId && payment.userEmail) {
+      const user = await User.findOne({ email: payment.userEmail });
+      if (user) {
+        payment.userId = user._id;
+        console.log('✅ Usuario encontrado y asignado:', user.email);
+      }
+    }
 
     await payment.save();
 

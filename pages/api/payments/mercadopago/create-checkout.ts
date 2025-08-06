@@ -137,30 +137,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const checkoutUrl = preferenceResult.initPoint;
 
-    // Calcular fecha de expiración (30 días desde ahora)
-    const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
-    // Guardar registro de pago pendiente (sin mercadopagoPaymentId por ahora)
-    const payment = new Payment({
-      userId: user._id,
-      userEmail: user.email,
-      service,
-      amount,
-      currency,
-      status: 'pending',
-      // No guardamos mercadopagoPaymentId hasta que llegue el webhook
+    // NO guardamos el pago en la base de datos hasta que llegue el webhook
+    // Esto evita problemas con índices únicos y valores null
+    console.log('✅ Preferencia creada, redirigiendo a checkout:', {
+      preferenceId: preferenceResult.preferenceId,
       externalReference: externalReference,
-      // No guardamos paymentMethodId y paymentTypeId hasta que llegue el webhook
-      installments: 1,
-      transactionDate: new Date(),
-      expiryDate,
-      metadata: {
-        type,
-        preferenceId: preferenceResult.preferenceId
-      }
+      checkoutUrl: checkoutUrl
     });
-
-    await payment.save();
 
     console.log('✅ Checkout creado exitosamente:', {
       user: user.email,
