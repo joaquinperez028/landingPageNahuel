@@ -17,11 +17,13 @@ import {
   Download,
   RefreshCw,
   Eye,
-  Mail
+  Mail,
+  X
 } from 'lucide-react';
 import Head from 'next/head';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { toast } from 'react-hot-toast';
 import styles from '@/styles/AdminSubscriptions.module.css';
 
 interface Subscription {
@@ -71,6 +73,9 @@ export default function AdminSubscriptionsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [serviceFilter, setServiceFilter] = useState<string>('all');
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -164,6 +169,42 @@ export default function AdminSubscriptionsPage() {
       style: 'currency',
       currency: currency || 'ARS'
     }).format(amount);
+  };
+
+  const handleViewSubscriptionDetails = (subscription: Subscription) => {
+    setSelectedSubscription(subscription);
+    setSelectedPayment(null);
+    setShowDetailsModal(true);
+  };
+
+  const handleViewPaymentDetails = (payment: Payment) => {
+    setSelectedPayment(payment);
+    setSelectedSubscription(null);
+    setShowDetailsModal(true);
+  };
+
+  const closeDetailsModal = () => {
+    setShowDetailsModal(false);
+    setSelectedSubscription(null);
+    setSelectedPayment(null);
+  };
+
+  const sendReminderEmail = async (userEmail: string, service: string) => {
+    try {
+      const response = await fetch('/api/admin/send-reminder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userEmail, service })
+      });
+      
+      if (response.ok) {
+        toast.success('Email de recordatorio enviado exitosamente');
+      } else {
+        toast.error('Error enviando email de recordatorio');
+      }
+    } catch (error) {
+      toast.error('Error enviando email de recordatorio');
+    }
   };
 
   const filteredSubscriptions = subscriptions.filter(sub => {
@@ -400,10 +441,18 @@ export default function AdminSubscriptionsPage() {
                     </div>
                     <div className={styles.cell}>
                       <div className={styles.actions}>
-                        <button className={styles.actionButton} title="Ver detalles">
+                        <button 
+                          className={styles.actionButton} 
+                          title="Ver detalles"
+                          onClick={() => handleViewSubscriptionDetails(subscription)}
+                        >
                           <Eye size={16} />
                         </button>
-                        <button className={styles.actionButton} title="Enviar email">
+                        <button 
+                          className={styles.actionButton} 
+                          title="Enviar email de recordatorio"
+                          onClick={() => sendReminderEmail(subscription.userEmail, subscription.service)}
+                        >
                           <Mail size={16} />
                         </button>
                       </div>
@@ -451,7 +500,11 @@ export default function AdminSubscriptionsPage() {
                     </div>
                     <div className={styles.cell}>
                       <div className={styles.actions}>
-                        <button className={styles.actionButton} title="Ver detalles">
+                        <button 
+                          className={styles.actionButton} 
+                          title="Ver detalles del pago"
+                          onClick={() => handleViewPaymentDetails(payment)}
+                        >
                           <Eye size={16} />
                         </button>
                         {payment.mercadopagoPaymentId && (
@@ -468,6 +521,176 @@ export default function AdminSubscriptionsPage() {
           </motion.div>
         </div>
       </main>
+
+      {/* Modal de Detalles */}
+      {showDetailsModal && (selectedSubscription || selectedPayment) && (
+        <div className={styles.modalOverlay} onClick={closeDetailsModal}>
+          <div className={styles.modalContainer} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>
+                {selectedSubscription ? 'Detalles de Suscripción' : 'Detalles de Pago'}
+              </h3>
+              <button 
+                onClick={closeDetailsModal}
+                className={styles.closeButton}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className={styles.modalContent}>
+              {selectedSubscription && (
+                <div className={styles.detailsGrid}>
+                  <div className={styles.detailSection}>
+                    <h4>Información del Usuario</h4>
+                    <div className={styles.detailItem}>
+                      <label>Nombre:</label>
+                      <span>{selectedSubscription.userName}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Email:</label>
+                      <span>{selectedSubscription.userEmail}</span>
+                    </div>
+                  </div>
+
+                  <div className={styles.detailSection}>
+                    <h4>Información de Suscripción</h4>
+                    <div className={styles.detailItem}>
+                      <label>Servicio:</label>
+                      <span className={styles.serviceBadge}>
+                        {getServiceDisplayName(selectedSubscription.service)}
+                      </span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Estado:</label>
+                      <div className={styles.statusContainer}>
+                        {getStatusIcon(selectedSubscription.status)}
+                        <span>{getStatusText(selectedSubscription.status)}</span>
+                      </div>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Fecha de Inicio:</label>
+                      <span>{formatDate(selectedSubscription.startDate)}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Fecha de Expiración:</label>
+                      <span>{formatDate(selectedSubscription.expiryDate)}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Días hasta expiración:</label>
+                      <span className={selectedSubscription.daysUntilExpiry <= 7 ? styles.expiryWarning : ''}>
+                        {selectedSubscription.daysUntilExpiry > 0 
+                          ? `${selectedSubscription.daysUntilExpiry} días`
+                          : `Expiró hace ${Math.abs(selectedSubscription.daysUntilExpiry)} días`
+                        }
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={styles.detailSection}>
+                    <h4>Información de Pago</h4>
+                    <div className={styles.detailItem}>
+                      <label>Monto:</label>
+                      <span className={styles.amountBadge}>
+                        {formatCurrency(selectedSubscription.amount, selectedSubscription.currency)}
+                      </span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Método de Pago:</label>
+                      <span>{selectedSubscription.paymentMethod}</span>
+                    </div>
+                    {selectedSubscription.transactionId && (
+                      <div className={styles.detailItem}>
+                        <label>ID de Transacción:</label>
+                        <span className={styles.transactionId}>
+                          {selectedSubscription.transactionId}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {selectedPayment && (
+                <div className={styles.detailsGrid}>
+                  <div className={styles.detailSection}>
+                    <h4>Información del Usuario</h4>
+                    <div className={styles.detailItem}>
+                      <label>Nombre:</label>
+                      <span>{selectedPayment.userName}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Email:</label>
+                      <span>{selectedPayment.userEmail}</span>
+                    </div>
+                  </div>
+
+                  <div className={styles.detailSection}>
+                    <h4>Información del Pago</h4>
+                    <div className={styles.detailItem}>
+                      <label>Servicio:</label>
+                      <span className={styles.serviceBadge}>
+                        {getServiceDisplayName(selectedPayment.service)}
+                      </span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Estado:</label>
+                      <div className={styles.statusContainer}>
+                        {getStatusIcon(selectedPayment.status)}
+                        <span>{getStatusText(selectedPayment.status)}</span>
+                      </div>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Fecha de Transacción:</label>
+                      <span>{formatDate(selectedPayment.transactionDate)}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Fecha de Expiración:</label>
+                      <span>{formatDate(selectedPayment.expiryDate)}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Monto:</label>
+                      <span className={styles.amountBadge}>
+                        {formatCurrency(selectedPayment.amount, selectedPayment.currency)}
+                      </span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <label>Método de Pago:</label>
+                      <span>{selectedPayment.paymentMethod}</span>
+                    </div>
+                    {selectedPayment.mercadopagoPaymentId && (
+                      <div className={styles.detailItem}>
+                        <label>ID MercadoPago:</label>
+                        <span className={styles.transactionId}>
+                          {selectedPayment.mercadopagoPaymentId}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.modalFooter}>
+              {selectedSubscription && (
+                <button 
+                  onClick={() => sendReminderEmail(selectedSubscription.userEmail, selectedSubscription.service)}
+                  className={styles.primaryButton}
+                >
+                  <Mail size={16} />
+                  Enviar Recordatorio
+                </button>
+              )}
+              <button 
+                onClick={closeDetailsModal}
+                className={styles.secondaryButton}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </>
