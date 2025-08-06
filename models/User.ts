@@ -33,6 +33,19 @@ export interface IUser extends Document {
     fechaFin?: Date;
     activa: boolean;
   }>;
+  // Nuevos campos para MercadoPago
+  subscriptionExpiry?: Date; // Fecha de expiración de suscripción (30 días desde último pago)
+  lastPaymentDate?: Date; // Fecha del último pago exitoso
+  mercadopagoCustomerId?: string; // ID de cliente en MercadoPago
+  activeSubscriptions: Array<{
+    service: 'TraderCall' | 'SmartMoney' | 'CashFlow';
+    startDate: Date;
+    expiryDate: Date;
+    isActive: boolean;
+    mercadopagoPaymentId?: string;
+    amount: number;
+    currency: string;
+  }>;
   entrenamientos: Array<{
     tipo: 'TradingFundamentals' | 'DowJones';
     fechaInscripcion: Date;
@@ -133,6 +146,50 @@ const UserSchema: Schema = new Schema({
       default: true
     }
   }],
+  // Nuevos campos para MercadoPago
+  subscriptionExpiry: {
+    type: Date,
+    default: null
+  },
+  lastPaymentDate: {
+    type: Date,
+    default: null
+  },
+  mercadopagoCustomerId: {
+    type: String,
+    default: null
+  },
+  activeSubscriptions: [{
+    service: {
+      type: String,
+      enum: ['TraderCall', 'SmartMoney', 'CashFlow'],
+      required: true
+    },
+    startDate: {
+      type: Date,
+      required: true,
+      default: Date.now
+    },
+    expiryDate: {
+      type: Date,
+      required: true
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    mercadopagoPaymentId: {
+      type: String
+    },
+    amount: {
+      type: Number,
+      required: true
+    },
+    currency: {
+      type: String,
+      default: 'ARS'
+    }
+  }],
   entrenamientos: [{
     tipo: {
       type: String,
@@ -209,11 +266,86 @@ UserSchema.pre('findOneAndUpdate', function(next) {
   next();
 });
 
+// Método para verificar si el usuario tiene acceso activo a un servicio
+UserSchema.methods.hasActiveSubscription = function(service: string): boolean {
+  if (!this.subscriptionExpiry) return false;
+  return new Date() < this.subscriptionExpiry;
+};
+
+// Método para verificar si el usuario tiene acceso a un servicio específico
+UserSchema.methods.hasServiceAccess = function(service: string): boolean {
+  const activeSub = this.activeSubscriptions.find(
+    (sub: any) => sub.service === service && sub.isActive && new Date() < sub.expiryDate
+  );
+  return !!activeSub;
+};
+
+// Método para agregar una suscripción activa
+UserSchema.methods.addActiveSubscription = function(
+  service: string,
+  amount: number,
+  currency: string = 'ARS',
+  mercadopagoPaymentId?: string
+) {
+  const startDate = new Date();
+  const expiryDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 días
+  
+  this.activeSubscriptions.push({
+    service,
+    startDate,
+    expiryDate,
+    isActive: true,
+    mercadopagoPaymentId,
+    amount,
+    currency
+  });
+  
+  // Actualizar fecha de expiración general
+  this.subscriptionExpiry = expiryDate;
+  this.lastPaymentDate = startDate;
+  
+  return this.save();
+};
+
+// Método para renovar suscripción
+UserSchema.methods.renewSubscription = function(
+  service: string,
+  amount: number,
+  currency: string = 'ARS',
+  mercadopagoPaymentId?: string
+) {
+  // Encontrar suscripción existente
+  const existingSub = this.activeSubscriptions.find(
+    (sub: any) => sub.service === service
+  );
+  
+  if (existingSub) {
+    // Renovar suscripción existente
+    existingSub.startDate = new Date();
+    existingSub.expiryDate = new Date(existingSub.startDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+    existingSub.isActive = true;
+    existingSub.mercadopagoPaymentId = mercadopagoPaymentId;
+    existingSub.amount = amount;
+    existingSub.currency = currency;
+  } else {
+    // Agregar nueva suscripción
+    this.addActiveSubscription(service, amount, currency, mercadopagoPaymentId);
+  }
+  
+  // Actualizar fechas generales
+  this.subscriptionExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  this.lastPaymentDate = new Date();
+  
+  return this.save();
+};
+
 // Índices para optimizar búsquedas (sin duplicar los unique: true)
 UserSchema.index({ role: 1 });
 UserSchema.index({ 'subscriptions.tipo': 1, 'subscriptions.activa': 1 });
 UserSchema.index({ 'entrenamientos.tipo': 1, 'entrenamientos.activo': 1 });
 UserSchema.index({ createdAt: -1 });
 UserSchema.index({ lastLogin: -1 });
+UserSchema.index({ subscriptionExpiry: 1 });
+UserSchema.index({ 'activeSubscriptions.service': 1, 'activeSubscriptions.isActive': 1 });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema); 

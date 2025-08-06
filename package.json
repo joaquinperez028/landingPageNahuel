@@ -26,6 +26,7 @@
     "jose": "^5.1.0",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.292.0",
+    "mercadopago": "^2.8.0",
     "mongoose": "^8.0.0",
     "multer": "^2.0.1",
     "next": "14.0.0",

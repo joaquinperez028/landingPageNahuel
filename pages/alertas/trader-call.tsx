@@ -67,11 +67,43 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
 }) => {
   const { data: session } = useSession();
 
-  const handleSubscribe = () => {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleSubscribe = async () => {
     if (!session) {
       signIn('google');
-    } else {
-      window.location.href = '/payment/trader-call';
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
+      const response = await fetch('/api/payments/mercadopago/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          service: 'TraderCall',
+          amount: 15000, // $15,000 ARS
+          currency: 'ARS',
+          type: 'subscription'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        console.error('Error creando checkout:', data.error);
+        alert('Error al procesar el pago. Por favor intenta nuevamente.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al procesar el pago. Por favor intenta nuevamente.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -377,8 +409,18 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
               <button 
                 className={styles.subscribeButton}
                 onClick={handleSubscribe}
+                disabled={isProcessing}
               >
-                {session ? 'Suscribirme Ahora' : 'Iniciar Sesión y Suscribirme'}
+                {isProcessing ? (
+                  <>
+                    <Loader size={16} className={styles.spinner} />
+                    Procesando...
+                  </>
+                ) : session ? (
+                  'Suscribirme Ahora - $15.000 ARS'
+                ) : (
+                  'Iniciar Sesión y Suscribirme'
+                )}
               </button>
               <p className={styles.subscriptionNote}>
                 {!session && 'Si no tienes cuenta activa, la tenés que hacer primero antes de continuar'}
