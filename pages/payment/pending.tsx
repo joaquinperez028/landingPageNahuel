@@ -1,247 +1,156 @@
 import React, { useEffect, useState } from 'react';
-import Head from 'next/head';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import { motion } from 'framer-motion';
-import { Clock, CheckCircle, XCircle, RefreshCw, ArrowLeft } from 'lucide-react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { Clock, RefreshCw, Home, CheckCircle } from 'lucide-react';
+import Head from 'next/head';
+import Link from 'next/link';
 import styles from '@/styles/PaymentPending.module.css';
 
-interface PaymentPendingProps {
-  // Props del servidor si es necesario
-}
-
-const PaymentPendingPage: React.FC<PaymentPendingProps> = () => {
+export default function PaymentPending() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [paymentDetails, setPaymentDetails] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [checkingStatus, setCheckingStatus] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [paymentStatus, setPaymentStatus] = useState<any>(null);
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
-    const { reference, payment_id, status } = router.query;
+    const { reference } = router.query;
     
-    if (reference) {
-      console.log('Pago pendiente:', { reference, payment_id, status });
-      setPaymentDetails({ reference, payment_id, status });
+    if (reference && session) {
+      // Verificar el estado del pago cada 30 segundos
+      const interval = setInterval(() => {
+        checkPaymentStatus(reference as string);
+      }, 30000);
+
+      // Verificación inicial
+      checkPaymentStatus(reference as string);
+
+      return () => clearInterval(interval);
     }
+  }, [router.query, session]);
+
+  const checkPaymentStatus = async (reference: string) => {
+    if (checking) return;
     
-    setLoading(false);
-  }, [router.query]);
-
-  const getServiceName = (reference: string) => {
-    if (reference?.includes('TraderCall')) return 'Trader Call';
-    if (reference?.includes('SmartMoney')) return 'Smart Money';
-    if (reference?.includes('CashFlow')) return 'Cash Flow';
-    if (reference?.includes('TradingFundamentals')) return 'Trading Fundamentals';
-    if (reference?.includes('DowJones')) return 'Dow Jones';
-    return 'Servicio';
-  };
-
-  const getServiceRedirect = (reference: string) => {
-    if (reference?.includes('TraderCall')) return '/alertas/trader-call';
-    if (reference?.includes('SmartMoney')) return '/alertas/smart-money';
-    if (reference?.includes('CashFlow')) return '/alertas/cash-flow';
-    if (reference?.includes('TradingFundamentals')) return '/entrenamientos/trading';
-    if (reference?.includes('DowJones')) return '/entrenamientos/advanced';
-    return '/';
-  };
-
-  const checkPaymentStatus = async () => {
-    if (!paymentDetails?.reference) return;
-
-    setCheckingStatus(true);
-    
+    setChecking(true);
     try {
-      // Aquí podrías hacer una llamada a la API para verificar el estado del pago
-      const response = await fetch(`/api/payments/mercadopago/verify?reference=${paymentDetails.reference}`);
+      const response = await fetch(`/api/payments/mercadopago/verify?reference=${reference}`);
       const data = await response.json();
       
       if (data.success) {
-        setPaymentStatus(data.status);
+        setPaymentStatus(data);
         
+        // Si el pago fue aprobado, redirigir a éxito
         if (data.status === 'approved') {
-          // Redirigir a página de éxito
-          router.push(`/payment/success?reference=${paymentDetails.reference}`);
-        } else if (data.status === 'rejected') {
-          // Redirigir a página de fallo
-          router.push(`/payment/failure?reference=${paymentDetails.reference}`);
+          router.push(`/payment/success?reference=${reference}`);
         }
       }
     } catch (error) {
-      console.error('Error verificando estado del pago:', error);
+      console.error('Error verificando pago:', error);
     } finally {
-      setCheckingStatus(false);
+      setChecking(false);
     }
   };
 
-  // Verificar estado automáticamente cada 30 segundos
-  useEffect(() => {
-    if (paymentDetails?.reference) {
-      const interval = setInterval(checkPaymentStatus, 30000);
-      return () => clearInterval(interval);
+  const handleManualCheck = () => {
+    const { reference } = router.query;
+    if (reference) {
+      checkPaymentStatus(reference as string);
     }
-  }, [paymentDetails]);
-
-  if (loading) {
-    return (
-      <>
-        <Head>
-          <title>Procesando Pago - Nahuel Lozano</title>
-        </Head>
-        <Navbar />
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Procesando información...</p>
-        </div>
-        <Footer />
-      </>
-    );
-  }
+  };
 
   return (
     <>
       <Head>
         <title>Pago en Proceso - Nahuel Lozano</title>
-        <meta name="description" content="Tu pago está siendo procesado. Te notificaremos cuando esté listo." />
+        <meta name="description" content="Tu pago está siendo procesado" />
       </Head>
 
-      <Navbar />
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.iconContainer}>
+            <Clock className={styles.pendingIcon} />
+          </div>
+          
+          <h1 className={styles.title}>Pago en Proceso</h1>
+          
+          <p className={styles.message}>
+            Tu pago está siendo procesado por el banco. Esto puede tomar unos minutos.
+          </p>
 
-      <main className={styles.main}>
-        <div className={styles.container}>
-          <motion.div
-            className={styles.pendingCard}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className={styles.pendingIcon}>
-              <Clock size={80} />
+          <div className={styles.statusInfo}>
+            <div className={styles.statusCard}>
+              <Clock size={24} />
+              <h3>Estado Actual</h3>
+              <p>Pendiente de confirmación</p>
             </div>
 
-            <h1 className={styles.pendingTitle}>
-              Pago en Proceso
-            </h1>
+            <div className={styles.statusCard}>
+              <RefreshCw size={24} />
+              <h3>Verificación Automática</h3>
+              <p>Revisando cada 30 segundos</p>
+            </div>
+          </div>
 
-            <p className={styles.pendingMessage}>
-              Tu pago está siendo procesado por el banco. Esto puede tomar unos minutos.
-            </p>
-
-            {paymentDetails?.reference && (
-              <div className={styles.paymentDetails}>
-                <h3>Detalles del Pago</h3>
-                <div className={styles.detailItem}>
-                  <span>Servicio:</span>
-                  <span>{getServiceName(paymentDetails.reference)}</span>
-                </div>
-                <div className={styles.detailItem}>
-                  <span>Referencia:</span>
-                  <span>{paymentDetails.reference}</span>
-                </div>
-                <div className={styles.detailItem}>
-                  <span>Estado:</span>
-                  <span className={styles.statusPending}>En Proceso</span>
-                </div>
+          {paymentStatus && (
+            <div className={styles.paymentDetails}>
+              <div className={styles.detailRow}>
+                <span>Servicio:</span>
+                <span>{paymentStatus.service}</span>
               </div>
-            )}
-
-            <div className={styles.statusInfo}>
-              <div className={styles.statusCard}>
-                <Clock size={24} />
-                <h4>Procesando Pago</h4>
-                <p>El banco está verificando tu información de pago</p>
+              <div className={styles.detailRow}>
+                <span>Monto:</span>
+                <span>${paymentStatus.amount} {paymentStatus.currency}</span>
               </div>
-
-              <div className={styles.statusCard}>
-                <CheckCircle size={24} />
-                <h4>Verificación</h4>
-                <p>Validando fondos y datos de la tarjeta</p>
-              </div>
-
-              <div className={styles.statusCard}>
-                <CheckCircle size={24} />
-                <h4>Confirmación</h4>
-                <p>Activando tu suscripción automáticamente</p>
+              <div className={styles.detailRow}>
+                <span>Estado:</span>
+                <span className={styles.statusPending}>En Proceso</span>
               </div>
             </div>
+          )}
 
-            <div className={styles.whatHappens}>
-              <h3>¿Qué está pasando?</h3>
-              <ul>
-                <li>✅ Tu pago fue enviado al banco</li>
-                <li>⏳ El banco está verificando los fondos</li>
-                <li>⏳ Validando la información de la tarjeta</li>
-                <li>⏳ Procesando la transacción</li>
-                <li>⏳ Activando tu suscripción</li>
-              </ul>
-            </div>
+          <div className={styles.actions}>
+            <button 
+              onClick={handleManualCheck}
+              disabled={checking}
+              className={styles.primaryButton}
+            >
+              {checking ? (
+                <>
+                  <RefreshCw size={20} className={styles.spinner} />
+                  Verificando...
+                </>
+              ) : (
+                <>
+                  <RefreshCw size={20} />
+                  Verificar Ahora
+                </>
+              )}
+            </button>
+            
+            <Link href="/" className={styles.secondaryButton}>
+              <Home size={20} />
+              Volver al Inicio
+            </Link>
+          </div>
 
-            <div className={styles.actions}>
-              <button 
-                onClick={checkPaymentStatus}
-                disabled={checkingStatus}
-                className={styles.primaryButton}
-              >
-                {checkingStatus ? (
-                  <>
-                    <div className={styles.spinner}></div>
-                    Verificando...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw size={20} />
-                    Verificar Estado
-                  </>
-                )}
-              </button>
-
-              <Link href="/" className={styles.secondaryButton}>
-                <ArrowLeft size={20} />
-                Volver al Inicio
-              </Link>
-            </div>
-
-            <div className={styles.importantInfo}>
-              <h3>Información Importante</h3>
-              <div className={styles.infoCards}>
-                <div className={styles.infoCard}>
-                  <h4>⏰ Tiempo de Procesamiento</h4>
-                  <p>Los pagos suelen procesarse en 2-5 minutos, pero pueden tardar hasta 24 horas en casos excepcionales.</p>
-                </div>
-
-                <div className={styles.infoCard}>
-                  <h4>📧 Notificaciones</h4>
-                  <p>Recibirás un email de confirmación cuando el pago se complete exitosamente.</p>
-                </div>
-
-                <div className={styles.infoCard}>
-                  <h4>🔒 Seguridad</h4>
-                  <p>Tu información está protegida con encriptación de nivel bancario.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.support}>
-              <h3>¿Tienes Dudas?</h3>
+          <div className={styles.info}>
+            <h3>¿Qué está pasando?</h3>
+            <ul>
+              <li>Tu banco está procesando la transacción</li>
+              <li>Esto es normal y puede tomar hasta 24 horas</li>
+              <li>Recibirás una notificación cuando se complete</li>
+              <li>Tu acceso se activará automáticamente</li>
+            </ul>
+            
+            <div className={styles.note}>
               <p>
-                Si el proceso toma más tiempo del esperado, contacta a nuestro equipo:
+                <strong>Nota:</strong> Si el pago no se completa en 24 horas, 
+                contacta a soporte para verificar el estado.
               </p>
-              <div className={styles.contactInfo}>
-                <p>📧 Email: <a href="mailto:soporte@lozanonahuel.com">soporte@lozanonahuel.com</a></p>
-                <p>💬 WhatsApp: <a href="https://wa.me/5491112345678">+54 9 11 1234-5678</a></p>
-              </div>
             </div>
-          </motion.div>
+          </div>
         </div>
-      </main>
-
-      <Footer />
+      </div>
     </>
   );
-};
-
-export default PaymentPendingPage; 
+} 
