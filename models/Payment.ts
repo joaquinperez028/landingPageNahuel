@@ -55,8 +55,8 @@ const PaymentSchema: Schema = new Schema({
   },
   mercadopagoPaymentId: {
     type: String,
-    required: true,
-    unique: true
+    required: false,
+    unique: false
   },
   mercadopagoPreferenceId: {
     type: String
@@ -68,11 +68,11 @@ const PaymentSchema: Schema = new Schema({
   },
   paymentMethodId: {
     type: String,
-    required: true
+    required: false
   },
   paymentTypeId: {
     type: String,
-    required: true
+    required: false
   },
   installments: {
     type: Number,
