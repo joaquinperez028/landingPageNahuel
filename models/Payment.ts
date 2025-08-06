@@ -101,7 +101,7 @@ PaymentSchema.index({ userId: 1 });
 PaymentSchema.index({ userEmail: 1 });
 PaymentSchema.index({ service: 1 });
 PaymentSchema.index({ status: 1 });
-PaymentSchema.index({ mercadopagoPaymentId: 1 });
+PaymentSchema.index({ mercadopagoPaymentId: 1 }, { sparse: true });
 PaymentSchema.index({ externalReference: 1 });
 PaymentSchema.index({ transactionDate: -1 });
 PaymentSchema.index({ expiryDate: 1 });

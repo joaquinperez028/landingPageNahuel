@@ -140,7 +140,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Calcular fecha de expiración (30 días desde ahora)
     const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-    // Guardar registro de pago pendiente
+    // Guardar registro de pago pendiente (sin mercadopagoPaymentId por ahora)
     const payment = new Payment({
       userId: user._id,
       userEmail: user.email,
@@ -148,10 +148,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       amount,
       currency,
       status: 'pending',
-      mercadopagoPaymentId: '', // Se actualizará cuando llegue el webhook
+      // No guardamos mercadopagoPaymentId hasta que llegue el webhook
       externalReference: externalReference,
-      paymentMethodId: '', // Se actualizará cuando llegue el webhook
-      paymentTypeId: '', // Se actualizará cuando llegue el webhook
+      // No guardamos paymentMethodId y paymentTypeId hasta que llegue el webhook
       installments: 1,
       transactionDate: new Date(),
       expiryDate,

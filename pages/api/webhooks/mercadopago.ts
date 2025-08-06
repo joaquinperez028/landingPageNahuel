@@ -65,8 +65,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Actualizar información del pago
     payment.mercadopagoPaymentId = paymentInfo.id;
-    payment.paymentMethodId = paymentInfo.payment_method_id;
-    payment.paymentTypeId = paymentInfo.payment_type_id;
+    payment.paymentMethodId = paymentInfo.payment_method_id || '';
+    payment.paymentTypeId = paymentInfo.payment_type_id || '';
     payment.installments = paymentInfo.installments || 1;
     payment.status = paymentInfo.status;
     payment.transactionDate = new Date(); // Usar fecha actual si no está disponible
