@@ -226,6 +226,18 @@ const useDashboardSections = () => {
         { label: 'Exportar Excel', href: '/admin/billing/export', icon: <Download size={16} /> },
         { label: 'Historial', href: '/admin/billing/history', icon: <Activity size={16} /> }
       ]
+    },
+    {
+      id: 'subscriptions',
+      title: 'Suscripciones y Pagos',
+      description: 'Gestiona las suscripciones activas, verifica pagos entrantes, controla expiraciones y administra el historial de transacciones de MercadoPago.',
+      icon: <DollarSign size={32} />,
+      color: 'from-green-500 to-emerald-500',
+      links: [
+        { label: 'Gestión de Suscripciones', href: '/admin/subscriptions', icon: <Users size={16} /> },
+        { label: 'Ver Pagos', href: '/admin/subscriptions', icon: <DollarSign size={16} /> },
+        { label: 'Expiraciones Próximas', href: '/admin/subscriptions', icon: <AlertTriangle size={16} /> }
+      ]
     }
   ], []);
 };

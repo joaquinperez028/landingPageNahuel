@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import UserSubscriptions from '@/components/UserSubscriptions';
 import styles from '@/styles/Perfil.module.css';
 
 // Interfaz para los datos del perfil
@@ -458,86 +459,7 @@ export default function PerfilPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <div className={styles.sectionHeader}>
-                    <h2>Mis Compras</h2>
-                    <button className={styles.downloadButton}>
-                      <Download size={16} />
-                      Descargar Historial
-                    </button>
-                  </div>
-                  
-                  <div className={styles.purchasesGrid}>
-                    <div className={styles.purchaseCard}>
-                      <div className={styles.cardHeader}>
-                        <TrendingUp size={24} />
-                        <h3>Suscripciones Activas</h3>
-                      </div>
-                      <div className={styles.subscriptionsList}>
-                        <div className={styles.subscriptionItem}>
-                          <div className={styles.subInfo}>
-                            <h4>Smart Money Premium</h4>
-                            <p>Suscripción mensual</p>
-                          </div>
-                          <div className={styles.subPrice}>$99 USD</div>
-                          <div className={styles.subStatus}>Activa</div>
-                        </div>
-                        <div className={styles.subscriptionItem}>
-                          <div className={styles.subInfo}>
-                            <h4>Trader Call</h4>
-                            <p>Suscripción mensual</p>
-                          </div>
-                          <div className={styles.subPrice}>$49 USD</div>
-                          <div className={styles.subStatus}>Activa</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={styles.purchaseCard}>
-                      <div className={styles.cardHeader}>
-                        <GraduationCap size={24} />
-                        <h3>Entrenamientos</h3>
-                      </div>
-                      <div className={styles.purchasesList}>
-                        <div className={styles.purchaseItem}>
-                          <div className={styles.purchaseInfo}>
-                            <h4>Trading Fundamentals</h4>
-                            <p>Comprado el 15 de Enero, 2024</p>
-                          </div>
-                          <div className={styles.purchaseAmount}>$299 USD</div>
-                        </div>
-                        <div className={styles.purchaseItem}>
-                          <div className={styles.purchaseInfo}>
-                            <h4>Advanced Trading</h4>
-                            <p>Comprado el 10 de Marzo, 2024</p>
-                          </div>
-                          <div className={styles.purchaseAmount}>$499 USD</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={styles.purchaseCard}>
-                      <div className={styles.cardHeader}>
-                        <Building size={24} />
-                        <h3>Asesorías</h3>
-                      </div>
-                      <div className={styles.purchasesList}>
-                        <div className={styles.purchaseItem}>
-                          <div className={styles.purchaseInfo}>
-                            <h4>Consultorio Financiero</h4>
-                            <p>Sesión del 20 de Abril, 2024</p>
-                          </div>
-                          <div className={styles.purchaseAmount}>$150 USD</div>
-                        </div>
-                        <div className={styles.purchaseItem}>
-                          <div className={styles.purchaseInfo}>
-                            <h4>Cuenta Asesorada</h4>
-                            <p>Abril 2024</p>
-                          </div>
-                          <div className={styles.purchaseAmount}>$999 USD</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <UserSubscriptions />
                 </motion.div>
               )}
 
