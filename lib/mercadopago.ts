@@ -21,6 +21,13 @@ export const createSubscriptionPreference = async (
   pendingUrl: string
 ) => {
   try {
+    console.log('🔧 MercadoPago - Creando preferencia de suscripción:', {
+      service,
+      amount,
+      currency,
+      externalReference,
+      accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN ? 'Configurado' : 'No configurado'
+    });
     const preferenceData = {
       items: [
         {
@@ -49,7 +56,16 @@ export const createSubscriptionPreference = async (
       }
     };
 
+    console.log('🔧 MercadoPago - Datos de preferencia:', preferenceData);
+    
     const response = await preference.create({ body: preferenceData });
+    
+    console.log('✅ MercadoPago - Preferencia creada:', {
+      id: response.id,
+      initPoint: response.init_point,
+      sandboxInitPoint: response.sandbox_init_point
+    });
+    
     return {
       success: true,
       preferenceId: response.id,
@@ -57,7 +73,13 @@ export const createSubscriptionPreference = async (
       sandboxInitPoint: response.sandbox_init_point
     };
   } catch (error) {
-    console.error('Error creando preferencia de suscripción:', error);
+    console.error('❌ Error creando preferencia de suscripción:', error);
+    console.error('🔍 Error detallado:', {
+      message: error instanceof Error ? error.message : 'Error desconocido',
+      stack: error instanceof Error ? error.stack : 'No stack',
+      error: error
+    });
+    
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Error desconocido'

@@ -92,6 +92,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const pendingUrl = `${baseUrl}/payment/pending?reference=${externalReference}`;
 
     // Crear preferencia según el tipo
+    console.log('🔧 Creando preferencia:', {
+      type,
+      service,
+      amount,
+      currency,
+      externalReference,
+      successUrl,
+      failureUrl,
+      pendingUrl
+    });
+
     let preferenceResult;
     if (type === 'subscription') {
       preferenceResult = await createSubscriptionPreference(
@@ -114,6 +125,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         pendingUrl
       );
     }
+
+    console.log('📊 Resultado de preferencia:', preferenceResult);
 
     if (!preferenceResult.success) {
       return res.status(500).json({
@@ -181,9 +194,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
+    // Log más detallado del error
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+    const errorStack = error instanceof Error ? error.stack : 'No stack disponible';
+    
+    console.error('🔍 Error detallado:', {
+      message: errorMessage,
+      stack: errorStack,
+      error: error
+    });
+
     return res.status(500).json({
       success: false,
-      error: 'Error interno del servidor. Inténtalo nuevamente.'
+      error: `Error interno del servidor: ${errorMessage}`,
+      details: process.env.NODE_ENV === 'development' ? errorStack : undefined
     });
   }
 } 
