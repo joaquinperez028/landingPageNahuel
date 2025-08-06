@@ -1,6 +1,7 @@
 import { GetServerSideProps } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
+import { verifyAdminAccess } from '@/lib/adminAuth';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -698,36 +699,40 @@ export default function AdminSubscriptionsPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
+  console.log('🔍 [SUBSCRIPTIONS] Iniciando verificación de acceso...');
+  
+  try {
+    // Usar la función de verificación que ya sabemos que funciona
+    const verification = await verifyAdminAccess(context);
+    
+    console.log('🔍 [SUBSCRIPTIONS] Resultado de verificación:', verification);
+    
+    if (!verification.isAdmin) {
+      console.log('❌ [SUBSCRIPTIONS] Acceso denegado - redirigiendo a:', verification.redirectTo);
+      return {
+        redirect: {
+          destination: verification.redirectTo || '/',
+          permanent: false,
+        },
+      };
+    }
 
-  if (!session?.user?.email) {
+    console.log('✅ [SUBSCRIPTIONS] Acceso de admin confirmado para:', verification.session?.user?.email || verification.user?.email);
+    
+    return {
+      props: {
+        user: verification.session?.user || verification.user,
+      },
+    };
+
+  } catch (error) {
+    console.error('💥 [SUBSCRIPTIONS] Error en getServerSideProps:', error);
+    
     return {
       redirect: {
-        destination: '/auth/signin',
+        destination: '/api/auth/signin',
         permanent: false,
       },
     };
   }
-
-  // Verificar si es admin
-  const response = await fetch(`${process.env.NEXTAUTH_URL}/api/debug-user-role`, {
-    headers: {
-      cookie: context.req.headers.cookie || '',
-    },
-  });
-
-  const data = await response.json();
-
-  if (!data.isAdmin) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {},
-  };
 };
