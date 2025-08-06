@@ -22,7 +22,8 @@ import {
   FileText,
   RefreshCw,
   Plus,
-  X
+  X,
+  Loader
 } from 'lucide-react';
 import styles from '@/styles/CashFlow.module.css';
 import { useRouter } from 'next/router';
@@ -56,12 +57,47 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
   historicalAlerts 
 }) => {
   const { data: session } = useSession();
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSubscribe = () => {
+  const handleSubscribe = async () => {
     if (!session) {
       signIn('google');
-    } else {
-      window.location.href = '/payment/cash-flow';
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
+      const response = await fetch('/api/payments/mercadopago/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          type: 'subscription',
+          service: 'CashFlow',
+          amount: 25000, // $25,000 ARS
+          currency: 'ARS'
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          alert('Error al crear el checkout: ' + (data.error || 'Error desconocido'));
+        }
+      } else {
+        const error = await response.json();
+        alert('Error al procesar el pago: ' + (error.message || 'Error desconocido'));
+      }
+    } catch (error) {
+      console.error('Error al crear checkout:', error);
+      alert('Error de conexión. Intenta nuevamente.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -367,8 +403,16 @@ const NonSubscriberView: React.FC<{ metrics: any, historicalAlerts: any[] }> = (
               <button 
                 className={styles.subscribeButton}
                 onClick={handleSubscribe}
+                disabled={isProcessing}
               >
-                {session ? 'Suscribirme Ahora' : 'Iniciar Sesión y Suscribirme'}
+                {isProcessing ? (
+                  <>
+                    <Loader size={16} className={styles.spinner} />
+                    Procesando...
+                  </>
+                ) : (
+                  session ? 'Suscribirme Ahora - $25,000 ARS' : 'Iniciar Sesión y Suscribirme'
+                )}
               </button>
               <p className={styles.subscriptionNote}>
                 {!session && 'Si no tienes cuenta activa, la tenés que hacer primero antes de continuar'}
