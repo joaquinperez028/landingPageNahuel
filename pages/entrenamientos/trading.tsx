@@ -200,7 +200,9 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
     }
   };
 
-  const handleEnroll = () => {
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  const handleEnroll = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión primero para inscribirte');
       signIn('google');
@@ -213,7 +215,37 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
       return;
     }
     
-    setShowEnrollForm(true);
+    // Iniciar proceso de pago con MercadoPago
+    setIsProcessingPayment(true);
+    
+    try {
+      const response = await fetch('/api/payments/mercadopago/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          type: 'training',
+          service: 'TradingFundamentals',
+          amount: 497,
+          currency: 'USD'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        toast.error(data.error || 'Error al procesar el pago');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error al procesar el pago. Inténtalo nuevamente.');
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   const handleSubmitEnrollment = async (e: React.FormEvent) => {
@@ -332,15 +364,24 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
                   <button 
                     onClick={handleEnroll}
                     className={styles.enrollButton}
-                    disabled={checkingEnrollment}
+                    disabled={checkingEnrollment || isProcessingPayment}
                   >
-                    <Users size={20} />
-                    {checkingEnrollment 
-                      ? 'Verificando...' 
-                      : isEnrolled 
-                        ? 'Ir a las Lecciones' 
-                        : 'Inscribirme Ahora'
-                    }
+                    {isProcessingPayment ? (
+                      <>
+                        <Loader size={20} className={styles.spinner} />
+                        Procesando...
+                      </>
+                    ) : (
+                      <>
+                        <Users size={20} />
+                        {checkingEnrollment 
+                          ? 'Verificando...' 
+                          : isEnrolled 
+                            ? 'Ir a las Lecciones' 
+                            : 'Inscribirme Ahora - $497 USD'
+                        }
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

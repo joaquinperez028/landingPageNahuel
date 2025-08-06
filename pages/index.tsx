@@ -4,7 +4,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, TrendingUp, Users, Shield, Star, X, BookOpen, Clock, Award, ChevronLeft } from 'lucide-react';
+import { ChevronRight, TrendingUp, Users, Shield, Star, X, BookOpen, Clock, Award, ChevronLeft, Loader } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
@@ -222,6 +223,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // Hook para manejar la frecuencia del popup
   const { isVisible: showPopup, closePopupExtended } = usePopupFrequency({
@@ -256,6 +258,45 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
     }
 
     setIsSubmitting(false);
+  };
+
+  const handleMercadoPagoCheckout = async (type: 'subscription' | 'training', service: string, amount: number, currency: string) => {
+    if (!session) {
+      toast.error('Debes iniciar sesión primero');
+      signIn('google');
+      return;
+    }
+
+    setIsProcessingPayment(true);
+    
+    try {
+      const response = await fetch('/api/payments/mercadopago/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          type,
+          service,
+          amount,
+          currency
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        toast.error(data.error || 'Error al procesar el pago');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error al procesar el pago. Inténtalo nuevamente.');
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
   
 
@@ -413,10 +454,28 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                       <p className={styles.welcomeMessage}>
                         ¡Hola {session.user?.name}! Explora nuestros servicios
                       </p>
-                      <Link href="/alertas" className={styles.heroButton}>
-                        Ver Alertas
-                        <ChevronRight size={20} />
-                      </Link>
+                      <div className={styles.heroButtons}>
+                        <button 
+                          onClick={() => handleMercadoPagoCheckout('subscription', 'TraderCall', 15000, 'ARS')}
+                          className={styles.heroButton}
+                          disabled={isProcessingPayment}
+                        >
+                          {isProcessingPayment ? (
+                            <>
+                              <Loader size={20} className={styles.spinner} />
+                              Procesando...
+                            </>
+                          ) : (
+                            <>
+                              Suscribirse a Alertas - $15,000 ARS
+                              <ChevronRight size={20} />
+                            </>
+                          )}
+                        </button>
+                        <Link href="/entrenamientos" className={styles.heroButtonSecondary}>
+                          Ver Entrenamientos
+                        </Link>
+                      </div>
                     </>
                   ) : (
                     <button onClick={() => signIn('google')} className={styles.heroButton}>
@@ -573,9 +632,26 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                         />
                       </div>
                       
-                      <Link href="/alertas" className={styles.servicioButton}>
-                        Quiero hacer más &gt;
-                      </Link>
+                      {session ? (
+                        <button 
+                          onClick={() => handleMercadoPagoCheckout('subscription', 'TraderCall', 15000, 'ARS')}
+                          className={styles.servicioButton}
+                          disabled={isProcessingPayment}
+                        >
+                          {isProcessingPayment ? (
+                            <>
+                              <Loader size={16} className={styles.spinner} />
+                              Procesando...
+                            </>
+                          ) : (
+                            'Suscribirse - $15,000 ARS'
+                          )}
+                        </button>
+                      ) : (
+                        <Link href="/alertas" className={styles.servicioButton}>
+                          Quiero hacer más &gt;
+                        </Link>
+                      )}
                     </div>
                   </motion.div>
 
@@ -604,9 +680,26 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                         />
                       </div>
                       
-                      <Link href="/entrenamientos" className={styles.servicioButton}>
-                        Quiero hacer más &gt;
-                      </Link>
+                      {session ? (
+                        <button 
+                          onClick={() => handleMercadoPagoCheckout('training', 'TradingFundamentals', 497, 'USD')}
+                          className={styles.servicioButton}
+                          disabled={isProcessingPayment}
+                        >
+                          {isProcessingPayment ? (
+                            <>
+                              <Loader size={16} className={styles.spinner} />
+                              Procesando...
+                            </>
+                          ) : (
+                            'Inscribirse - $497 USD'
+                          )}
+                        </button>
+                      ) : (
+                        <Link href="/entrenamientos" className={styles.servicioButton}>
+                          Quiero hacer más &gt;
+                        </Link>
+                      )}
                     </div>
                   </motion.div>
 
@@ -1114,9 +1207,20 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
               
               <div className={styles.ctaInvestmentActions}>
                 {session ? (
-                  <Link href="/alertas" className={styles.ctaInvestmentButtonPrimary}>
-                    Comenzar ahora
-                  </Link>
+                  <button 
+                    onClick={() => handleMercadoPagoCheckout('subscription', 'TraderCall', 15000, 'ARS')}
+                    className={styles.ctaInvestmentButtonPrimary}
+                    disabled={isProcessingPayment}
+                  >
+                    {isProcessingPayment ? (
+                      <>
+                        <Loader size={20} className={styles.spinner} />
+                        Procesando...
+                      </>
+                    ) : (
+                      'Suscribirse a Alertas - $15,000 ARS'
+                    )}
+                  </button>
                 ) : (
                   <button 
                     onClick={() => signIn('google')} 
