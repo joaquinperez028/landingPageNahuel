@@ -22,9 +22,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Verificar si es admin
     const adminUser = await User.findOne({ email: session.user.email });
-    if (!adminUser || !adminUser.isAdmin) {
+    if (!adminUser || adminUser.role !== 'admin') {
+      console.log('❌ [PAYMENTS] Acceso denegado:', {
+        email: session.user.email,
+        userFound: !!adminUser,
+        userRole: adminUser?.role,
+        isAdmin: adminUser?.role === 'admin'
+      });
       return res.status(403).json({ error: 'Acceso denegado' });
     }
+    
+    console.log('✅ [PAYMENTS] Acceso de admin confirmado:', session.user.email);
 
     // Obtener todos los pagos
     const payments = await Payment.find({})

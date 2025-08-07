@@ -103,7 +103,7 @@ PaymentSchema.index({ service: 1 });
 PaymentSchema.index({ status: 1 });
 // Comentado temporalmente para evitar conflictos con valores null
 // PaymentSchema.index({ mercadopagoPaymentId: 1 }, { sparse: true });
-PaymentSchema.index({ externalReference: 1 });
+// externalReference ya tiene unique: true en el schema, no necesita índice manual
 PaymentSchema.index({ transactionDate: -1 });
 PaymentSchema.index({ expiryDate: 1 });
 PaymentSchema.index({ 'metadata.service': 1, status: 1 });
