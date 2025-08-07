@@ -2998,7 +2998,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       const user = await User.findOne({ email: session.user.email });
       
       if (user) {
-        // Verificar si tiene suscripción activa a CashFlow
+        // Verificar si tiene suscripción activa a CashFlow usando el nuevo sistema de MercadoPago
+        const activeSubscription = user.activeSubscriptions?.find(
+          (sub: any) => 
+            sub.service === 'CashFlow' && 
+            sub.isActive === true && 
+            new Date(sub.expiryDate) > new Date()
+        );
+        
+        // También verificar en los arrays antiguos por compatibilidad
         const suscripcionActiva = user.suscripciones?.find(
           (sub: any) => 
             sub.servicio === 'CashFlow' && 
@@ -3006,7 +3014,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             new Date(sub.fechaVencimiento) > new Date()
         );
         
-        // También verificar en el array alternativo
         const subscriptionActiva = user.subscriptions?.find(
           (sub: any) => 
             sub.tipo === 'CashFlow' && 
@@ -3014,7 +3021,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             (!sub.fechaFin || new Date(sub.fechaFin) > new Date())
         );
 
-        isSubscribed = !!(suscripcionActiva || subscriptionActiva);
+        // Verificar cualquiera de los tres sistemas
+        isSubscribed = !!(activeSubscription || suscripcionActiva || subscriptionActiva);
+        
+        console.log('🔍 [CASH-FLOW] Verificación de acceso:', {
+          email: user.email,
+          activeSubscriptions: user.activeSubscriptions?.length || 0,
+          activeSubscription: !!activeSubscription,
+          suscripcionActiva: !!suscripcionActiva,
+          subscriptionActiva: !!subscriptionActiva,
+          finalResult: isSubscribed
+        });
       }
     }
   } catch (error) {
