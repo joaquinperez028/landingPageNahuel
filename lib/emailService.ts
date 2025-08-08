@@ -327,6 +327,23 @@ export function createEmailTemplate({
                 overflow: hidden;
             }
             
+            .logo-container {
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .logo {
+                max-width: 120px;
+                height: auto;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+                background: rgba(255, 255, 255, 0.1);
+                padding: 8px;
+                backdrop-filter: blur(10px);
+            }
+            
             .header h1 {
                 color: #00ff88;
                 margin: 0 0 8px 0;
@@ -464,6 +481,10 @@ export function createEmailTemplate({
                     padding: 30px 20px;
                 }
                 
+                .logo {
+                    max-width: 100px;
+                }
+                
                 .header h1 {
                     font-size: 24px;
                 }
@@ -500,6 +521,12 @@ export function createEmailTemplate({
     <body>
         <div class="email-container">
             <div class="header">
+                <div class="logo-container">
+                    <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/LOGOTIPO NARANJA SIN FONDO.png" 
+                         alt="Nahuel Lozano Trading" 
+                         class="logo"
+                         style="max-width: 120px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3); background: rgba(255, 255, 255, 0.1); padding: 8px; backdrop-filter: blur(10px);">
+                </div>
                 <h1>Nahuel Lozano</h1>
                 <p class="subtitle">Trading & Investment Platform</p>
             </div>
@@ -591,7 +618,7 @@ export function generateReportEmailTemplate(
     </div>
   ` : '';
 
-  return createEmailTemplate({
+  return createNotificationEmailTemplate({
     title: `${notification.icon} ${notification.title}`,
     content: `
       <div style="text-align: center; margin-bottom: 30px;">
@@ -655,6 +682,8 @@ export function generateReportEmailTemplate(
         </div>
       </div>
     `,
+    notificationType: 'info',
+    urgency: 'normal',
     buttonText: notification.actionText || 'Leer Informe',
     buttonUrl: notification.actionUrl ? `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}${notification.actionUrl}` : undefined
   });
@@ -703,7 +732,7 @@ export function generateAlertEmailTemplate(
     </div>
   ` : '';
 
-  return createEmailTemplate({
+  return createNotificationEmailTemplate({
     title: `${notification.icon} ${notification.title}`,
     content: `
       <div style="text-align: center; margin-bottom: 25px;">
@@ -735,6 +764,8 @@ export function generateAlertEmailTemplate(
         </p>
       </div>
     `,
+    notificationType: 'alert',
+    urgency: 'high',
     buttonText: notification.actionText || 'Ver Detalles',
     buttonUrl: notification.actionUrl ? `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}${notification.actionUrl}` : undefined
   });
@@ -1012,4 +1043,344 @@ export function createPromotionalEmailTemplate({
     buttonText: buttonText || 'Aprovechar Oferta',
     buttonUrl: buttonUrl || `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}`
   });
+} 
+
+/**
+ * Plantilla específica para notificaciones con logo prominente
+ */
+export function createNotificationEmailTemplate({
+  title,
+  content,
+  notificationType = 'info',
+  buttonText,
+  buttonUrl,
+  urgency = 'normal'
+}: {
+  title: string;
+  content: string;
+  notificationType?: 'info' | 'alert' | 'success' | 'warning';
+  buttonText?: string;
+  buttonUrl?: string;
+  urgency?: 'low' | 'normal' | 'high';
+}): string {
+  const urgencyColors = {
+    low: '#10b981',
+    normal: '#3b82f6', 
+    high: '#ef4444'
+  };
+
+  const typeIcons = {
+    info: '📊',
+    alert: '🚨',
+    success: '✅',
+    warning: '⚠️'
+  };
+
+  return `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${title}</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                line-height: 1.6;
+                color: #2d3748;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                margin: 0;
+                padding: 20px;
+                min-height: 100vh;
+            }
+            
+            .email-container {
+                max-width: 600px;
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            
+            .header {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                padding: 40px 30px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .logo-container {
+                margin-bottom: 25px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .logo {
+                max-width: 140px;
+                height: auto;
+                border-radius: 16px;
+                box-shadow: 0 12px 30px rgba(0, 255, 136, 0.4);
+                background: rgba(255, 255, 255, 0.15);
+                padding: 12px;
+                backdrop-filter: blur(15px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            
+            .notification-badge {
+                display: inline-block;
+                background: ${urgencyColors[urgency]};
+                color: white;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 15px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
+            
+            .header h1 {
+                color: #00ff88;
+                margin: 0 0 8px 0;
+                font-size: 32px;
+                font-weight: 700;
+                letter-spacing: -0.025em;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .header .subtitle {
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 16px;
+                font-weight: 500;
+                margin: 0;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .content {
+                padding: 40px 30px;
+            }
+            
+            .content h2 {
+                color: #1a202c;
+                font-size: 28px;
+                font-weight: 700;
+                margin: 0 0 20px 0;
+                text-align: center;
+            }
+            
+            .message-content {
+                color: #4a5568;
+                font-size: 16px;
+                line-height: 1.8;
+                margin-bottom: 30px;
+            }
+            
+            .message-content p {
+                margin: 0 0 16px 0;
+            }
+            
+            .cta-section {
+                text-align: center;
+                margin: 30px 0;
+            }
+            
+            .cta-button {
+                display: inline-block;
+                background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+                color: #000;
+                text-decoration: none;
+                padding: 16px 32px;
+                border-radius: 50px;
+                font-weight: 700;
+                font-size: 16px;
+                letter-spacing: 0.025em;
+                transition: all 0.3s ease;
+                box-shadow: 0 8px 15px rgba(0, 255, 136, 0.3);
+            }
+            
+            .cta-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 20px rgba(0, 255, 136, 0.4);
+            }
+            
+            .divider {
+                height: 1px;
+                background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
+                margin: 30px 0;
+            }
+            
+            .footer {
+                background: #f8fafc;
+                padding: 30px;
+                text-align: center;
+                border-top: 1px solid #e2e8f0;
+            }
+            
+            .footer p {
+                color: #64748b;
+                font-size: 14px;
+                margin: 0 0 10px 0;
+            }
+            
+            .social-links {
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+                margin: 20px 0;
+            }
+            
+            .social-link {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 48px;
+                height: 48px;
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 50%;
+                font-size: 18px;
+                transition: all 0.3s ease;
+            }
+            
+            .social-link:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3);
+            }
+            
+            .disclaimer {
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 1px solid #e2e8f0;
+            }
+            
+            .disclaimer p {
+                font-size: 12px;
+                color: #9ca3af;
+                margin: 0 0 8px 0;
+            }
+            
+            .disclaimer a {
+                color: #3b82f6;
+                text-decoration: none;
+            }
+            
+            @media only screen and (max-width: 600px) {
+                body {
+                    padding: 10px;
+                }
+                
+                .header {
+                    padding: 30px 20px;
+                }
+                
+                .logo {
+                    max-width: 120px;
+                }
+                
+                .header h1 {
+                    font-size: 24px;
+                }
+                
+                .content {
+                    padding: 30px 20px;
+                }
+                
+                .content h2 {
+                    font-size: 22px;
+                }
+                
+                .cta-button {
+                    padding: 14px 28px;
+                    font-size: 14px;
+                }
+                
+                .social-links {
+                    gap: 12px;
+                }
+                
+                .social-link {
+                    width: 44px;
+                    height: 44px;
+                    font-size: 16px;
+                }
+                
+                .footer {
+                    padding: 25px 20px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <div class="logo-container">
+                    <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/LOGOTIPO NARANJA SIN FONDO.png" 
+                         alt="Nahuel Lozano Trading" 
+                         class="logo"
+                         style="max-width: 140px; height: auto; border-radius: 16px; box-shadow: 0 12px 30px rgba(0, 255, 136, 0.4); background: rgba(255, 255, 255, 0.15); padding: 12px; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2);">
+                </div>
+                <div class="notification-badge">
+                    ${typeIcons[notificationType]} ${notificationType.toUpperCase()}
+                </div>
+                <h1>Nahuel Lozano</h1>
+                <p class="subtitle">Trading & Investment Platform</p>
+            </div>
+            
+            <div class="content">
+                <h2>${title}</h2>
+                <div class="message-content">
+                    ${content.split('\n').map(paragraph => 
+                        paragraph.trim() ? `<p>${paragraph}</p>` : ''
+                    ).join('')}
+                </div>
+                
+                ${buttonText && buttonUrl ? `
+                    <div class="cta-section">
+                        <a href="${buttonUrl}" class="cta-button">${buttonText}</a>
+                    </div>
+                ` : ''}
+                
+                <div class="divider"></div>
+                
+                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <p style="margin: 0; color: #4a5568; font-size: 14px;">
+                        <strong>💡 Consejo:</strong> Mantente actualizado con las últimas estrategias de trading y análisis de mercado visitando nuestra plataforma regularmente.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p><strong>Este email fue enviado desde la plataforma de Nahuel Lozano</strong></p>
+                <p>Tu fuente confiable para estrategias de trading e inversión</p>
+                
+                <div class="social-links">
+                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}" class="social-link" title="Sitio Web">🌐</a>
+                    <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}" class="social-link" title="Email">📧</a>
+                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/alertas" class="social-link" title="Alertas">📊</a>
+                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/recursos" class="social-link" title="Recursos">📚</a>
+                </div>
+                
+                <div class="disclaimer">
+                    <p>Si tienes preguntas, contáctanos en: <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}">${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}</a></p>
+                    <p>© ${new Date().getFullYear()} Nahuel Lozano Trading Platform. Todos los derechos reservados.</p>
+                    <p>Este email fue enviado porque eres parte de nuestra comunidad de trading. Si no deseas recibir más emails, <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil">puedes gestionar tus preferencias aquí</a>.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
 } 

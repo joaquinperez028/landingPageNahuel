@@ -1,6 +1,9 @@
 // Plantillas de email sin dependencias de servidor para preview
 // Estas son versiones separadas para evitar problemas de compilación en el cliente
 
+// Importar la función de notificaciones
+import { createNotificationEmailTemplate } from './emailService';
+
 // Plantilla HTML mejorada para emails
 export function createEmailTemplate({
   title,
@@ -45,6 +48,21 @@ export function createEmailTemplate({
                 color: white;
                 padding: 40px 30px;
                 text-align: center;
+            }
+            .logo-container {
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .logo {
+                max-width: 120px;
+                height: auto;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+                background: rgba(255, 255, 255, 0.1);
+                padding: 8px;
+                backdrop-filter: blur(10px);
             }
             .header h1 {
                 margin: 0;
@@ -189,6 +207,9 @@ export function createEmailTemplate({
                 .header {
                     padding: 30px 20px;
                 }
+                .logo {
+                    max-width: 100px;
+                }
                 .header h1 {
                     font-size: 24px;
                 }
@@ -212,6 +233,12 @@ export function createEmailTemplate({
     <body>
         <div class="container">
             <div class="header">
+                <div class="logo-container">
+                    <img src="https://lozanonahuel.vercel.app/logos/LOGOTIPO NARANJA SIN FONDO.png" 
+                         alt="Nahuel Lozano Trading" 
+                         class="logo"
+                         style="max-width: 120px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3); background: rgba(255, 255, 255, 0.1); padding: 8px; backdrop-filter: blur(10px);">
+                </div>
                 <h1>📈 Nahuel Lozano</h1>
                 <p>Trading & Estrategias de Inversión</p>
             </div>
@@ -420,161 +447,55 @@ export function createSubscriptionExpiryWarningTemplate({
   const urgencyColor = daysLeft === 1 ? '#dc2626' : '#f59e0b';
   const urgencyText = daysLeft === 1 ? 'URGENTE' : 'IMPORTANTE';
   
-  return `
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tu suscripción vence pronto</title>
-        <style>
-            body {
-                margin: 0;
-                padding: 0;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                line-height: 1.6;
-                color: #333;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-            }
-            .container {
-                max-width: 600px;
-                margin: 0 auto;
-                background: #ffffff;
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-                margin-top: 20px;
-                margin-bottom: 20px;
-            }
-            .header {
-                background: linear-gradient(135deg, ${urgencyColor} 0%, #dc2626 100%);
-                color: white;
-                padding: 40px 30px;
-                text-align: center;
-            }
-            .header h1 {
-                margin: 0;
-                font-size: 28px;
-                font-weight: 700;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            }
-            .urgency-badge {
-                display: inline-block;
-                background: rgba(255,255,255,0.2);
-                padding: 8px 16px;
-                border-radius: 20px;
-                font-size: 14px;
-                font-weight: 600;
-                margin-top: 10px;
-            }
-            .content {
-                padding: 40px 30px;
-            }
-            .message-content {
-                font-size: 16px;
-                line-height: 1.8;
-                color: #4a5568;
-                margin-bottom: 30px;
-            }
-            .service-highlight {
-                background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-                border-left: 4px solid ${urgencyColor};
-                padding: 20px;
-                border-radius: 8px;
-                margin: 20px 0;
-            }
-            .service-highlight h3 {
-                margin: 0 0 10px 0;
-                color: #92400e;
-                font-size: 18px;
-            }
-            .service-highlight p {
-                margin: 0;
-                color: #78350f;
-                font-weight: 500;
-            }
-            .cta-section {
-                text-align: center;
-                margin: 30px 0;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, ${urgencyColor} 0%, #dc2626 100%);
-                color: white;
-                text-decoration: none;
-                padding: 15px 30px;
-                border-radius: 8px;
-                font-weight: 600;
-                font-size: 16px;
-                box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
-                transition: transform 0.2s ease;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
-            }
-            .footer {
-                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-                padding: 35px 30px;
-                text-align: center;
-                color: #64748b;
-                font-size: 14px;
-            }
-            .footer a {
-                color: #667eea;
-                text-decoration: none;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>⚠️ Tu suscripción vence pronto</h1>
-                <div class="urgency-badge">${urgencyText}</div>
-            </div>
-            
-            <div class="content">
-                <div class="message-content">
-                    <p>Hola <strong>${userName}</strong>,</p>
-                    
-                    <p>Te escribimos para recordarte que tu suscripción está por vencer:</p>
-                    
-                    <div class="service-highlight">
-                        <h3>${serviceName}</h3>
-                        <p><strong>Vence:</strong> ${expiryDate}</p>
-                        <p><strong>Días restantes:</strong> ${daysLeft} ${daysLeft === 1 ? 'día' : 'días'}</p>
-                    </div>
-                    
-                    <p>${daysLeft === 1 
-                        ? '¡Mañana perderás el acceso a este servicio! No dejes que tu suscripción expire.' 
-                        : `En ${daysLeft} días perderás el acceso a este servicio. Renueva ahora para mantener tu acceso ininterrumpido.`
-                    }</p>
-                    
-                    <p>Al renovar tu suscripción, mantendrás acceso a:</p>
-                    <ul>
-                        <li>Contenido premium exclusivo</li>
-                        <li>Alertas en tiempo real</li>
-                        <li>Análisis detallados del mercado</li>
-                        <li>Soporte prioritario</li>
-                    </ul>
-                </div>
-                
-                <div class="cta-section">
-                    <a href="${renewalUrl}" class="cta-button">
-                        🔄 Renovar Suscripción
-                    </a>
-                </div>
-            </div>
-            
-            <div class="footer">
-                <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
-                <p>© 2024 Nahuel Lozano - Todos los derechos reservados</p>
-            </div>
-        </div>
-    </body>
-    </html>
+  const emailContent = `
+    <div style="text-align: center; margin-bottom: 25px;">
+      <h2 style="margin: 0 0 10px; font-size: 20px; color: #1e293b; font-weight: 600;">
+        ¡Hola ${userName}! 👋
+      </h2>
+      <p style="margin: 0; font-size: 16px; color: #64748b;">
+        Tu suscripción está próxima a vencer.
+      </p>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid ${urgencyColor}; padding: 20px; border-radius: 8px; margin: 20px 0;">
+      <h3 style="margin: 0 0 10px; color: #92400e; font-size: 18px;">
+        ⚠️ ${urgencyText}: Tu suscripción vence pronto
+      </h3>
+      <p style="margin: 0; color: #78350f; font-weight: 500;">
+        Tu suscripción a <strong>${serviceName}</strong> vence el <strong>${expiryDate}</strong>.
+      </p>
+      <p style="margin: 10px 0 0; color: #78350f; font-weight: 500;">
+        Te quedan <strong>${daysLeft} ${daysLeft === 1 ? 'día' : 'días'}</strong> para renovar.
+      </p>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin: 25px 0; border-left: 4px solid #00ff88;">
+      <h3 style="margin: 0 0 15px; font-size: 18px; color: #1e293b; font-weight: 600;">
+        💡 ¿Por qué renovar?
+      </h3>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; line-height: 1.6;">
+        <li style="margin-bottom: 8px;">Mantén acceso a todas las alertas y análisis</li>
+        <li style="margin-bottom: 8px;">No pierdas las estrategias exclusivas</li>
+        <li style="margin-bottom: 8px;">Continúa con tu desarrollo profesional</li>
+        <li>Evita interrupciones en tu trading</li>
+      </ul>
+    </div>
+    
+    <div style="background-color: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 15px; margin: 25px 0;">
+      <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 500;">
+        ⏰ <strong>Acción Requerida:</strong> Renueva tu suscripción antes de que expire para mantener acceso continuo.
+      </p>
+    </div>
   `;
+
+  return createNotificationEmailTemplate({
+    title: `⚠️ Tu suscripción a ${serviceName} vence pronto`,
+    content: emailContent,
+    notificationType: 'warning',
+    urgency: daysLeft === 1 ? 'high' : 'normal',
+    buttonText: 'Renovar Suscripción',
+    buttonUrl: renewalUrl
+  });
 }
 
 export function createSubscriptionExpiredTemplate({
@@ -588,143 +509,50 @@ export function createSubscriptionExpiredTemplate({
   expiryDate: string;
   renewalUrl: string;
 }) {
-  return `
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tu suscripción ha expirado</title>
-        <style>
-            body {
-                margin: 0;
-                padding: 0;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                line-height: 1.6;
-                color: #333;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-            }
-            .container {
-                max-width: 600px;
-                margin: 0 auto;
-                background: #ffffff;
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-                margin-top: 20px;
-                margin-bottom: 20px;
-            }
-            .header {
-                background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-                color: white;
-                padding: 40px 30px;
-                text-align: center;
-            }
-            .header h1 {
-                margin: 0;
-                font-size: 28px;
-                font-weight: 700;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            }
-            .content {
-                padding: 40px 30px;
-            }
-            .message-content {
-                font-size: 16px;
-                line-height: 1.8;
-                color: #4a5568;
-                margin-bottom: 30px;
-            }
-            .service-highlight {
-                background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-                border-left: 4px solid #dc2626;
-                padding: 20px;
-                border-radius: 8px;
-                margin: 20px 0;
-            }
-            .service-highlight h3 {
-                margin: 0 0 10px 0;
-                color: #991b1b;
-                font-size: 18px;
-            }
-            .service-highlight p {
-                margin: 0;
-                color: #7f1d1d;
-                font-weight: 500;
-            }
-            .cta-section {
-                text-align: center;
-                margin: 30px 0;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-                color: white;
-                text-decoration: none;
-                padding: 15px 30px;
-                border-radius: 8px;
-                font-weight: 600;
-                font-size: 16px;
-                box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
-                transition: transform 0.2s ease;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
-            }
-            .footer {
-                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-                padding: 35px 30px;
-                text-align: center;
-                color: #64748b;
-                font-size: 14px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>❌ Tu suscripción ha expirado</h1>
-            </div>
-            
-            <div class="content">
-                <div class="message-content">
-                    <p>Hola <strong>${userName}</strong>,</p>
-                    
-                    <p>Tu suscripción ha expirado y ya no tienes acceso al servicio:</p>
-                    
-                    <div class="service-highlight">
-                        <h3>${serviceName}</h3>
-                        <p><strong>Expiró el:</strong> ${expiryDate}</p>
-                    </div>
-                    
-                    <p>Para recuperar el acceso a todo el contenido premium, necesitas renovar tu suscripción.</p>
-                    
-                    <p>Al renovar, recuperarás acceso a:</p>
-                    <ul>
-                        <li>Contenido premium exclusivo</li>
-                        <li>Alertas en tiempo real</li>
-                        <li>Análisis detallados del mercado</li>
-                        <li>Soporte prioritario</li>
-                    </ul>
-                    
-                    <p><strong>¡No te pierdas las próximas oportunidades del mercado!</strong></p>
-                </div>
-                
-                <div class="cta-section">
-                    <a href="${renewalUrl}" class="cta-button">
-                        🔄 Renovar Suscripción
-                    </a>
-                </div>
-            </div>
-            
-            <div class="footer">
-                <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
-                <p>© 2024 Nahuel Lozano - Todos los derechos reservados</p>
-            </div>
-        </div>
-    </body>
-    </html>
+  const emailContent = `
+    <div style="text-align: center; margin-bottom: 25px;">
+      <h2 style="margin: 0 0 10px; font-size: 20px; color: #1e293b; font-weight: 600;">
+        ¡Hola ${userName}! 👋
+      </h2>
+      <p style="margin: 0; font-size: 16px; color: #64748b;">
+        Tu suscripción ha expirado.
+      </p>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left: 4px solid #dc2626; padding: 20px; border-radius: 8px; margin: 20px 0;">
+      <h3 style="margin: 0 0 10px; color: #991b1b; font-size: 18px;">
+        ❌ Tu suscripción ha expirado
+      </h3>
+      <p style="margin: 0; color: #7f1d1d; font-weight: 500;">
+        Tu suscripción a <strong>${serviceName}</strong> expiró el <strong>${expiryDate}</strong>.
+      </p>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin: 25px 0; border-left: 4px solid #00ff88;">
+      <h3 style="margin: 0 0 15px; font-size: 18px; color: #1e293b; font-weight: 600;">
+        💡 ¿Por qué renovar?
+      </h3>
+      <ul style="margin: 0; padding-left: 20px; color: #374151; line-height: 1.6;">
+        <li style="margin-bottom: 8px;">Recupera acceso a todas las alertas y análisis</li>
+        <li style="margin-bottom: 8px;">No pierdas las estrategias exclusivas</li>
+        <li style="margin-bottom: 8px;">Continúa con tu desarrollo profesional</li>
+        <li>Evita interrupciones en tu trading</li>
+      </ul>
+    </div>
+    
+    <div style="background-color: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 15px; margin: 25px 0;">
+      <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 500;">
+        ⚡ <strong>Acción Requerida:</strong> Renueva tu suscripción para recuperar acceso inmediato.
+      </p>
+    </div>
   `;
+
+  return createNotificationEmailTemplate({
+    title: `❌ Tu suscripción a ${serviceName} ha expirado`,
+    content: emailContent,
+    notificationType: 'alert',
+    urgency: 'high',
+    buttonText: 'Renovar Suscripción',
+    buttonUrl: renewalUrl
+  });
 } 

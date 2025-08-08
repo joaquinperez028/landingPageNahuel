@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/googleAuth';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import { sendEmail } from '@/lib/emailService';
+import { sendEmail, createNotificationEmailTemplate } from '@/lib/emailService';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -49,40 +49,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const serviceName = serviceNames[service] || service;
 
-    // Crear contenido del email
+    // Crear contenido del email usando la nueva plantilla con logo
     const emailSubject = `Recordatorio: Tu suscripción a ${serviceName}`;
-    const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">¡Hola ${user.name}!</h1>
-        </div>
-        
-        <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <h2 style="color: #333; margin-top: 0;">Recordatorio sobre tu suscripción</h2>
-          
-          <p style="color: #666; font-size: 16px; line-height: 1.6;">
-            Te escribimos para recordarte sobre tu suscripción a <strong>${serviceName}</strong>.
-          </p>
-          
-          <p style="color: #666; font-size: 16px; line-height: 1.6;">
-            Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos. Estamos aquí para ayudarte.
-          </p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.NEXTAUTH_URL}/perfil" 
-               style="background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;">
-              Ver Mi Perfil
-            </a>
-          </div>
-          
-          <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
-            <p style="color: #999; font-size: 14px; margin: 0;">
-              Este es un recordatorio automático enviado por el administrador.
-            </p>
-          </div>
-        </div>
+    
+    const emailContent = `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="margin: 0 0 10px; font-size: 20px; color: #1e293b; font-weight: 600;">
+          ¡Hola ${user.name}! 👋
+        </h2>
+        <p style="margin: 0; font-size: 16px; color: #64748b;">
+          Te escribimos para recordarte sobre tu suscripción.
+        </p>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin: 25px 0; border-left: 4px solid #00ff88;">
+        <h3 style="margin: 0 0 15px; font-size: 18px; color: #1e293b; font-weight: 600;">
+          📋 Recordatorio de Suscripción
+        </h3>
+        <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6;">
+          Te recordamos que tienes una suscripción activa a <strong>${serviceName}</strong>.
+        </p>
+        <p style="margin: 15px 0 0; font-size: 16px; color: #374151; line-height: 1.6;">
+          Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos. Estamos aquí para ayudarte.
+        </p>
+      </div>
+      
+      <div style="background-color: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 15px; margin: 25px 0;">
+        <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 500;">
+          💡 <strong>Consejo:</strong> Revisa tu perfil regularmente para mantener tus suscripciones actualizadas.
+        </p>
       </div>
     `;
+
+    const emailHtml = createNotificationEmailTemplate({
+      title: `⏰ Recordatorio - ${serviceName}`,
+      content: emailContent,
+      notificationType: 'warning',
+      urgency: 'normal',
+      buttonText: 'Ver Mi Perfil',
+      buttonUrl: `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil`
+    });
 
     // Enviar email
     await sendEmail({
