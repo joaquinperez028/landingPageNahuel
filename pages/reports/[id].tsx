@@ -10,7 +10,7 @@ import {
   ArrowLeft,
   Calendar,
   Clock,
-  User,
+  User as UserIcon,
   Eye,
   Download,
   Share2,
@@ -21,12 +21,14 @@ import {
 import styles from '@/styles/ReportView.module.css';
 import dbConnect from '@/lib/mongodb';
 import Report from '@/models/Report';
+import User from '@/models/User';
 
 interface ReportData {
   _id: string;
   title: string;
   content: string;
   author: {
+    _id: string;
     name: string;
     email: string;
     image?: string;
@@ -53,10 +55,10 @@ interface ReportData {
 
 interface ReportViewProps {
   report: ReportData;
-  user: any;
+  currentUser: any;
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ report, user }) => {
+const ReportView: React.FC<ReportViewProps> = ({ report, currentUser }) => {
   const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -148,10 +150,10 @@ const ReportView: React.FC<ReportViewProps> = ({ report, user }) => {
 
               {/* Meta información */}
               <div className={styles.metaInfo}>
-                <div className={styles.metaItem}>
-                  <User size={16} />
-                  <span>{report.author.name}</span>
-                </div>
+                               <div className={styles.metaItem}>
+                 <UserIcon size={16} />
+                 <span>{report.author.name}</span>
+               </div>
                 <div className={styles.metaItem}>
                   <Calendar size={16} />
                   <span>{formatDate(report.publishedAt)}</span>
@@ -376,7 +378,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         report: processedReport,
-        user: session.user,
+        currentUser: session.user,
       },
     };
   } catch (error) {
