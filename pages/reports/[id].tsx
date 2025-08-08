@@ -19,8 +19,10 @@ import {
   FileText
 } from 'lucide-react';
 import styles from '@/styles/ReportView.module.css';
+import dbConnect from '@/lib/mongodb';
+import Report from '@/models/Report';
 
-interface Report {
+interface ReportData {
   _id: string;
   title: string;
   content: string;
@@ -50,7 +52,7 @@ interface Report {
 }
 
 interface ReportViewProps {
-  report: Report;
+  report: ReportData;
   user: any;
 }
 
@@ -289,29 +291,91 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
-    // Obtener el informe desde la API
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/reports/${id}`, {
-      headers: {
-        Cookie: context.req.headers.cookie || '',
-      },
-    });
+    // Obtener el informe directamente desde la base de datos para evitar problemas de fetch
+    await dbConnect();
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        return {
-          notFound: true,
-        };
-      }
-      throw new Error('Error al obtener el informe');
+    const reportDoc = await Report.findById(id)
+      .populate('author', 'name email image')
+      .lean() as any;
+
+    if (!reportDoc) {
+      return {
+        notFound: true,
+      };
     }
 
-    const data = await response.json();
-    const report = data.report;
+    // Verificar que el informe esté publicado
+    if (!reportDoc.isPublished) {
+      return {
+        notFound: true,
+      };
+    }
+
+    // Procesar informe para incluir URLs optimizadas de Cloudinary
+    let optimizedImageUrl = null;
+    if (reportDoc.coverImage?.public_id) {
+      try {
+        const { getCloudinaryImageUrl } = await import('@/lib/cloudinary');
+        optimizedImageUrl = getCloudinaryImageUrl(reportDoc.coverImage.public_id, {
+          width: 800,
+          height: 600,
+          crop: 'fill',
+          format: 'webp'
+        });
+      } catch (error) {
+        console.log('Error procesando imagen de portada:', error);
+      }
+    }
+
+    // Generar URLs optimizadas para imágenes adicionales
+    let optimizedImages: any[] = [];
+    if (reportDoc.images && reportDoc.images.length > 0) {
+      try {
+        const { getCloudinaryImageUrl } = await import('@/lib/cloudinary');
+        optimizedImages = reportDoc.images
+          .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+          .map((img: any) => ({
+            ...img,
+            optimizedUrl: getCloudinaryImageUrl(img.public_id, {
+              width: 800,
+              height: 600,
+              crop: 'fill',
+              format: 'webp'
+            }),
+            thumbnailUrl: getCloudinaryImageUrl(img.public_id, {
+              width: 300,
+              height: 200,
+              crop: 'fill',
+              format: 'webp'
+            })
+          }));
+      } catch (error) {
+        console.log('Error procesando imágenes adicionales:', error);
+        optimizedImages = reportDoc.images || [];
+      }
+    }
+
+    const processedReport = {
+      ...reportDoc,
+      _id: reportDoc._id.toString(),
+      author: {
+        ...reportDoc.author,
+        _id: reportDoc.author._id.toString()
+      },
+      // URL de portada optimizada
+      coverImage: reportDoc.coverImage ? {
+        ...reportDoc.coverImage,
+        optimizedUrl: optimizedImageUrl
+      } : null,
+      // Imágenes adicionales optimizadas
+      images: optimizedImages,
+      // Calcular tiempo de lectura estimado
+      readTime: Math.ceil((reportDoc.content?.length || 0) / 1000) || 1
+    };
 
     return {
       props: {
-        report,
+        report: processedReport,
         user: session.user,
       },
     };
