@@ -5,7 +5,7 @@ const https = require('https');
 
 // Configuración
 const DOMAIN = 'lozanonahuel.vercel.app'; // Cambiar por tu dominio
-const CRON_SECRET_TOKEN = 'test_token_123'; // Cambiar por tu token real
+const CRON_SECRET_TOKEN = 'cron_mp_2024_xyz_789_abc_def_ghi_jkl_mno_pqr_stu_vwx_yz'; // Token real configurado en Vercel
 
 // Función para hacer la petición POST
 function testCronEndpoint() {
