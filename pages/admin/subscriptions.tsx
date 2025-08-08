@@ -77,6 +77,11 @@ export default function AdminSubscriptionsPage() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+  const [notificationStats, setNotificationStats] = useState<{
+    pendingNotifications: number;
+    lastProcessed: string | null;
+  } | null>(null);
+  const [processingNotifications, setProcessingNotifications] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -98,6 +103,21 @@ export default function AdminSubscriptionsPage() {
       // Fetch payments
       const paymentsResponse = await fetch('/api/admin/payments');
       const paymentsData = await paymentsResponse.json();
+      
+      if (paymentsData.success) {
+        setPayments(paymentsData.payments);
+      }
+
+      // Fetch notification stats
+      const notificationsResponse = await fetch('/api/admin/subscription-notifications');
+      const notificationsData = await notificationsResponse.json();
+      
+      if (notificationsData.success) {
+        setNotificationStats({
+          pendingNotifications: notificationsData.total,
+          lastProcessed: null // Se actualizará cuando se procesen
+        });
+      }
       
       if (paymentsData.success) {
         setPayments(paymentsData.payments);
@@ -205,6 +225,63 @@ export default function AdminSubscriptionsPage() {
       }
     } catch (error) {
       toast.error('Error enviando email de recordatorio');
+    }
+  };
+
+  const processNotifications = async () => {
+    try {
+      setProcessingNotifications(true);
+      
+      const response = await fetch('/api/admin/subscription-notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'process' }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(`Notificaciones procesadas: ${data.result.warningsSent} advertencias, ${data.result.expiredSent} expiradas`);
+        setNotificationStats({
+          pendingNotifications: 0,
+          lastProcessed: new Date().toLocaleString('es-AR')
+        });
+        
+        // Recargar datos
+        await fetchData();
+      } else {
+        toast.error('Error al procesar notificaciones');
+      }
+    } catch (error) {
+      console.error('Error processing notifications:', error);
+      toast.error('Error al procesar notificaciones');
+    } finally {
+      setProcessingNotifications(false);
+    }
+  };
+
+  const cleanupNotifications = async () => {
+    try {
+      const response = await fetch('/api/admin/subscription-notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'cleanup' }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(`${data.deletedCount} notificaciones antiguas limpiadas`);
+      } else {
+        toast.error('Error al limpiar notificaciones');
+      }
+    } catch (error) {
+      console.error('Error cleaning up notifications:', error);
+      toast.error('Error al limpiar notificaciones');
     }
   };
 
@@ -318,6 +395,72 @@ export default function AdminSubscriptionsPage() {
               </div>
             </motion.div>
           )}
+
+          {/* Sección de Notificaciones */}
+          <motion.div 
+            className={styles.notificationsSection}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
+            <div className={styles.notificationsHeader}>
+              <h2>📧 Notificaciones de Suscripciones</h2>
+              <p>Gestiona las notificaciones automáticas de vencimiento</p>
+            </div>
+            
+            <div className={styles.notificationsGrid}>
+              <div className={styles.notificationCard}>
+                <div className={styles.notificationIcon}>
+                  <Mail size={24} />
+                </div>
+                <div className={styles.notificationContent}>
+                  <h3>{notificationStats?.pendingNotifications || 0}</h3>
+                  <p>Notificaciones Pendientes</p>
+                </div>
+              </div>
+
+              <div className={styles.notificationCard}>
+                <div className={styles.notificationIcon}>
+                  <Clock size={24} />
+                </div>
+                <div className={styles.notificationContent}>
+                  <h3>{notificationStats?.lastProcessed ? 'Reciente' : 'Nunca'}</h3>
+                  <p>Último Procesamiento</p>
+                  {notificationStats?.lastProcessed && (
+                    <small>{notificationStats.lastProcessed}</small>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.notificationActions}>
+              <button 
+                onClick={processNotifications}
+                disabled={processingNotifications}
+                className={styles.processButton}
+              >
+                {processingNotifications ? (
+                  <>
+                    <div className={styles.spinner}></div>
+                    Procesando...
+                  </>
+                ) : (
+                  <>
+                    <Mail size={20} />
+                    Procesar Notificaciones
+                  </>
+                )}
+              </button>
+              
+              <button 
+                onClick={cleanupNotifications}
+                className={styles.cleanupButton}
+              >
+                <X size={20} />
+                Limpiar Antiguas
+              </button>
+            </div>
+          </motion.div>
 
           {/* Tabs */}
           <motion.div 
