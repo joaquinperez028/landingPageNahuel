@@ -621,6 +621,14 @@ export function generateReportEmailTemplate(
   return createNotificationEmailTemplate({
     title: `${notification.icon} ${notification.title}`,
     content: `
+      <!-- Logo principal centrado -->
+      <div style="text-align: center; margin-bottom: 40px;">
+        <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/logo%20notificaciones.png" 
+             alt="Nahuel Lozano Trading" 
+             style="width: 140px; height: auto; margin: 0 auto; display: block; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+      </div>
+      
+      <!-- Badge de tipo de notificación -->
       <div style="text-align: center; margin-bottom: 30px;">
         <div style="display: inline-block; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; margin-bottom: 20px;">
           📰 Nuevo Contenido Disponible
@@ -633,6 +641,7 @@ export function generateReportEmailTemplate(
         </p>
       </div>
       
+      <!-- Contenido principal del informe -->
       <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px solid #e2e8f0; border-radius: 16px; padding: 30px; margin: 25px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
         <div style="text-align: center; margin-bottom: 20px;">
           <div style="font-size: 48px; margin-bottom: 10px;">📊</div>
@@ -654,6 +663,7 @@ export function generateReportEmailTemplate(
         </div>
       </div>
       
+      <!-- Sección de análisis exclusivo -->
       <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1px solid #10b981; border-radius: 12px; padding: 20px; margin: 25px 0;">
         <div style="display: flex; align-items: center; gap: 15px;">
           <div style="font-size: 24px;">✨</div>
@@ -668,6 +678,7 @@ export function generateReportEmailTemplate(
         </div>
       </div>
       
+      <!-- Sección de acceso inmediato -->
       <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 20px; margin: 25px 0;">
         <div style="display: flex; align-items: center; gap: 15px;">
           <div style="font-size: 24px;">⏰</div>
@@ -677,6 +688,21 @@ export function generateReportEmailTemplate(
             </h4>
             <p style="margin: 0; font-size: 14px; color: #b45309; line-height: 1.4;">
               El informe está disponible ahora en tu área de recursos. Te recomendamos leerlo lo antes posible.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Consejo adicional -->
+      <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #0ea5e9; border-radius: 12px; padding: 20px; margin: 25px 0;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="font-size: 24px;">💡</div>
+          <div>
+            <h4 style="margin: 0 0 5px; font-size: 16px; color: #0c4a6e; font-weight: 600;">
+              Consejo
+            </h4>
+            <p style="margin: 0; font-size: 14px; color: #0369a1; line-height: 1.4;">
+              Mantente actualizado con las últimas estrategias de trading y análisis de mercado visitando nuestra plataforma regularmente.
             </p>
           </div>
         </div>

@@ -111,13 +111,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       targetEmails = finalRecipients.filter((email: string) => emailRegex.test(email));
       console.log('👥 [BULK EMAIL] Emails válidos de la lista personalizada:', targetEmails.length, 'de', finalRecipients.length);
-    } else if (finalRecipientType === 'subscribers') {
-      console.log('👥 [BULK EMAIL] Obteniendo solo suscriptores...');
-      // Solo usuarios suscriptores
-      const subscribers = await User.find({ role: 'suscriptor' }, 'email');
+    } else if (finalRecipientType === 'subscribers' || finalRecipientType === 'suscriptores') {
+      console.log('👥 [BULK EMAIL] Obteniendo suscriptores...');
+      // Buscar usuarios con role 'suscriptor' O con suscripciones activas
+      const subscribers = await User.find({
+        $or: [
+          { role: 'suscriptor' },
+          { 'activeSubscriptions.isActive': true },
+          { 'subscriptions.activa': true },
+          { 'suscripciones.activa': true }
+        ]
+      }, 'email');
       targetEmails = subscribers.map(user => user.email);
       console.log('👥 [BULK EMAIL] Suscriptores encontrados:', subscribers.length);
-    } else if (finalRecipientType === 'admins') {
+    } else if (finalRecipientType === 'admins' || finalRecipientType === 'administradores') {
       console.log('👥 [BULK EMAIL] Obteniendo solo administradores...');
       // Solo administradores
       const admins = await User.find({ role: 'admin' }, 'email');
@@ -125,7 +132,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log('👥 [BULK EMAIL] Administradores encontrados:', admins.length);
     } else {
       console.error('❌ [BULK EMAIL] Tipo de destinatario no válido:', finalRecipientType);
-      return res.status(400).json({ error: `Tipo de destinatario no válido: ${finalRecipientType}` });
+      console.error('❌ [BULK EMAIL] Tipos válidos: all, custom, subscribers/suscriptores, admins/administradores');
+      return res.status(400).json({ 
+        error: `Tipo de destinatario no válido: ${finalRecipientType}`,
+        validTypes: ['all', 'custom', 'subscribers', 'suscriptores', 'admins', 'administradores']
+      });
     }
 
     console.log('👥 [BULK EMAIL] Total de emails objetivo:', targetEmails.length);
