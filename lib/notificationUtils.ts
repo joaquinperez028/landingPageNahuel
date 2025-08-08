@@ -249,7 +249,7 @@ export async function createReportNotification(report: any): Promise<void> {
       priority: 'media', // Usar valor válido en español
       targetUsers: targetUsers,
       icon: '📰',
-      actionUrl: `/recursos`, // O la URL específica del informe
+      actionUrl: `/reports/${report._id}`, // URL específica del informe
       actionText: 'Leer Informe',
       isActive: true,
       createdBy: 'sistema', // Campo requerido
