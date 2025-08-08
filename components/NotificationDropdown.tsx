@@ -30,6 +30,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [markingAsRead, setMarkingAsRead] = useState<string | null>(null);
+  const [markingAllAsRead, setMarkingAllAsRead] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Obtener notificaciones
@@ -57,6 +58,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
   // Marcar notificación como leída
   const markAsRead = async (notificationId: string) => {
     try {
+      console.log('🔔 Marcando notificación como leída:', notificationId);
       setMarkingAsRead(notificationId);
       
       const response = await fetch('/api/notifications/get', {
@@ -67,7 +69,12 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
         body: JSON.stringify({ notificationId }),
       });
 
+      console.log('🔔 Respuesta del servidor:', response.status, response.statusText);
+
       if (response.ok) {
+        const result = await response.json();
+        console.log('🔔 Resultado exitoso:', result);
+        
         // Actualizar estado local
         setNotifications(prev => 
           prev.map(notification => 
@@ -84,9 +91,12 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
         if (onUpdate) {
           onUpdate();
         }
+      } else {
+        const errorData = await response.json();
+        console.error('🔔 Error del servidor:', errorData);
       }
     } catch (error) {
-      console.error('Error al marcar como leída:', error);
+      console.error('🔔 Error al marcar como leída:', error);
     } finally {
       setMarkingAsRead(null);
     }
@@ -95,6 +105,9 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
   // Marcar todas como leídas
   const markAllAsRead = async () => {
     try {
+      console.log('🔔 Marcando todas las notificaciones como leídas');
+      setMarkingAllAsRead(true);
+      
       const response = await fetch('/api/notifications/get', {
         method: 'POST',
         headers: {
@@ -103,7 +116,12 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
         body: JSON.stringify({ markAllAsRead: true }),
       });
 
+      console.log('🔔 Respuesta del servidor (markAllAsRead):', response.status, response.statusText);
+
       if (response.ok) {
+        const result = await response.json();
+        console.log('🔔 Resultado exitoso (markAllAsRead):', result);
+        
         // Actualizar todas las notificaciones como leídas
         setNotifications(prev => 
           prev.map(notification => ({ ...notification, isRead: true }))
@@ -114,9 +132,14 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
         if (onUpdate) {
           onUpdate();
         }
+      } else {
+        const errorData = await response.json();
+        console.error('🔔 Error del servidor (markAllAsRead):', errorData);
       }
     } catch (error) {
-      console.error('Error al marcar todas como leídas:', error);
+      console.error('🔔 Error al marcar todas como leídas:', error);
+    } finally {
+      setMarkingAllAsRead(false);
     }
   };
 
@@ -201,8 +224,13 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
                 onClick={markAllAsRead}
                 className={styles.markAllButton}
                 title="Marcar todas como leídas"
+                disabled={markingAllAsRead}
               >
-                <CheckCheck size={16} />
+                {markingAllAsRead ? (
+                  <div className={styles.miniSpinner} />
+                ) : (
+                  <CheckCheck size={16} />
+                )}
               </button>
             )}
             <button onClick={onClose} className={styles.closeButton}>
