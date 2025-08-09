@@ -286,8 +286,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 
     const { id } = context.params!;
+    
+    console.log('🔍 [REPORT] Buscando informe con ID:', id);
 
     if (!id || typeof id !== 'string') {
+      console.log('❌ [REPORT] ID inválido:', id);
       return {
         notFound: true,
       };
@@ -295,19 +298,39 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     // Obtener el informe directamente desde la base de datos para evitar problemas de fetch
     await dbConnect();
+    console.log('✅ [REPORT] Conectado a MongoDB');
 
-    const reportDoc = await Report.findById(id)
-      .populate('author', 'name email image')
-      .lean() as any;
+    let reportDoc;
+    try {
+      reportDoc = await Report.findById(id)
+        .populate('author', 'name email image')
+        .lean() as any;
 
-    if (!reportDoc) {
-      return {
-        notFound: true,
-      };
-    }
+      console.log('📄 [REPORT] Resultado de búsqueda:', reportDoc ? 'Encontrado' : 'No encontrado');
 
-    // Verificar que el informe esté publicado
-    if (!reportDoc.isPublished) {
+      if (!reportDoc) {
+        console.log('❌ [REPORT] Informe no encontrado en BD');
+        return {
+          notFound: true,
+        };
+      }
+
+      console.log('📋 [REPORT] Detalles del informe:', {
+        id: reportDoc._id,
+        title: reportDoc.title,
+        isPublished: reportDoc.isPublished,
+        author: reportDoc.author?.name || 'Sin autor'
+      });
+
+      // Verificar que el informe esté publicado
+      if (!reportDoc.isPublished) {
+        console.log('❌ [REPORT] Informe no publicado');
+        return {
+          notFound: true,
+        };
+      }
+    } catch (dbError) {
+      console.error('💥 [REPORT] Error de base de datos:', dbError);
       return {
         notFound: true,
       };
