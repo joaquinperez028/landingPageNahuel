@@ -60,7 +60,7 @@ node test-cron-endpoint.js
 
 #### Opción B: Test desde Admin Panel
 1. Ve a `https://lozanonahuel.vercel.app/admin/subscriptions`
-2. En la sección "Notificaciones de Suscripciones"
+2. En la sección "Notificaciones de Suscripciones" 
 3. Haz clic en "Procesar Notificaciones"
 4. Verifica que funcione correctamente
 
