@@ -41,9 +41,6 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
       const response = await fetch('/api/notifications/get?limit=8');
       if (response.ok) {
         const data = await response.json();
-        console.log('🔔 [DEBUG] Notificaciones obtenidas:', data.notifications);
-        console.log('🔔 [DEBUG] Conteo no leídas:', data.unreadCount);
-        console.log('🔔 [DEBUG] Notificaciones no leídas:', data.notifications.filter((n: Notification) => !n.isRead));
         setNotifications(data.notifications);
         setUnreadCount(data.unreadCount);
         
@@ -308,9 +305,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
             </div>
           ) : (
             <div className={styles.notificationsList}>
-              {notifications.map((notification, index) => {
-                console.log('🔔 [RENDER] Notificación:', notification.id, 'isRead:', notification.isRead);
-                return (
+              {notifications.map((notification, index) => (
                 <motion.div
                   key={notification.id}
                   className={`${styles.notificationItem} ${notification.isRead ? styles.read : styles.unread}`}
@@ -390,8 +385,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
                     </button>
                   )}
                 </motion.div>
-                );
-              })}
+              ))}
             </div>
           )}
         </div>

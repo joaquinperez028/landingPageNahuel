@@ -36,6 +36,7 @@
   padding: 1.5rem 1.5rem 1rem;
   border-bottom: 1px solid rgba(59, 130, 246, 0.08);
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(59, 130, 246, 0.06) 100%);
+  position: relative; /* Necesario para el pseudo-elemento */
 }
 
 .header::before {
@@ -46,6 +47,8 @@
   right: 0;
   bottom: 0;
   background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%);
+  pointer-events: none; /* Permitir clics a través del pseudo-elemento */
+  z-index: -1; /* Colocar detrás del contenido */
 }
 
 .headerLeft {
@@ -70,6 +73,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  position: relative;
+  z-index: 10; /* Asegurar que esté sobre otros elementos */
 }
 
 .markAllButton {
