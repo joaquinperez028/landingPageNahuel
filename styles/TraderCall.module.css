@@ -608,9 +608,9 @@
   justify-content: space-between;
   align-items: center;
   background: linear-gradient(135deg, #10b981 0%, #047857 100%);
-  border-radius: 16px;
-  padding: 2rem;
-  margin: 2rem 0;
+  padding: 3rem 2rem;
+  margin: 0;
+  width: 100%;
   box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
 }
 
@@ -649,7 +649,8 @@
   .metricsGrid {
     flex-direction: column;
     gap: 1.5rem;
-    padding: 1.5rem;
+    padding: 2rem 1rem;
+    width: 100%;
   }
   
   .metricCard {
