@@ -310,7 +310,7 @@ export function createEmailTemplate({
                         <tr>
                             <td align="center" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 40px 30px; text-align: center;">
                                 <!-- Logo -->
-                                <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/LOGOTIPO%20NARANJA%20SIN%20FONDO.png" 
+                                <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/logo%20notificaciones.png" 
                                      alt="Nahuel Lozano Trading" 
                                      width="120" 
                                      height="auto" 
@@ -964,7 +964,7 @@ export function createNotificationEmailTemplate({
                         <tr>
                             <td align="center" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 40px 30px; text-align: center;">
                                 <!-- Logo -->
-                                <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/LOGOTIPO%20NARANJA%20SIN%20FONDO.png" 
+                                <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/logo%20notificaciones.png" 
                                      alt="Nahuel Lozano Trading" 
                                      width="120" 
                                      height="auto" 
