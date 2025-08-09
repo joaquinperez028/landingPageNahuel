@@ -576,4 +576,208 @@
   .serviceVideoGroup {
     padding: 1rem;
   }
+}
+
+/* Alert Examples Section */
+.alertExamplesGroup {
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  border-left: 4px solid #10b981;
+}
+
+.alertExamplesGroup h3 {
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alertExamplesList {
+  margin-bottom: 2rem;
+}
+
+.alertExampleItem {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.alertExampleItem:hover {
+  border-color: #10b981;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+}
+
+.alertExampleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.exampleNumber {
+  background: #10b981;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.removeExample {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.removeExample:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+.alertExampleFields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.alertExampleFields .formGroup {
+  margin-bottom: 0;
+}
+
+.addExampleButton {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.addExampleButton:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+/* FAQs Section */
+.faqsList {
+  margin-bottom: 2rem;
+}
+
+.faqItem {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.faqItem:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.faqHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.faqNumber {
+  background: #3b82f6;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.removeFaq {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.removeFaq:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+.faqFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.faqFields .formGroup {
+  margin-bottom: 0;
+}
+
+.faqFields .formGroup:first-child,
+.faqFields .formGroup:nth-child(2) {
+  grid-column: 1 / -1;
+}
+
+.addFaqButton {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.addFaqButton:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Responsive for new sections */
+@media (max-width: 768px) {
+  .alertExampleFields {
+    grid-template-columns: 1fr;
+  }
+  
+  .faqFields {
+    grid-template-columns: 1fr;
+  }
+  
+  .alertExamplesGroup,
+  .faqItem {
+    padding: 1rem;
+  }
 } 

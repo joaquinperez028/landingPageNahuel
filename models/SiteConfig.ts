@@ -68,6 +68,58 @@ interface SiteConfigDocument extends Document {
     visible: boolean;
     destacados: string[]; // IDs de entrenamientos destacados
   };
+  alertExamples: {
+    traderCall: Array<{
+      id: string;
+      title: string;
+      description: string;
+      entryPrice: string;
+      exitPrice: string;
+      profit: string;
+      profitPercentage: string;
+      riskLevel: 'BAJO' | 'MEDIO' | 'ALTO';
+      status: 'CERRADO TP1' | 'CERRADO TP1 Y SL' | 'CERRADO SL';
+      country: string;
+      ticker: string;
+      order: number;
+    }>;
+    smartMoney: Array<{
+      id: string;
+      title: string;
+      description: string;
+      entryPrice: string;
+      exitPrice: string;
+      profit: string;
+      profitPercentage: string;
+      riskLevel: 'BAJO' | 'MEDIO' | 'ALTO';
+      status: 'CERRADO TP1' | 'CERRADO TP1 Y SL' | 'CERRADO SL';
+      country: string;
+      ticker: string;
+      order: number;
+    }>;
+    cashFlow: Array<{
+      id: string;
+      title: string;
+      description: string;
+      entryPrice: string;
+      exitPrice: string;
+      profit: string;
+      profitPercentage: string;
+      riskLevel: 'BAJO' | 'MEDIO' | 'ALTO';
+      status: 'CERRADO TP1' | 'CERRADO TP1 Y SL' | 'CERRADO SL';
+      country: string;
+      ticker: string;
+      order: number;
+    }>;
+  };
+  faqs: Array<{
+    id: string;
+    question: string;
+    answer: string;
+    category: 'trader-call' | 'smart-money' | 'cash-flow' | 'general';
+    order: number;
+    visible: boolean;
+  }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -138,7 +190,59 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
     orden: { type: Number, default: 2 },
     visible: { type: Boolean, default: true },
     destacados: [{ type: String }]
-  }
+  },
+  alertExamples: {
+    traderCall: [{
+      id: { type: String, required: true },
+      title: { type: String, required: true },
+      description: { type: String, required: true },
+      entryPrice: { type: String, required: true },
+      exitPrice: { type: String, required: true },
+      profit: { type: String, required: true },
+      profitPercentage: { type: String, required: true },
+      riskLevel: { type: String, enum: ['BAJO', 'MEDIO', 'ALTO'], required: true },
+      status: { type: String, enum: ['CERRADO TP1', 'CERRADO TP1 Y SL', 'CERRADO SL'], required: true },
+      country: { type: String, required: true },
+      ticker: { type: String, required: true },
+      order: { type: Number, default: 0 }
+    }],
+    smartMoney: [{
+      id: { type: String, required: true },
+      title: { type: String, required: true },
+      description: { type: String, required: true },
+      entryPrice: { type: String, required: true },
+      exitPrice: { type: String, required: true },
+      profit: { type: String, required: true },
+      profitPercentage: { type: String, required: true },
+      riskLevel: { type: String, enum: ['BAJO', 'MEDIO', 'ALTO'], required: true },
+      status: { type: String, enum: ['CERRADO TP1', 'CERRADO TP1 Y SL', 'CERRADO SL'], required: true },
+      country: { type: String, required: true },
+      ticker: { type: String, required: true },
+      order: { type: Number, default: 0 }
+    }],
+    cashFlow: [{
+      id: { type: String, required: true },
+      title: { type: String, required: true },
+      description: { type: String, required: true },
+      entryPrice: { type: String, required: true },
+      exitPrice: { type: String, required: true },
+      profit: { type: String, required: true },
+      profitPercentage: { type: String, required: true },
+      riskLevel: { type: String, enum: ['BAJO', 'MEDIO', 'ALTO'], required: true },
+      status: { type: String, enum: ['CERRADO TP1', 'CERRADO TP1 Y SL', 'CERRADO SL'], required: true },
+      country: { type: String, required: true },
+      ticker: { type: String, required: true },
+      order: { type: Number, default: 0 }
+    }]
+  },
+  faqs: [{
+    id: { type: String, required: true },
+    question: { type: String, required: true },
+    answer: { type: String, required: true },
+    category: { type: String, enum: ['trader-call', 'smart-money', 'cash-flow', 'general'], required: true },
+    order: { type: Number, default: 0 },
+    visible: { type: Boolean, default: true }
+  }]
 }, {
   timestamps: true,
   collection: 'siteconfig'

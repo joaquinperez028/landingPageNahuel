@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/googleAuth';
 import { verifyAdminAccess } from '@/lib/adminAuth';
 import Head from 'next/head';
 import Link from 'next/link';
-import { ArrowLeft, Save, Eye, EyeOff, Settings, Video, List, Grid, PlayCircle, BarChart3, Layout, Trash2, Plus } from 'lucide-react';
+import { ArrowLeft, Save, Eye, EyeOff, Settings, Video, List, Grid, PlayCircle, BarChart3, Layout, Trash2, Plus, Bell, MessageCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import styles from '@/styles/admin/SiteConfig.module.css';
 
@@ -77,6 +77,58 @@ interface SiteConfig {
     visible: boolean;
     destacados: string[];
   };
+  alertExamples: {
+    traderCall: Array<{
+      id: string;
+      title: string;
+      description: string;
+      entryPrice: string;
+      exitPrice: string;
+      profit: string;
+      profitPercentage: string;
+      riskLevel: 'BAJO' | 'MEDIO' | 'ALTO';
+      status: 'CERRADO TP1' | 'CERRADO TP1 Y SL' | 'CERRADO SL';
+      country: string;
+      ticker: string;
+      order: number;
+    }>;
+    smartMoney: Array<{
+      id: string;
+      title: string;
+      description: string;
+      entryPrice: string;
+      exitPrice: string;
+      profit: string;
+      profitPercentage: string;
+      riskLevel: 'BAJO' | 'MEDIO' | 'ALTO';
+      status: 'CERRADO TP1' | 'CERRADO TP1 Y SL' | 'CERRADO SL';
+      country: string;
+      ticker: string;
+      order: number;
+    }>;
+    cashFlow: Array<{
+      id: string;
+      title: string;
+      description: string;
+      entryPrice: string;
+      exitPrice: string;
+      profit: string;
+      profitPercentage: string;
+      riskLevel: 'BAJO' | 'MEDIO' | 'ALTO';
+      status: 'CERRADO TP1' | 'CERRADO TP1 Y SL' | 'CERRADO SL';
+      country: string;
+      ticker: string;
+      order: number;
+    }>;
+  };
+  faqs: Array<{
+    id: string;
+    question: string;
+    answer: string;
+    category: 'trader-call' | 'smart-money' | 'cash-flow' | 'general';
+    order: number;
+    visible: boolean;
+  }>;
 }
 
 interface Training {
@@ -225,6 +277,87 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
           ? prev.cursos.destacados.filter(id => id !== entrenamientoId)
           : [...prev.cursos.destacados, entrenamientoId]
       }
+    }));
+  };
+
+  // Funciones para manejar ejemplos de alertas
+  const addAlertExample = (category: 'traderCall' | 'smartMoney' | 'cashFlow') => {
+    const newExample = {
+      id: `example-${Date.now()}`,
+      title: 'Alerta de Compra',
+      description: 'Detectamos oportunidad al superar al superar el día lo SMA200 y EMA50...',
+      entryPrice: 'USD $132.31',
+      exitPrice: 'USD $230.25 ($203.64)',
+      profit: '$75.00',
+      profitPercentage: '+5.89%',
+      riskLevel: 'MEDIO' as const,
+      status: 'CERRADO TP1' as const,
+      country: 'United States',
+      ticker: 'AAPL',
+      order: config.alertExamples[category].length + 1
+    };
+    
+    setConfig(prev => ({
+      ...prev,
+      alertExamples: {
+        ...prev.alertExamples,
+        [category]: [...prev.alertExamples[category], newExample]
+      }
+    }));
+  };
+
+  const removeAlertExample = (category: 'traderCall' | 'smartMoney' | 'cashFlow', exampleId: string) => {
+    setConfig(prev => ({
+      ...prev,
+      alertExamples: {
+        ...prev.alertExamples,
+        [category]: prev.alertExamples[category].filter(example => example.id !== exampleId)
+      }
+    }));
+  };
+
+  const handleAlertExampleChange = (category: 'traderCall' | 'smartMoney' | 'cashFlow', exampleId: string, field: string, value: any) => {
+    setConfig(prev => ({
+      ...prev,
+      alertExamples: {
+        ...prev.alertExamples,
+        [category]: prev.alertExamples[category].map(example => 
+          example.id === exampleId ? { ...example, [field]: value } : example
+        )
+      }
+    }));
+  };
+
+  // Funciones para manejar FAQs
+  const addFaq = () => {
+    const newFaq = {
+      id: `faq-${Date.now()}`,
+      question: '¿Qué es Trader Call?',
+      answer: 'Trader Call es un servicio de suscripción de alertas de trading...',
+      category: 'trader-call' as const,
+      order: config.faqs.length + 1,
+      visible: true
+    };
+    
+    setConfig(prev => ({
+      ...prev,
+      faqs: [...prev.faqs, newFaq]
+    }));
+  };
+
+  const removeFaq = (faqId: string) => {
+    setConfig(prev => ({
+      ...prev,
+      faqs: prev.faqs.filter(faq => faq.id !== faqId)
+    }));
+  };
+
+  const handleFaqChange = (faqId: string, field: string, value: any) => {
+    setConfig(prev => ({
+      ...prev,
+      faqs: prev.faqs.map(faq => 
+        faq.id === faqId ? { ...faq, [field]: value } : faq
+      )
     }));
   };
 
@@ -1037,6 +1170,571 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
               </div>
             </div>
 
+            {/* Configuración de Ejemplos de Alertas */}
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <Bell size={24} />
+                <h2>Ejemplos de Alertas</h2>
+                <p>Administra los ejemplos que se muestran en cada servicio de alertas</p>
+              </div>
+
+              {/* Trader Call Examples */}
+              <div className={styles.alertExamplesGroup}>
+                <h3>📊 Trader Call</h3>
+                <div className={styles.alertExamplesList}>
+                  {config.alertExamples?.traderCall?.sort((a, b) => a.order - b.order).map((example, index) => (
+                    <div key={example.id} className={styles.alertExampleItem}>
+                      <div className={styles.alertExampleHeader}>
+                        <span className={styles.exampleNumber}>#{example.order}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeAlertExample('traderCall', example.id)}
+                          className={styles.removeExample}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                      
+                      <div className={styles.alertExampleFields}>
+                        <div className={styles.formGroup}>
+                          <label>Título</label>
+                          <input
+                            type="text"
+                            value={example.title}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'title', e.target.value)}
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Descripción</label>
+                          <textarea
+                            value={example.description}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'description', e.target.value)}
+                            className={styles.textarea}
+                            rows={2}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>País de Origen</label>
+                          <input
+                            type="text"
+                            value={example.country}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'country', e.target.value)}
+                            placeholder="United States"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Ticker</label>
+                          <input
+                            type="text"
+                            value={example.ticker}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'ticker', e.target.value)}
+                            placeholder="AAPL"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Precio de Entrada</label>
+                          <input
+                            type="text"
+                            value={example.entryPrice}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'entryPrice', e.target.value)}
+                            placeholder="USD $132.31"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Precio de Salida</label>
+                          <input
+                            type="text"
+                            value={example.exitPrice}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'exitPrice', e.target.value)}
+                            placeholder="USD $230.25 ($203.64)"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Take Profit 1</label>
+                          <input
+                            type="text"
+                            value={example.profit}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'profit', e.target.value)}
+                            placeholder="$75.00"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Rendimiento</label>
+                          <input
+                            type="text"
+                            value={example.profitPercentage}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'profitPercentage', e.target.value)}
+                            placeholder="+5.89%"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Nivel de Riesgo</label>
+                          <select
+                            value={example.riskLevel}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'riskLevel', e.target.value)}
+                            className={styles.input}
+                          >
+                            <option value="BAJO">BAJO</option>
+                            <option value="MEDIO">MEDIO</option>
+                            <option value="ALTO">ALTO</option>
+                          </select>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Estado</label>
+                          <select
+                            value={example.status}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'status', e.target.value)}
+                            className={styles.input}
+                          >
+                            <option value="CERRADO TP1">CERRADO TP1</option>
+                            <option value="CERRADO TP1 Y SL">CERRADO TP1 Y SL</option>
+                            <option value="CERRADO SL">CERRADO SL</option>
+                          </select>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Orden</label>
+                          <input
+                            type="number"
+                            value={example.order}
+                            onChange={(e) => handleAlertExampleChange('traderCall', example.id, 'order', parseInt(e.target.value))}
+                            className={styles.input}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => addAlertExample('traderCall')}
+                  className={styles.addExampleButton}
+                >
+                  <Plus size={16} />
+                  Agregar Ejemplo Trader Call
+                </button>
+              </div>
+
+              {/* Smart Money Examples */}
+              <div className={styles.alertExamplesGroup}>
+                <h3>🎯 Smart Money</h3>
+                <div className={styles.alertExamplesList}>
+                  {config.alertExamples?.smartMoney?.sort((a, b) => a.order - b.order).map((example, index) => (
+                    <div key={example.id} className={styles.alertExampleItem}>
+                      <div className={styles.alertExampleHeader}>
+                        <span className={styles.exampleNumber}>#{example.order}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeAlertExample('smartMoney', example.id)}
+                          className={styles.removeExample}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                      
+                      <div className={styles.alertExampleFields}>
+                        <div className={styles.formGroup}>
+                          <label>Título</label>
+                          <input
+                            type="text"
+                            value={example.title}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'title', e.target.value)}
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Descripción</label>
+                          <textarea
+                            value={example.description}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'description', e.target.value)}
+                            className={styles.textarea}
+                            rows={2}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>País de Origen</label>
+                          <input
+                            type="text"
+                            value={example.country}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'country', e.target.value)}
+                            placeholder="United States"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Ticker</label>
+                          <input
+                            type="text"
+                            value={example.ticker}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'ticker', e.target.value)}
+                            placeholder="TSLA"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Precio de Entrada</label>
+                          <input
+                            type="text"
+                            value={example.entryPrice}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'entryPrice', e.target.value)}
+                            placeholder="USD $132.31"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Precio de Salida</label>
+                          <input
+                            type="text"
+                            value={example.exitPrice}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'exitPrice', e.target.value)}
+                            placeholder="USD $230.25 ($203.64)"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Take Profit 1</label>
+                          <input
+                            type="text"
+                            value={example.profit}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'profit', e.target.value)}
+                            placeholder="$75.00"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Rendimiento</label>
+                          <input
+                            type="text"
+                            value={example.profitPercentage}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'profitPercentage', e.target.value)}
+                            placeholder="+15.89%"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Nivel de Riesgo</label>
+                          <select
+                            value={example.riskLevel}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'riskLevel', e.target.value)}
+                            className={styles.input}
+                          >
+                            <option value="BAJO">BAJO</option>
+                            <option value="MEDIO">MEDIO</option>
+                            <option value="ALTO">ALTO</option>
+                          </select>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Estado</label>
+                          <select
+                            value={example.status}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'status', e.target.value)}
+                            className={styles.input}
+                          >
+                            <option value="CERRADO TP1">CERRADO TP1</option>
+                            <option value="CERRADO TP1 Y SL">CERRADO TP1 Y SL</option>
+                            <option value="CERRADO SL">CERRADO SL</option>
+                          </select>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Orden</label>
+                          <input
+                            type="number"
+                            value={example.order}
+                            onChange={(e) => handleAlertExampleChange('smartMoney', example.id, 'order', parseInt(e.target.value))}
+                            className={styles.input}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => addAlertExample('smartMoney')}
+                  className={styles.addExampleButton}
+                >
+                  <Plus size={16} />
+                  Agregar Ejemplo Smart Money
+                </button>
+              </div>
+
+              {/* Cash Flow Examples */}
+              <div className={styles.alertExamplesGroup}>
+                <h3>💰 Cash Flow</h3>
+                <div className={styles.alertExamplesList}>
+                  {config.alertExamples?.cashFlow?.sort((a, b) => a.order - b.order).map((example, index) => (
+                    <div key={example.id} className={styles.alertExampleItem}>
+                      <div className={styles.alertExampleHeader}>
+                        <span className={styles.exampleNumber}>#{example.order}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeAlertExample('cashFlow', example.id)}
+                          className={styles.removeExample}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                      
+                      <div className={styles.alertExampleFields}>
+                        <div className={styles.formGroup}>
+                          <label>Título</label>
+                          <input
+                            type="text"
+                            value={example.title}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'title', e.target.value)}
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Descripción</label>
+                          <textarea
+                            value={example.description}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'description', e.target.value)}
+                            className={styles.textarea}
+                            rows={2}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>País de Origen</label>
+                          <input
+                            type="text"
+                            value={example.country}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'country', e.target.value)}
+                            placeholder="United States"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Ticker</label>
+                          <input
+                            type="text"
+                            value={example.ticker}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'ticker', e.target.value)}
+                            placeholder="SPY"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Precio de Entrada</label>
+                          <input
+                            type="text"
+                            value={example.entryPrice}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'entryPrice', e.target.value)}
+                            placeholder="USD $132.31"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Precio de Salida</label>
+                          <input
+                            type="text"
+                            value={example.exitPrice}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'exitPrice', e.target.value)}
+                            placeholder="USD $230.25 ($203.64)"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Take Profit 1</label>
+                          <input
+                            type="text"
+                            value={example.profit}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'profit', e.target.value)}
+                            placeholder="$75.00"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Rendimiento</label>
+                          <input
+                            type="text"
+                            value={example.profitPercentage}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'profitPercentage', e.target.value)}
+                            placeholder="+19.73%"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Nivel de Riesgo</label>
+                          <select
+                            value={example.riskLevel}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'riskLevel', e.target.value)}
+                            className={styles.input}
+                          >
+                            <option value="BAJO">BAJO</option>
+                            <option value="MEDIO">MEDIO</option>
+                            <option value="ALTO">ALTO</option>
+                          </select>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Estado</label>
+                          <select
+                            value={example.status}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'status', e.target.value)}
+                            className={styles.input}
+                          >
+                            <option value="CERRADO TP1">CERRADO TP1</option>
+                            <option value="CERRADO TP1 Y SL">CERRADO TP1 Y SL</option>
+                            <option value="CERRADO SL">CERRADO SL</option>
+                          </select>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Orden</label>
+                          <input
+                            type="number"
+                            value={example.order}
+                            onChange={(e) => handleAlertExampleChange('cashFlow', example.id, 'order', parseInt(e.target.value))}
+                            className={styles.input}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => addAlertExample('cashFlow')}
+                  className={styles.addExampleButton}
+                >
+                  <Plus size={16} />
+                  Agregar Ejemplo Cash Flow
+                </button>
+              </div>
+            </div>
+
+            {/* Configuración de FAQs */}
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <MessageCircle size={24} />
+                <h2>Preguntas Frecuentes (FAQs)</h2>
+                <p>Administra las preguntas frecuentes que se muestran en los servicios</p>
+              </div>
+
+              <div className={styles.faqsList}>
+                {config.faqs?.sort((a, b) => a.order - b.order).map((faq, index) => (
+                  <div key={faq.id} className={styles.faqItem}>
+                    <div className={styles.faqHeader}>
+                      <span className={styles.faqNumber}>#{faq.order}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeFaq(faq.id)}
+                        className={styles.removeFaq}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    
+                    <div className={styles.faqFields}>
+                      <div className={styles.formGroup}>
+                        <label>Pregunta</label>
+                        <input
+                          type="text"
+                          value={faq.question}
+                          onChange={(e) => handleFaqChange(faq.id, 'question', e.target.value)}
+                          placeholder="¿Qué es Trader Call?"
+                          className={styles.input}
+                        />
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label>Respuesta</label>
+                        <textarea
+                          value={faq.answer}
+                          onChange={(e) => handleFaqChange(faq.id, 'answer', e.target.value)}
+                          placeholder="Trader Call es un servicio de suscripción..."
+                          className={styles.textarea}
+                          rows={4}
+                        />
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label>Categoría</label>
+                        <select
+                          value={faq.category}
+                          onChange={(e) => handleFaqChange(faq.id, 'category', e.target.value)}
+                          className={styles.input}
+                        >
+                          <option value="trader-call">Trader Call</option>
+                          <option value="smart-money">Smart Money</option>
+                          <option value="cash-flow">Cash Flow</option>
+                          <option value="general">General</option>
+                        </select>
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label>Orden</label>
+                        <input
+                          type="number"
+                          value={faq.order}
+                          onChange={(e) => handleFaqChange(faq.id, 'order', parseInt(e.target.value))}
+                          className={styles.input}
+                        />
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label className={styles.checkbox}>
+                          <input
+                            type="checkbox"
+                            checked={faq.visible}
+                            onChange={(e) => handleFaqChange(faq.id, 'visible', e.target.checked)}
+                          />
+                          <span>Visible</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={addFaq}
+                className={styles.addFaqButton}
+              >
+                <Plus size={16} />
+                Agregar FAQ
+              </button>
+            </div>
+
             {/* Botones de Acción */}
             <div className={styles.actions}>
               <button
@@ -1134,7 +1832,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         ]
       },
       servicios: { orden: 1, visible: true },
-      cursos: { orden: 2, visible: true, destacados: [] }
+      cursos: { orden: 2, visible: true, destacados: [] },
+      alertExamples: {
+        traderCall: [],
+        smartMoney: [],
+        cashFlow: []
+      },
+      faqs: []
     };
 
     // Obtener entrenamientos
@@ -1208,7 +1912,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             ]
           },
           servicios: { orden: 1, visible: true },
-          cursos: { orden: 2, visible: true, destacados: [] }
+          cursos: { orden: 2, visible: true, destacados: [] },
+          alertExamples: {
+            traderCall: [],
+            smartMoney: [],
+            cashFlow: []
+          },
+          faqs: []
         },
         entrenamientos: []
       },
