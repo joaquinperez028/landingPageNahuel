@@ -82,25 +82,37 @@ const AlertExamplesCarousel: React.FC<AlertExamplesCarouselProps> = ({
     );
   }
 
+  // Mostrar 3 ejemplos a la vez
+  const getVisibleExamples = () => {
+    if (examples.length <= 3) return examples;
+    
+    const visibleExamples = [];
+    for (let i = 0; i < 3; i++) {
+      const index = (currentIndex + i) % examples.length;
+      visibleExamples.push(examples[index]);
+    }
+    return visibleExamples;
+  };
+
   return (
     <div className={styles.carousel}>
       <div className={styles.carouselContainer}>
         {/* Navigation Arrows */}
-        {examples.length > 1 && (
+        {examples.length > 3 && (
           <>
             <button 
               className={`${styles.navButton} ${styles.prevButton}`}
               onClick={goToPrevious}
-              aria-label="Ejemplo anterior"
+              aria-label="Ejemplos anteriores"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={24} />
             </button>
             <button 
               className={`${styles.navButton} ${styles.nextButton}`}
               onClick={goToNext}
-              aria-label="Siguiente ejemplo"
+              aria-label="Siguientes ejemplos"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={24} />
             </button>
           </>
         )}
@@ -116,79 +128,56 @@ const AlertExamplesCarousel: React.FC<AlertExamplesCarouselProps> = ({
               exit={{ opacity: 0, x: -100 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
             >
-              <div className={styles.alertCard}>
-                {/* Header */}
-                <div className={styles.alertHeader}>
-                  <div className={styles.alertTitle}>
-                    <h3>{examples[currentIndex].title}</h3>
-                    <div className={styles.alertMeta}>
-                      <span className={styles.country}>{examples[currentIndex].country}</span>
-                      <span className={styles.ticker}>{examples[currentIndex].ticker}</span>
+              <div className={styles.alertsGrid}>
+                {getVisibleExamples().map((example, index) => (
+                  <div key={`${example.id}-${index}`} className={styles.alertCard}>
+                    {/* Chart Background */}
+                    <div className={styles.chartBackground}>
+                      <div className={styles.chartLines}></div>
+                      <div className={styles.candlesticks}></div>
                     </div>
-                  </div>
-                  <div className={styles.alertBadges}>
-                    <span 
-                      className={styles.riskBadge}
-                      style={{ backgroundColor: getRiskColor(examples[currentIndex].riskLevel) }}
-                    >
-                      {examples[currentIndex].riskLevel}
-                    </span>
-                    <span 
-                      className={styles.statusBadge}
-                      style={{ backgroundColor: getStatusColor(examples[currentIndex].status) }}
-                    >
-                      {examples[currentIndex].status}
-                    </span>
-                  </div>
-                </div>
+                    
+                    {/* Header */}
+                    <div className={styles.alertHeader}>
+                      <h3 className={styles.alertTitle}>{example.title}</h3>
+                    </div>
 
-                {/* Description */}
-                <div className={styles.alertDescription}>
-                  <p>{examples[currentIndex].description}</p>
-                </div>
-
-                {/* Trading Details */}
-                <div className={styles.tradingDetails}>
-                  <div className={styles.priceSection}>
-                    <div className={styles.priceItem}>
-                      <span className={styles.priceLabel}>💰 Precio de entrada:</span>
-                      <span className={styles.priceValue}>{examples[currentIndex].entryPrice}</span>
+                    {/* Description */}
+                    <div className={styles.alertDescription}>
+                      <p>{example.description}</p>
                     </div>
-                    <div className={styles.priceItem}>
-                      <span className={styles.priceLabel}>💸 Precio de salida:</span>
-                      <span className={styles.priceValue}>{examples[currentIndex].exitPrice}</span>
+
+                    {/* Trading Details */}
+                    <div className={styles.tradingDetails}>
+                      <div className={styles.priceItem}>
+                        <span className={styles.priceLabel}>💰 Precio de entrada:</span>
+                        <span className={styles.priceValue}>{example.entryPrice}</span>
+                      </div>
+                      <div className={styles.priceItem}>
+                        <span className={styles.priceLabel}>💸 Precio de salida:</span>
+                        <span className={styles.priceValue}>{example.exitPrice}</span>
+                      </div>
+                      <div className={styles.profitItem}>
+                        <span className={styles.profitLabel}>📊 Rendimiento:</span>
+                        <span className={styles.profitValue}>{example.profitPercentage}</span>
+                      </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className={styles.statusFooter}>
+                      <span 
+                        className={styles.statusBadge}
+                        style={{ backgroundColor: getStatusColor(example.status) }}
+                      >
+                        {example.status}
+                      </span>
                     </div>
                   </div>
-
-                  <div className={styles.profitSection}>
-                    <div className={styles.profitItem}>
-                      <span className={styles.profitLabel}>⚡ Take Profit 1:</span>
-                      <span className={styles.profitValue}>{examples[currentIndex].profit}</span>
-                    </div>
-                    <div className={styles.rendimientoItem}>
-                      <span className={styles.rendimientoLabel}>📊 Rendimiento:</span>
-                      <span className={styles.rendimientoValue}>{examples[currentIndex].profitPercentage}</span>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
-
-        {/* Dots Navigation */}
-        {examples.length > 1 && (
-          <div className={styles.dotsContainer}>
-            {examples.map((_, index) => (
-              <button
-                key={index}
-                className={`${styles.dot} ${index === currentIndex ? styles.activeDot : ''}`}
-                onClick={() => goToSlide(index)}
-                aria-label={`Ir al ejemplo ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
