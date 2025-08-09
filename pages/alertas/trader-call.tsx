@@ -3099,7 +3099,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       {
         id: 'example-1',
         title: 'Alerta de Compra',
-        description: 'Detectamos oportunidad al superar al superar el día lo SMA200 y EMA50 kos grandes que compran papeles MACD da señal de compra fuerte porque se cruzan las medias móviles por debajo del nivel de cero. RSI da compra superando los 50pts',
+        description: 'Señal de compra confirmada: precio por encima de SMA200 y EMA50, MACD cruza a positivo y RSI > 50.',
         entryPrice: 'USD $132.31',
         exitPrice: 'USD $230.25 ($203.64)',
         profit: '$75.00',
@@ -3113,7 +3113,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       {
         id: 'example-2',
         title: 'Alerta de Venta Parcial',
-        description: 'Salimos parcialmente vendiendo el 50% de la posición original, tenemos un muy buen rendimiento que podemos ir cosechando. Recomendamos comprados con la otra mitad de la posición',
+        description: 'Venta parcial del 50% tras fuerte avance: aseguramos ganancias y mantenemos el resto con stop ajustado.',
         entryPrice: 'USD $132.31',
         exitPrice: 'USD $230.25 ($203.64)',
         profit: '$75.00',
@@ -3127,7 +3127,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       {
         id: 'example-3',
         title: 'Alerta de Venta Total',
-        description: 'Salimos totalmente de este activo vendiendo el 50% restante, llegó al objetivo planteado y el jueves 5 tengo el rendimiento de este tremendo trade!',
+        description: 'Objetivo alcanzado: cerramos el 50% restante y finalizamos el trade con excelente rendimiento.',
         entryPrice: 'USD $132.31',
         exitPrice: 'USD $230.25 ($203.64)',
         profit: '$75.00',
