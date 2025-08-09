@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, ExternalLink, Clock, ArrowRight, Check, CheckCheck } from 'lucide-react';
+import { Bell, X, ExternalLink, Clock, ArrowRight, Check, CheckCheck, Trash2 } from 'lucide-react';
 import styles from '@/styles/NotificationDropdown.module.css';
 
 interface Notification {
@@ -31,6 +31,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
   const [unreadCount, setUnreadCount] = useState(0);
   const [markingAsRead, setMarkingAsRead] = useState<string | null>(null);
   const [markingAllAsRead, setMarkingAllAsRead] = useState(false);
+  const [deletingRead, setDeletingRead] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Obtener notificaciones
@@ -143,6 +144,41 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
     }
   };
 
+  // Eliminar todas las notificaciones leídas
+  const deleteAllReadNotifications = async () => {
+    try {
+      console.log('🗑️ Eliminando todas las notificaciones leídas...');
+      setDeletingRead(true);
+      
+      const response = await fetch('/api/notifications/delete-read', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('🗑️ Respuesta del servidor:', response.status, response.statusText);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('🗑️ Resultado exitoso:', result);
+        
+        // Recargar notificaciones para reflejar los cambios
+        await fetchNotifications();
+        
+        // Opcional: mostrar mensaje de éxito
+        console.log(`✅ ${result.deletedCount} notificaciones leídas eliminadas`);
+      } else {
+        const errorData = await response.json();
+        console.error('🗑️ Error del servidor:', errorData);
+      }
+    } catch (error) {
+      console.error('🗑️ Error al eliminar notificaciones leídas:', error);
+    } finally {
+      setDeletingRead(false);
+    }
+  };
+
   // Manejar clic en notificación
   const handleNotificationClick = async (notification: Notification) => {
     // Marcar como leída si no lo está
@@ -230,6 +266,21 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
                   <div className={styles.miniSpinner} />
                 ) : (
                   <CheckCheck size={16} />
+                )}
+              </button>
+            )}
+            {/* Botón para eliminar notificaciones leídas */}
+            {notifications.some(n => n.isRead) && (
+              <button 
+                onClick={deleteAllReadNotifications}
+                className={styles.deleteReadButton}
+                title="Eliminar notificaciones leídas"
+                disabled={deletingRead}
+              >
+                {deletingRead ? (
+                  <div className={styles.miniSpinner} />
+                ) : (
+                  <Trash2 size={16} />
                 )}
               </button>
             )}
