@@ -7,6 +7,7 @@ interface AlertExample {
   id: string;
   title: string;
   description: string;
+  chartImage?: string;
   entryPrice: string;
   exitPrice: string;
   profit: string;
@@ -131,46 +132,60 @@ const AlertExamplesCarousel: React.FC<AlertExamplesCarouselProps> = ({
               <div className={styles.alertsGrid}>
                 {getVisibleExamples().map((example, index) => (
                   <div key={`${example.id}-${index}`} className={styles.alertCard}>
-                    {/* Chart Background */}
-                    <div className={styles.chartBackground}>
-                      <div className={styles.chartLines}></div>
-                      <div className={styles.candlesticks}></div>
+                    {/* Chart Image or Background */}
+                    <div className={styles.chartContainer}>
+                      {example.chartImage ? (
+                        <img 
+                          src={example.chartImage} 
+                          alt={`Gráfico de ${example.title}`}
+                          className={styles.chartImage}
+                        />
+                      ) : (
+                        <div className={styles.chartBackground}>
+                          <div className={styles.chartLines}></div>
+                          <div className={styles.candlesticks}></div>
+                        </div>
+                      )}
+                      <div className={styles.chartOverlay}></div>
                     </div>
                     
-                    {/* Header */}
-                    <div className={styles.alertHeader}>
-                      <h3 className={styles.alertTitle}>{example.title}</h3>
-                    </div>
-
-                    {/* Description */}
-                    <div className={styles.alertDescription}>
-                      <p>{example.description}</p>
-                    </div>
-
-                    {/* Trading Details */}
-                    <div className={styles.tradingDetails}>
-                      <div className={styles.priceItem}>
-                        <span className={styles.priceLabel}>💰 Precio de entrada:</span>
-                        <span className={styles.priceValue}>{example.entryPrice}</span>
+                    {/* Content */}
+                    <div className={styles.cardContent}>
+                      {/* Header */}
+                      <div className={styles.alertHeader}>
+                        <h3 className={styles.alertTitle}>{example.title}</h3>
                       </div>
-                      <div className={styles.priceItem}>
-                        <span className={styles.priceLabel}>💸 Precio de salida:</span>
-                        <span className={styles.priceValue}>{example.exitPrice}</span>
-                      </div>
-                      <div className={styles.profitItem}>
-                        <span className={styles.profitLabel}>📊 Rendimiento:</span>
-                        <span className={styles.profitValue}>{example.profitPercentage}</span>
-                      </div>
-                    </div>
 
-                    {/* Status Badge */}
-                    <div className={styles.statusFooter}>
-                      <span 
-                        className={styles.statusBadge}
-                        style={{ backgroundColor: getStatusColor(example.status) }}
-                      >
-                        {example.status}
-                      </span>
+                      {/* Description */}
+                      <div className={styles.alertDescription}>
+                        <p>{example.description}</p>
+                      </div>
+
+                      {/* Trading Details */}
+                      <div className={styles.tradingDetails}>
+                        <div className={styles.priceItem}>
+                          <span className={styles.priceLabel}>💰 Precio de entrada:</span>
+                          <span className={styles.priceValue}>{example.entryPrice}</span>
+                        </div>
+                        <div className={styles.priceItem}>
+                          <span className={styles.priceLabel}>💸 Precio de salida:</span>
+                          <span className={styles.priceValue}>{example.exitPrice}</span>
+                        </div>
+                        <div className={styles.profitItem}>
+                          <span className={styles.profitLabel}>📊 Rendimiento:</span>
+                          <span className={styles.profitValue}>{example.profitPercentage}</span>
+                        </div>
+                      </div>
+
+                      {/* Status Badge */}
+                      <div className={styles.statusFooter}>
+                        <span 
+                          className={styles.statusBadge}
+                          style={{ backgroundColor: getStatusColor(example.status) }}
+                        >
+                          {example.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}

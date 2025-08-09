@@ -766,6 +766,31 @@
   transform: translateY(-1px);
 }
 
+.currentImage {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.removeImageButton {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.removeImageButton:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
 /* Responsive for new sections */
 @media (max-width: 768px) {
   .alertExampleFields {

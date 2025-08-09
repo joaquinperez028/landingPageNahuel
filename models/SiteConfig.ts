@@ -73,6 +73,7 @@ interface SiteConfigDocument extends Document {
       id: string;
       title: string;
       description: string;
+      chartImage?: string; // URL de la imagen del gráfico
       entryPrice: string;
       exitPrice: string;
       profit: string;
@@ -87,6 +88,7 @@ interface SiteConfigDocument extends Document {
       id: string;
       title: string;
       description: string;
+      chartImage?: string; // URL de la imagen del gráfico
       entryPrice: string;
       exitPrice: string;
       profit: string;
@@ -101,6 +103,7 @@ interface SiteConfigDocument extends Document {
       id: string;
       title: string;
       description: string;
+      chartImage?: string; // URL de la imagen del gráfico
       entryPrice: string;
       exitPrice: string;
       profit: string;
@@ -196,6 +199,7 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
       id: { type: String, required: true },
       title: { type: String, required: true },
       description: { type: String, required: true },
+      chartImage: { type: String }, // URL de la imagen del gráfico
       entryPrice: { type: String, required: true },
       exitPrice: { type: String, required: true },
       profit: { type: String, required: true },
@@ -210,6 +214,7 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
       id: { type: String, required: true },
       title: { type: String, required: true },
       description: { type: String, required: true },
+      chartImage: { type: String }, // URL de la imagen del gráfico
       entryPrice: { type: String, required: true },
       exitPrice: { type: String, required: true },
       profit: { type: String, required: true },
@@ -224,6 +229,7 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
       id: { type: String, required: true },
       title: { type: String, required: true },
       description: { type: String, required: true },
+      chartImage: { type: String }, // URL de la imagen del gráfico
       entryPrice: { type: String, required: true },
       exitPrice: { type: String, required: true },
       profit: { type: String, required: true },

@@ -50,6 +50,7 @@ interface AlertExample {
   id: string;
   title: string;
   description: string;
+  chartImage?: string;
   entryPrice: string;
   exitPrice: string;
   profit: string;

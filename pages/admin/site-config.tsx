@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { ArrowLeft, Save, Eye, EyeOff, Settings, Video, List, Grid, PlayCircle, BarChart3, Layout, Trash2, Plus, Bell, MessageCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import styles from '@/styles/admin/SiteConfig.module.css';
+import ImageUploader from '@/components/ImageUploader';
 
 interface SiteConfig {
   _id?: string;
@@ -82,6 +83,7 @@ interface SiteConfig {
       id: string;
       title: string;
       description: string;
+      chartImage?: string;
       entryPrice: string;
       exitPrice: string;
       profit: string;
@@ -96,6 +98,7 @@ interface SiteConfig {
       id: string;
       title: string;
       description: string;
+      chartImage?: string;
       entryPrice: string;
       exitPrice: string;
       profit: string;
@@ -110,6 +113,7 @@ interface SiteConfig {
       id: string;
       title: string;
       description: string;
+      chartImage?: string;
       entryPrice: string;
       exitPrice: string;
       profit: string;
@@ -1217,6 +1221,30 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
                         </div>
 
                         <div className={styles.formGroup}>
+                          <label>Imagen del Gráfico</label>
+                          {example.chartImage && (
+                            <div className={styles.currentImage}>
+                              <img src={example.chartImage} alt="Gráfico actual" style={{ width: '100%', maxWidth: '200px', height: 'auto', marginBottom: '0.5rem', borderRadius: '8px' }} />
+                              <button
+                                type="button"
+                                onClick={() => handleAlertExampleChange('traderCall', example.id, 'chartImage', '')}
+                                className={styles.removeImageButton}
+                              >
+                                Eliminar imagen
+                              </button>
+                            </div>
+                          )}
+                          <ImageUploader
+                            onImageUploaded={(image) => handleAlertExampleChange('traderCall', example.id, 'chartImage', image.secure_url)}
+                            buttonText="Subir gráfico"
+                            maxFiles={1}
+                          />
+                          <small className={styles.help}>
+                            Sube una imagen del gráfico de trading para esta alerta
+                          </small>
+                        </div>
+
+                        <div className={styles.formGroup}>
                           <label>País de Origen</label>
                           <input
                             type="text"
@@ -1371,6 +1399,30 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
                         </div>
 
                         <div className={styles.formGroup}>
+                          <label>Imagen del Gráfico</label>
+                          {example.chartImage && (
+                            <div className={styles.currentImage}>
+                              <img src={example.chartImage} alt="Gráfico actual" style={{ width: '100%', maxWidth: '200px', height: 'auto', marginBottom: '0.5rem', borderRadius: '8px' }} />
+                              <button
+                                type="button"
+                                onClick={() => handleAlertExampleChange('smartMoney', example.id, 'chartImage', '')}
+                                className={styles.removeImageButton}
+                              >
+                                Eliminar imagen
+                              </button>
+                            </div>
+                          )}
+                          <ImageUploader
+                            onImageUploaded={(image) => handleAlertExampleChange('smartMoney', example.id, 'chartImage', image.secure_url)}
+                            buttonText="Subir gráfico"
+                            maxFiles={1}
+                          />
+                          <small className={styles.help}>
+                            Sube una imagen del gráfico de trading para esta alerta
+                          </small>
+                        </div>
+
+                        <div className={styles.formGroup}>
                           <label>País de Origen</label>
                           <input
                             type="text"
@@ -1522,6 +1574,30 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
                             className={styles.textarea}
                             rows={2}
                           />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label>Imagen del Gráfico</label>
+                          {example.chartImage && (
+                            <div className={styles.currentImage}>
+                              <img src={example.chartImage} alt="Gráfico actual" style={{ width: '100%', maxWidth: '200px', height: 'auto', marginBottom: '0.5rem', borderRadius: '8px' }} />
+                              <button
+                                type="button"
+                                onClick={() => handleAlertExampleChange('cashFlow', example.id, 'chartImage', '')}
+                                className={styles.removeImageButton}
+                              >
+                                Eliminar imagen
+                              </button>
+                            </div>
+                          )}
+                          <ImageUploader
+                            onImageUploaded={(image) => handleAlertExampleChange('cashFlow', example.id, 'chartImage', image.secure_url)}
+                            buttonText="Subir gráfico"
+                            maxFiles={1}
+                          />
+                          <small className={styles.help}>
+                            Sube una imagen del gráfico de trading para esta alerta
+                          </small>
                         </div>
 
                         <div className={styles.formGroup}>
