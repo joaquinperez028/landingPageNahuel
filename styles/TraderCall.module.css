@@ -1566,6 +1566,692 @@
   backdrop-filter: blur(8px);
 }
 
+/* Modal de Creación de Informes - Diseño Moderno */
+.createReportModal {
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 24px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(139, 92, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.createReportModal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%);
+  border-radius: 24px 24px 0 0;
+}
+
+.createReportModal::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(139, 92, 246, 0.03), transparent);
+  animation: rotate 20s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Header del Modal de Creación */
+.createReportModal .modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2.5rem 1.5rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.createReportModal .modalHeader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.createReportModal .modalHeader h2 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.createReportModal .modalHeader h2::before {
+  content: '📊';
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 4px rgba(139, 92, 246, 0.5));
+}
+
+.createReportModal .closeModal {
+  background: rgba(239, 68, 68, 0.1);
+  border: 2px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.75rem;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.createReportModal .closeModal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent, rgba(239, 68, 68, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.createReportModal .closeModal:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+.createReportModal .closeModal:hover::before {
+  opacity: 1;
+}
+
+.createReportModal .closeModal:active {
+  transform: scale(0.95) rotate(90deg);
+}
+
+/* Formulario de Creación de Informes */
+.createReportForm {
+  padding: 2rem 2.5rem;
+  max-height: calc(90vh - 140px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+
+.createReportForm::-webkit-scrollbar {
+  width: 8px;
+}
+
+.createReportForm::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.createReportForm::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  border-radius: 4px;
+}
+
+.createReportForm::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+}
+
+/* Grupos de Formulario */
+.formGroup {
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #e2e8f0;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.formGroup label::after {
+  content: '';
+  position: absolute;
+  bottom: -0.25rem;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+  border-radius: 1px;
+}
+
+/* Inputs del Formulario */
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.formGroup input::placeholder,
+.formGroup textarea::placeholder {
+  color: rgba(226, 232, 240, 0.5);
+  font-style: italic;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 
+    0 0 0 4px rgba(139, 92, 246, 0.1),
+    0 8px 32px rgba(139, 92, 246, 0.2);
+  transform: translateY(-2px);
+}
+
+.formGroup select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%238b5cf6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 1rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 3rem;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+/* Filas del Formulario */
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .formRow {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Estilos para Upload de Imágenes */
+.formGroup .coverImageUploader,
+.formGroup .additionalImagesUploader {
+  border: 2px dashed rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.formGroup .coverImageUploader::before,
+.formGroup .additionalImagesUploader::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(139, 92, 246, 0.02), transparent);
+  animation: rotate 15s linear infinite;
+  pointer-events: none;
+}
+
+.formGroup .coverImageUploader:hover,
+.formGroup .additionalImagesUploader:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
+}
+
+/* Previews de Imágenes */
+.uploadedImagePreview {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.uploadedImagePreview:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.2);
+}
+
+.previewImage {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.previewImage:hover {
+  transform: scale(1.02);
+}
+
+.previewActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.imageInfo {
+  color: rgba(226, 232, 240, 0.7);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.removeImageButton {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.removeImageButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.removeImageButton:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+.removeImageButton:hover::before {
+  opacity: 1;
+}
+
+.removeImageButton:active {
+  transform: translateY(0);
+}
+
+/* Previews de Imágenes Adicionales */
+.additionalImagesPreview {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.6) 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.additionalImagesPreview h4 {
+  color: #e2e8f0;
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.additionalImagesPreview h4::before {
+  content: '🖼️';
+  font-size: 1rem;
+}
+
+.imagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.imagePreviewItem {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  transition: all 0.3s ease;
+}
+
+.imagePreviewItem:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
+}
+
+.previewThumbnail {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.imagePreviewItem:hover .previewThumbnail {
+  transform: scale(1.05);
+}
+
+.imagePreviewActions {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.imagePreviewItem:hover .imagePreviewActions {
+  opacity: 1;
+}
+
+.imagePreviewActions .removeImageButton {
+  padding: 0.25rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botones de Acción del Formulario */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(139, 92, 246, 0.2);
+  margin-top: 2rem;
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 100%);
+  backdrop-filter: blur(10px);
+}
+
+.cancelButton,
+.submitButton {
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.cancelButton {
+  background: rgba(107, 114, 128, 0.1);
+  border-color: rgba(107, 114, 128, 0.3);
+  color: #9ca3af;
+}
+
+.cancelButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent, rgba(107, 114, 128, 0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cancelButton:hover {
+  background: rgba(107, 114, 128, 0.2);
+  border-color: rgba(107, 114, 128, 0.5);
+  color: #d1d5db;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(107, 114, 128, 0.2);
+}
+
+.cancelButton:hover::before {
+  opacity: 1;
+}
+
+.submitButton {
+  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  border-color: transparent;
+  color: white;
+  position: relative;
+}
+
+.submitButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.submitButton::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+  border-radius: 14px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.submitButton:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
+}
+
+.submitButton:hover::before {
+  opacity: 1;
+}
+
+.submitButton:hover::after {
+  opacity: 0.3;
+}
+
+.submitButton:disabled {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.submitButton:disabled::before,
+.submitButton:disabled::after {
+  opacity: 0;
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+}
+
+/* Estados de Loading */
+.submitButton:disabled {
+  position: relative;
+}
+
+.submitButton:disabled::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid #9ca3af;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin-left: -30px;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Responsive para Formulario */
+@media (max-width: 768px) {
+  .createReportForm {
+    padding: 1.5rem 1rem;
+  }
+  
+  .createReportModal .modalHeader {
+    padding: 1.5rem 1rem 1rem;
+  }
+  
+  .createReportModal .modalHeader h2 {
+    font-size: 1.5rem;
+  }
+  
+  .formActions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+    padding: 1rem;
+  }
+  
+  .imagesGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .createReportModal {
+    max-width: 95vw;
+    max-height: 95vh;
+    border-radius: 16px;
+  }
+  
+  .createReportForm {
+    padding: 1rem 0.75rem;
+  }
+  
+  .createReportModal .modalHeader {
+    padding: 1rem 0.75rem 0.75rem;
+  }
+  
+  .createReportModal .modalHeader h2 {
+    font-size: 1.25rem;
+  }
+  
+  .formGroup {
+    margin-bottom: 1.5rem;
+  }
+  
+  .formGroup label {
+    font-size: 0.875rem;
+  }
+  
+  .formGroup input,
+  .formGroup select,
+  .formGroup textarea {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .uploadedImagePreview,
+  .additionalImagesPreview {
+    padding: 1rem;
+  }
+  
+  .imagesGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .previewThumbnail {
+    height: 100px;
+  }
+}
+
 .reportViewModal {
   background: var(--bg-secondary);
   border-radius: var(--border-radius-lg);

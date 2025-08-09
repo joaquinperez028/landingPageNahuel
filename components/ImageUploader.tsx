@@ -185,80 +185,140 @@ export default function ImageUploader({
         }
 
         .dropzone {
-          border: 2px dashed #e2e8f0;
-          border-radius: 12px;
+          border: 2px dashed rgba(139, 92, 246, 0.3);
+          border-radius: 16px;
           padding: 2rem;
           text-align: center;
           cursor: pointer;
-          transition: all 0.3s ease;
-          background: #f8fafc;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          background: linear-gradient(135deg, rgba(139, 92, 246, 0.02) 0%, rgba(59, 130, 246, 0.02) 100%);
           min-height: 200px;
           display: flex;
           align-items: center;
           justify-content: center;
+          position: relative;
+          overflow: hidden;
+          backdrop-filter: blur(10px);
+        }
+
+        .dropzone::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: conic-gradient(from 0deg, transparent, rgba(139, 92, 246, 0.01), transparent);
+          animation: rotate 20s linear infinite;
+          pointer-events: none;
+        }
+
+        @keyframes rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
 
         .dropzone:hover,
         .dropzone.active {
-          border-color: #3b82f6;
-          background: #eff6ff;
+          border-color: rgba(139, 92, 246, 0.5);
+          background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 32px rgba(139, 92, 246, 0.15);
         }
 
         .dropzone.uploading {
           cursor: not-allowed;
-          opacity: 0.7;
+          opacity: 0.8;
+          border-color: rgba(139, 92, 246, 0.4);
         }
 
         .upload-content {
           width: 100%;
+          position: relative;
+          z-index: 1;
         }
 
         .upload-icon {
           font-size: 3rem;
           margin-bottom: 1rem;
+          filter: drop-shadow(0 2px 4px rgba(139, 92, 246, 0.3));
         }
 
         .upload-text {
           font-size: 1.1rem;
-          color: #64748b;
-          margin-bottom: 1rem;
+          color: #e2e8f0;
+          margin-bottom: 1.5rem;
+          font-weight: 500;
         }
 
         .upload-button {
-          background: #3b82f6;
+          background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
           color: white;
           border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 8px;
-          font-weight: 500;
+          padding: 0.875rem 2rem;
+          border-radius: 12px;
+          font-weight: 600;
           cursor: pointer;
-          transition: background 0.2s;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          position: relative;
+          overflow: hidden;
+          font-size: 0.95rem;
+          box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+        }
+
+        .upload-button::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+          opacity: 0;
+          transition: opacity 0.3s ease;
         }
 
         .upload-button:hover {
-          background: #2563eb;
+          background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .upload-button:hover::before {
+          opacity: 1;
+        }
+
+        .upload-button:active {
+          transform: translateY(0);
         }
 
         .upload-info {
           font-size: 0.875rem;
-          color: #9ca3af;
+          color: rgba(226, 232, 240, 0.6);
           margin-top: 1rem;
+          font-weight: 400;
         }
 
         .upload-progress {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 1rem;
+          gap: 1.5rem;
+          position: relative;
+          z-index: 1;
+        }
+
+        .upload-progress p {
+          color: #e2e8f0;
+          font-weight: 600;
+          font-size: 1rem;
         }
 
         .spinner {
-          width: 2rem;
-          height: 2rem;
-          border: 3px solid #e5e7eb;
-          border-top: 3px solid #3b82f6;
+          width: 2.5rem;
+          height: 2.5rem;
+          border: 3px solid rgba(139, 92, 246, 0.2);
+          border-top: 3px solid #8b5cf6;
           border-radius: 50%;
           animation: spin 1s linear infinite;
+          filter: drop-shadow(0 2px 4px rgba(139, 92, 246, 0.3));
         }
 
         @keyframes spin {
@@ -267,18 +327,38 @@ export default function ImageUploader({
         }
 
         .progress-bar {
-          width: 200px;
-          height: 8px;
-          background: #e5e7eb;
-          border-radius: 4px;
+          width: 250px;
+          height: 10px;
+          background: rgba(139, 92, 246, 0.2);
+          border-radius: 5px;
           overflow: hidden;
+          border: 1px solid rgba(139, 92, 246, 0.3);
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .progress-fill {
           height: 100%;
-          background: #3b82f6;
+          background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
           border-radius: 4px;
-          transition: width 0.3s ease;
+          transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .progress-fill::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+          0% { left: -100%; }
+          100% { left: 100%; }
         }
       `}</style>
     </div>
