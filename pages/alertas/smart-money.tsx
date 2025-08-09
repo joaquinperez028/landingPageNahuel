@@ -2695,7 +2695,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
   const [formData, setFormData] = useState({
     title: '',
     type: 'text',
-    category: 'trader-call',
+    category: 'smart-money',
     content: '',
     summary: '',
     readTime: '',
@@ -2765,7 +2765,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.createReportModal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Crear Nuevo Informe Trader Call</h2>
+          <h2>Crear Nuevo Informe Smart Money</h2>
           <button 
             className={styles.closeModal}
             onClick={onClose}
@@ -2783,7 +2783,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               type="text"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="Título del informe Trader Call"
+              placeholder="Título del informe Smart Money"
               required
               disabled={loading}
             />
@@ -2862,7 +2862,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               id="summary"
               value={formData.summary}
               onChange={(e) => handleInputChange('summary', e.target.value)}
-              placeholder="Breve descripción del análisis de Trader Call"
+              placeholder="Breve descripción del análisis Smart Money"
               rows={3}
               disabled={loading}
             />
