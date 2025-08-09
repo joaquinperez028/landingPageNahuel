@@ -177,15 +177,7 @@ const AlertExamplesCarousel: React.FC<AlertExamplesCarouselProps> = ({
                         </div>
                       </div>
 
-                      {/* Status Badge */}
-                      <div className={styles.statusFooter}>
-                        <span 
-                          className={styles.statusBadge}
-                          style={{ backgroundColor: getStatusColor(example.status) }}
-                        >
-                          {example.status}
-                        </span>
-                      </div>
+
                     </div>
                   </div>
                 ))}

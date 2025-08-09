@@ -552,23 +552,54 @@
   max-width: 100%;
 }
 
+/* Examples Section */
+.examplesSection {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+  padding: 4rem 0;
+  position: relative;
+}
+
+.examplesSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    /* Grid pattern */
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
 .sectionTitle {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: #FFFFFF;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   position: relative;
+  text-align: center;
+  z-index: 2;
 }
 
 .sectionTitle::after {
   content: '';
   position: absolute;
   bottom: -0.5rem;
-  left: 0;
-  width: 60px;
-  height: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
   background: linear-gradient(90deg, #8B5CF6 0%, #A855F7 100%);
   border-radius: 2px;
+}
+
+.carouselContainer {
+  position: relative;
+  z-index: 2;
 }
 
 /* Métricas Grid */
