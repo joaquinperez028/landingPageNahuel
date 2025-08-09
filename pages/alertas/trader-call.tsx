@@ -194,7 +194,7 @@ const NonSubscriberView: React.FC<{
                 Trader Call
               </h1>
               <p className={styles.heroDescription}>
-                Servicio de alertas de compra y venta con estrategia de corto-mediano plazo que vengo llevando a cabo en los mercados desde hace varios años. Este servicio tiene como finalidad ayudar a la comunidad inversora a invertir de manera profesional en el mercado de capitales argentino, proporcionando mi mirada y para que empiecen con el pie derecho en este mundo tan hostil. De la mano de Trader Call, podrás comenzar a operar en el mercado con la seguridad de un análisis técnico exhaustivo y profesional para enterarte antes que nadie de las mejores oportunidades de inversión.
+                Servicio de alertas de compra y venta con estrategia de corto plazo, informes detallados y seguimiento activo, para que puedas invertir en CEDEARs y acciones de forma simple y estratégica. Ideal para quienes buscan grandes rendimientos.
               </p>
               <div className={styles.heroFeatures}>
                 <div className={styles.heroFeature}>
