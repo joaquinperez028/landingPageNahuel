@@ -300,11 +300,31 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     await dbConnect();
     console.log('✅ [REPORT] Conectado a MongoDB');
 
+    // Asegurar que el modelo User esté registrado
+    try {
+      const mongoose = require('mongoose');
+      if (!mongoose.models.User) {
+        require('@/models/User');
+      }
+    } catch (modelError) {
+      console.log('⚠️ [REPORT] Modelo User ya registrado o error menor:', modelError);
+    }
+
     let reportDoc;
     try {
-      reportDoc = await Report.findById(id)
-        .populate('author', 'name email image')
-        .lean() as any;
+      // Primero obtenemos el informe sin populate
+      reportDoc = await Report.findById(id).lean() as any;
+      
+      // Si existe el informe, obtenemos el autor por separado
+      if (reportDoc && reportDoc.author) {
+        const authorDoc = await User.findById(reportDoc.author)
+          .select('name email image')
+          .lean() as any;
+        
+        if (authorDoc) {
+          reportDoc.author = authorDoc;
+        }
+      }
 
       console.log('📄 [REPORT] Resultado de búsqueda:', reportDoc ? 'Encontrado' : 'No encontrado');
 
