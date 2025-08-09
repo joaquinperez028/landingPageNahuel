@@ -273,7 +273,7 @@ export function getEmailServiceStatus(): {
 // PLANTILLAS DE EMAIL CONSOLIDADAS
 
 /**
- * Plantilla base para todos los emails
+ * Plantilla base para todos los emails - Diseño compatible y moderno
  */
 export function createEmailTemplate({
   title,
@@ -293,421 +293,259 @@ export function createEmailTemplate({
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${title}</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                line-height: 1.6;
-                color: #2d3748;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                margin: 0;
-                padding: 20px;
-                min-height: 100vh;
-            }
-            
-            .email-container {
-                max-width: 600px;
-                margin: 0 auto;
-                background: #ffffff;
-                border-radius: 16px;
-                overflow: hidden;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            }
-            
-            .header {
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-                padding: 40px 30px;
-                text-align: center;
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .logo-container {
-                margin-bottom: 20px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            
-            .logo {
-                max-width: 120px;
-                height: auto;
-                border-radius: 12px;
-                box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
-                background: rgba(255, 255, 255, 0.1);
-                padding: 8px;
-                backdrop-filter: blur(10px);
-            }
-            
-            .header h1 {
-                color: #00ff88;
-                margin: 0 0 8px 0;
-                font-size: 32px;
-                font-weight: 700;
-                letter-spacing: -0.025em;
-                position: relative;
-                z-index: 1;
-            }
-            
-            .header .subtitle {
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 16px;
-                font-weight: 500;
-                margin: 0;
-                position: relative;
-                z-index: 1;
-            }
-            
-            .content {
-                padding: 40px 30px;
-            }
-            
-            .content h2 {
-                color: #1a202c;
-                font-size: 28px;
-                font-weight: 700;
-                margin: 0 0 20px 0;
-                text-align: center;
-            }
-            
-            .message-content {
-                color: #4a5568;
-                font-size: 16px;
-                line-height: 1.8;
-                margin-bottom: 30px;
-            }
-            
-            .message-content p {
-                margin: 0 0 16px 0;
-            }
-            
-            .cta-section {
-                text-align: center;
-                margin: 30px 0;
-            }
-            
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
-                color: #000;
-                text-decoration: none;
-                padding: 16px 32px;
-                border-radius: 50px;
-                font-weight: 700;
-                font-size: 16px;
-                letter-spacing: 0.025em;
-                transition: all 0.3s ease;
-                box-shadow: 0 8px 15px rgba(0, 255, 136, 0.3);
-            }
-            
-            .cta-button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 12px 20px rgba(0, 255, 136, 0.4);
-            }
-            
-            .divider {
-                height: 1px;
-                background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
-                margin: 30px 0;
-            }
-            
-            .footer {
-                background: #f8fafc;
-                padding: 30px;
-                text-align: center;
-                border-top: 1px solid #e2e8f0;
-            }
-            
-            .footer p {
-                color: #64748b;
-                font-size: 14px;
-                margin: 0 0 10px 0;
-            }
-            
-            .social-links {
-                display: flex;
-                justify-content: center;
-                gap: 15px;
-                margin: 20px 0;
-            }
-            
-            .social-link {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 48px;
-                height: 48px;
-                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-                color: white;
-                text-decoration: none;
-                border-radius: 50%;
-                font-size: 18px;
-                transition: all 0.3s ease;
-            }
-            
-            .social-link:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3);
-            }
-            
-            .disclaimer {
-                margin-top: 20px;
-                padding-top: 20px;
-                border-top: 1px solid #e2e8f0;
-            }
-            
-            .disclaimer p {
-                font-size: 12px;
-                color: #9ca3af;
-                margin: 0 0 8px 0;
-            }
-            
-            .disclaimer a {
-                color: #3b82f6;
-                text-decoration: none;
-            }
-            
-            @media only screen and (max-width: 600px) {
-                body {
-                    padding: 10px;
-                }
-                
-                .header {
-                    padding: 30px 20px;
-                }
-                
-                .logo {
-                    max-width: 100px;
-                }
-                
-                .header h1 {
-                    font-size: 24px;
-                }
-                
-                .content {
-                    padding: 30px 20px;
-                }
-                
-                .content h2 {
-                    font-size: 22px;
-                }
-                
-                .cta-button {
-                    padding: 14px 28px;
-                    font-size: 14px;
-                }
-                
-                .social-links {
-                    gap: 12px;
-                }
-                
-                .social-link {
-                    width: 44px;
-                    height: 44px;
-                    font-size: 16px;
-                }
-                
-                .footer {
-                    padding: 25px 20px;
-                }
-            }
+        <!--[if mso]>
+        <style type="text/css">
+        table, td, div, h1, p { font-family: Arial, sans-serif; }
         </style>
+        <![endif]-->
     </head>
-    <body>
-        <div class="email-container">
-            <div class="header">
-                <div class="logo-container">
-                    <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/LOGOTIPO NARANJA SIN FONDO.png" 
-                         alt="Nahuel Lozano Trading" 
-                         class="logo"
-                         style="max-width: 120px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3); background: rgba(255, 255, 255, 0.1); padding: 8px; backdrop-filter: blur(10px);">
-                </div>
-                <h1>Nahuel Lozano</h1>
-                <p class="subtitle">Trading & Investment Platform</p>
-            </div>
-            
-            <div class="content">
-                <h2>${title}</h2>
-                <div class="message-content">
-                    ${content.split('\n').map(paragraph => 
-                        paragraph.trim() ? `<p>${paragraph}</p>` : ''
-                    ).join('')}
-                </div>
-                
-                ${buttonText && buttonUrl ? `
-                    <div class="cta-section">
-                        <a href="${buttonUrl}" class="cta-button">${buttonText}</a>
-                    </div>
-                ` : ''}
-                
-                <div class="divider"></div>
-                
-                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                    <p style="margin: 0; color: #4a5568; font-size: 14px;">
-                        <strong>💡 Consejo:</strong> Mantente actualizado con las últimas estrategias de trading y análisis de mercado visitando nuestra plataforma regularmente.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="footer">
-                <p><strong>Este email fue enviado desde la plataforma de Nahuel Lozano</strong></p>
-                <p>Tu fuente confiable para estrategias de trading e inversión</p>
-                
-                <div class="social-links">
-                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}" class="social-link" title="Sitio Web">🌐</a>
-                    <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}" class="social-link" title="Email">📧</a>
-                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/alertas" class="social-link" title="Alertas">📊</a>
-                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/recursos" class="social-link" title="Recursos">📚</a>
-                </div>
-                
-                <div class="disclaimer">
-                    <p>Si tienes preguntas, contáctanos en: <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}">${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}</a></p>
-                    <p>© ${new Date().getFullYear()} Nahuel Lozano Trading Platform. Todos los derechos reservados.</p>
-                    <p>Este email fue enviado porque eres parte de nuestra comunidad de trading. Si no deseas recibir más emails, <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil">puedes gestionar tus preferencias aquí</a>.</p>
-                </div>
-            </div>
-        </div>
+    <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fafc;">
+            <tr>
+                <td align="center" style="padding: 20px;">
+                    <!-- Main Container -->
+                    <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                        
+                        <!-- Header -->
+                        <tr>
+                            <td align="center" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 40px 30px; text-align: center;">
+                                <!-- Logo -->
+                                <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/LOGOTIPO%20NARANJA%20SIN%20FONDO.png" 
+                                     alt="Nahuel Lozano Trading" 
+                                     width="120" 
+                                     height="auto" 
+                                     style="display: block; margin: 0 auto 20px; border-radius: 12px; background: rgba(255, 255, 255, 0.1); padding: 8px;">
+                                
+                                <!-- Title -->
+                                <h1 style="color: #00ff88; margin: 0 0 8px 0; font-size: 28px; font-weight: 700; letter-spacing: -0.025em;">
+                                    Nahuel Lozano
+                                </h1>
+                                <p style="color: rgba(255, 255, 255, 0.9); font-size: 16px; margin: 0; font-weight: 500;">
+                                    Trading & Investment Platform
+                                </p>
+                            </td>
+                        </tr>
+                        
+                        <!-- Content -->
+                        <tr>
+                            <td style="padding: 40px 30px;">
+                                <!-- Main Title -->
+                                <h2 style="color: #1a202c; font-size: 24px; font-weight: 700; margin: 0 0 20px 0; text-align: center; line-height: 1.3;">
+                                    ${title}
+                                </h2>
+                                
+                                <!-- Content -->
+                                <div style="color: #4a5568; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                                    ${typeof content === 'string' && content.includes('<') ? content : content.split('\n').map(paragraph => 
+                                        paragraph.trim() ? `<p style="margin: 0 0 16px 0;">${paragraph}</p>` : ''
+                                    ).join('')}
+                                </div>
+                                
+                                <!-- CTA Button -->
+                                ${buttonText && buttonUrl ? `
+                                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                        <tr>
+                                            <td align="center" style="padding: 20px 0;">
+                                                <a href="${buttonUrl}" 
+                                                   style="display: inline-block; background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%); color: #000000; text-decoration: none; padding: 16px 32px; border-radius: 50px; font-weight: 700; font-size: 16px; letter-spacing: 0.025em; box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);">
+                                                    ${buttonText}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                ` : ''}
+                                
+                                <!-- Divider -->
+                                <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%); margin: 30px 0;"></div>
+                                
+                                <!-- Tip -->
+                                <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                                    <p style="margin: 0; color: #1e3a8a; font-size: 14px; font-weight: 500;">
+                                        💡 <strong>Consejo:</strong> Mantente actualizado visitando nuestra plataforma regularmente para no perderte las últimas estrategias de trading.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Footer -->
+                        <tr>
+                            <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                                <p style="color: #64748b; font-size: 14px; margin: 0 0 15px 0; font-weight: 600;">
+                                    Este email fue enviado desde la plataforma de Nahuel Lozano
+                                </p>
+                                <p style="color: #64748b; font-size: 14px; margin: 0 0 20px 0;">
+                                    Tu fuente confiable para estrategias de trading e inversión
+                                </p>
+                                
+                                <!-- Social Links -->
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
+                                    <tr>
+                                        <td style="padding: 0 8px;">
+                                            <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}" 
+                                               style="display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #ffffff; text-decoration: none; border-radius: 50%; text-align: center; line-height: 40px; font-size: 16px;">
+                                                🌐
+                                            </a>
+                                        </td>
+                                        <td style="padding: 0 8px;">
+                                            <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}" 
+                                               style="display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; border-radius: 50%; text-align: center; line-height: 40px; font-size: 16px;">
+                                                📧
+                                            </a>
+                                        </td>
+                                        <td style="padding: 0 8px;">
+                                            <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/alertas" 
+                                               style="display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; text-decoration: none; border-radius: 50%; text-align: center; line-height: 40px; font-size: 16px;">
+                                                📊
+                                            </a>
+                                        </td>
+                                        <td style="padding: 0 8px;">
+                                            <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/recursos" 
+                                               style="display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: #ffffff; text-decoration: none; border-radius: 50%; text-align: center; line-height: 40px; font-size: 16px;">
+                                                📚
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <!-- Disclaimer -->
+                                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                                    <p style="font-size: 12px; color: #9ca3af; margin: 0 0 8px 0;">
+                                        Si tienes preguntas, contáctanos en: 
+                                        <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}" style="color: #3b82f6; text-decoration: none;">
+                                            ${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}
+                                        </a>
+                                    </p>
+                                    <p style="font-size: 12px; color: #9ca3af; margin: 0 0 8px 0;">
+                                        © ${new Date().getFullYear()} Nahuel Lozano Trading Platform. Todos los derechos reservados.
+                                    </p>
+                                    <p style="font-size: 12px; color: #9ca3af; margin: 0;">
+                                        Este email fue enviado porque eres parte de nuestra comunidad de trading. 
+                                        <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil" style="color: #3b82f6; text-decoration: none;">
+                                            Gestiona tus preferencias aquí
+                                        </a>.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>
   `;
 }
 
 /**
- * Plantilla específica para notificaciones de informes
+ * Plantilla específica para notificaciones de informes - Diseño simplificado y moderno
  */
 export function generateReportEmailTemplate(
   notification: any,
   user: any
 ): string {
-  const actionButton = notification.actionUrl ? 
-    `<a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}${notification.actionUrl}" 
-        style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%); color: #000; text-decoration: none; border-radius: 12px; font-weight: 700; margin-top: 25px; box-shadow: 0 4px 15px rgba(0,255,136,0.3); transition: all 0.3s ease;">
-      ${notification.actionText || 'Leer Informe'}
-    </a>` : '';
+  // Información del servicio basada en la categoría
+  const serviceInfo: Record<string, { name: string; emoji: string; color: string }> = {
+    'trader-call': { name: 'Trader Call', emoji: '🚨', color: '#8b5cf6' },
+    'smart-money': { name: 'Smart Money', emoji: '🎯', color: '#10b981' },
+    'cash-flow': { name: 'Cash Flow', emoji: '💰', color: '#f59e0b' }
+  };
 
-  const reportDetails = notification.metadata ? `
-    <div style="margin-top: 25px; padding: 20px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 12px; border-left: 4px solid #00ff88;">
-      <h3 style="margin: 0 0 15px; font-size: 16px; color: #1e293b; font-weight: 600;">
-        📊 Detalles del Informe
-      </h3>
-      <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 15px;">
+  const category = notification.metadata?.reportCategory || 'trader-call';
+  const service = serviceInfo[category as keyof typeof serviceInfo] || serviceInfo['trader-call'];
+
+  const reportDetailsHtml = notification.metadata ? `
+    <div style="background-color: #f8fafc; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #e2e8f0;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <span style="font-size: 20px;">${service.emoji}</span>
+        <h3 style="margin: 0; font-size: 18px; color: #1e293b; font-weight: 600;">
+          Detalles del Informe
+        </h3>
+      </div>
+      
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="8" border="0">
         ${notification.metadata.serviceType ? `
-          <div style="flex: 1; min-width: 120px;">
-            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Servicio</div>
-            <div style="font-size: 16px; color: #1e293b; font-weight: 700; background: #00ff88; color: #000; padding: 4px 12px; border-radius: 20px; display: inline-block;">${notification.metadata.serviceType}</div>
-          </div>
+          <tr>
+            <td style="font-size: 14px; color: #64748b; font-weight: 600; width: 30%;">Servicio:</td>
+            <td style="font-size: 14px; color: #1e293b; font-weight: 700;">
+              <span style="background-color: ${service.color}; color: white; padding: 4px 12px; border-radius: 16px; font-size: 12px;">
+                ${service.name}
+              </span>
+            </td>
+          </tr>
         ` : ''}
         ${notification.metadata.reportCategory ? `
-          <div style="flex: 1; min-width: 120px;">
-            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Categoría</div>
-            <div style="font-size: 16px; color: #1e293b; font-weight: 700; text-transform: capitalize;">${notification.metadata.reportCategory.replace('-', ' ')}</div>
-          </div>
+          <tr>
+            <td style="font-size: 14px; color: #64748b; font-weight: 600;">Categoría:</td>
+            <td style="font-size: 14px; color: #1e293b; font-weight: 600; text-transform: capitalize;">
+              ${notification.metadata.reportCategory.replace('-', ' ')}
+            </td>
+          </tr>
         ` : ''}
         ${notification.metadata.reportType ? `
-          <div style="flex: 1; min-width: 120px;">
-            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 5px;">Tipo</div>
-            <div style="font-size: 16px; color: #1e293b; font-weight: 700; text-transform: capitalize;">${notification.metadata.reportType}</div>
-          </div>
+          <tr>
+            <td style="font-size: 14px; color: #64748b; font-weight: 600;">Tipo:</td>
+            <td style="font-size: 14px; color: #1e293b; font-weight: 600; text-transform: capitalize;">
+              ${notification.metadata.reportType}
+            </td>
+          </tr>
         ` : ''}
-      </div>
+      </table>
     </div>
   ` : '';
 
-  return createNotificationEmailTemplate({
-    title: `${notification.icon} ${notification.title}`,
-    content: `
-      <!-- Logo principal centrado -->
-      <div style="text-align: center; margin-bottom: 40px;">
-        <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/logo%20notificaciones.png" 
-             alt="Nahuel Lozano Trading" 
-             style="width: 140px; height: auto; margin: 0 auto; display: block; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+  const contentHtml = `
+    <!-- Saludo personalizado -->
+    <div style="text-align: center; margin-bottom: 30px;">
+      <h3 style="margin: 0 0 10px; font-size: 20px; color: #1e293b; font-weight: 700;">
+        ¡Hola ${user.name || user.email.split('@')[0]}! 👋
+      </h3>
+      <p style="margin: 0; font-size: 16px; color: #64748b; line-height: 1.5;">
+        Tienes un nuevo informe de análisis disponible en tu cuenta.
+      </p>
+    </div>
+    
+    <!-- Badge del servicio -->
+    <div style="text-align: center; margin-bottom: 25px;">
+      <div style="display: inline-block; background-color: ${service.color}; color: white; padding: 8px 20px; border-radius: 25px; font-weight: 600; font-size: 14px;">
+        ${service.emoji} ${service.name} - Nuevo Contenido
       </div>
+    </div>
+    
+    <!-- Contenido principal -->
+    <div style="background-color: #ffffff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 25px; margin: 20px 0; text-align: center;">
+      <div style="font-size: 40px; margin-bottom: 15px;">📊</div>
+      <h4 style="margin: 0 0 15px; font-size: 18px; color: #1e293b; font-weight: 700;">
+        ${notification.metadata?.reportTitle || notification.title || 'Nuevo Informe'}
+      </h4>
       
-      <!-- Badge de tipo de notificación -->
-      <div style="text-align: center; margin-bottom: 30px;">
-        <div style="display: inline-block; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; margin-bottom: 20px;">
-          📰 Nuevo Contenido Disponible
-        </div>
-        <h2 style="margin: 0 0 10px; font-size: 22px; color: #1e293b; font-weight: 700;">
-          ¡Hola ${user.name || user.email.split('@')[0]}! 👋
-        </h2>
-        <p style="margin: 0; font-size: 16px; color: #64748b; line-height: 1.5;">
-          Tienes un nuevo informe de análisis disponible en tu cuenta.
+      <div style="background-color: #f8fafc; border-radius: 8px; padding: 16px; margin: 15px 0;">
+        <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6;">
+          ${notification.message}
         </p>
       </div>
-      
-      <!-- Contenido principal del informe -->
-      <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 2px solid #e2e8f0; border-radius: 16px; padding: 30px; margin: 25px 0; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <div style="font-size: 48px; margin-bottom: 10px;">📊</div>
-          <h3 style="margin: 0 0 10px; font-size: 20px; color: #1e293b; font-weight: 700;">
-            ${notification.metadata?.reportTitle || 'Nuevo Informe'}
-          </h3>
-        </div>
-        
-        <div style="background: #f1f5f9; border-radius: 12px; padding: 20px; margin: 20px 0;">
-          <p style="margin: 0; font-size: 16px; color: #374151; line-height: 1.6; text-align: center;">
-            ${notification.message}
+    </div>
+    
+    ${reportDetailsHtml}
+    
+    <!-- Sección de acceso rápido -->
+    <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 20px 0;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">⚡</span>
+        <div>
+          <h5 style="margin: 0 0 5px; font-size: 14px; color: #92400e; font-weight: 600;">
+            Acceso Inmediato
+          </h5>
+          <p style="margin: 0; font-size: 13px; color: #b45309; line-height: 1.4;">
+            El informe está disponible ahora en tu área de recursos.
           </p>
         </div>
-        
-        ${reportDetails}
-        
-        <div style="text-align: center; margin-top: 30px;">
-          ${actionButton}
-        </div>
       </div>
-      
-      <!-- Sección de análisis exclusivo -->
-      <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1px solid #10b981; border-radius: 12px; padding: 20px; margin: 25px 0;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-          <div style="font-size: 24px;">✨</div>
-          <div>
-            <h4 style="margin: 0 0 5px; font-size: 16px; color: #065f46; font-weight: 600;">
-              Análisis Exclusivo
-            </h4>
-            <p style="margin: 0; font-size: 14px; color: #047857; line-height: 1.4;">
-              Este informe contiene análisis detallado y estrategias específicas para tu servicio suscrito.
-            </p>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Sección de acceso inmediato -->
-      <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 20px; margin: 25px 0;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-          <div style="font-size: 24px;">⏰</div>
-          <div>
-            <h4 style="margin: 0 0 5px; font-size: 16px; color: #92400e; font-weight: 600;">
-              Acceso Inmediato
-            </h4>
-            <p style="margin: 0; font-size: 14px; color: #b45309; line-height: 1.4;">
-              El informe está disponible ahora en tu área de recursos. Te recomendamos leerlo lo antes posible.
-            </p>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Consejo adicional -->
-      <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #0ea5e9; border-radius: 12px; padding: 20px; margin: 25px 0;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-          <div style="font-size: 24px;">💡</div>
-          <div>
-            <h4 style="margin: 0 0 5px; font-size: 16px; color: #0c4a6e; font-weight: 600;">
-              Consejo
-            </h4>
-            <p style="margin: 0; font-size: 14px; color: #0369a1; line-height: 1.4;">
-              Mantente actualizado con las últimas estrategias de trading y análisis de mercado visitando nuestra plataforma regularmente.
-            </p>
-          </div>
-        </div>
-      </div>
-    `,
+    </div>
+  `;
+
+  return createNotificationEmailTemplate({
+    title: `${service.emoji} Nuevo ${service.name}: ${notification.title}`,
+    content: contentHtml,
     notificationType: 'info',
     urgency: 'normal',
     buttonText: notification.actionText || 'Leer Informe',
@@ -1072,7 +910,7 @@ export function createPromotionalEmailTemplate({
 } 
 
 /**
- * Plantilla específica para notificaciones con logo prominente
+ * Plantilla específica para notificaciones con diseño moderno y simple
  */
 export function createNotificationEmailTemplate({
   title,
@@ -1109,303 +947,147 @@ export function createNotificationEmailTemplate({
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${title}</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                line-height: 1.6;
-                color: #2d3748;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                margin: 0;
-                padding: 20px;
-                min-height: 100vh;
-            }
-            
-            .email-container {
-                max-width: 600px;
-                margin: 0 auto;
-                background: #ffffff;
-                border-radius: 16px;
-                overflow: hidden;
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            }
-            
-            .header {
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-                padding: 40px 30px;
-                text-align: center;
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .logo-container {
-                margin-bottom: 25px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            
-            .logo {
-                max-width: 140px;
-                height: auto;
-                border-radius: 16px;
-                box-shadow: 0 12px 30px rgba(0, 255, 136, 0.4);
-                background: rgba(255, 255, 255, 0.15);
-                padding: 12px;
-                backdrop-filter: blur(15px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-            
-            .notification-badge {
-                display: inline-block;
-                background: ${urgencyColors[urgency]};
-                color: white;
-                padding: 8px 16px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                margin-bottom: 15px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            }
-            
-            .header h1 {
-                color: #00ff88;
-                margin: 0 0 8px 0;
-                font-size: 32px;
-                font-weight: 700;
-                letter-spacing: -0.025em;
-                position: relative;
-                z-index: 1;
-            }
-            
-            .header .subtitle {
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 16px;
-                font-weight: 500;
-                margin: 0;
-                position: relative;
-                z-index: 1;
-            }
-            
-            .content {
-                padding: 40px 30px;
-            }
-            
-            .content h2 {
-                color: #1a202c;
-                font-size: 28px;
-                font-weight: 700;
-                margin: 0 0 20px 0;
-                text-align: center;
-            }
-            
-            .message-content {
-                color: #4a5568;
-                font-size: 16px;
-                line-height: 1.8;
-                margin-bottom: 30px;
-            }
-            
-            .message-content p {
-                margin: 0 0 16px 0;
-            }
-            
-            .cta-section {
-                text-align: center;
-                margin: 30px 0;
-            }
-            
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
-                color: #000;
-                text-decoration: none;
-                padding: 16px 32px;
-                border-radius: 50px;
-                font-weight: 700;
-                font-size: 16px;
-                letter-spacing: 0.025em;
-                transition: all 0.3s ease;
-                box-shadow: 0 8px 15px rgba(0, 255, 136, 0.3);
-            }
-            
-            .cta-button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 12px 20px rgba(0, 255, 136, 0.4);
-            }
-            
-            .divider {
-                height: 1px;
-                background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
-                margin: 30px 0;
-            }
-            
-            .footer {
-                background: #f8fafc;
-                padding: 30px;
-                text-align: center;
-                border-top: 1px solid #e2e8f0;
-            }
-            
-            .footer p {
-                color: #64748b;
-                font-size: 14px;
-                margin: 0 0 10px 0;
-            }
-            
-            .social-links {
-                display: flex;
-                justify-content: center;
-                gap: 15px;
-                margin: 20px 0;
-            }
-            
-            .social-link {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 48px;
-                height: 48px;
-                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-                color: white;
-                text-decoration: none;
-                border-radius: 50%;
-                font-size: 18px;
-                transition: all 0.3s ease;
-            }
-            
-            .social-link:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3);
-            }
-            
-            .disclaimer {
-                margin-top: 20px;
-                padding-top: 20px;
-                border-top: 1px solid #e2e8f0;
-            }
-            
-            .disclaimer p {
-                font-size: 12px;
-                color: #9ca3af;
-                margin: 0 0 8px 0;
-            }
-            
-            .disclaimer a {
-                color: #3b82f6;
-                text-decoration: none;
-            }
-            
-            @media only screen and (max-width: 600px) {
-                body {
-                    padding: 10px;
-                }
-                
-                .header {
-                    padding: 30px 20px;
-                }
-                
-                .logo {
-                    max-width: 120px;
-                }
-                
-                .header h1 {
-                    font-size: 24px;
-                }
-                
-                .content {
-                    padding: 30px 20px;
-                }
-                
-                .content h2 {
-                    font-size: 22px;
-                }
-                
-                .cta-button {
-                    padding: 14px 28px;
-                    font-size: 14px;
-                }
-                
-                .social-links {
-                    gap: 12px;
-                }
-                
-                .social-link {
-                    width: 44px;
-                    height: 44px;
-                    font-size: 16px;
-                }
-                
-                .footer {
-                    padding: 25px 20px;
-                }
-            }
+        <!--[if mso]>
+        <style type="text/css">
+        table, td, div, h1, p { font-family: Arial, sans-serif; }
         </style>
+        <![endif]-->
     </head>
-    <body>
-        <div class="email-container">
-            <div class="header">
-                <div class="logo-container">
-                    <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/LOGOTIPO NARANJA SIN FONDO.png" 
-                         alt="Nahuel Lozano Trading" 
-                         class="logo"
-                         style="max-width: 140px; height: auto; border-radius: 16px; box-shadow: 0 12px 30px rgba(0, 255, 136, 0.4); background: rgba(255, 255, 255, 0.15); padding: 12px; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2);">
-                </div>
-                <div class="notification-badge">
-                    ${typeIcons[notificationType]} ${notificationType.toUpperCase()}
-                </div>
-                <h1>Nahuel Lozano</h1>
-                <p class="subtitle">Trading & Investment Platform</p>
-            </div>
-            
-            <div class="content">
-                <h2>${title}</h2>
-                <div class="message-content">
-                    ${content.split('\n').map(paragraph => 
-                        paragraph.trim() ? `<p>${paragraph}</p>` : ''
-                    ).join('')}
-                </div>
-                
-                ${buttonText && buttonUrl ? `
-                    <div class="cta-section">
-                        <a href="${buttonUrl}" class="cta-button">${buttonText}</a>
-                    </div>
-                ` : ''}
-                
-                <div class="divider"></div>
-                
-                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-                    <p style="margin: 0; color: #4a5568; font-size: 14px;">
-                        <strong>💡 Consejo:</strong> Mantente actualizado con las últimas estrategias de trading y análisis de mercado visitando nuestra plataforma regularmente.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="footer">
-                <p><strong>Este email fue enviado desde la plataforma de Nahuel Lozano</strong></p>
-                <p>Tu fuente confiable para estrategias de trading e inversión</p>
-                
-                <div class="social-links">
-                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}" class="social-link" title="Sitio Web">🌐</a>
-                    <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}" class="social-link" title="Email">📧</a>
-                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/alertas" class="social-link" title="Alertas">📊</a>
-                    <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/recursos" class="social-link" title="Recursos">📚</a>
-                </div>
-                
-                <div class="disclaimer">
-                    <p>Si tienes preguntas, contáctanos en: <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}">${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}</a></p>
-                    <p>© ${new Date().getFullYear()} Nahuel Lozano Trading Platform. Todos los derechos reservados.</p>
-                    <p>Este email fue enviado porque eres parte de nuestra comunidad de trading. Si no deseas recibir más emails, <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil">puedes gestionar tus preferencias aquí</a>.</p>
-                </div>
-            </div>
-        </div>
+    <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fafc;">
+            <tr>
+                <td align="center" style="padding: 20px;">
+                    <!-- Main Container -->
+                    <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                        
+                        <!-- Header -->
+                        <tr>
+                            <td align="center" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 40px 30px; text-align: center;">
+                                <!-- Logo -->
+                                <img src="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/logos/LOGOTIPO%20NARANJA%20SIN%20FONDO.png" 
+                                     alt="Nahuel Lozano Trading" 
+                                     width="120" 
+                                     height="auto" 
+                                     style="display: block; margin: 0 auto 20px; border-radius: 12px; background: rgba(255, 255, 255, 0.1); padding: 8px;">
+                                
+                                <!-- Badge -->
+                                <div style="display: inline-block; background-color: ${urgencyColors[urgency]}; color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px;">
+                                    ${typeIcons[notificationType]} ${notificationType.toUpperCase()}
+                                </div>
+                                
+                                <!-- Title -->
+                                <h1 style="color: #00ff88; margin: 0 0 8px 0; font-size: 28px; font-weight: 700; letter-spacing: -0.025em;">
+                                    Nahuel Lozano
+                                </h1>
+                                <p style="color: rgba(255, 255, 255, 0.9); font-size: 16px; margin: 0; font-weight: 500;">
+                                    Trading & Investment Platform
+                                </p>
+                            </td>
+                        </tr>
+                        
+                        <!-- Content -->
+                        <tr>
+                            <td style="padding: 40px 30px;">
+                                <!-- Main Title -->
+                                <h2 style="color: #1a202c; font-size: 24px; font-weight: 700; margin: 0 0 20px 0; text-align: center; line-height: 1.3;">
+                                    ${title}
+                                </h2>
+                                
+                                <!-- Content -->
+                                <div style="color: #4a5568; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                                    ${content}
+                                </div>
+                                
+                                <!-- CTA Button -->
+                                ${buttonText && buttonUrl ? `
+                                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                        <tr>
+                                            <td align="center" style="padding: 20px 0;">
+                                                <a href="${buttonUrl}" 
+                                                   style="display: inline-block; background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%); color: #000000; text-decoration: none; padding: 16px 32px; border-radius: 50px; font-weight: 700; font-size: 16px; letter-spacing: 0.025em; box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);">
+                                                    ${buttonText}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                ` : ''}
+                                
+                                <!-- Divider -->
+                                <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%); margin: 30px 0;"></div>
+                                
+                                <!-- Tip -->
+                                <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                                    <p style="margin: 0; color: #1e3a8a; font-size: 14px; font-weight: 500;">
+                                        💡 <strong>Consejo:</strong> Mantente actualizado visitando nuestra plataforma regularmente para no perderte las últimas estrategias de trading.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Footer -->
+                        <tr>
+                            <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                                <p style="color: #64748b; font-size: 14px; margin: 0 0 15px 0; font-weight: 600;">
+                                    Este email fue enviado desde la plataforma de Nahuel Lozano
+                                </p>
+                                <p style="color: #64748b; font-size: 14px; margin: 0 0 20px 0;">
+                                    Tu fuente confiable para estrategias de trading e inversión
+                                </p>
+                                
+                                <!-- Social Links -->
+                                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
+                                    <tr>
+                                        <td style="padding: 0 8px;">
+                                            <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}" 
+                                               style="display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #ffffff; text-decoration: none; border-radius: 50%; text-align: center; line-height: 40px; font-size: 16px;">
+                                                🌐
+                                            </a>
+                                        </td>
+                                        <td style="padding: 0 8px;">
+                                            <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}" 
+                                               style="display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; border-radius: 50%; text-align: center; line-height: 40px; font-size: 16px;">
+                                                📧
+                                            </a>
+                                        </td>
+                                        <td style="padding: 0 8px;">
+                                            <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/alertas" 
+                                               style="display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; text-decoration: none; border-radius: 50%; text-align: center; line-height: 40px; font-size: 16px;">
+                                                📊
+                                            </a>
+                                        </td>
+                                        <td style="padding: 0 8px;">
+                                            <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/recursos" 
+                                               style="display: inline-block; width: 40px; height: 40px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: #ffffff; text-decoration: none; border-radius: 50%; text-align: center; line-height: 40px; font-size: 16px;">
+                                                📚
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <!-- Disclaimer -->
+                                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                                    <p style="font-size: 12px; color: #9ca3af; margin: 0 0 8px 0;">
+                                        Si tienes preguntas, contáctanos en: 
+                                        <a href="mailto:${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}" style="color: #3b82f6; text-decoration: none;">
+                                            ${process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@lozanonahuel.com'}
+                                        </a>
+                                    </p>
+                                    <p style="font-size: 12px; color: #9ca3af; margin: 0 0 8px 0;">
+                                        © ${new Date().getFullYear()} Nahuel Lozano Trading Platform. Todos los derechos reservados.
+                                    </p>
+                                    <p style="font-size: 12px; color: #9ca3af; margin: 0;">
+                                        Este email fue enviado porque eres parte de nuestra comunidad de trading. 
+                                        <a href="${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil" style="color: #3b82f6; text-decoration: none;">
+                                            Gestiona tus preferencias aquí
+                                        </a>.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>
   `;
