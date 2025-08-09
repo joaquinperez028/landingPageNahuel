@@ -603,6 +603,70 @@
 }
 
 /* Métricas Grid */
+.metricsGrid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  color: white;
+}
+
+.metricIcon {
+  margin-bottom: 0.5rem;
+  opacity: 0.9;
+}
+
+.metricNumber {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.metricLabel {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0.25rem 0 0 0;
+  opacity: 0.9;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive para métricas */
+@media (max-width: 768px) {
+  .metricsGrid {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+  
+  .metricCard {
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+  }
+  
+  .metricNumber {
+    font-size: 2rem;
+  }
+  
+  .metricLabel {
+    font-size: 0.85rem;
+  }
+}
+
 .modernMetricsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
