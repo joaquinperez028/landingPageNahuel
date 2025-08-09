@@ -17,8 +17,8 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   padding: 1rem 0;
   position: sticky;
-  top: 0;
-  z-index: 100;
+  top: 70px; /* Posicionarlo debajo del navbar principal */
+  z-index: 40; /* Z-index menor que el navbar principal (50) */
   backdrop-filter: blur(10px);
 }
 
