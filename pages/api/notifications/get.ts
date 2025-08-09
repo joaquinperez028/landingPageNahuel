@@ -79,6 +79,9 @@ async function handleGetNotifications(req: NextApiRequest, res: NextApiResponse)
       query.priority = priority;
     }
 
+    // Excluir notificaciones descartadas por el usuario
+    query.dismissedBy = { $ne: userEmail };
+
     // Filtro para solo no leídas
     if (unreadOnly === 'true') {
       query.readBy = { $ne: userEmail };

@@ -20,6 +20,7 @@ export interface INotification extends mongoose.Document {
   emailSent?: boolean; // Si se envió por email
   pushSent?: boolean; // Si se envió push notification
   readBy?: string[]; // Array de emails de usuarios que la leyeron
+  dismissedBy?: string[]; // Array de emails de usuarios que ocultaron/descartaron la notificación
   totalReads?: number; // Contador de lecturas
   metadata?: {
     alertType?: string; // Tipo de alerta que generó la notificación
@@ -111,6 +112,10 @@ const NotificationSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+  dismissedBy: {
+    type: [String],
+    default: []
+  },
   totalReads: {
     type: Number,
     default: 0
@@ -131,6 +136,7 @@ NotificationSchema.index({ targetUsers: 1, isActive: 1 });
 NotificationSchema.index({ type: 1, isActive: 1 });
 NotificationSchema.index({ readBy: 1 });
 NotificationSchema.index({ relatedAlertId: 1 });
+NotificationSchema.index({ dismissedBy: 1 });
 
 // Método para marcar como leída por un usuario
 NotificationSchema.methods.markAsRead = function(userEmail: string) {

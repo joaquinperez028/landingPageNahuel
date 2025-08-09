@@ -25,21 +25,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    console.log('🗑️ [NOTIFICATIONS] Eliminando notificaciones leídas para usuario:', user.email);
+    console.log('🗑️ [NOTIFICATIONS] Descartando notificaciones leídas para usuario:', user.email);
 
-    // Eliminar todas las notificaciones leídas del usuario
-    const deleteResult = await Notification.deleteMany({
-      recipients: user._id,
-      'readBy.user': user._id,
-      'readBy.readAt': { $exists: true }
-    });
+    // En este esquema, una notificación es "leída" si el email del usuario está en readBy.
+    // En lugar de borrar documentos compartidos, marcamos que el usuario la descartó (dismissedBy)
+    const updateResult = await Notification.updateMany(
+      {
+        isActive: true,
+        readBy: user.email,
+        dismissedBy: { $ne: user.email }
+      },
+      {
+        $addToSet: { dismissedBy: user.email }
+      }
+    );
 
-    console.log('🗑️ [NOTIFICATIONS] Notificaciones eliminadas:', deleteResult.deletedCount);
+    console.log('🗑️ [NOTIFICATIONS] Notificaciones descartadas (matched/modified):', updateResult.matchedCount, updateResult.modifiedCount);
 
     return res.status(200).json({
       success: true,
-      message: 'Notificaciones leídas eliminadas correctamente',
-      deletedCount: deleteResult.deletedCount
+      message: 'Notificaciones leídas descartadas correctamente',
+      deletedCount: updateResult.modifiedCount
     });
 
   } catch (error) {
