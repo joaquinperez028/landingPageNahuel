@@ -2046,7 +2046,7 @@ const SubscriberView: React.FC = () => {
             <div className={styles.inputContainer}>
               <textarea
                 className={`${styles.messageInput} messageInput`}
-                placeholder="Escribe tu mensaje.."
+                placeholder="Escribe tu mensaje..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
