@@ -607,12 +607,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #0f766e 0%, #064e3b 100%);
-  padding: 3rem 2rem;
-  margin: 2rem auto;
+  background: #0f766e;
+  padding: 4rem 2rem;
+  margin: 3rem auto;
   max-width: 1200px;
   width: 90%;
   border-radius: 0;
+  position: relative;
 }
 
 .metricCard {
@@ -622,34 +623,42 @@
   text-align: center;
   flex: 1;
   color: white;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2rem 1.5rem;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0 1rem;
+  transition: all 0.3s ease;
 }
 
-.metricIcon {
-  margin-bottom: 0.5rem;
-  opacity: 0.9;
+.metricCard:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
 }
 
 .metricNumber {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 800;
-  margin: 0;
+  margin: 0 0 0.5rem 0;
   line-height: 1;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .metricLabel {
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin: 0.25rem 0 0 0;
-  opacity: 0.9;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+  opacity: 0.95;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
 }
 
 /* Responsive para métricas */
 @media (max-width: 768px) {
   .metricsGrid {
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
     padding: 2rem 1rem;
     width: 95%;
     margin: 1.5rem auto;
@@ -660,14 +669,16 @@
     flex-direction: row;
     gap: 1rem;
     width: 100%;
+    margin: 0;
+    padding: 1.5rem 1rem;
   }
   
   .metricNumber {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
   
   .metricLabel {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 }
 

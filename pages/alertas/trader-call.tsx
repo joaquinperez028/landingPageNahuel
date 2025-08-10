@@ -251,11 +251,8 @@ const NonSubscriberView: React.FC<{
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <div className={styles.metricIcon}>
-                <Users size={40} />
-              </div>
               <h3 className={styles.metricNumber}>+700</h3>
-              <p className={styles.metricLabel}>Usuarios Activos</p>
+              <p className={styles.metricLabel}>USUARIOS ACTIVOS</p>
             </motion.div>
 
             <motion.div 
@@ -265,11 +262,8 @@ const NonSubscriberView: React.FC<{
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <div className={styles.metricIcon}>
-                <TrendingUp size={40} />
-              </div>
               <h3 className={styles.metricNumber}>+87%</h3>
-              <p className={styles.metricLabel}>Rentabilidad Anual</p>
+              <p className={styles.metricLabel}>RENTABILIDAD ANUAL</p>
             </motion.div>
 
             <motion.div 
@@ -279,11 +273,8 @@ const NonSubscriberView: React.FC<{
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              <div className={styles.metricIcon}>
-                <Activity size={40} />
-              </div>
               <h3 className={styles.metricNumber}>+200</h3>
-              <p className={styles.metricLabel}>Alertas Enviadas</p>
+              <p className={styles.metricLabel}>ALERTAS ENVIADAS</p>
             </motion.div>
 
             <motion.div 
@@ -293,11 +284,8 @@ const NonSubscriberView: React.FC<{
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
             >
-              <div className={styles.metricIcon}>
-                <BarChart3 size={40} />
-              </div>
               <h3 className={styles.metricNumber}>+79%</h3>
-              <p className={styles.metricLabel}>Efectividad</p>
+              <p className={styles.metricLabel}>EFECTIVIDAD</p>
             </motion.div>
           </div>
         </div>
