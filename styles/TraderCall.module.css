@@ -607,12 +607,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  background: linear-gradient(135deg, #0f766e 0%, #064e3b 100%);
   padding: 3rem 2rem;
   margin: 2rem auto;
   max-width: 1200px;
   width: 90%;
-  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+  border-radius: 0;
 }
 
 .metricCard {
@@ -653,6 +653,7 @@
     padding: 2rem 1rem;
     width: 95%;
     margin: 1.5rem auto;
+    border-radius: 0;
   }
   
   .metricCard {
