@@ -68,6 +68,7 @@ const AlertService: React.FC<AlertServiceProps> = ({
 };
 
 const AlertasPage: React.FC = () => {
+  const router = useRouter();
   const alertServices = [
     {
       title: 'Trader Call',
@@ -121,7 +122,7 @@ const AlertasPage: React.FC = () => {
       <Navbar />
       
       <main className={styles.main}>
-        {/* Hero Section */}
+        {/* Hero Section - Nuevo diseño con video */}
         <section className={styles.hero}>
           <div className={styles.container}>
             <motion.div 
@@ -130,13 +131,45 @@ const AlertasPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className={styles.heroTitle}>
-                Alertas de Trading Profesional
-              </h1>
-              <p className={styles.heroSubtitle}>
-                Accede a señales precisas y análisis del mercado en tiempo real. 
-                Elige el servicio que mejor se adapte a tu estrategia de inversión.
-              </p>
+              <div className={styles.heroText}>
+                <h1 className={styles.heroTitle}>
+                  Servicio de Alertas
+                </h1>
+                <p className={styles.heroDescription}>
+                  Accedé a señales precisas y actualizaciones periódicas para operar en los mercados. 
+                  Elegí la estrategia que mejor se ajuste a tus objetivos y mejorá tus probabilidades de éxito.
+                </p>
+                <button 
+                  className={styles.heroButton}
+                  onClick={() => router.push('/alertas/trader-call')}
+                >
+                  Empezá Ahora &gt;
+                </button>
+              </div>
+              
+              <div className={styles.heroVideo}>
+                <div className={styles.videoPlayer}>
+                  <div className={styles.videoPlaceholder}>
+                    <div className={styles.playIcon}>▶</div>
+                  </div>
+                  <div className={styles.videoControls}>
+                    <span className={styles.currentTime}>2:21</span>
+                    <div className={styles.progressBar}>
+                      <div className={styles.progressFill}></div>
+                    </div>
+                    <div className={styles.controlButtons}>
+                      <button className={styles.controlBtn}>⏮</button>
+                      <button className={styles.controlBtn}>⏯</button>
+                      <button className={styles.controlBtn}>⏭</button>
+                      <button className={styles.controlBtn}>🔊</button>
+                      <span className={styles.totalTime}>20:00</span>
+                      <button className={styles.controlBtn}>⚙️</button>
+                      <button className={styles.controlBtn}>⏹</button>
+                      <button className={styles.controlBtn}>⛶</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
         </section>
