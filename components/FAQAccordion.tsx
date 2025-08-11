@@ -85,7 +85,9 @@ const FAQAccordion: React.FC<FAQAccordionProps> = ({
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
               >
                 <div className={styles.answerContent}>
-                  <p>{faq.answer}</p>
+                  {faq.answer.split('\n\n').map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
                 </div>
               </motion.div>
             )}
