@@ -141,7 +141,15 @@ const AlertasPage: React.FC = () => {
                 </p>
                 <button 
                   className={styles.heroButton}
-                  onClick={() => router.push('/alertas/trader-call')}
+                  onClick={() => {
+                    const servicesSection = document.querySelector(`.${styles.services}`);
+                    if (servicesSection) {
+                      servicesSection.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                      });
+                    }
+                  }}
                 >
                   Empezá Ahora &gt;
                 </button>
