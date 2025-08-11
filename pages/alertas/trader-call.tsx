@@ -306,14 +306,15 @@ const NonSubscriberView: React.FC<{
           </motion.h2>
           
           <motion.div 
-            className={styles.historyTableContainer}
+            className={styles.historyImageContainer}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <HistoricalAlertsTable 
-              alerts={historicalAlerts}
-              maxItems={20}
+            <img 
+              src="https://via.placeholder.com/1200x600/1e293b/ffffff?text=Alertas+Históricas+-+Rendimiento+de+Trading" 
+              alt="Alertas Históricas - Rendimiento de Trading"
+              className={styles.historyImage}
             />
           </motion.div>
         </div>
