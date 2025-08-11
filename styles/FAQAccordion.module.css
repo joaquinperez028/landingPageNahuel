@@ -8,18 +8,19 @@
 }
 
 .accordionItem {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(30, 41, 59, 0.8);
   backdrop-filter: blur(10px);
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   transition: all 0.3s ease;
 }
 
 .accordionItem:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
 }
 
 .accordionHeader {
@@ -59,7 +60,7 @@
 }
 
 .question {
-  color: #1e293b;
+  color: #f1f5f9;
   font-size: 1.1rem;
   font-weight: 600;
   line-height: 1.4;
@@ -68,11 +69,11 @@
 }
 
 .accordionHeader.active .question {
-  color: #7c3aed;
+  color: #a78bfa;
 }
 
 .icon {
-  color: #64748b;
+  color: #94a3b8;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -80,18 +81,18 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(139, 92, 246, 0.1);
 }
 
 .accordionHeader:hover .icon {
-  background: rgba(124, 58, 237, 0.1);
-  color: #7c3aed;
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
   transform: scale(1.1);
 }
 
 .accordionHeader.active .icon {
-  color: #7c3aed;
-  background: rgba(124, 58, 237, 0.1);
+  color: #a78bfa;
+  background: rgba(139, 92, 246, 0.2);
   transform: rotate(180deg);
 }
 
@@ -101,12 +102,12 @@
 
 .answerContent {
   padding: 0 2rem 2rem 2rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid rgba(139, 92, 246, 0.2);
   margin-top: -1px;
 }
 
 .answerContent p {
-  color: #475569;
+  color: #cbd5e1;
   font-size: 1rem;
   line-height: 1.7;
   margin: 0 0 1rem 0;
@@ -122,13 +123,13 @@
   align-items: center;
   justify-content: center;
   min-height: 200px;
-  background: rgba(248, 250, 252, 0.8);
+  background: rgba(30, 41, 59, 0.8);
   border-radius: 16px;
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed rgba(139, 92, 246, 0.4);
 }
 
 .emptyState p {
-  color: #64748b;
+  color: #94a3b8;
   font-size: 1rem;
   font-weight: 500;
   text-align: center;
@@ -136,7 +137,7 @@
 
 /* Animation variants for different themes */
 .accordion.traderCall .accordionHeader::before {
-  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  background: linear-gradient(135deg, #8b5cf6, #10b981);
 }
 
 .accordion.smartMoney .accordionHeader::before {
@@ -199,7 +200,7 @@
 
 /* Focus states for accessibility */
 .accordionHeader:focus {
-  outline: 2px solid #7c3aed;
+  outline: 2px solid #a78bfa;
   outline-offset: 2px;
 }
 
