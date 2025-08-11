@@ -168,8 +168,8 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
         const response = await fetch('/api/site-config');
         const data = await response.json();
         
-        if (data.success && data.data.trainingStartDates?.swingTrading?.enabled) {
-          const { startDate, startTime } = data.data.trainingStartDates.swingTrading;
+        if (data.trainingStartDates?.swingTrading?.enabled) {
+          const { startDate, startTime } = data.trainingStartDates.swingTrading;
           const newCountdown = calculateCountdown(new Date(startDate), startTime);
           setCountdown(newCountdown);
           
