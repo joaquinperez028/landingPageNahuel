@@ -255,51 +255,49 @@ const AlertasPage: React.FC = () => {
 
         {/* Stats Section */}
         <section className={styles.stats}>
-          <div className={styles.container}>
-            <div className={styles.statsGrid}>
-              <motion.div 
-                className={styles.statItem}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-              >
-                <h3 className={styles.statNumber}>+2900</h3>
-                <p className={styles.statLabel}>Suscriptores</p>
-              </motion.div>
-              
-              <motion.div 
-                className={styles.statItem}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-              >
-                <h3 className={styles.statNumber}>+790</h3>
-                <p className={styles.statLabel}>Alertas</p>
-              </motion.div>
-              
-              <motion.div 
-                className={styles.statItem}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-              >
-                <h3 className={styles.statNumber}>+800</h3>
-                <p className={styles.statLabel}>Informes</p>
-              </motion.div>
-              
-              <motion.div 
-                className={styles.statItem}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
-              >
-                <h3 className={styles.statNumber}>98%</h3>
-                <p className={styles.statLabel}>Satisfacción</p>
-              </motion.div>
-            </div>
+          <div className={styles.statsGrid}>
+            <motion.div 
+              className={styles.statItem}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+            >
+              <h3 className={styles.statNumber}>+2900</h3>
+              <p className={styles.statLabel}>Suscriptores</p>
+            </motion.div>
+            
+            <motion.div 
+              className={styles.statItem}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              <h3 className={styles.statNumber}>+790</h3>
+              <p className={styles.statLabel}>Alertas</p>
+            </motion.div>
+            
+            <motion.div 
+              className={styles.statItem}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <h3 className={styles.statNumber}>+800</h3>
+              <p className={styles.statLabel}>Informes</p>
+            </motion.div>
+            
+            <motion.div 
+              className={styles.statItem}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
+              <h3 className={styles.statNumber}>98%</h3>
+              <p className={styles.statLabel}>Satisfacción</p>
+            </motion.div>
           </div>
         </section>
 
