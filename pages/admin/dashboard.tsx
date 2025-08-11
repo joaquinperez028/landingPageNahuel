@@ -579,7 +579,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
     setIsSubmitting(true);
     try {
       const moduleData = {
-        titulo: moduleFormData.titulo,
+        nombre: moduleFormData.titulo, // El API espera 'nombre' pero el frontend usa 'titulo'
         descripcion: moduleFormData.descripcion,
         roadmapId: editingRoadmap._id,
         tipoEntrenamiento: editingRoadmap.tipoEntrenamiento,
@@ -631,7 +631,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   const editModule = (module: any) => {
     setEditingModule(module);
     setModuleFormData({
-      titulo: module.titulo,
+      titulo: module.nombre, // El módulo viene con 'nombre' pero el formulario usa 'titulo'
       descripcion: module.descripcion,
       duracion: module.duracion,
       lecciones: module.lecciones,
