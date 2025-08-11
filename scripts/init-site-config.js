@@ -1,6 +1,9 @@
 const axios = require('axios');
 require('dotenv').config();
 
+// Hardcodeamos la variable de entorno para desarrollo local
+process.env.MONGODB_URI = 'mongodb+srv://Tortu:Las40org@landingpagenahuel.pdccomn.mongodb.net/?retryWrites=true&w=majority&appName=landingPageNahuel';
+
 const configData = {
   heroVideo: {
     youtubeId: 'dQw4w9WgXcQ',
@@ -122,8 +125,10 @@ async function initializeSiteConfig() {
     
   } catch (error) {
     console.error('❌ Error al inicializar configuración:', error.message);
+    console.error('❌ Error completo:', error);
     if (error.response) {
       console.error('📋 Respuesta del servidor:', error.response.data);
+      console.error('📋 Status:', error.response.status);
     }
     process.exit(1);
   }
