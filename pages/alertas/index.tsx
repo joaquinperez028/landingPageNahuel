@@ -263,8 +263,8 @@ const AlertasPage: React.FC = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
               >
-                <h3 className={styles.statNumber}>+1,300</h3>
-                <p className={styles.statLabel}>Alertas Enviadas</p>
+                <h3 className={styles.statNumber}>+2900</h3>
+                <p className={styles.statLabel}>Suscriptores</p>
               </motion.div>
               
               <motion.div 
@@ -274,8 +274,8 @@ const AlertasPage: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
               >
-                <h3 className={styles.statNumber}>87%</h3>
-                <p className={styles.statLabel}>Precisión Promedio</p>
+                <h3 className={styles.statNumber}>+790</h3>
+                <p className={styles.statLabel}>Alertas</p>
               </motion.div>
               
               <motion.div 
@@ -285,8 +285,8 @@ const AlertasPage: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
               >
-                <h3 className={styles.statNumber}>2,500+</h3>
-                <p className={styles.statLabel}>Traders Activos</p>
+                <h3 className={styles.statNumber}>+800</h3>
+                <p className={styles.statLabel}>Informes</p>
               </motion.div>
               
               <motion.div 
@@ -296,8 +296,8 @@ const AlertasPage: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
               >
-                <h3 className={styles.statNumber}>24/7</h3>
-                <p className={styles.statLabel}>Monitoreo del Mercado</p>
+                <h3 className={styles.statNumber}>98%</h3>
+                <p className={styles.statLabel}>Satisfacción</p>
               </motion.div>
             </div>
           </div>
