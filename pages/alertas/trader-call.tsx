@@ -265,7 +265,7 @@ const NonSubscriberView: React.FC<{
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
-            <h3 className={styles.metricNumber}>+87%</h3>
+            <h3 className={styles.metricNumber}>+87%</h3> 
             <p className={styles.metricLabel}>RENTABILIDAD ANUAL</p>
           </motion.div>
 
