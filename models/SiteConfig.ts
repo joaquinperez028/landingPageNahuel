@@ -161,25 +161,25 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
   },
   serviciosVideos: {
     alertas: {
-      youtubeId: { type: String, required: true },
-      title: { type: String, required: true },
-      description: { type: String, required: true },
+      youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+      title: { type: String, default: 'Video de Alertas' },
+      description: { type: String, default: 'Descubre cómo funcionan nuestras alertas de trading' },
       autoplay: { type: Boolean, default: false },
       muted: { type: Boolean, default: true },
       loop: { type: Boolean, default: false }
     },
     entrenamientos: {
-      youtubeId: { type: String, required: true },
-      title: { type: String, required: true },
-      description: { type: String, required: true },
+      youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+      title: { type: String, default: 'Video de Entrenamientos' },
+      description: { type: String, default: 'Conoce nuestros programas de formación especializados' },
       autoplay: { type: Boolean, default: false },
       muted: { type: Boolean, default: true },
       loop: { type: Boolean, default: false }
     },
     asesorias: {
-      youtubeId: { type: String, required: true },
-      title: { type: String, required: true },
-      description: { type: String, required: true },
+      youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+      title: { type: String, default: 'Video de Asesorías' },
+      description: { type: String, default: 'Asesorías personalizadas para optimizar tu portafolio' },
       autoplay: { type: Boolean, default: false },
       muted: { type: Boolean, default: true },
       loop: { type: Boolean, default: false }

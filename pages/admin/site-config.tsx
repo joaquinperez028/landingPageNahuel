@@ -171,18 +171,53 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
     setIsLoading(true);
 
     try {
+      // Asegurar que los campos de serviciosVideos siempre tengan valores por defecto
+      const configToSend = {
+        ...config,
+        serviciosVideos: {
+          alertas: {
+            youtubeId: config.serviciosVideos?.alertas?.youtubeId || 'dQw4w9WgXcQ',
+            title: config.serviciosVideos?.alertas?.title || 'Video de Alertas',
+            description: config.serviciosVideos?.alertas?.description || 'Descubre cómo funcionan nuestras alertas de trading',
+            autoplay: config.serviciosVideos?.alertas?.autoplay ?? false,
+            muted: config.serviciosVideos?.alertas?.muted ?? true,
+            loop: config.serviciosVideos?.alertas?.loop ?? false
+          },
+          entrenamientos: {
+            youtubeId: config.serviciosVideos?.entrenamientos?.youtubeId || 'dQw4w9WgXcQ',
+            title: config.serviciosVideos?.entrenamientos?.title || 'Video de Entrenamientos',
+            description: config.serviciosVideos?.entrenamientos?.description || 'Conoce nuestros programas de formación especializados',
+            autoplay: config.serviciosVideos?.entrenamientos?.autoplay ?? false,
+            muted: config.serviciosVideos?.entrenamientos?.muted ?? true,
+            loop: config.serviciosVideos?.entrenamientos?.loop ?? false
+          },
+          asesorias: {
+            youtubeId: config.serviciosVideos?.asesorias?.youtubeId || 'dQw4w9WgXcQ',
+            title: config.serviciosVideos?.asesorias?.title || 'Video de Asesorías',
+            description: config.serviciosVideos?.asesorias?.description || 'Asesorías personalizadas para optimizar tu portafolio',
+            autoplay: config.serviciosVideos?.asesorias?.autoplay ?? false,
+            muted: config.serviciosVideos?.asesorias?.muted ?? true,
+            loop: config.serviciosVideos?.asesorias?.loop ?? false
+          }
+        }
+      };
+
+      console.log('Enviando configuración:', JSON.stringify(configToSend, null, 2));
+
       const response = await fetch('/api/site-config', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(config),
+        body: JSON.stringify(configToSend),
       });
 
       if (response.ok) {
         toast.success('Configuración actualizada correctamente');
       } else {
-        toast.error('Error al actualizar la configuración');
+        const errorData = await response.json();
+        console.error('Error response:', errorData);
+        toast.error(`Error al actualizar la configuración: ${errorData.error || 'Error desconocido'}`);
       }
     } catch (error) {
       console.error('Error:', error);
