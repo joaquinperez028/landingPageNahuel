@@ -114,12 +114,33 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
     consulta: ''
   });
 
-  // Estados para el countdown
+  // Estados para el countdown y fecha de inicio
   const [countdown, setCountdown] = useState({
-    days: 80,
-    hours: 23,
-    minutes: 57
+    days: 0,
+    hours: 0,
+    minutes: 0
   });
+  const [startDateText, setStartDateText] = useState('11 de octubre a las 13 hs');
+
+  // Función para calcular el countdown basado en la fecha de inicio
+  const calculateCountdown = (startDate: Date, startTime: string) => {
+    const now = new Date();
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const targetDate = new Date(startDate);
+    targetDate.setHours(startHours, startMinutes, 0, 0);
+    
+    const diff = targetDate.getTime() - now.getTime();
+    
+    if (diff <= 0) {
+      return { days: 0, hours: 0, minutes: 0 };
+    }
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return { days, hours, minutes };
+  };
 
   useEffect(() => {
     if (session?.user) {
@@ -139,20 +160,50 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
     fetchRoadmaps();
   }, []);
 
-  // Countdown timer
+  // Countdown timer dinámico
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1 };
-        } else if (prev.hours > 0) {
-          return { ...prev, hours: prev.hours - 1, minutes: 59 };
-        } else if (prev.days > 0) {
-          return { days: prev.days - 1, hours: 23, minutes: 59 };
+    const updateCountdown = async () => {
+      try {
+        // Obtener configuración del sitio
+        const response = await fetch('/api/site-config');
+        const data = await response.json();
+        
+        if (data.success && data.data.trainingStartDates?.swingTrading?.enabled) {
+          const { startDate, startTime } = data.data.trainingStartDates.swingTrading;
+          const newCountdown = calculateCountdown(new Date(startDate), startTime);
+          setCountdown(newCountdown);
+          
+          // Actualizar texto de fecha de inicio
+          const date = new Date(startDate);
+          const formattedDate = date.toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long'
+          });
+          setStartDateText(`${formattedDate} a las ${startTime} hs`);
+        } else {
+          // Fallback a valores por defecto si no hay configuración
+          const defaultDate = new Date('2024-10-11T13:00:00.000Z');
+          const defaultTime = '13:00';
+          const newCountdown = calculateCountdown(defaultDate, defaultTime);
+          setCountdown(newCountdown);
+          setStartDateText('11 de octubre a las 13 hs');
         }
-        return prev;
-      });
-    }, 60000); // Actualizar cada minuto
+      } catch (error) {
+        console.error('Error al obtener configuración del countdown:', error);
+        // Fallback a valores por defecto
+        const defaultDate = new Date('2024-10-11T13:00:00.000Z');
+        const defaultTime = '13:00';
+        const newCountdown = calculateCountdown(defaultDate, defaultTime);
+        setCountdown(newCountdown);
+        setStartDateText('11 de octubre a las 13 hs');
+      }
+    };
+
+    // Actualizar countdown inicial
+    updateCountdown();
+
+    // Actualizar cada minuto
+    const timer = setInterval(updateCountdown, 60000);
 
     return () => clearInterval(timer);
   }, []);
@@ -363,7 +414,7 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
                 </p>
                 
                 <div className={styles.startDate}>
-                  Fecha de inicio: 11 de octubre a las 13 hs
+                  Fecha de inicio: {startDateText}
                 </div>
                 
                 <div className={styles.countdownContainer}>

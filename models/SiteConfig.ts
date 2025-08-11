@@ -68,6 +68,19 @@ interface SiteConfigDocument extends Document {
     visible: boolean;
     destacados: string[]; // IDs de entrenamientos destacados
   };
+  // Nueva sección para fechas de inicio de entrenamientos
+  trainingStartDates: {
+    swingTrading: {
+      startDate: Date;
+      startTime: string; // formato HH:mm
+      enabled: boolean;
+    };
+    dowJones: {
+      startDate: Date;
+      startTime: string; // formato HH:mm
+      enabled: boolean;
+    };
+  };
   alertExamples: {
     traderCall: Array<{
       id: string;
@@ -193,6 +206,19 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
     orden: { type: Number, default: 2 },
     visible: { type: Boolean, default: true },
     destacados: [{ type: String }]
+  },
+  // Nueva sección para fechas de inicio de entrenamientos
+  trainingStartDates: {
+    swingTrading: {
+      startDate: { type: Date, default: new Date('2024-10-11T13:00:00.000Z') },
+      startTime: { type: String, default: '13:00' },
+      enabled: { type: Boolean, default: true }
+    },
+    dowJones: {
+      startDate: { type: Date, default: new Date('2024-11-01T14:00:00.000Z') },
+      startTime: { type: String, default: '14:00' },
+      enabled: { type: Boolean, default: true }
+    }
   },
   alertExamples: {
     traderCall: [{

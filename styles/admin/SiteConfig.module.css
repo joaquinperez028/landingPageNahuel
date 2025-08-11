@@ -805,4 +805,68 @@
   .faqItem {
     padding: 1rem;
   }
+}
+
+/* Estilos para fechas de inicio de entrenamientos */
+.trainingDateGroup {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.trainingDateGroup h3 {
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.trainingDateForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.trainingDateForm .formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.trainingDateForm .formGroup label {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.trainingDateForm .formGroup input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.trainingDateForm .formGroup input[type="date"],
+.trainingDateForm .formGroup input[type="time"] {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.trainingDateForm .formGroup input[type="date"]:focus,
+.trainingDateForm .formGroup input[type="time"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+@media (max-width: 768px) {
+  .trainingDateForm {
+    grid-template-columns: 1fr;
+  }
 } 

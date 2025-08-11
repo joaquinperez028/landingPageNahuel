@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/googleAuth';
 import { verifyAdminAccess } from '@/lib/adminAuth';
 import Head from 'next/head';
 import Link from 'next/link';
-import { ArrowLeft, Save, Eye, EyeOff, Settings, Video, List, Grid, PlayCircle, BarChart3, Layout, Trash2, Plus, Bell, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Save, Eye, EyeOff, Settings, Video, List, Grid, PlayCircle, BarChart3, Layout, Trash2, Plus, Bell, MessageCircle, Calendar } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import styles from '@/styles/admin/SiteConfig.module.css';
 import ImageUploader from '@/components/ImageUploader';
@@ -77,6 +77,19 @@ interface SiteConfig {
     orden: number;
     visible: boolean;
     destacados: string[];
+  };
+  // Nueva sección para fechas de inicio de entrenamientos
+  trainingStartDates: {
+    swingTrading: {
+      startDate: Date;
+      startTime: string;
+      enabled: boolean;
+    };
+    dowJones: {
+      startDate: Date;
+      startTime: string;
+      enabled: boolean;
+    };
   };
   alertExamples: {
     traderCall: Array<{
@@ -363,6 +376,30 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
         faq.id === faqId ? { ...faq, [field]: value } : faq
       )
     }));
+  };
+
+  // Funciones para manejar fechas de inicio de entrenamientos
+  const handleTrainingStartDateChange = (trainingType: 'swingTrading' | 'dowJones', field: 'startDate' | 'startTime' | 'enabled', value: any) => {
+    setConfig(prev => ({
+      ...prev,
+      trainingStartDates: {
+        ...prev.trainingStartDates,
+        [trainingType]: {
+          ...prev.trainingStartDates[trainingType],
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  // Función para formatear fecha para input de tipo date
+  const formatDateForInput = (date: Date): string => {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   return (
@@ -1171,6 +1208,95 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
                     </div>
                   </label>
                 ))}
+              </div>
+            </div>
+
+            {/* Fechas de Inicio de Entrenamientos */}
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <Calendar size={24} />
+                <h2>Fechas de Inicio de Entrenamientos</h2>
+                <p>Configura las fechas de inicio y countdown para cada entrenamiento</p>
+              </div>
+
+              {/* Swing Trading */}
+              <div className={styles.trainingDateGroup}>
+                <h3>🎯 Swing Trading</h3>
+                <div className={styles.trainingDateForm}>
+                  <div className={styles.formGroup}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={config.trainingStartDates?.swingTrading?.enabled ?? true}
+                        onChange={(e) => handleTrainingStartDateChange('swingTrading', 'enabled', e.target.checked)}
+                      />
+                      Habilitar countdown
+                    </label>
+                  </div>
+                  
+                  <div className={styles.formGroup}>
+                    <label>Fecha de Inicio</label>
+                    <input
+                      type="date"
+                      value={formatDateForInput(config.trainingStartDates?.swingTrading?.startDate ?? new Date())}
+                      onChange={(e) => {
+                        const date = new Date(e.target.value);
+                        handleTrainingStartDateChange('swingTrading', 'startDate', date);
+                      }}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Hora de Inicio</label>
+                    <input
+                      type="time"
+                      value={config.trainingStartDates?.swingTrading?.startTime ?? '13:00'}
+                      onChange={(e) => handleTrainingStartDateChange('swingTrading', 'startTime', e.target.value)}
+                      className={styles.input}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Dow Jones */}
+              <div className={styles.trainingDateGroup}>
+                <h3>📈 Dow Jones</h3>
+                <div className={styles.trainingDateForm}>
+                  <div className={styles.formGroup}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={config.trainingStartDates?.dowJones?.enabled ?? true}
+                        onChange={(e) => handleTrainingStartDateChange('dowJones', 'enabled', e.target.checked)}
+                      />
+                      Habilitar countdown
+                    </label>
+                  </div>
+                  
+                  <div className={styles.formGroup}>
+                    <label>Fecha de Inicio</label>
+                    <input
+                      type="date"
+                      value={formatDateForInput(config.trainingStartDates?.dowJones?.startDate ?? new Date())}
+                      onChange={(e) => {
+                        const date = new Date(e.target.value);
+                        handleTrainingStartDateChange('dowJones', 'startDate', date);
+                      }}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Hora de Inicio</label>
+                    <input
+                      type="time"
+                      value={config.trainingStartDates?.dowJones?.startTime ?? '14:00'}
+                      onChange={(e) => handleTrainingStartDateChange('dowJones', 'startTime', e.target.value)}
+                      className={styles.input}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
