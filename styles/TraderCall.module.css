@@ -4500,6 +4500,14 @@
 }
 
 /* New sections for modernized layout */
+.historySection {
+  width: 100%;
+  background: #0f766e;
+  padding: 4rem 0;
+  margin: 0;
+  position: relative;
+}
+
 .historyImageContainer {
   margin: 2rem 0;
   text-align: center;
@@ -4707,6 +4715,10 @@
     padding: 3rem 0;
   }
   
+  .historySection {
+    padding: 2rem 0;
+  }
+  
   .historyImageContainer {
     margin: 1.5rem 0;
   }
@@ -4763,6 +4775,10 @@
 
 @media (max-width: 480px) {
   .faqSection {
+    padding: 2rem 0;
+  }
+  
+  .historySection {
     padding: 2rem 0;
   }
   
