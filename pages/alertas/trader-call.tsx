@@ -312,7 +312,7 @@ const NonSubscriberView: React.FC<{
             viewport={{ once: true }}
           >
             <img 
-              src="https://via.placeholder.com/1200x600/1e293b/ffffff?text=Alertas+Históricas+-+Rendimiento+de+Trading" 
+              src="/logos/alertashistoricas.png" 
               alt="Alertas Históricas - Rendimiento de Trading"
               className={styles.historyImage}
             />
