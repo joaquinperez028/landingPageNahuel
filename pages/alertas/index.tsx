@@ -340,6 +340,76 @@ const AlertasPage: React.FC = () => {
             </motion.div>
           </div>
         </section>
+
+        {/* YouTube Community Banner */}
+        <section className={styles.youtubeBanner}>
+          <button className={styles.navArrow} aria-label="Anterior">
+            <span className={styles.arrowIcon}>‹</span>
+          </button>
+          
+          <div className={styles.bannerContent}>
+            <div className={styles.bannerText}>
+              <motion.h2 
+                className={styles.bannerTitle}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+              >
+                ¡Sumate a nuestra comunidad
+              </motion.h2>
+              <motion.h3 
+                className={styles.bannerSubtitle}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+              >
+                en YouTube!
+              </motion.h3>
+              <motion.p 
+                className={styles.bannerDescription}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+              >
+                No te pierdas nuestros <em>últimos videos</em>
+              </motion.p>
+            </div>
+            
+            <div className={styles.bannerVideo}>
+              <div className={styles.videoPlayer}>
+                <div className={styles.videoScreen}>
+                  <div className={styles.playIcon}>▶</div>
+                </div>
+                <div className={styles.videoControls}>
+                  <div className={styles.controlLeft}>
+                    <button className={styles.controlBtn}>⏮</button>
+                    <button className={styles.controlBtn}>⏯</button>
+                    <button className={styles.controlBtn}>⏭</button>
+                    <button className={styles.controlBtn}>🔊</button>
+                  </div>
+                  <div className={styles.progressSection}>
+                    <span className={styles.currentTime}>2:21</span>
+                    <div className={styles.progressBar}>
+                      <div className={styles.progressFill}></div>
+                    </div>
+                    <span className={styles.totalTime}>20:00</span>
+                  </div>
+                  <div className={styles.controlRight}>
+                    <button className={styles.controlBtn}>⚙️</button>
+                    <button className={styles.controlBtn}>⛶</button>
+                    <button className={styles.controlBtn}>⛶</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <button className={styles.navArrow} aria-label="Siguiente">
+            <span className={styles.arrowIcon}>›</span>
+          </button>
+        </section>
       </main>
 
       <Footer />
