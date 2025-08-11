@@ -283,7 +283,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   const [showModuleForm, setShowModuleForm] = useState(false);
   const [editingModuleIndex, setEditingModuleIndex] = useState<number | null>(null);
   const [moduleFormData, setModuleFormData] = useState({
-    nombre: '',
+    titulo: '',
     descripcion: '',
     duracion: '',
     lecciones: 1,
@@ -491,7 +491,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   // Resetear formulario de módulo
   const resetModuleForm = () => {
     setModuleFormData({
-      nombre: '',
+      titulo: '',
       descripcion: '',
       duracion: '',
       lecciones: 1,
@@ -558,7 +558,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   // Guardar módulo independiente
   const saveModule = async () => {
     // Validar módulo
-    if (!moduleFormData.nombre.trim()) {
+    if (!moduleFormData.titulo.trim()) {
       toast.error('El nombre del módulo es obligatorio');
       return;
     }
@@ -579,7 +579,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
     setIsSubmitting(true);
     try {
       const moduleData = {
-        nombre: moduleFormData.nombre,
+        titulo: moduleFormData.titulo,
         descripcion: moduleFormData.descripcion,
         roadmapId: editingRoadmap._id,
         tipoEntrenamiento: editingRoadmap.tipoEntrenamiento,
@@ -631,7 +631,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   const editModule = (module: any) => {
     setEditingModule(module);
     setModuleFormData({
-      nombre: module.nombre,
+      titulo: module.titulo,
       descripcion: module.descripcion,
       duracion: module.duracion,
       lecciones: module.lecciones,
@@ -1271,10 +1271,10 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                             <label>Nombre del Módulo</label>
                             <input
                               type="text"
-                              value={moduleFormData.nombre}
+                              value={moduleFormData.titulo}
                               onChange={(e) => setModuleFormData(prev => ({ 
                                 ...prev, 
-                                nombre: e.target.value 
+                                titulo: e.target.value 
                               }))}
                               placeholder="Ej: Introducción al Trading"
                             />
