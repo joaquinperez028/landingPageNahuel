@@ -303,27 +303,40 @@ const AlertasPage: React.FC = () => {
 
         {/* CTA Section */}
         <section className={styles.cta}>
-          <div className={styles.container}>
-            <motion.div 
-              className={styles.ctaContent}
+          <div className={styles.ctaContent}>
+            <motion.h2 
+              className={styles.ctaTitle}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className={styles.ctaTitle}>
-                ¿Listo para llevar tu trading al siguiente nivel?
-              </h2>
-              <p className={styles.ctaDescription}>
-                Únete a miles de traders que ya confían en nuestras alertas profesionales
-              </p>
-              <div className={styles.ctaButtons}>
-                <Link href="/alertas/trader-call" className={styles.ctaButton}>
-                  Comenzar Ahora
-                </Link>
-                <Link href="/recursos" className={styles.ctaButtonSecondary}>
-                  Ver Recursos Gratuitos
-                </Link>
-              </div>
+              ¿Listo para llevar tus inversiones al siguiente nivel?
+            </motion.h2>
+            <motion.p 
+              className={styles.ctaDescription}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              Únete a nuestra comunidad y comienza a construir tu libertad financiera
+            </motion.p>
+            <motion.div 
+              className={styles.ctaButtons}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <Link href="/alertas/trader-call" className={styles.ctaButton}>
+                Trader Call &gt;
+              </Link>
+              <Link href="/alertas/smart-money" className={styles.ctaButton}>
+                Smart Money &gt;
+              </Link>
+              <Link href="/alertas/cash-flow" className={styles.ctaButton}>
+                CashFlow &gt;
+              </Link>
             </motion.div>
           </div>
         </section>
