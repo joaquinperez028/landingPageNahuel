@@ -2035,6 +2035,18 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
       servicios: { orden: 1, visible: true },
       cursos: { orden: 2, visible: true, destacados: [] },
+      trainingStartDates: {
+        swingTrading: {
+          startDate: new Date('2024-10-11T13:00:00.000Z'),
+          startTime: '13:00',
+          enabled: true
+        },
+        dowJones: {
+          startDate: new Date('2024-11-01T14:00:00.000Z'),
+          startTime: '14:00',
+          enabled: true
+        }
+      },
       alertExamples: {
         traderCall: [],
         smartMoney: [],
@@ -2115,6 +2127,18 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           },
           servicios: { orden: 1, visible: true },
           cursos: { orden: 2, visible: true, destacados: [] },
+          trainingStartDates: {
+            swingTrading: {
+              startDate: new Date('2024-10-11T13:00:00.000Z'),
+              startTime: '13:00',
+              enabled: true
+            },
+            dowJones: {
+              startDate: new Date('2024-11-01T14:00:00.000Z'),
+              startTime: '14:00',
+              enabled: true
+            }
+          },
           alertExamples: {
             traderCall: [],
             smartMoney: [],

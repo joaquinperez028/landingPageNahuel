@@ -126,7 +126,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             orden: 2,
             visible: true,
             destacados: []
-          }
+          },
+          trainingStartDates: {
+            swingTrading: {
+              startDate: new Date('2024-10-11T13:00:00.000Z'),
+              startTime: '13:00',
+              enabled: true
+            },
+            dowJones: {
+              startDate: new Date('2024-11-01T14:00:00.000Z'),
+              startTime: '14:00',
+              enabled: true
+            }
+          },
+          alertExamples: {
+            traderCall: [],
+            smartMoney: [],
+            cashFlow: []
+          },
+          faqs: []
         });
         await config.save();
         console.log('✅ [SITE-CONFIG] Configuración por defecto creada');
