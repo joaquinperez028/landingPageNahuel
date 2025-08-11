@@ -12,7 +12,9 @@ interface AlertServiceProps {
   description: string;
   features: string[];
   href: string;
-  gradient: string;
+  backgroundColor: string;
+  buttonTextColor: string;
+  tag: string;
 }
 
 const AlertService: React.FC<AlertServiceProps> = ({ 
@@ -20,7 +22,9 @@ const AlertService: React.FC<AlertServiceProps> = ({
   description, 
   features, 
   href, 
-  gradient 
+  backgroundColor, 
+  buttonTextColor,
+  tag
 }) => {
   const router = useRouter();
 
@@ -38,30 +42,66 @@ const AlertService: React.FC<AlertServiceProps> = ({
   return (
     <motion.div 
       className={styles.serviceCard}
-      style={{ background: gradient }}
+      style={{ backgroundColor }}
       whileHover={{ scale: 1.02, y: -5 }}
       transition={{ duration: 0.3 }}
     >
-      <h3 className={styles.serviceTitle}>{title}</h3>
-      <p className={styles.serviceDescription}>{description}</p>
-      
-      <ul className={styles.featureList}>
-        {features.map((feature, index) => (
-          <li key={index} className={styles.featureItem}>
-            <span className={styles.checkmark}>✓</span>
-            {feature}
-          </li>
-        ))}
-      </ul>
-      
-      <div className={styles.buttonContainer}>
-        <button 
-          className={styles.serviceButton}
-          onClick={handleButtonClick}
-          type="button"
-        >
-          Ver Detalles
-        </button>
+      {/* Video Player Placeholder */}
+      <div className={styles.videoPlayerPlaceholder}>
+        <div className={styles.videoScreen}>
+          <div className={styles.playIcon}>▶</div>
+        </div>
+        <div className={styles.videoControls}>
+          <span className={styles.currentTime}>2:21</span>
+          <div className={styles.progressBar}>
+            <div className={styles.progressFill}></div>
+          </div>
+          <span className={styles.totalTime}>20:00</span>
+        </div>
+        <div className={styles.controlIcons}>
+          <button className={styles.controlIcon}>⏮</button>
+          <button className={styles.controlIcon}>⏯</button>
+          <button className={styles.controlIcon}>⏭</button>
+          <button className={styles.controlIcon}>🔊</button>
+          <button className={styles.controlIcon}>⚙️</button>
+          <button className={styles.controlIcon}>⏹</button>
+          <button className={styles.controlIcon}>⛶</button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className={styles.serviceContent}>
+        <div className={styles.serviceHeader}>
+          <h3 className={styles.serviceTitle}>{title}</h3>
+          <span className={styles.serviceTag}>{tag}</span>
+        </div>
+        
+        <p className={styles.serviceDescription}>{description}</p>
+        
+        <ul className={styles.featureList}>
+          {features.map((feature, index) => (
+            <li key={index} className={styles.featureItem}>
+              <span className={styles.checkmark}>✓</span>
+              {feature}
+            </li>
+          ))}
+        </ul>
+        
+        <div className={styles.trialOffer}>
+          <span className={styles.checkmark}>✓</span>
+          30 días de prueba gratis
+        </div>
+        
+        <div className={styles.buttonContainer}>
+          <button 
+            className={styles.serviceButton}
+            onClick={handleButtonClick}
+            type="button"
+            style={{ color: buttonTextColor }}
+          >
+            Quiero saber más &gt;
+          </button>
+        </div>
       </div>
     </motion.div>
   );
@@ -72,42 +112,45 @@ const AlertasPage: React.FC = () => {
   const alertServices = [
     {
       title: 'Trader Call',
-      description: 'Alertas de trading en tiempo real con análisis técnico avanzado',
+      description: 'Servicio de alertas de compra y venta con estrategia de corto plazo, informes detallados y seguimiento activo, para que puedas invertir en CEDEARs y acciones de forma simple y estratégica. Ideal para quienes buscan grandes rendimientos.',
       features: [
-        'Señales de compra y venta precisas',
-        'Análisis técnico detallado',
-        'Stop loss y take profit',
-        'Alertas en tiempo real',
-        'Historial de operaciones'
+        'Estrategia de corto plazo que busca obtener resultados entre unos días y hasta 3 meses',
+        'Inversión en instrumentos de renta variable como CEDEARS, ETFs y acciones locales',
+        'Informes de mercado todos los días',
+        'Alertas fundamentadas en el análisis técnico, delineando salidas con Stop Loss y Take Profit'
       ],
       href: '/alertas/trader-call',
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      backgroundColor: '#0f766e',
+      buttonTextColor: '#10b981',
+      tag: 'Corto Plazo'
     },
     {
       title: 'Smart Money',
-      description: 'Sigue los movimientos del dinero institucional en el mercado',
+      description: 'Servicio de alertas de compra con visión de mediano y largo plazo, pensado para construir carteras sólidas, con foco en crecimiento sostenido y bajo riesgo. Ideal para quienes buscan invertir con estrategia sin estar pendientes del día a día.',
       features: [
-        'Flujos de dinero institucional',
-        'Análisis de volumen profesional',
-        'Detección de manipulación',
-        'Niveles clave del mercado',
-        'Reportes semanales'
+        'Estrategia de inversión de varios meses a años, ideal para acumular capital',
+        'Selección de activos con fundamentos sólidos tanto de renta fija como de renta variable',
+        'Informes de mercado y seguimiento semanal',
+        'Alertas del análisis técnicos y fundamental, con revisiones periódicas y constantes'
       ],
       href: '/alertas/smart-money',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+      backgroundColor: '#7f1d1d',
+      buttonTextColor: '#dc2626',
+      tag: 'Mediano y Largo Plazo'
     },
     {
       title: 'CashFlow',
-      description: 'Estrategias de inversión para generar flujo de efectivo constante',
+      description: 'Servicio de alertas diseñado para generar flujos de dinero constantes a través de inversiones en instrumentos que pagan intereses y dividendos. Combinamos renta fija y variable para que tu cartera trabaje por vos todos los meses.',
       features: [
-        'Estrategias de dividendos',
-        'Análisis fundamental',
-        'Portfolio balanceado',
-        'Reinversión automática',
-        'Reportes mensuales'
+        'Estrategia orientada a generar ingresos pasivos mensuales',
+        'Combinación de bonos públicos y privados, Letras, CEDEARs con dividendos, ETFs y FCIs.',
+        'Informes y rebalanceo mensual de la cartera',
+        'Alertas basadas en la estabilidad de la cartera y la generación de flujo de efectivo constante'
       ],
       href: '/alertas/cash-flow',
-      gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
+      backgroundColor: '#1e3a8a',
+      buttonTextColor: '#3b82f6',
+      tag: 'Ingresos Pasivos'
     }
   ];
 
