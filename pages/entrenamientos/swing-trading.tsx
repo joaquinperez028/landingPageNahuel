@@ -591,6 +591,63 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
           </div>
         </section>
 
+        {/* Metrics Bar Section */}
+        <section className={styles.metricsBarSection}>
+          <div className={styles.metricsBarContainer}>
+            <motion.div 
+              className={styles.metricsBarGrid}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <motion.div 
+                className={styles.metricItem}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                <div className={styles.metricNumber}>+200</div>
+                <div className={styles.metricLabel}>Estudiantes</div>
+              </motion.div>
+
+              <motion.div 
+                className={styles.metricItem}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+              >
+                <div className={styles.metricNumber}>+120%</div>
+                <div className={styles.metricLabel}>Rentabilidad Promedio</div>
+              </motion.div>
+
+              <motion.div 
+                className={styles.metricItem}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+              >
+                <div className={styles.metricNumber}>15</div>
+                <div className={styles.metricLabel}>Entrenamientos Realizados</div>
+              </motion.div>
+
+              <motion.div 
+                className={styles.metricItem}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+              >
+                <div className={styles.metricNumber}>98%</div>
+                <div className={styles.metricLabel}>Satisfacción</div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Formulario de Inscripción Modal */}
         {showEnrollForm && (
           <div className={styles.modalOverlay}>

@@ -846,3 +846,107 @@
     margin-bottom: 1rem;
   }
 }
+
+/* Metrics Bar Section */
+.metricsBarSection {
+  background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
+  padding: 3rem 0;
+  position: relative;
+  z-index: 2;
+}
+
+.metricsBarSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(139, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.metricsBarContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.metricsBarGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  text-align: center;
+}
+
+.metricItem {
+  color: white;
+}
+
+.metricNumber {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.metricLabel {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.3;
+}
+
+/* Responsive Design for Metrics Bar */
+@media (max-width: 1024px) {
+  .metricsBarGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem 1rem;
+  }
+  
+  .metricNumber {
+    font-size: 3.5rem;
+  }
+  
+  .metricLabel {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .metricsBarSection {
+    padding: 2.5rem 0;
+  }
+  
+  .metricsBarContainer {
+    padding: 0 1rem;
+  }
+  
+  .metricsBarGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 1rem;
+  }
+  
+  .metricNumber {
+    font-size: 3rem;
+  }
+  
+  .metricLabel {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .metricsBarGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .metricNumber {
+    font-size: 3.5rem;
+  }
+}
