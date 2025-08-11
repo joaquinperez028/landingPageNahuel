@@ -26,7 +26,7 @@ import {
   Quote,
   Loader
 } from 'lucide-react';
-import styles from '@/styles/TradingFundamentals.module.css';
+import styles from '@/styles/SwingTrading.module.css';
 
 interface TrainingData {
   tipo: string;
@@ -88,7 +88,7 @@ interface TradingPageProps {
   testimonials: Testimonial[];
 }
 
-const TradingFundamentalsPage: React.FC<TradingPageProps> = ({ 
+const SwingTradingPage: React.FC<TradingPageProps> = ({ 
   training,
   program, 
   testimonials
@@ -114,6 +114,13 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
     consulta: ''
   });
 
+  // Estados para el countdown
+  const [countdown, setCountdown] = useState({
+    days: 80,
+    hours: 23,
+    minutes: 57
+  });
+
   useEffect(() => {
     if (session?.user) {
       setFormData(prev => ({
@@ -132,12 +139,30 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
     fetchRoadmaps();
   }, []);
 
+  // Countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev.minutes > 0) {
+          return { ...prev, minutes: prev.minutes - 1 };
+        } else if (prev.hours > 0) {
+          return { ...prev, hours: prev.hours - 1, minutes: 59 };
+        } else if (prev.days > 0) {
+          return { days: prev.days - 1, hours: 23, minutes: 59 };
+        }
+        return prev;
+      });
+    }, 60000); // Actualizar cada minuto
+
+    return () => clearInterval(timer);
+  }, []);
+
   const fetchRoadmaps = async () => {
     try {
       setLoadingRoadmap(true);
       setRoadmapError('');
       
-      const response = await fetch('/api/roadmaps/tipo/TradingFundamentals');
+      const response = await fetch('/api/roadmaps/tipo/SwingTrading');
       const data = await response.json();
       
       if (data.success && data.data.roadmaps.length > 0) {
@@ -169,10 +194,10 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
             setRoadmapError('Este roadmap aún no tiene módulos creados. Contacta al administrador.');
           }
         } else {
-          setRoadmapError('No se encontró un roadmap activo para Trading Fundamentals');
+          setRoadmapError('No se encontró un roadmap activo para Swing Trading');
         }
       } else {
-        setRoadmapError('No se encontraron roadmaps para Trading Fundamentals');
+        setRoadmapError('No se encontraron roadmaps para Swing Trading');
       }
     } catch (error) {
       console.error('Error al cargar roadmaps:', error);
@@ -190,8 +215,8 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
       const response = await fetch('/api/user/entrenamientos');
       if (response.ok) {
         const data = await response.json();
-        const hasTrading = data.data.tiposDisponibles.includes('TradingFundamentals');
-        setIsEnrolled(hasTrading);
+        const hasSwingTrading = data.data.tiposDisponibles.includes('SwingTrading');
+        setIsEnrolled(hasSwingTrading);
       }
     } catch (error) {
       console.error('Error checking enrollment:', error);
@@ -211,7 +236,7 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
     
     if (isEnrolled) {
       // Si ya está inscrito, ir directamente a las lecciones
-      window.location.href = '/entrenamientos/TradingFundamentals/lecciones';
+      window.location.href = '/entrenamientos/SwingTrading/lecciones';
       return;
     }
     
@@ -227,7 +252,7 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
         credentials: 'same-origin',
         body: JSON.stringify({
           type: 'training',
-          service: 'TradingFundamentals',
+          service: 'SwingTrading',
           amount: 497,
           currency: 'USD'
         }),
@@ -259,7 +284,7 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          tipo: 'TradingFundamentals',
+          tipo: 'SwingTrading',
           ...formData
         })
       });
@@ -290,7 +315,7 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
           // Ya está inscrito
           toast.success('Ya tienes acceso a este entrenamiento. Redirigiendo a las lecciones...');
           setTimeout(() => {
-            window.location.href = '/entrenamientos/TradingFundamentals/lecciones';
+            window.location.href = '/entrenamientos/SwingTrading/lecciones';
           }, 1500);
         } else {
           toast.error(data.error || 'Error al procesar inscripción');
@@ -312,8 +337,8 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
   return (
     <>
       <Head>
-        <title>{training.nombre} - Entrenamiento Completo | Nahuel Lozano</title>
-        <meta name="description" content={training.descripcion} />
+        <title>Swing Trading - Entrenamiento Completo | Nahuel Lozano</title>
+        <meta name="description" content="Experiencia de aprendizaje premium, personalizada y con acompañamiento constante, donde aprenderás a operar movimientos de varios días o semanas, identificando oportunidades con análisis técnico y estrategias que combinan precisión y paciencia" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
@@ -331,73 +356,72 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
             >
               <div className={styles.heroText}>
                 <h1 className={styles.heroTitle}>
-                  {training.nombre}
-                  <span className={styles.heroSubtitle}>Domina los Fundamentos del Trading Profesional</span>
+                  Swing Trading
                 </h1>
                 <p className={styles.heroDescription}>
-                  {training.descripcion}
+                  Experiencia de aprendizaje premium, personalizada y con acompañamiento constante, donde aprenderás a operar movimientos de varios días o semanas, identificando oportunidades con análisis técnico y estrategias que combinan precisión y paciencia
                 </p>
-                <div className={styles.heroPricing}>
-                  <div className={styles.priceCard}>
-                    <span className={styles.priceAmount}>${training.precio} USD</span>
-                    <span className={styles.priceDescription}>Programa completo de {training.duracion} horas</span>
-                    <span className={styles.priceIncludes}>
-                      {training.contenido.lecciones} lecciones • {training.contenido.modulos} módulos
-                    </span>
+                
+                <div className={styles.startDate}>
+                  Fecha de inicio: 11 de octubre a las 13 hs
+                </div>
+                
+                <div className={styles.countdownContainer}>
+                  <div className={styles.countdownBox}>
+                    <span className={styles.countdownNumber}>{countdown.days}</span>
+                    <span className={styles.countdownLabel}>Días</span>
+                  </div>
+                  <div className={styles.countdownBox}>
+                    <span className={styles.countdownNumber}>{countdown.hours}</span>
+                    <span className={styles.countdownLabel}>Horas</span>
+                  </div>
+                  <div className={styles.countdownBox}>
+                    <span className={styles.countdownNumber}>{countdown.minutes}</span>
+                    <span className={styles.countdownLabel}>Minutos</span>
                   </div>
                 </div>
-                <div className={styles.heroFeatures}>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>{training.contenido.lecciones} lecciones estructuradas progresivamente</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Metodología probada con {training.metricas.estudiantesActivos}+ estudiantes</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Soporte personalizado y comunidad privada</span>
-                  </div>
-                </div>
-                <div className={styles.heroActions}>
-                  <button 
-                    onClick={handleEnroll}
-                    className={styles.enrollButton}
-                    disabled={checkingEnrollment || isProcessingPayment}
-                  >
-                    {isProcessingPayment ? (
-                      <>
-                        <Loader size={20} className={styles.spinner} />
-                        Procesando...
-                      </>
-                    ) : (
-                      <>
-                        <Users size={20} />
-                        {checkingEnrollment 
-                          ? 'Verificando...' 
-                          : isEnrolled 
-                            ? 'Ir a las Lecciones' 
-                            : 'Inscribirme Ahora - $497 USD'
-                        }
-                      </>
-                    )}
-                  </button>
-                </div>
+                <button 
+                  onClick={handleEnroll}
+                  className={styles.enrollButton}
+                  disabled={checkingEnrollment || isProcessingPayment}
+                >
+                  {isProcessingPayment ? (
+                    <>
+                      <Loader size={20} className={styles.spinner} />
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      Inscribirme Ahora &gt;
+                    </>
+                  )}
+                </button>
               </div>
               <div className={styles.heroVideo}>
                 <div className={styles.videoContainer}>
-                  {/* Placeholder de video explicativo */}
-                  <div className={styles.videoPlaceholder}>
-                    <div className={styles.placeholderIcon}>🎓</div>
-                    <h3 className={styles.placeholderTitle}>Video Explicativo del Entrenamiento</h3>
-                    <p className={styles.placeholderText}>
-                      Descubre en detalle qué aprenderás en nuestro programa de Trading Fundamentals
-                    </p>
-                    <div className={styles.placeholderFeatures}>
-                      <span>📊 Análisis Técnico Completo</span>
-                      <span>📈 Estrategias Fundamentales</span>
-                      <span>🎯 Gestión de Riesgo</span>
+                  <div className={styles.videoPlayer}>
+                    <div className={styles.videoPlaceholder}>
+                      <div className={styles.playButton}>
+                        <PlayCircle size={60} />
+                      </div>
+                    </div>
+                    <div className={styles.videoControls}>
+                      <div className={styles.videoProgress}>
+                        <span className={styles.currentTime}>2:21</span>
+                        <div className={styles.progressBar}>
+                          <div className={styles.progressFill}></div>
+                        </div>
+                        <span className={styles.totalTime}>20:00</span>
+                      </div>
+                      <div className={styles.controlButtons}>
+                        <button className={styles.controlBtn}>⏮</button>
+                        <button className={styles.controlBtn}>⏯</button>
+                        <button className={styles.controlBtn}>⏭</button>
+                        <button className={styles.controlBtn}>🔊</button>
+                        <button className={styles.controlBtn}>⚙️</button>
+                        <button className={styles.controlBtn}>⛶</button>
+                        <button className={styles.controlBtn}>⛶</button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -411,7 +435,7 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
           <div className={styles.modalOverlay}>
             <div className={styles.modalContainer}>
               <div className={styles.modalHeader}>
-                <h3>Inscripción a {training.nombre}</h3>
+                <h3>Inscripción a Swing Trading</h3>
                 <button 
                   onClick={() => setShowEnrollForm(false)}
                   className={styles.closeButton}
@@ -619,7 +643,7 @@ const TradingFundamentalsPage: React.FC<TradingPageProps> = ({
                 <TrainingRoadmap
                   modules={roadmapModules}
                   onModuleClick={handleModuleClick}
-                  title="Roadmap de Trading Fundamentals"
+                  title="Roadmap de Swing Trading"
                   description="Progresión estructurada desde principiante hasta trader competente"
                 />
               ) : (
@@ -805,7 +829,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     // Obtener datos del entrenamiento desde la API
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/entrenamientos/TradingFundamentals`);
+    const response = await fetch(`${baseUrl}/api/entrenamientos/SwingTrading`);
     
     if (!response.ok) {
       throw new Error('Error fetching training data');
@@ -827,9 +851,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         training: {
-          tipo: 'TradingFundamentals',
-          nombre: 'Trading Fundamentals',
-          descripcion: 'Programa completo de trading desde cero hasta nivel intermedio',
+          tipo: 'SwingTrading',
+          nombre: 'Swing Trading',
+          descripcion: 'Experiencia de aprendizaje premium, personalizada y con acompañamiento constante, donde aprenderás a operar movimientos de varios días o semanas, identificando oportunidades con análisis técnico y estrategias que combinan precisión y paciencia',
           precio: 497,
           duracion: 40,
           metricas: {
@@ -852,4 +876,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 };
 
-export default TradingFundamentalsPage; 
+export default SwingTradingPage; 

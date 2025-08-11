@@ -5,7 +5,7 @@ export interface IBooking extends Document {
   userEmail: string;
   userName: string;
   type: 'training' | 'advisory';
-  serviceType?: 'ConsultorioFinanciero' | 'CuentaAsesorada' | 'TradingFundamentals' | 'AdvancedStrategies';
+  serviceType?: 'ConsultorioFinanciero' | 'CuentaAsesorada' | 'SwingTrading' | 'AdvancedStrategies';
   startDate: Date;
   endDate: Date;
   duration: number; // en minutos
@@ -42,7 +42,7 @@ const BookingSchema: Schema = new Schema({
   },
   serviceType: {
     type: String,
-    enum: ['ConsultorioFinanciero', 'CuentaAsesorada', 'TradingFundamentals', 'AdvancedStrategies']
+    enum: ['ConsultorioFinanciero', 'CuentaAsesorada', 'SwingTrading', 'AdvancedStrategies']
   },
   startDate: {
     type: Date,

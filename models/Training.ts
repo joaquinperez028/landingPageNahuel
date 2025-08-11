@@ -25,7 +25,7 @@ interface TrainingHorario {
 }
 
 interface TrainingDocument extends Document {
-  tipo: 'TradingFundamentals' | 'DowJones';
+  tipo: 'SwingTrading' | 'DowJones';
   nombre: string;
   descripcion: string;
   videoMux?: string;
@@ -85,7 +85,7 @@ const trainingSchema = new Schema<TrainingDocument>({
   tipo: { 
     type: String, 
     required: true, 
-    enum: ['TradingFundamentals', 'DowJones'],
+    enum: ['SwingTrading', 'DowJones'],
     unique: true 
   },
   nombre: { type: String, required: true },

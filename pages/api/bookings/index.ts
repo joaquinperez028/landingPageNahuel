@@ -15,7 +15,7 @@ import {
 // Schema de validación para crear reservas
 const createBookingSchema = z.object({
   type: z.enum(['training', 'advisory']),
-  serviceType: z.enum(['ConsultorioFinanciero', 'CuentaAsesorada', 'TradingFundamentals', 'AdvancedStrategies']).optional(),
+  serviceType: z.enum(['ConsultorioFinanciero', 'CuentaAsesorada', 'SwingTrading', 'AdvancedStrategies']).optional(),
   startDate: z.string().datetime(),
   duration: z.number().min(30).max(300).default(90), // Entre 30 minutos y 5 horas
   price: z.number().min(0).optional(),

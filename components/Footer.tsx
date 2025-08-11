@@ -43,7 +43,7 @@ const Footer: React.FC = () => {
           <div className={styles.linkColumn}>
             <h4 className={styles.columnTitle}>Entrenamientos</h4>
             <ul className={styles.linkList}>
-              <li><Link href="/entrenamientos/trading" className={styles.footerLink}>Day Trading</Link></li>
+              <li><Link href="/entrenamientos/swing-trading" className={styles.footerLink}>Swing Trading</Link></li>
               <li><Link href="/entrenamientos/advanced" className={styles.footerLink}>Swing Trading</Link></li>
             </ul>
           </div>

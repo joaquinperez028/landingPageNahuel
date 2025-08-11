@@ -81,7 +81,7 @@ const updateLessonSchema = z.object({
     url: z.string(),
     tipo: z.enum(['enlace', 'descarga', 'referencia'])
   })).optional(),
-  tipoEntrenamiento: z.enum(['TradingFundamentals', 'DowJones']).optional(),
+  tipoEntrenamiento: z.enum(['SwingTrading', 'DowJones']).optional(),
   dificultad: z.enum(['Básico', 'Intermedio', 'Avanzado']).optional(),
   esGratuita: z.boolean().optional(),
   requiereSuscripcion: z.boolean().optional(),

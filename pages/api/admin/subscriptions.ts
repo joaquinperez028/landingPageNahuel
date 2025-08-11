@@ -44,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Procesar suscripciones activas
     const subscriptions = [];
     const now = new Date();
-    const services = ['TraderCall', 'SmartMoney', 'CashFlow', 'TradingFundamentals', 'DowJones'];
+    const services = ['TraderCall', 'SmartMoney', 'CashFlow', 'SwingTrading', 'DowJones'];
 
     for (const payment of payments) {
       if (payment.expiryDate > now) {

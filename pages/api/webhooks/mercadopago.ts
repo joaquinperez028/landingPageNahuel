@@ -150,7 +150,7 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
 
     // Determinar tipo de pago
     const isSubscription = ['TraderCall', 'SmartMoney', 'CashFlow'].includes(service);
-    const isTraining = ['TradingFundamentals', 'DowJones'].includes(service);
+    const isTraining = ['SwingTrading', 'DowJones'].includes(service);
 
     if (isSubscription) {
       // Procesar suscripción

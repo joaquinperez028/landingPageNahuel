@@ -60,7 +60,7 @@ interface LessonDocument extends Document {
     url: string;
     tipo: 'enlace' | 'descarga' | 'referencia';
   }[];
-  tipoEntrenamiento: 'TradingFundamentals' | 'DowJones';
+  tipoEntrenamiento: 'SwingTrading' | 'DowJones';
   dificultad: 'Básico' | 'Intermedio' | 'Avanzado';
   esGratuita: boolean;
   requiereSuscripcion: boolean;
@@ -148,7 +148,7 @@ const lessonSchema = new Schema<LessonDocument>({
   tipoEntrenamiento: { 
     type: String, 
     required: true, 
-    enum: ['TradingFundamentals', 'DowJones'] 
+    enum: ['SwingTrading', 'DowJones'] 
   },
   dificultad: { 
     type: String, 

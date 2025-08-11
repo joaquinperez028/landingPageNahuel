@@ -323,9 +323,9 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
                 Únete a más de 1,200 estudiantes que ya están aplicando estas estrategias exitosamente.
               </p>
               <div className={styles.ctaButtons}>
-                <Link href="/entrenamientos/trading" className={styles.ctaButton}>
+                <Link href="/entrenamientos/swing-trading" className={styles.ctaButton}>
                   <BookOpen size={20} />
-                  Trading Fundamentals
+                                      Swing Trading
                   <ArrowRight size={20} />
                 </Link>
                 <Link href="/entrenamientos/advanced" className={styles.ctaButton}>
@@ -365,8 +365,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         'Acceso a comunidad privada',
         'Certificado de completación'
       ],
-      href: '/entrenamientos/trading',
-      image: '/entrenamientos/trading-fundamentals.jpg',
+              href: '/entrenamientos/swing-trading',
+        image: '/entrenamientos/swing-trading.jpg',
       badge: 'Más Popular'
     },
     {

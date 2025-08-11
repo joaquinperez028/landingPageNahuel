@@ -13,7 +13,7 @@ import { z } from 'zod';
 
 // Schema de validación
 const checkoutSchema = z.object({
-  service: z.enum(['TraderCall', 'SmartMoney', 'CashFlow', 'TradingFundamentals', 'DowJones']),
+  service: z.enum(['TraderCall', 'SmartMoney', 'CashFlow', 'SwingTrading', 'DowJones']),
   amount: z.number().positive('El monto debe ser positivo'),
   currency: z.enum(['ARS', 'USD', 'UYU']).default('ARS'),
   type: z.enum(['subscription', 'training']).default('subscription')

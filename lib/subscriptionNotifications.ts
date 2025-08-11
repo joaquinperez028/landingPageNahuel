@@ -92,7 +92,7 @@ function getServiceDisplayName(service: string): string {
     'TraderCall': 'Trader Call',
     'SmartMoney': 'Smart Money',
     'CashFlow': 'Cash Flow',
-    'TradingFundamentals': 'Trading Fundamentals',
+    'SwingTrading': 'Swing Trading',
     'DowJones': 'Dow Jones'
   };
   
@@ -107,7 +107,7 @@ function getRenewalUrl(service: string): string {
     'TraderCall': 'https://lozanonahuel.vercel.app/alertas/trader-call',
     'SmartMoney': 'https://lozanonahuel.vercel.app/alertas/smart-money',
     'CashFlow': 'https://lozanonahuel.vercel.app/alertas/cash-flow',
-    'TradingFundamentals': 'https://lozanonahuel.vercel.app/entrenamientos/trading',
+    'SwingTrading': 'https://lozanonahuel.vercel.app/entrenamientos/swing-trading',
     'DowJones': 'https://lozanonahuel.vercel.app/entrenamientos/advanced'
   };
   

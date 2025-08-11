@@ -78,7 +78,7 @@ interface Roadmap {
   _id: string;
   nombre: string;
   descripcion: string;
-  tipoEntrenamiento: 'TradingFundamentals' | 'DowJones' | 'General';
+  tipoEntrenamiento: 'SwingTrading' | 'DowJones' | 'General';
   modulos: RoadmapModule[];
   activo: boolean;
   orden: number;
@@ -122,12 +122,12 @@ const useDashboardSections = () => {
     {
       id: 'lecciones',
       title: 'Gestión de Lecciones',
-      description: 'Crea, edita y administra las lecciones de los entrenamientos TradingFundamentals y DowJones. Sistema completo de contenido educativo con soporte para videos, PDFs, imágenes y más.',
+      description: 'Crea, edita y administra las lecciones de los entrenamientos SwingTrading y DowJones. Sistema completo de contenido educativo con soporte para videos, PDFs, imágenes y más.',
       icon: <BookOpen size={32} />,
       color: 'from-red-500 to-rose-500',
       links: [
         { label: 'Gestionar Lecciones', href: '/admin/lecciones', icon: <BookOpen size={16} /> },
-        { label: 'Trading Fundamentals', href: '/admin/lecciones?tipo=TradingFundamentals', icon: <FileText size={16} /> },
+        { label: 'Swing Trading', href: '/admin/lecciones?tipo=SwingTrading', icon: <FileText size={16} /> },
         { label: 'Dow Jones Avanzado', href: '/admin/lecciones?tipo=DowJones', icon: <TrendingUp size={16} /> }
       ]
     },
@@ -273,7 +273,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   const [formData, setFormData] = useState({
     nombre: '',
     descripcion: '',
-    tipoEntrenamiento: 'TradingFundamentals' as 'TradingFundamentals' | 'DowJones' | 'General',
+    tipoEntrenamiento: 'SwingTrading' as 'SwingTrading' | 'DowJones' | 'General',
     modulos: [] as RoadmapModule[],
     activo: true,
     orden: 1
@@ -478,7 +478,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
     setFormData({
       nombre: '',
       descripcion: '',
-      tipoEntrenamiento: 'TradingFundamentals',
+      tipoEntrenamiento: 'SwingTrading',
       modulos: [],
       activo: true,
       orden: 1
@@ -928,7 +928,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                   className={styles.filterSelect}
                 >
                   <option value="all">Todos los tipos</option>
-                  <option value="TradingFundamentals">Trading Fundamentals</option>
+                  <option value="SwingTrading">Swing Trading</option>
                   <option value="DowJones">Dow Jones</option>
                   <option value="General">General</option>
                 </select>
@@ -1107,7 +1107,7 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
                       }))}
                       className={formErrors.tipoEntrenamiento ? styles.fieldError : ''}
                     >
-                      <option value="TradingFundamentals">Trading Fundamentals</option>
+                      <option value="SwingTrading">Swing Trading</option>
                       <option value="DowJones">Dow Jones</option>
                       <option value="General">General</option>
                     </select>

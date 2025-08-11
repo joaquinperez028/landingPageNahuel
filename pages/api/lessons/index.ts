@@ -81,7 +81,7 @@ const createLessonSchema = z.object({
     url: z.string(),
     tipo: z.enum(['enlace', 'descarga', 'referencia'])
   })).default([]),
-  tipoEntrenamiento: z.enum(['TradingFundamentals', 'DowJones']),
+  tipoEntrenamiento: z.enum(['SwingTrading', 'DowJones']),
   dificultad: z.enum(['Básico', 'Intermedio', 'Avanzado']).default('Básico'),
   esGratuita: z.boolean().default(false),
   requiereSuscripcion: z.boolean().default(true),
@@ -114,7 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Construir filtros
       const filtros: any = {};
       
-      if (tipo && ['TradingFundamentals', 'DowJones'].includes(tipo as string)) {
+      if (tipo && ['SwingTrading', 'DowJones'].includes(tipo as string)) {
         filtros.tipoEntrenamiento = tipo;
       }
       

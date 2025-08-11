@@ -115,7 +115,7 @@ interface Lesson {
     url: string;
     tipo: 'enlace' | 'descarga' | 'referencia';
   }[];
-  tipoEntrenamiento: 'TradingFundamentals' | 'DowJones';
+  tipoEntrenamiento: 'SwingTrading' | 'DowJones';
   dificultad: 'Básico' | 'Intermedio' | 'Avanzado';
   esGratuita: boolean;
   requiereSuscripcion: boolean;
@@ -149,7 +149,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
   
   // Obtener el tipo de la URL y configurar filtros iniciales
   const tipoFromURL = router.query.tipo as string;
-  const isFilteredByType = tipoFromURL && ['DowJones', 'TradingFundamentals'].includes(tipoFromURL);
+  const isFilteredByType = tipoFromURL && ['DowJones', 'SwingTrading'].includes(tipoFromURL);
   
   const [filtros, setFiltros] = useState({
     tipo: isFilteredByType ? tipoFromURL : 'all',
@@ -172,7 +172,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
       url: string;
       tipo: 'enlace' | 'descarga' | 'referencia';
     }[],
-    tipoEntrenamiento: (isFilteredByType ? tipoFromURL : 'TradingFundamentals') as 'TradingFundamentals' | 'DowJones',
+    tipoEntrenamiento: (isFilteredByType ? tipoFromURL : 'SwingTrading') as 'SwingTrading' | 'DowJones',
     dificultad: 'Básico' as 'Básico' | 'Intermedio' | 'Avanzado',
     esGratuita: false,
     requiereSuscripcion: true,
@@ -239,11 +239,11 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
   useEffect(() => {
     if (router.isReady) {
       const tipoFromURL = router.query.tipo as string;
-      const isFilteredByType = tipoFromURL && ['DowJones', 'TradingFundamentals'].includes(tipoFromURL);
+      const isFilteredByType = tipoFromURL && ['DowJones', 'SwingTrading'].includes(tipoFromURL);
       
       if (isFilteredByType) {
         setFiltros(prev => ({ ...prev, tipo: tipoFromURL }));
-        setFormData(prev => ({ ...prev, tipoEntrenamiento: tipoFromURL as 'TradingFundamentals' | 'DowJones' }));
+        setFormData(prev => ({ ...prev, tipoEntrenamiento: tipoFromURL as 'SwingTrading' | 'DowJones' }));
       }
     }
   }, [router.isReady, router.query.tipo]);
@@ -565,7 +565,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
         url: string;
         tipo: 'enlace' | 'descarga' | 'referencia';
       }[],
-      tipoEntrenamiento: (isFilteredByType ? tipoFromURL : 'TradingFundamentals') as 'TradingFundamentals' | 'DowJones',
+      tipoEntrenamiento: (isFilteredByType ? tipoFromURL : 'SwingTrading') as 'SwingTrading' | 'DowJones',
       dificultad: 'Básico',
       esGratuita: false,
       requiereSuscripcion: true,
@@ -772,13 +772,13 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
               Gestión de Lecciones
               {isFilteredByType && (
                 <span className={styles.typeFilter}>
-                  - {tipoFromURL === 'TradingFundamentals' ? 'Trading Fundamentals' : 'Dow Jones'}
+                  - {tipoFromURL === 'SwingTrading' ? 'Swing Trading' : 'Dow Jones'}
                 </span>
               )}
             </h1>
             <p className={styles.subtitle}>
               {isFilteredByType 
-                ? `Gestiona las lecciones de ${tipoFromURL === 'TradingFundamentals' ? 'Trading Fundamentals' : 'Dow Jones'}`
+                ? `Gestiona las lecciones de ${tipoFromURL === 'SwingTrading' ? 'Swing Trading' : 'Dow Jones'}`
                 : 'Crea y gestiona el contenido de los entrenamientos'
               }
             </p>
@@ -792,7 +792,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                 className={styles.select}
               >
                 <option value="all">Todos los tipos</option>
-                <option value="TradingFundamentals">Trading Fundamentals</option>
+                <option value="SwingTrading">Swing Trading</option>
                 <option value="DowJones">Dow Jones</option>
               </select>
             )}
@@ -800,7 +800,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
             {isFilteredByType && (
               <div className={styles.filterInfo}>
                 <span className={styles.filterBadge}>
-                  Filtrado: {tipoFromURL === 'TradingFundamentals' ? 'Trading Fundamentals' : 'Dow Jones'}
+                  Filtrado: {tipoFromURL === 'SwingTrading' ? 'Swing Trading' : 'Dow Jones'}
                 </span>
                 <Link href="/admin/lecciones" className={styles.clearFilter}>
                   Ver todos
@@ -909,7 +909,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                   <div className={styles.leccionInfo}>
                     <div className={styles.leccionMeta}>
                       <span className={styles.leccionTipo}>
-                        {leccion.tipoEntrenamiento === 'TradingFundamentals' ? 'TF' : 'DJ'}
+                        {leccion.tipoEntrenamiento === 'SwingTrading' ? 'ST' : 'DJ'}
                       </span>
                       <span className={styles.leccionModulo}>
                         Módulo {leccion.modulo}.{leccion.numeroLeccion}
@@ -1078,7 +1078,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                           <div className={styles.restrictedField}>
                             <input
                               type="text"
-                              value={tipoFromURL === 'TradingFundamentals' ? 'Trading Fundamentals' : 'Dow Jones'}
+                              value={tipoFromURL === 'SwingTrading' ? 'Swing Trading' : 'Dow Jones'}
                               readOnly
                               className={styles.readOnlyInput}
                             />
@@ -1094,7 +1094,7 @@ const AdminLecciones: React.FC<AdminLeccionesProps> = ({ session }) => {
                             value={formData.tipoEntrenamiento}
                             onChange={(e) => setFormData({...formData, tipoEntrenamiento: e.target.value as any})}
                           >
-                            <option value="TradingFundamentals">Trading Fundamentals</option>
+                            <option value="SwingTrading">Swing Trading</option>
                             <option value="DowJones">Dow Jones</option>
                           </select>
                         )}

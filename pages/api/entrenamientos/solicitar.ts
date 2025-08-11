@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    if (!['TradingFundamentals', 'DowJones'].includes(tipo)) {
+    if (!['SwingTrading', 'DowJones'].includes(tipo)) {
       return res.status(400).json({ error: 'Tipo de entrenamiento inválido' });
     }
 
@@ -46,28 +46,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Crear el servicio si no existe
       training = new Training({
         tipo,
-        nombre: tipo === 'TradingFundamentals' 
+        nombre: tipo === 'SwingTrading' 
           ? 'Trading Fundamentals' 
           : 'Dow Jones',
-        descripcion: tipo === 'TradingFundamentals'
+        descripcion: tipo === 'SwingTrading'
           ? 'Programa completo de trading desde cero hasta nivel intermedio'
           : 'Estrategias avanzadas y técnicas institucionales de trading',
-        videoMux: tipo === 'TradingFundamentals'
+        videoMux: tipo === 'SwingTrading'
           ? 'trading-fundamentals-intro'
           : 'dow-jones-intro',
-        precio: tipo === 'TradingFundamentals' ? 497 : 997,
-        duracion: tipo === 'TradingFundamentals' ? 40 : 60,
+        precio: tipo === 'SwingTrading' ? 497 : 997,
+        duracion: tipo === 'SwingTrading' ? 40 : 60,
         metricas: {
-          rentabilidad: tipo === 'TradingFundamentals' ? 120 : 180,
-          estudiantesActivos: tipo === 'TradingFundamentals' ? 850 : 320,
-          entrenamientosRealizados: tipo === 'TradingFundamentals' ? 150 : 80,
+          rentabilidad: tipo === 'SwingTrading' ? 120 : 180,
+          estudiantesActivos: tipo === 'SwingTrading' ? 850 : 320,
+          entrenamientosRealizados: tipo === 'SwingTrading' ? 150 : 80,
           satisfaccion: 4.8
         },
         contenido: {
-          modulos: tipo === 'TradingFundamentals' ? 12 : 16,
-          lecciones: tipo === 'TradingFundamentals' ? 85 : 120,
+          modulos: tipo === 'SwingTrading' ? 12 : 16,
+          lecciones: tipo === 'SwingTrading' ? 85 : 120,
           certificacion: true,
-          nivelAcceso: tipo === 'TradingFundamentals' ? 'Básico a Intermedio' : 'Avanzado'
+          nivelAcceso: tipo === 'SwingTrading' ? 'Básico a Intermedio' : 'Avanzado'
         },
         solicitudes: [],
         horarios: [],

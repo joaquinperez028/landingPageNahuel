@@ -103,8 +103,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         case 'CuentaAsesorada':
           serviceName = 'Cuenta Asesorada';
           break;
-        case 'TradingFundamentals':
-          serviceName = 'Trading Fundamentals';
+        case 'SwingTrading':
+          serviceName = 'Swing Trading';
           break;
         case 'AdvancedStrategies':
           serviceName = 'Estrategias Avanzadas';

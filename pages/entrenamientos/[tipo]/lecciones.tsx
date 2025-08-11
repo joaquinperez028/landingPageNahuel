@@ -116,7 +116,7 @@ interface Lesson {
     url: string;
     tipo: 'enlace' | 'descarga' | 'referencia';
   }[];
-  tipoEntrenamiento: 'TradingFundamentals' | 'DowJones';
+  tipoEntrenamiento: 'SwingTrading' | 'DowJones';
   dificultad: 'Básico' | 'Intermedio' | 'Avanzado';
   esGratuita: boolean;
   requiereSuscripcion: boolean;
@@ -471,7 +471,7 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
     <>
       <Head>
         <title>
-          {currentLesson?.titulo} - {tipoEntrenamiento === 'TradingFundamentals' ? 'Trading Fundamentals' : 'Dow Jones'}
+          {currentLesson?.titulo} - {tipoEntrenamiento === 'SwingTrading' ? 'Swing Trading' : 'Dow Jones'}
         </title>
         <meta name="description" content={currentLesson?.descripcion} />
       </Head>
@@ -483,7 +483,7 @@ const LeccionesViewer: React.FC<LeccionesViewerProps> = ({
         <div className={`${styles.sidebar} ${showSidebar ? styles.sidebarOpen : styles.sidebarClosed}`}>
           <div className={styles.sidebarHeader}>
             <h3>
-              {tipoEntrenamiento === 'TradingFundamentals' ? 'Trading Fundamentals' : 'Dow Jones'}
+              {tipoEntrenamiento === 'SwingTrading' ? 'Swing Trading' : 'Dow Jones'}
             </h3>
             <button 
               onClick={() => setShowSidebar(!showSidebar)}
@@ -715,7 +715,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { tipo } = context.query;
 
   // Validar tipo de entrenamiento
-  if (!tipo || !['TradingFundamentals', 'DowJones'].includes(tipo as string)) {
+  if (!tipo || !['SwingTrading', 'DowJones'].includes(tipo as string)) {
     return {
       notFound: true
     };

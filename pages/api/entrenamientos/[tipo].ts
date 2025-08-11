@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     const { tipo } = req.query;
 
-    if (!tipo || !['TradingFundamentals', 'DowJones'].includes(tipo as string)) {
+    if (!tipo || !['SwingTrading', 'DowJones'].includes(tipo as string)) {
       return res.status(400).json({ error: 'Tipo de entrenamiento inválido' });
     }
 
@@ -29,8 +29,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!training) {
       // Crear datos por defecto si no existe
       const defaultData = {
-        TradingFundamentals: {
-          tipo: 'TradingFundamentals',
+            SwingTrading: {
+      tipo: 'SwingTrading',
           nombre: 'Trading Fundamentals',
           descripcion: 'Programa completo de trading desde cero hasta nivel intermedio con metodología step-by-step',
           videoMux: 'trading-fundamentals-intro',
@@ -102,7 +102,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Generar programa de ejemplo basado en el tipo
     const programaEjemplo = {
-      TradingFundamentals: [
+      SwingTrading: [
         {
           module: 1,
           title: "Fundamentos del Trading",
@@ -158,7 +158,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Generar testimonios de ejemplo
     const testimoniosEjemplo = {
-      TradingFundamentals: [
+      SwingTrading: [
         {
           name: "Carlos Mendoza",
           role: "Trader Independiente",

@@ -683,7 +683,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                       
                       {session ? (
                         <button 
-                          onClick={() => handleMercadoPagoCheckout('training', 'TradingFundamentals', 497, 'USD')}
+                          onClick={() => handleMercadoPagoCheckout('training', 'SwingTrading', 497, 'USD')}
                           className={styles.servicioButton}
                           disabled={isProcessingPayment}
                         >
@@ -1345,8 +1345,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const defaultEntrenamientos = [
       {
         _id: '1',
-        tipo: 'TradingFundamentals',
-        nombre: 'Trading Fundamentals',
+        tipo: 'SwingTrading',
+        nombre: 'Swing Trading',
         descripcion: 'Aprende los fundamentos del trading y análisis técnico',
         precio: 299,
         duracion: 8,
@@ -1493,8 +1493,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         entrenamientos: [
           {
             _id: '1',
-            tipo: 'TradingFundamentals',
-            nombre: 'Trading Fundamentals',
+            tipo: 'SwingTrading',
+            nombre: 'Swing Trading',
             descripcion: 'Aprende los fundamentos del trading y análisis técnico',
             precio: 299,
             duracion: 8,

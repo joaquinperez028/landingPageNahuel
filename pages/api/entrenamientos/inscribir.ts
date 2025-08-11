@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 // Schema de validación para inscripción
 const inscripcionSchema = z.object({
-  tipo: z.enum(['TradingFundamentals', 'DowJones']),
+  tipo: z.enum(['SwingTrading', 'DowJones']),
   nombre: z.string().min(1, 'Nombre es requerido'),
   email: z.string().email('Email inválido'),
   telefono: z.string().optional(),
@@ -80,7 +80,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Determinar precio según el tipo de entrenamiento
     const precios = {
-      TradingFundamentals: 497,
+      SwingTrading: 497,
       DowJones: 897
     };
 

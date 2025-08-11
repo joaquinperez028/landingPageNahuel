@@ -47,7 +47,7 @@ export interface IUser extends Document {
     currency: string;
   }>;
   entrenamientos: Array<{
-    tipo: 'TradingFundamentals' | 'DowJones';
+    tipo: 'SwingTrading' | 'DowJones';
     fechaInscripcion: Date;
     fechaCompletado?: Date;
     progreso: number; // 0-100
@@ -193,7 +193,7 @@ const UserSchema: Schema = new Schema({
   entrenamientos: [{
     tipo: {
       type: String,
-      enum: ['TradingFundamentals', 'DowJones'],
+      enum: ['SwingTrading', 'DowJones'],
       required: true
     },
     fechaInscripcion: {

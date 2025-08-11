@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const now = new Date();
 
     // Verificar suscripciones por servicio
-    const services = ['TraderCall', 'SmartMoney', 'CashFlow', 'TradingFundamentals', 'DowJones'];
+    const services = ['TraderCall', 'SmartMoney', 'CashFlow', 'SwingTrading', 'DowJones'];
     
     for (const service of services) {
       if (user.hasServiceAccess(service)) {

@@ -28,7 +28,7 @@ interface TrainingSchedule {
   hour: number;
   minute: number;
   duration: number;
-  type: 'TradingFundamentals' | 'DowJones';
+  type: 'SwingTrading' | 'DowJones';
   price: number;
   cuposDisponibles: number;
   activo: boolean;
@@ -41,7 +41,7 @@ interface NewScheduleForm {
   hour: number;
   minute: number;
   duration: number;
-  type: 'TradingFundamentals' | 'DowJones';
+  type: 'SwingTrading' | 'DowJones';
   price: number;
   maxBookingsPerDay: number;
 }
@@ -51,7 +51,7 @@ const DAYS_OF_WEEK = [
 ];
 
 const TRAINING_TYPES = {
-  TradingFundamentals: 'Trading Fundamentals',
+  SwingTrading: 'Swing Trading',
   DowJones: 'Dow Jones Advanced'
 };
 
@@ -65,7 +65,7 @@ export default function EntrenamientosHorariosPage() {
     hour: 9,
     minute: 0,
     duration: 90,
-    type: 'TradingFundamentals',
+    type: 'SwingTrading',
     price: 497,
     maxBookingsPerDay: 2
   });
@@ -179,7 +179,7 @@ export default function EntrenamientosHorariosPage() {
       hour: 9,
       minute: 0,
       duration: 90,
-      type: 'TradingFundamentals',
+      type: 'SwingTrading',
       price: 497,
       maxBookingsPerDay: 2
     });
@@ -347,12 +347,12 @@ export default function EntrenamientosHorariosPage() {
                     value={formData.type}
                     onChange={(e) => setFormData({
                       ...formData,
-                      type: e.target.value as 'TradingFundamentals' | 'DowJones',
-                      price: e.target.value === 'TradingFundamentals' ? 497 : 997
+                              type: e.target.value as 'SwingTrading' | 'DowJones',
+        price: e.target.value === 'SwingTrading' ? 497 : 997
                     })}
                     required
                   >
-                    <option value="TradingFundamentals">Trading Fundamentals</option>
+                    <option value="SwingTrading">Swing Trading</option>
                     <option value="DowJones">Dow Jones Advanced</option>
                   </select>
                 </div>
