@@ -1024,6 +1024,49 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
+              {/* Título y Contador en la sección de testimonios */}
+              <div className={styles.testimonialsHeader}>
+                <h2 className={styles.testimonialsTitle}>
+                  Swing Trading
+                </h2>
+                
+                <div className={styles.testimonialsDate}>
+                  Fecha de inicio: {startDateText}
+                </div>
+                
+                <div className={styles.testimonialsCountdown}>
+                  <div className={styles.countdownBox}>
+                    <span className={styles.countdownNumber}>{countdown.days}</span>
+                    <span className={styles.countdownLabel}>Días</span>
+                  </div>
+                  <div className={styles.countdownBox}>
+                    <span className={styles.countdownNumber}>{countdown.hours}</span>
+                    <span className={styles.countdownLabel}>Horas</span>
+                  </div>
+                  <div className={styles.countdownBox}>
+                    <span className={styles.countdownNumber}>{countdown.minutes}</span>
+                    <span className={styles.countdownLabel}>Minutos</span>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={handleEnroll}
+                  className={styles.testimonialsButton}
+                  disabled={checkingEnrollment || isProcessingPayment}
+                >
+                  {isProcessingPayment ? (
+                    <>
+                      <Loader size={20} className={styles.spinner} />
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      Inscribirse Ahora &gt;
+                    </>
+                  )}
+                </button>
+              </div>
+
               <div className={styles.testimonialsHorizontalContent}>
                 <div className={styles.testimonialHorizontalItem}>
                   <div className={styles.testimonialAvatar}>

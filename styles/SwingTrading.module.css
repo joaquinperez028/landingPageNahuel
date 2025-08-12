@@ -884,6 +884,55 @@
   position: relative;
   max-width: 900px;
   margin: 0 auto;
+  text-align: center;
+}
+
+/* Testimonials Header - Similar to Hero */
+.testimonialsHeader {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.testimonialsTitle {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.testimonialsDate {
+  font-size: 1.2rem;
+  font-style: italic;
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.testimonialsCountdown {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.testimonialsButton {
+  background: rgba(139, 69, 19, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 1rem 2.5rem;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.testimonialsButton:hover {
+  background: rgba(139, 69, 19, 1);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 .testimonialsHorizontalContent {
@@ -1009,6 +1058,16 @@
   .testimonialsCard {
     padding: 2rem 1.5rem;
     margin: 0 1rem;
+  }
+  
+  .testimonialsTitle {
+    font-size: 2.5rem;
+  }
+  
+  .testimonialsCountdown {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
   
   .testimonialsHorizontalContent {
