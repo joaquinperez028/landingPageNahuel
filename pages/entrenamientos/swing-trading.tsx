@@ -68,12 +68,27 @@ interface TradingPageProps {
   training: TrainingData;
   program: ProgramModule[];
   testimonials: Testimonial[];
+  siteConfig?: {
+    trainingVideos?: {
+      swingTrading?: {
+        heroVideo?: {
+          youtubeId: string;
+          title: string;
+          description: string;
+          autoplay: boolean;
+          muted: boolean;
+          loop: boolean;
+        };
+      };
+    };
+  };
 }
 
 const SwingTradingPage: React.FC<TradingPageProps> = ({ 
   training,
   program, 
-  testimonials
+  testimonials,
+  siteConfig
 }) => {
   const { data: session } = useSession();
   
@@ -136,6 +151,7 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
           checkingEnrollment={checkingEnrollment}
           isProcessingPayment={isProcessingPayment}
           onEnroll={handleEnroll}
+          heroVideo={siteConfig?.trainingVideos?.swingTrading?.heroVideo}
         />
 
         {/* Info Cards Section */}
@@ -203,21 +219,35 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
-    // Obtener datos del entrenamiento desde la API
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/entrenamientos/SwingTrading`);
     
-    if (!response.ok) {
+    // Obtener datos del entrenamiento desde la API
+    const trainingResponse = await fetch(`${baseUrl}/api/entrenamientos/SwingTrading`);
+    
+    if (!trainingResponse.ok) {
       throw new Error('Error fetching training data');
     }
     
-    const data = await response.json();
+    const trainingData = await trainingResponse.json();
+    
+    // Obtener configuración del sitio
+    let siteConfig = null;
+    try {
+      const configResponse = await fetch(`${baseUrl}/api/site-config`);
+      if (configResponse.ok) {
+        const configData = await configResponse.json();
+        siteConfig = configData;
+      }
+    } catch (configError) {
+      console.warn('Error fetching site config:', configError);
+    }
     
     return {
       props: {
-        training: data.data.training,
-        program: data.data.program,
-        testimonials: data.data.testimonials
+        training: trainingData.data.training,
+        program: trainingData.data.program,
+        testimonials: trainingData.data.testimonials,
+        siteConfig: siteConfig || null
       }
     };
   } catch (error) {
@@ -246,7 +276,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           }
         },
         program: [],
-        testimonials: []
+        testimonials: [],
+        siteConfig: null
       }
     };
   }

@@ -1,10 +1,14 @@
 import React from 'react';
 import Head from 'next/head';
+import { GetServerSideProps } from 'next';
+import { getSession } from 'next-auth/react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { Star, CheckCircle, ArrowRight, Users, TrendingUp, Clock } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { motion } from 'framer-motion';
+import YouTubePlayer from '@/components/YouTubePlayer';
 import styles from '@/styles/Alertas.module.css';
 
 interface AlertServiceProps {
@@ -200,25 +204,14 @@ const AlertasPage: React.FC = () => {
               
               <div className={styles.heroVideo}>
                 <div className={styles.videoPlayer}>
-                  <div className={styles.videoPlaceholder}>
-                    <div className={styles.playIcon}>▶</div>
-                  </div>
-                  <div className={styles.videoControls}>
-                    <span className={styles.currentTime}>2:21</span>
-                    <div className={styles.progressBar}>
-                      <div className={styles.progressFill}></div>
-                    </div>
-                    <div className={styles.controlButtons}>
-                      <button className={styles.controlBtn}>⏮</button>
-                      <button className={styles.controlBtn}>⏯</button>
-                      <button className={styles.controlBtn}>⏭</button>
-                      <button className={styles.controlBtn}>🔊</button>
-                      <span className={styles.totalTime}>20:00</span>
-                      <button className={styles.controlBtn}>⚙️</button>
-                      <button className={styles.controlBtn}>⏹</button>
-                      <button className={styles.controlBtn}>⛶</button>
-                    </div>
-                  </div>
+                  <YouTubePlayer
+                    videoId="dQw4w9WgXcQ"
+                    title="Alertas de Trading - Introducción"
+                    autoplay={false}
+                    muted={true}
+                    loop={false}
+                    className={styles.videoPlayer}
+                  />
                 </div>
               </div>
             </motion.div>
@@ -379,29 +372,14 @@ const AlertasPage: React.FC = () => {
             
             <div className={styles.bannerVideo}>
               <div className={styles.videoPlayer}>
-                <div className={styles.videoScreen}>
-                  <div className={styles.playIcon}>▶</div>
-                </div>
-                <div className={styles.videoControls}>
-                  <div className={styles.controlLeft}>
-                    <button className={styles.controlBtn}>⏮</button>
-                    <button className={styles.controlBtn}>⏯</button>
-                    <button className={styles.controlBtn}>⏭</button>
-                    <button className={styles.controlBtn}>🔊</button>
-                  </div>
-                  <div className={styles.progressSection}>
-                    <span className={styles.currentTime}>2:21</span>
-                    <div className={styles.progressBar}>
-                      <div className={styles.progressFill}></div>
-                    </div>
-                    <span className={styles.totalTime}>20:00</span>
-                  </div>
-                  <div className={styles.controlRight}>
-                    <button className={styles.controlBtn}>⚙️</button>
-                    <button className={styles.controlBtn}>⛶</button>
-                    <button className={styles.controlBtn}>⛶</button>
-                  </div>
-                </div>
+                <YouTubePlayer
+                  videoId="dQw4w9WgXcQ"
+                  title="Comunidad de YouTube - Alertas"
+                  autoplay={false}
+                  muted={true}
+                  loop={false}
+                  className={styles.videoPlayer}
+                />
               </div>
             </div>
           </div>

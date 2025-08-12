@@ -22,6 +22,7 @@ import {
   FileText
 } from 'lucide-react';
 import styles from '@/styles/CuentaAsesorada.module.css';
+import YouTubePlayer from '@/components/YouTubePlayer';
 
 interface CuentaAsesoradaPageProps {
   brokers: Array<{
@@ -71,23 +72,14 @@ export default function CuentaAsesorada() {
             </div>
             <div className={styles.heroVideo}>
               <div className={styles.videoContainer}>
-                <div className={styles.videoPlayer}>
-                  <div className={styles.videoPlaceholder}>
-                    <div className={styles.playIcon}>▶</div>
-                  </div>
-                  <div className={styles.videoControls}>
-                    <button className={styles.playButton}>⏸</button>
-                    <button className={styles.skipButton}>⏭</button>
-                    <div className={styles.progressBar}>
-                      <div className={styles.progressFill}></div>
-                    </div>
-                    <span className={styles.timeDisplay}>2:21 / 20:00</span>
-                    <button className={styles.volumeButton}>🔊</button>
-                    <button className={styles.settingsButton}>⚙</button>
-                    <button className={styles.pipButton}>⛶</button>
-                    <button className={styles.fullscreenButton}>⛶</button>
-                  </div>
-                </div>
+                <YouTubePlayer
+                  videoId="dQw4w9WgXcQ"
+                  title="Cuenta Asesorada - Introducción"
+                  autoplay={false}
+                  muted={true}
+                  loop={false}
+                  className={styles.videoPlayer}
+                />
               </div>
             </div>
           </div>
@@ -425,21 +417,14 @@ export default function CuentaAsesorada() {
             <div className={styles.youtubeFinalVideoContainer}>
               <button className={styles.youtubeFinalArrow} aria-label="Anterior">&#60;</button>
               <div className={styles.youtubeFinalVideoPlayer}>
-                <div className={styles.youtubeFinalVideoPlaceholder}>
-                  <div className={styles.youtubeFinalPlayIcon}>▶</div>
-                </div>
-                <div className={styles.youtubeFinalVideoControls}>
-                  <button className={styles.youtubeFinalPlayButton}>⏸</button>
-                  <button className={styles.youtubeFinalSkipButton}>⏭</button>
-                  <div className={styles.youtubeFinalProgressBar}>
-                    <div className={styles.youtubeFinalProgressFill}></div>
-                  </div>
-                  <span className={styles.youtubeFinalTimeDisplay}>2:21 / 20:00</span>
-                  <button className={styles.youtubeFinalVolumeButton}>🔊</button>
-                  <button className={styles.youtubeFinalSettingsButton}>⚙</button>
-                  <button className={styles.youtubeFinalPipButton}>⛶</button>
-                  <button className={styles.youtubeFinalFullscreenButton}>⛶</button>
-                </div>
+                <YouTubePlayer
+                  videoId="dQw4w9WgXcQ"
+                  title="Cuenta Asesorada - Videos Finales"
+                  autoplay={false}
+                  muted={true}
+                  loop={false}
+                  className={styles.youtubeFinalVideoPlayer}
+                />
               </div>
               <button className={styles.youtubeFinalArrow} aria-label="Siguiente">&#62;</button>
             </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { PlayCircle, Loader } from 'lucide-react';
+import YouTubePlayer from '../YouTubePlayer';
 import styles from '../../styles/SwingTrading.module.css';
 
 interface TrainingData {
@@ -35,6 +36,14 @@ interface HeroSectionProps {
   checkingEnrollment: boolean;
   isProcessingPayment: boolean;
   onEnroll: () => void;
+  heroVideo?: {
+    youtubeId: string;
+    title: string;
+    description: string;
+    autoplay: boolean;
+    muted: boolean;
+    loop: boolean;
+  };
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({
@@ -44,7 +53,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   isEnrolled,
   checkingEnrollment,
   isProcessingPayment,
-  onEnroll
+  onEnroll,
+  heroVideo
 }) => {
   return (
     <section className={styles.heroSection}>
@@ -100,31 +110,25 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
           <div className={styles.heroVideo}>
             <div className={styles.videoContainer}>
-              <div className={styles.videoPlayer}>
-                <div className={styles.videoPlaceholder}>
-                  <div className={styles.playButton}>
-                    <PlayCircle size={60} />
-                  </div>
-                </div>
-                <div className={styles.videoControls}>
-                  <div className={styles.videoProgress}>
-                    <span className={styles.currentTime}>2:21</span>
-                    <div className={styles.progressBar}>
-                      <div className={styles.progressFill}></div>
-                    </div>
-                    <span className={styles.totalTime}>20:00</span>
-                  </div>
-                  <div className={styles.controlButtons}>
-                    <button className={styles.controlBtn}>⏮</button>
-                    <button className={styles.controlBtn}>⏯</button>
-                    <button className={styles.controlBtn}>⏭</button>
-                    <button className={styles.controlBtn}>🔊</button>
-                    <button className={styles.controlBtn}>⚙️</button>
-                    <button className={styles.controlBtn}>⛶</button>
-                    <button className={styles.controlBtn}>⛶</button>
-                  </div>
-                </div>
-              </div>
+              {heroVideo && heroVideo.youtubeId ? (
+                <YouTubePlayer
+                  videoId={heroVideo.youtubeId}
+                  title={heroVideo.title || 'Swing Trading - Video Promocional'}
+                  autoplay={heroVideo.autoplay || false}
+                  muted={heroVideo.muted || true}
+                  loop={heroVideo.loop || false}
+                  className={styles.videoPlayer}
+                />
+              ) : (
+                <YouTubePlayer
+                  videoId="dQw4w9WgXcQ"
+                  title="Swing Trading - Video Promocional"
+                  autoplay={false}
+                  muted={true}
+                  loop={false}
+                  className={styles.videoPlayer}
+                />
+              )}
             </div>
           </div>
         </motion.div>

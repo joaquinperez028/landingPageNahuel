@@ -20,8 +20,10 @@ import {
   Download
 } from 'lucide-react';
 import styles from '@/styles/Recursos.module.css';
+import YouTubePlayer from '@/components/YouTubePlayer';
 
 interface RecursosPageProps {
+  session: any;
   formulasTradingView: Array<{
     nombre: string;
     descripcion: string;
@@ -52,14 +54,28 @@ interface RecursosPageProps {
     url: string;
     icon: string;
   }>;
+  siteConfig?: {
+    resourcesVideos?: {
+      mainVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+  };
 }
 
 const RecursosPage: React.FC<RecursosPageProps> = ({ 
-  formulasTradingView,
-  linksImportantes,
-  materialComplementario,
-  librosRecomendados,
-  listasActivos
+  session,
+  formulasTradingView, 
+  linksImportantes, 
+  materialComplementario, 
+  librosRecomendados, 
+  listasActivos,
+  siteConfig
 }) => {
   return (
     <>
@@ -256,10 +272,8 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
                 </div>
                 <div className={styles.bibliotecaCard}>
                   <img src="/images/murphy.jpg" alt="Análisis Técnico de los Mercados Financieros" className={styles.bibliotecaImg} />
-                  <div className={styles.bibliotecaCardText}>
-                    <div className={styles.bibliotecaBookTitle}>Análisis Técnico de los Mercados Financieros</div>
-                    <div className={styles.bibliotecaBookAuthor}><em>John J. Murphy</em></div>
-                  </div>
+                  <div className={styles.bibliotecaBookTitle}>Análisis Técnico de los Mercados Financieros</div>
+                  <div className={styles.bibliotecaBookAuthor}><em>John J. Murphy</em></div>
                 </div>
               </div>
               <button className={styles.carouselArrow} aria-label="Siguiente">&#62;</button>
@@ -340,18 +354,14 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
             <div className={styles.youtubeVideoContainer}>
               <button className={styles.videoArrow} aria-label="Anterior">&#60;</button>
               <div className={styles.videoPlayer}>
-                <div className={styles.videoPlaceholder}>
-                  <div className={styles.playIcon}>▶</div>
-                </div>
-                <div className={styles.videoControls}>
-                  <button className={styles.playButton}>▶</button>
-                  <div className={styles.progressBar}>
-                    <div className={styles.progressFill}></div>
-                  </div>
-                  <span className={styles.timeDisplay}>2:21 / 20:00</span>
-                  <button className={styles.settingsButton}>⚙</button>
-                  <button className={styles.fullscreenButton}>⛶</button>
-                </div>
+                <YouTubePlayer
+                  videoId={siteConfig?.resourcesVideos?.mainVideo?.youtubeId || "dQw4w9WgXcQ"}
+                  title={siteConfig?.resourcesVideos?.mainVideo?.title || "Recursos de Trading"}
+                  autoplay={siteConfig?.resourcesVideos?.mainVideo?.autoplay || false}
+                  muted={siteConfig?.resourcesVideos?.mainVideo?.muted || true}
+                  loop={siteConfig?.resourcesVideos?.mainVideo?.loop || false}
+                  className={styles.videoPlayer}
+                />
               </div>
               <button className={styles.videoArrow} aria-label="Siguiente">&#62;</button>
             </div>
@@ -367,6 +377,19 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
+  
+  // Obtener configuración del sitio
+  let siteConfig = null;
+  try {
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const configResponse = await fetch(`${baseUrl}/api/site-config`);
+    if (configResponse.ok) {
+      const configData = await configResponse.json();
+      siteConfig = configData;
+    }
+  } catch (configError) {
+    console.warn('Error fetching site config:', configError);
+  }
   
   const formulasTradingView = [
     {
@@ -517,11 +540,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
+      session,
       formulasTradingView,
       linksImportantes,
       materialComplementario,
       librosRecomendados,
-      listasActivos
+      listasActivos,
+      siteConfig: siteConfig || null
     }
   };
 };

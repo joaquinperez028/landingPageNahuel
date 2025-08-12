@@ -1,34 +1,41 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GetServerSideProps } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/googleAuth';
 import { verifyAdminAccess } from '@/lib/adminAuth';
-import Head from 'next/head';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { 
   ArrowLeft, 
   Save, 
-  Video, 
-  PlayCircle, 
-  Settings, 
   Eye, 
-  RefreshCw, 
-  Globe,
-  Bell,
+  EyeOff, 
+  Settings, 
+  Video, 
+  List, 
+  Grid, 
+  PlayCircle, 
+  BarChart3, 
+  Layout, 
+  Trash2, 
+  Plus, 
+  Bell, 
+  MessageCircle, 
+  Calendar,
   BookOpen,
-  MessageCircle,
-  FileVideo,
-  Search,
-  Filter,
-  Grid,
-  List,
-  Copy,
-  ExternalLink,
-  CheckCircle,
-  AlertCircle
+  Users,
+  FileText,
+  Globe,
+  Target,
+  TrendingUp,
+  DollarSign,
+  Briefcase,
+  GraduationCap,
+  Shield,
+  Zap,
+  Star,
+  Phone
 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { motion } from 'framer-motion';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import styles from '@/styles/Admin.module.css';
 
 interface VideoConfig {
@@ -74,22 +81,181 @@ interface VideoConfig {
       loop: boolean;
     };
   };
+  trainingVideos: {
+    swingTrading: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      promoVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    dowJones: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      promoVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    advanced: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      promoVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+  };
+  advisoryVideos: {
+    consultorioFinanciero: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      testimonialsVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    cuentaAsesorada: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      finalVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+  };
+  alertsVideos: {
+    index: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      communityVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    traderCall: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    smartMoney: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    cashFlow: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+  };
+  resourcesVideos: {
+    mainVideo: {
+      youtubeId: string;
+      title: string;
+      description: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+  };
 }
 
 interface VideoSection {
   id: string;
-  title: string;
+  name: string;
   description: string;
   icon: React.ReactNode;
   color: string;
-  category: 'main' | 'services' | 'learning';
+  category: string;
   path: string;
 }
 
-const VideoConfig: React.FC<{ initialConfig: VideoConfig }> = ({ initialConfig }) => {
-  const [config, setConfig] = useState<VideoConfig>(initialConfig);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedSection, setSelectedSection] = useState<string>('heroVideo');
+interface VideoConfigProps {
+  user: any;
+}
+
+const VideoConfig: React.FC<VideoConfigProps> = ({ user }) => {
+  const [config, setConfig] = useState<VideoConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -97,80 +263,216 @@ const VideoConfig: React.FC<{ initialConfig: VideoConfig }> = ({ initialConfig }
 
   // Definir todas las secciones de videos
   const videoSections: VideoSection[] = [
+    // Videos principales del sitio
     {
       id: 'heroVideo',
-      title: 'Video Principal (Hero)',
-      description: 'Video de presentación en la página principal',
+      name: 'Video Hero Principal',
+      description: 'Video principal de la página de inicio',
       icon: <Globe size={20} />,
-      color: '#ef4444',
+      color: '#3b82f6',
       category: 'main',
-      path: '/'
+      path: 'heroVideo'
     },
     {
       id: 'learningVideo',
-      title: 'Video de Aprendizaje',
-      description: 'Video en la sección de cursos',
-      icon: <BookOpen size={20} />,
-      color: '#3b82f6',
-      category: 'learning',
-      path: '/'
+      name: 'Video de Aprendizaje',
+      description: 'Video de la sección "Aprende a invertir"',
+      icon: <GraduationCap size={20} />,
+      color: '#10b981',
+      category: 'main',
+      path: 'learningVideo'
     },
+    // Videos de servicios
     {
       id: 'serviciosVideos.alertas',
-      title: 'Video de Alertas',
-      description: 'Video promocional de alertas de trading',
+      name: 'Video de Alertas (Servicios)',
+      description: 'Video en la sección de servicios - Alertas',
       icon: <Bell size={20} />,
-      color: '#10b981',
+      color: '#ef4444',
       category: 'services',
-      path: '/'
+      path: 'serviciosVideos.alertas'
     },
     {
       id: 'serviciosVideos.entrenamientos',
-      title: 'Video de Entrenamientos',
-      description: 'Video promocional de entrenamientos',
+      name: 'Video de Entrenamientos (Servicios)',
+      description: 'Video en la sección de servicios - Entrenamientos',
       icon: <BookOpen size={20} />,
-      color: '#8b5cf6',
+      color: '#f59e0b',
       category: 'services',
-      path: '/'
+      path: 'serviciosVideos.entrenamientos'
     },
     {
       id: 'serviciosVideos.asesorias',
-      title: 'Video de Asesorías',
-      description: 'Video promocional de asesorías',
-      icon: <MessageCircle size={20} />,
-      color: '#f59e0b',
+      name: 'Video de Asesorías (Servicios)',
+      description: 'Video en la sección de servicios - Asesorías',
+      icon: <Users size={20} />,
+      color: '#8b5cf6',
       category: 'services',
-      path: '/'
+      path: 'serviciosVideos.asesorias'
+    },
+    // Videos específicos de entrenamientos
+    {
+      id: 'trainingVideos.swingTrading.heroVideo',
+      name: 'Swing Trading - Video Hero',
+      description: 'Video principal de la página Swing Trading',
+      icon: <TrendingUp size={20} />,
+      color: '#dc2626',
+      category: 'trainings',
+      path: 'trainingVideos.swingTrading.heroVideo'
+    },
+    {
+      id: 'trainingVideos.swingTrading.promoVideo',
+      name: 'Swing Trading - Video Promocional',
+      description: 'Video promocional adicional de Swing Trading',
+      icon: <Star size={20} />,
+      color: '#dc2626',
+      category: 'trainings',
+      path: 'trainingVideos.swingTrading.promoVideo'
+    },
+    {
+      id: 'trainingVideos.dowJones.heroVideo',
+      name: 'Dow Jones - Video Hero',
+      description: 'Video principal de la página Dow Jones',
+      icon: <BarChart3 size={20} />,
+      color: '#059669',
+      category: 'trainings',
+      path: 'trainingVideos.dowJones.heroVideo'
+    },
+    {
+      id: 'trainingVideos.dowJones.promoVideo',
+      name: 'Dow Jones - Video Promocional',
+      description: 'Video promocional adicional de Dow Jones',
+      icon: <Star size={20} />,
+      color: '#059669',
+      category: 'trainings',
+      path: 'trainingVideos.dowJones.promoVideo'
+    },
+    {
+      id: 'trainingVideos.advanced.heroVideo',
+      name: 'Programa Avanzado - Video Hero',
+      description: 'Video principal de la página Programa Avanzado',
+      icon: <Zap size={20} />,
+      color: '#7c3aed',
+      category: 'trainings',
+      path: 'trainingVideos.advanced.heroVideo'
+    },
+    {
+      id: 'trainingVideos.advanced.promoVideo',
+      name: 'Programa Avanzado - Video Promocional',
+      description: 'Video promocional adicional del Programa Avanzado',
+      icon: <Star size={20} />,
+      color: '#7c3aed',
+      category: 'trainings',
+      path: 'trainingVideos.advanced.promoVideo'
+    },
+    // Videos de asesorías
+    {
+      id: 'advisoryVideos.consultorioFinanciero.heroVideo',
+      name: 'Consultorio Financiero - Video Hero',
+      description: 'Video principal de Consultorio Financiero',
+      icon: <MessageCircle size={20} />,
+      color: '#0891b2',
+      category: 'advisory',
+      path: 'advisoryVideos.consultorioFinanciero.heroVideo'
+    },
+    {
+      id: 'advisoryVideos.consultorioFinanciero.testimonialsVideo',
+      name: 'Consultorio Financiero - Video Testimonios',
+      description: 'Video de testimonios de Consultorio Financiero',
+      icon: <Users size={20} />,
+      color: '#0891b2',
+      category: 'advisory',
+      path: 'advisoryVideos.consultorioFinanciero.testimonialsVideo'
+    },
+    {
+      id: 'advisoryVideos.cuentaAsesorada.heroVideo',
+      name: 'Cuenta Asesorada - Video Hero',
+      description: 'Video principal de Cuenta Asesorada',
+      icon: <Shield size={20} />,
+      color: '#16a34a',
+      category: 'advisory',
+      path: 'advisoryVideos.cuentaAsesorada.heroVideo'
+    },
+    {
+      id: 'advisoryVideos.cuentaAsesorada.finalVideo',
+      name: 'Cuenta Asesorada - Video Final',
+      description: 'Video final de Cuenta Asesorada',
+      icon: <Target size={20} />,
+      color: '#16a34a',
+      category: 'advisory',
+      path: 'advisoryVideos.cuentaAsesorada.finalVideo'
+    },
+    // Videos de alertas
+    {
+      id: 'alertsVideos.index.heroVideo',
+      name: 'Alertas - Video Hero',
+      description: 'Video principal de la página de Alertas',
+      icon: <Bell size={20} />,
+      color: '#dc2626',
+      category: 'alerts',
+      path: 'alertsVideos.index.heroVideo'
+    },
+    {
+      id: 'alertsVideos.index.communityVideo',
+      name: 'Alertas - Video Comunidad',
+      description: 'Video de comunidad de YouTube en Alertas',
+      icon: <Users size={20} />,
+      color: '#dc2626',
+      category: 'alerts',
+      path: 'alertsVideos.index.communityVideo'
+    },
+    {
+      id: 'alertsVideos.traderCall.heroVideo',
+      name: 'Trader Call - Video Hero',
+      description: 'Video principal de Trader Call',
+      icon: <Phone size={20} />,
+      color: '#ea580c',
+      category: 'alerts',
+      path: 'alertsVideos.traderCall.heroVideo'
+    },
+    {
+      id: 'alertsVideos.smartMoney.heroVideo',
+      name: 'Smart Money - Video Hero',
+      description: 'Video principal de Smart Money',
+      icon: <DollarSign size={20} />,
+      color: '#059669',
+      category: 'alerts',
+      path: 'alertsVideos.smartMoney.heroVideo'
+    },
+    {
+      id: 'alertsVideos.cashFlow.heroVideo',
+      name: 'Cash Flow - Video Hero',
+      description: 'Video principal de Cash Flow',
+      icon: <TrendingUp size={20} />,
+      color: '#3b82f6',
+      category: 'alerts',
+      path: 'alertsVideos.cashFlow.heroVideo'
+    },
+    // Videos de recursos
+    {
+      id: 'resourcesVideos.mainVideo',
+      name: 'Recursos - Video Principal',
+      description: 'Video principal de la página de Recursos',
+      icon: <FileText size={20} />,
+      color: '#7c3aed',
+      category: 'resources',
+      path: 'resourcesVideos.mainVideo'
     }
   ];
 
-  // Función para extraer YouTube ID de una URL
-  const extractYouTubeId = (url: string): string => {
-    const patterns = [
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-      /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
-      /youtu\.be\/([^&\n?#]+)/
-    ];
-
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match) return match[1];
-    }
-    return url; // Si no coincide con ningún patrón, asumir que ya es un ID
-  };
-
-  // Función para generar URL de preview
-  const generatePreviewUrl = (youtubeId: string) => {
-    return `https://www.youtube.com/embed/${youtubeId}?autoplay=0&mute=1&loop=0&controls=1`;
-  };
-
   // Función para obtener el valor de un video por path
   const getVideoByPath = (path: string) => {
-    const pathParts = path.split('.');
+    if (!config) return null;
+    
+    const keys = path.split('.');
     let current: any = config;
     
-    for (const part of pathParts) {
-      current = current[part];
+    for (const key of keys) {
+      if (current && typeof current === 'object' && key in current) {
+        current = current[key];
+      } else {
+        return null;
+      }
     }
     
     return current;
@@ -178,437 +480,444 @@ const VideoConfig: React.FC<{ initialConfig: VideoConfig }> = ({ initialConfig }
 
   // Función para actualizar un video por path
   const updateVideoByPath = (path: string, updates: any) => {
-    const pathParts = path.split('.');
-    setConfig(prev => {
-      const newConfig = { ...prev };
-      let current: any = newConfig;
-      
-      for (let i = 0; i < pathParts.length - 1; i++) {
-        current = current[pathParts[i]];
-      }
-      
-      current[pathParts[pathParts.length - 1]] = { ...current[pathParts[pathParts.length - 1]], ...updates };
-      return newConfig;
-    });
-  };
-
-  const handleInputChange = (path: string, field: string, value: any) => {
-    updateVideoByPath(path, { [field]: value });
-  };
-
-  const handleYouTubeUrlChange = (path: string, url: string) => {
-    const youtubeId = extractYouTubeId(url);
-    handleInputChange(path, 'youtubeId', youtubeId);
-  };
-
-  const handleSave = async () => {
-    setIsLoading(true);
+    if (!config) return;
     
+    const keys = path.split('.');
+    const newConfig = { ...config };
+    let current: any = newConfig;
+    
+    // Navegar hasta el penúltimo nivel
+    for (let i = 0; i < keys.length - 1; i++) {
+      if (!(keys[i] in current)) {
+        current[keys[i]] = {};
+      }
+      current = current[keys[i]];
+    }
+    
+    // Actualizar el último nivel
+    current[keys[keys.length - 1]] = { ...current[keys[keys.length - 1]], ...updates };
+    
+    setConfig(newConfig);
+  };
+
+  // Función para manejar cambios en inputs
+  const handleInputChange = (path: string, field: string, value: any) => {
+    const video = getVideoByPath(path);
+    if (video) {
+      updateVideoByPath(path, { [field]: value });
+    }
+  };
+
+  // Función para manejar cambios en URL de YouTube
+  const handleYouTubeUrlChange = (path: string, url: string) => {
+    const videoId = extractYouTubeId(url);
+    if (videoId) {
+      handleInputChange(path, 'youtubeId', videoId);
+    }
+  };
+
+  // Función para extraer ID de YouTube de URL
+  const extractYouTubeId = (url: string): string => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+      /youtube\.com\/watch\?.*v=([^&\n?#]+)/
+    ];
+    
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    
+    return url; // Si no es una URL, asumir que es un ID
+  };
+
+  // Función para guardar configuración
+  const handleSave = async () => {
+    if (!config) return;
+    
+    setSaving(true);
     try {
       const response = await fetch('/api/site-config', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(config),
+        body: JSON.stringify(config)
       });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success('✅ Configuración de videos guardada exitosamente');
+      
+      if (response.ok) {
+        alert('✅ Configuración guardada exitosamente');
       } else {
-        toast.error('❌ Error al guardar la configuración');
+        alert('❌ Error al guardar la configuración');
       }
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('❌ Error de conexión');
+      console.error('Error saving config:', error);
+      alert('❌ Error al guardar la configuración');
     } finally {
-      setIsLoading(false);
+      setSaving(false);
     }
   };
 
-  const handleTestVideo = (youtubeId: string) => {
-    if (youtubeId) {
-      window.open(`https://www.youtube.com/watch?v=${youtubeId}`, '_blank');
-    }
+  // Función para copiar ID
+  const handleCopyId = (videoId: string) => {
+    navigator.clipboard.writeText(videoId);
+    setCopiedId(videoId);
+    setTimeout(() => setCopiedId(''), 2000);
   };
 
-  const handleCopyId = async (youtubeId: string) => {
-    try {
-      await navigator.clipboard.writeText(youtubeId);
-      setCopiedId(youtubeId);
-      toast.success('✅ ID copiado al portapapeles');
-      setTimeout(() => setCopiedId(''), 2000);
-    } catch (error) {
-      toast.error('❌ Error al copiar');
-    }
+  // Función para copiar URL
+  const handleCopyUrl = (videoId: string) => {
+    const url = `https://www.youtube.com/watch?v=${videoId}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(videoId);
+    setTimeout(() => setCopiedId(''), 2000);
   };
 
-  const handleCopyUrl = async (youtubeId: string) => {
-    try {
-      const url = `https://www.youtube.com/watch?v=${youtubeId}`;
-      await navigator.clipboard.writeText(url);
-      toast.success('✅ URL copiada al portapapeles');
-    } catch (error) {
-      toast.error('❌ Error al copiar');
-    }
-  };
+  // Cargar configuración
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const response = await fetch('/api/site-config');
+        if (response.ok) {
+          const data = await response.json();
+          setConfig(data);
+        }
+      } catch (error) {
+        console.error('Error fetching config:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Filtrar secciones según búsqueda y categoría
+    fetchConfig();
+  }, []);
+
+  // Filtrar secciones
   const filteredSections = videoSections.filter(section => {
-    const matchesSearch = section.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = section.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          section.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'all' || section.category === filterCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const selectedVideo = getVideoByPath(selectedSection);
-  const selectedSectionInfo = videoSections.find(s => s.id === selectedSection);
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <p>Cargando configuración de videos...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
-      <Head>
-        <title>Configuración Completa de Videos - Admin</title>
-        <meta name="description" content="Gestiona todos los videos de YouTube del sitio web" />
-      </Head>
-
-      <div className={styles.adminContainer}>
+      <Navbar />
+      
+      <main className={styles.adminContainer}>
         <div className={styles.header}>
-          <button 
-            onClick={() => window.history.back()}
-            className={styles.backButton}
-          >
-            <ArrowLeft size={20} />
-            Volver
-          </button>
-          <h1 className={styles.title}>
-            <Video size={32} />
-            Gestión Completa de Videos
-          </h1>
-          <p className={styles.subtitle}>
-            Configura todos los videos de YouTube del sitio web desde un solo lugar
-          </p>
+          <div className={styles.headerContent}>
+            <Link href="/admin/dashboard" className={styles.backButton}>
+              <ArrowLeft size={20} />
+              Volver al Dashboard
+            </Link>
+            <h1>🎬 Configuración Completa de Videos</h1>
+            <p>Gestiona todos los videos del sitio web de forma centralizada</p>
+          </div>
         </div>
 
-        <div className={styles.content}>
-          {/* Controles de Filtrado y Vista */}
-          <motion.div 
-            className={styles.controlsSection}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className={styles.controlsGrid}>
-              {/* Búsqueda */}
-              <div className={styles.searchContainer}>
-                <Search size={20} className={styles.searchIcon} />
-                <input
-                  type="text"
-                  placeholder="Buscar videos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={styles.searchInput}
-                />
-              </div>
-
-              {/* Filtro por categoría */}
-              <div className={styles.filterContainer}>
-                <Filter size={20} />
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className={styles.filterSelect}
-                >
-                  <option value="all">Todas las categorías</option>
-                  <option value="main">Videos principales</option>
-                  <option value="services">Videos de servicios</option>
-                  <option value="learning">Videos de aprendizaje</option>
-                </select>
-              </div>
-
-              {/* Modo de vista */}
-              <div className={styles.viewModeContainer}>
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`${styles.viewModeButton} ${viewMode === 'grid' ? styles.active : ''}`}
-                >
-                  <Grid size={20} />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`${styles.viewModeButton} ${viewMode === 'list' ? styles.active : ''}`}
-                >
-                  <List size={20} />
-                </button>
-              </div>
+        {/* Controles */}
+        <div className={styles.controlsSection}>
+          <div className={styles.controlsGrid}>
+            {/* Búsqueda */}
+            <div className={styles.searchContainer}>
+              <input
+                type="text"
+                placeholder="Buscar videos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchInput}
+              />
             </div>
-          </motion.div>
 
-          {/* Lista de Videos */}
-          <motion.div 
-            className={`${styles.videosContainer} ${viewMode === 'grid' ? styles.gridView : styles.listView}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            {filteredSections.map((section) => {
-              const video = getVideoByPath(section.id);
-              const hasVideo = video?.youtubeId?.trim();
-              
-              return (
-                <motion.div
-                  key={section.id}
-                  className={`${styles.videoCard} ${selectedSection === section.id ? styles.selected : ''}`}
-                  onClick={() => setSelectedSection(section.id)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className={styles.videoCardHeader}>
-                    <div 
-                      className={styles.videoIcon}
-                      style={{ backgroundColor: `${section.color}20`, color: section.color }}
-                    >
-                      {section.icon}
-                    </div>
-                    <div className={styles.videoStatus}>
-                      {hasVideo ? (
-                        <CheckCircle size={16} color="#10b981" />
-                      ) : (
-                        <AlertCircle size={16} color="#ef4444" />
-                      )}
-                    </div>
+            {/* Filtro por categoría */}
+            <div className={styles.filterContainer}>
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="all">Todas las categorías</option>
+                <option value="main">Videos Principales</option>
+                <option value="services">Videos de Servicios</option>
+                <option value="trainings">Videos de Entrenamientos</option>
+                <option value="advisory">Videos de Asesorías</option>
+                <option value="alerts">Videos de Alertas</option>
+                <option value="resources">Videos de Recursos</option>
+              </select>
+            </div>
+
+            {/* Modo de vista */}
+            <div className={styles.viewModeContainer}>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`${styles.viewModeButton} ${viewMode === 'grid' ? styles.active : ''}`}
+              >
+                <Grid size={16} />
+                Grid
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`${styles.viewModeButton} ${viewMode === 'list' ? styles.active : ''}`}
+              >
+                <List size={16} />
+                Lista
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Lista de Videos */}
+        <div className={`${styles.videosContainer} ${viewMode === 'list' ? styles.listView : ''}`}>
+          {filteredSections.map((section) => {
+            const video = getVideoByPath(section.path);
+            const isConfigured = video && video.youtubeId && video.youtubeId !== 'dQw4w9WgXcQ';
+            
+            return (
+              <motion.div
+                key={section.id}
+                className={`${styles.videoCard} ${selectedSection === section.id ? styles.selected : ''}`}
+                onClick={() => setSelectedSection(section.id)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className={styles.videoCardHeader}>
+                  <div className={styles.videoIcon} style={{ color: section.color }}>
+                    {section.icon}
                   </div>
-
-                  <div className={styles.videoCardContent}>
-                    <h3 className={styles.videoCardTitle}>{section.title}</h3>
-                    <p className={styles.videoCardDescription}>{section.description}</p>
-                    
-                    <div className={styles.videoCardInfo}>
-                      <span className={styles.videoCardId}>
-                        ID: {hasVideo ? video.youtubeId : 'No configurado'}
-                      </span>
-                      <span className={styles.videoCardCategory}>
-                        {section.category === 'main' && 'Principal'}
-                        {section.category === 'services' && 'Servicio'}
-                        {section.category === 'learning' && 'Aprendizaje'}
-                      </span>
-                    </div>
-
-                    {hasVideo && (
-                      <div className={styles.videoCardActions}>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleTestVideo(video.youtubeId);
-                          }}
-                          className={styles.actionButton}
-                          title="Probar video"
-                        >
-                          <PlayCircle size={16} />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCopyId(video.youtubeId);
-                          }}
-                          className={styles.actionButton}
-                          title="Copiar ID"
-                        >
-                          <Copy size={16} />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCopyUrl(video.youtubeId);
-                          }}
-                          className={styles.actionButton}
-                          title="Copiar URL"
-                        >
-                          <ExternalLink size={16} />
-                        </button>
-                      </div>
+                  <div className={styles.videoStatus}>
+                    {isConfigured ? (
+                      <span className={styles.configured}>✅ Configurado</span>
+                    ) : (
+                      <span className={styles.notConfigured}>❌ Sin configurar</span>
                     )}
                   </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-
-          {/* Panel de Configuración */}
-          {selectedSectionInfo && (
-            <motion.div 
-              className={styles.configPanel}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <div className={styles.configPanelHeader}>
-                <div 
-                  className={styles.configPanelIcon}
-                  style={{ backgroundColor: `${selectedSectionInfo.color}20`, color: selectedSectionInfo.color }}
-                >
-                  {selectedSectionInfo.icon}
                 </div>
-                <div>
-                  <h2 className={styles.configPanelTitle}>{selectedSectionInfo.title}</h2>
-                  <p className={styles.configPanelDescription}>{selectedSectionInfo.description}</p>
-                </div>
-              </div>
 
-              <div className={styles.configPanelContent}>
-                {/* Configuración del Video */}
-                <div className={styles.configSection}>
-                  <h3>Configuración del Video</h3>
+                <div className={styles.videoCardContent}>
+                  <h3 className={styles.videoCardTitle}>{section.name}</h3>
+                  <p className={styles.videoCardDescription}>{section.description}</p>
                   
-                  <div className={styles.formGroup}>
-                    <label htmlFor="youtubeUrl">URL de YouTube:</label>
-                    <input
-                      id="youtubeUrl"
-                      type="text"
-                      placeholder="https://www.youtube.com/watch?v=..."
-                      value={selectedVideo?.youtubeId ? `https://www.youtube.com/watch?v=${selectedVideo.youtubeId}` : ''}
-                      onChange={(e) => handleYouTubeUrlChange(selectedSection, e.target.value)}
-                      className={styles.input}
-                    />
-                    <small>Pega la URL completa de YouTube o solo el ID del video</small>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="videoTitle">Título del Video:</label>
-                    <input
-                      id="videoTitle"
-                      type="text"
-                      value={selectedVideo?.title || ''}
-                      onChange={(e) => handleInputChange(selectedSection, 'title', e.target.value)}
-                      className={styles.input}
-                    />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="videoDescription">Descripción:</label>
-                    <textarea
-                      id="videoDescription"
-                      value={selectedVideo?.description || ''}
-                      onChange={(e) => handleInputChange(selectedSection, 'description', e.target.value)}
-                      className={styles.textarea}
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className={styles.checkboxGroup}>
-                    <label className={styles.checkbox}>
-                      <input
-                        type="checkbox"
-                        checked={selectedVideo?.autoplay || false}
-                        onChange={(e) => handleInputChange(selectedSection, 'autoplay', e.target.checked)}
-                      />
-                      <span>Autoplay</span>
-                    </label>
-
-                    <label className={styles.checkbox}>
-                      <input
-                        type="checkbox"
-                        checked={selectedVideo?.muted || false}
-                        onChange={(e) => handleInputChange(selectedSection, 'muted', e.target.checked)}
-                      />
-                      <span>Muted (Silenciado)</span>
-                    </label>
-
-                    <label className={styles.checkbox}>
-                      <input
-                        type="checkbox"
-                        checked={selectedVideo?.loop || false}
-                        onChange={(e) => handleInputChange(selectedSection, 'loop', e.target.checked)}
-                      />
-                      <span>Loop (Repetir)</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Vista Previa */}
-                <div className={styles.previewSection}>
-                  <h3>Vista Previa</h3>
-                  
-                  {selectedVideo?.youtubeId ? (
-                    <div className={styles.videoPreview}>
-                      <iframe
-                        src={generatePreviewUrl(selectedVideo.youtubeId)}
-                        title={selectedVideo.title}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className={styles.previewIframe}
-                      />
-                    </div>
-                  ) : (
-                    <div className={styles.noVideo}>
-                      <Video size={48} color="#6b7280" />
-                      <p>No hay video configurado</p>
-                      <small>Ingresa una URL de YouTube para ver la vista previa</small>
+                  {video && (
+                    <div className={styles.videoCardInfo}>
+                      <div className={styles.videoCardId}>
+                        <strong>ID:</strong> {video.youtubeId}
+                      </div>
+                      <div className={styles.videoCardCategory}>
+                        <strong>Categoría:</strong> {section.category}
+                      </div>
                     </div>
                   )}
-
-                  <div className={styles.videoInfo}>
-                    <h4>Información del Video</h4>
-                    <p><strong>ID:</strong> {selectedVideo?.youtubeId || 'No configurado'}</p>
-                    <p><strong>Título:</strong> {selectedVideo?.title || 'No configurado'}</p>
-                    <p><strong>Configuración:</strong></p>
-                    <ul>
-                      <li>Autoplay: {selectedVideo?.autoplay ? '✅ Sí' : '❌ No'}</li>
-                      <li>Muted: {selectedVideo?.muted ? '✅ Sí' : '❌ No'}</li>
-                      <li>Loop: {selectedVideo?.loop ? '✅ Sí' : '❌ No'}</li>
-                    </ul>
-                  </div>
                 </div>
+
+                <div className={styles.videoCardActions}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (video?.youtubeId) {
+                        window.open(`https://www.youtube.com/watch?v=${video.youtubeId}`, '_blank');
+                      }
+                    }}
+                    className={styles.actionButton}
+                    disabled={!video?.youtubeId}
+                  >
+                    <PlayCircle size={16} />
+                    Ver
+                  </button>
+                  
+                  {video?.youtubeId && (
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopyId(video.youtubeId);
+                        }}
+                        className={styles.actionButton}
+                      >
+                        {copiedId === video.youtubeId ? '✓ Copiado' : '📋 ID'}
+                      </button>
+                      
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopyUrl(video.youtubeId);
+                        }}
+                        className={styles.actionButton}
+                      >
+                        {copiedId === video.youtubeId ? '✓ Copiado' : '🔗 URL'}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Panel de Configuración */}
+        {selectedSection && (
+          <div className={styles.configPanel}>
+            <div className={styles.configPanelHeader}>
+              <div className={styles.configPanelIcon}>
+                {videoSections.find(s => s.id === selectedSection)?.icon}
               </div>
-            </motion.div>
-          )}
+              <div>
+                <h3 className={styles.configPanelTitle}>
+                  {videoSections.find(s => s.id === selectedSection)?.name}
+                </h3>
+                <p className={styles.configPanelDescription}>
+                  {videoSections.find(s => s.id === selectedSection)?.description}
+                </p>
+              </div>
+            </div>
 
-          {/* Acciones */}
-          <motion.div 
-            className={styles.actionsSection}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <h2 className={styles.sectionTitle}>
-              <Settings size={24} />
-              Acciones
-            </h2>
+                          <div className={styles.configPanelContent}>
+                {(() => {
+                  const section = videoSections.find(s => s.id === selectedSection);
+                  const video = section ? getVideoByPath(section.path) : null;
+                  
+                  if (!video || !section) return <p>Video no encontrado</p>;
+                  
+                  return (
+                    <>
+                      <div className={styles.configSection}>
+                        <h4>Configuración del Video</h4>
+                        
+                        <div className={styles.inputGroup}>
+                          <label>URL de YouTube:</label>
+                          <input
+                            type="text"
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            value={`https://www.youtube.com/watch?v=${video.youtubeId}`}
+                            onChange={(e) => handleYouTubeUrlChange(section.path, e.target.value)}
+                            className={styles.input}
+                          />
+                        </div>
+                        
+                        <div className={styles.inputGroup}>
+                          <label>Título:</label>
+                          <input
+                            type="text"
+                            value={video.title}
+                            onChange={(e) => handleInputChange(section.path, 'title', e.target.value)}
+                            className={styles.input}
+                          />
+                        </div>
+                        
+                        <div className={styles.inputGroup}>
+                          <label>Descripción:</label>
+                          <textarea
+                            value={video.description}
+                            onChange={(e) => handleInputChange(section.path, 'description', e.target.value)}
+                            className={styles.textarea}
+                            rows={3}
+                          />
+                        </div>
+                        
+                        <div className={styles.checkboxGroup}>
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={video.autoplay}
+                              onChange={(e) => handleInputChange(section.path, 'autoplay', e.target.checked)}
+                            />
+                            Reproducción automática
+                          </label>
+                          
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={video.muted}
+                              onChange={(e) => handleInputChange(section.path, 'muted', e.target.checked)}
+                            />
+                            Silenciado
+                          </label>
+                          
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={video.loop}
+                              onChange={(e) => handleInputChange(section.path, 'loop', e.target.checked)}
+                            />
+                            Repetir
+                          </label>
+                        </div>
+                      </div>
 
-            <div className={styles.actionsGrid}>
+                      <div className={styles.previewSection}>
+                        <h4>Vista Previa</h4>
+                        {video.youtubeId && video.youtubeId !== 'dQw4w9WgXcQ' ? (
+                          <div className={styles.videoPreview}>
+                            <iframe
+                              width="100%"
+                              height="200"
+                              src={`https://www.youtube.com/embed/${video.youtubeId}?rel=0&modestbranding=1`}
+                              title={video.title}
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        ) : (
+                          <div className={styles.noPreview}>
+                            <Video size={48} />
+                            <p>Configura una URL de YouTube para ver la vista previa</p>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+
+            <div className={styles.actionsSection}>
               <button
                 onClick={handleSave}
-                disabled={isLoading}
-                className={styles.primaryButton}
+                disabled={saving}
+                className={styles.saveButton}
               >
-                {isLoading ? (
+                {saving ? (
                   <>
-                    <RefreshCw size={20} className={styles.spinner} />
+                    <div className={styles.spinner}></div>
                     Guardando...
                   </>
                 ) : (
                   <>
-                    <Save size={20} />
-                    Guardar Todos los Videos
+                    <Save size={16} />
+                    Guardar Configuración
                   </>
                 )}
               </button>
-
-              <Link href="/" className={styles.secondaryButton}>
-                <Eye size={20} />
-                Ver Sitio Web
-              </Link>
-
-              <Link href="/admin/dashboard" className={styles.secondaryButton}>
-                <ArrowLeft size={20} />
-                Volver al Dashboard
-              </Link>
             </div>
-          </motion.div>
+          </div>
+        )}
+
+        {/* Acciones Globales */}
+        <div className={styles.globalActions}>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className={styles.globalSaveButton}
+          >
+            {saving ? 'Guardando...' : '💾 Guardar Todos los Cambios'}
+          </button>
         </div>
-      </div>
+      </main>
+
+      <Footer />
     </>
   );
 };
@@ -625,121 +934,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/site-config`);
-    const data = await response.json();
-
-    if (data.success) {
-      return {
-        props: {
-          initialConfig: {
-            heroVideo: data.config.heroVideo,
-            learningVideo: data.config.learningVideo,
-            serviciosVideos: data.config.serviciosVideos
-          }
-        },
-      };
-    } else {
-      return {
-        props: {
-          initialConfig: {
-            heroVideo: {
-              youtubeId: '',
-              title: 'Video de Presentación',
-              description: 'Conoce más sobre nuestros servicios de trading',
-              autoplay: true,
-              muted: true,
-              loop: true
-            },
-            learningVideo: {
-              youtubeId: '',
-              title: 'Cursos de Inversión',
-              description: 'Aprende a invertir desde cero con nuestros cursos especializados',
-              autoplay: false,
-              muted: true,
-              loop: false
-            },
-            serviciosVideos: {
-              alertas: {
-                youtubeId: '',
-                title: 'Video de Alertas',
-                description: 'Descubre cómo funcionan nuestras alertas de trading',
-                autoplay: false,
-                muted: true,
-                loop: false
-              },
-              entrenamientos: {
-                youtubeId: '',
-                title: 'Video de Entrenamientos',
-                description: 'Conoce nuestros programas de formación especializados',
-                autoplay: false,
-                muted: true,
-                loop: false
-              },
-              asesorias: {
-                youtubeId: '',
-                title: 'Video de Asesorías',
-                description: 'Asesorías personalizadas para optimizar tu portafolio',
-                autoplay: false,
-                muted: true,
-                loop: false
-              }
-            }
-          }
-        },
-      };
+  return {
+    props: {
+      user: verification.user
     }
-  } catch (error) {
-    console.error('Error fetching site config:', error);
-    return {
-      props: {
-        initialConfig: {
-          heroVideo: {
-            youtubeId: '',
-            title: 'Video de Presentación',
-            description: 'Conoce más sobre nuestros servicios de trading',
-            autoplay: true,
-            muted: true,
-            loop: true
-          },
-          learningVideo: {
-            youtubeId: '',
-            title: 'Cursos de Inversión',
-            description: 'Aprende a invertir desde cero con nuestros cursos especializados',
-            autoplay: false,
-            muted: true,
-            loop: false
-          },
-          serviciosVideos: {
-            alertas: {
-              youtubeId: '',
-              title: 'Video de Alertas',
-              description: 'Descubre cómo funcionan nuestras alertas de trading',
-              autoplay: false,
-              muted: true,
-              loop: false
-            },
-            entrenamientos: {
-              youtubeId: '',
-              title: 'Video de Entrenamientos',
-              description: 'Conoce nuestros programas de formación especializados',
-              autoplay: false,
-              muted: true,
-              loop: false
-            },
-            asesorias: {
-              youtubeId: '',
-              title: 'Video de Asesorías',
-              description: 'Asesorías personalizadas para optimizar tu portafolio',
-              autoplay: false,
-              muted: true,
-              loop: false
-            }
-          }
-        }
-      },
-    };
-  }
+  };
 };
 
 export default VideoConfig; 

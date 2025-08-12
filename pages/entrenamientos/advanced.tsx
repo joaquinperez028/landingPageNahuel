@@ -27,6 +27,7 @@ import {
   Loader
 } from 'lucide-react';
 import styles from '@/styles/TradingFundamentals.module.css';
+import YouTubePlayer from '@/components/YouTubePlayer';
 
 interface TrainingData {
   tipo: string;
@@ -361,18 +362,14 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
               <div className={styles.heroVideo}>
                 <div className={styles.videoContainer}>
                   {/* Placeholder de video explicativo */}
-                  <div className={styles.videoPlaceholder}>
-                    <div className={styles.placeholderIcon}>🚀</div>
-                    <h3 className={styles.placeholderTitle}>Video del Programa Avanzado</h3>
-                    <p className={styles.placeholderText}>
-                      Descubre las técnicas más sofisticadas del trading profesional institucional
-                    </p>
-                    <div className={styles.placeholderFeatures}>
-                      <span>⚡ Trading Algorítmico</span>
-                      <span>📊 Análisis Cuantitativo</span>
-                      <span>🏛️ Estrategias Institucionales</span>
-                    </div>
-                  </div>
+                                     <YouTubePlayer 
+                     videoId="dQw4w9WgXcQ"
+                     title="Video del Programa Avanzado"
+                     autoplay={false}
+                     muted={true}
+                     loop={false}
+                     className={styles.videoPlayer}
+                   />
                 </div>
               </div>
             </motion.div>

@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import styles from '@/styles/ConsultorioFinanciero.module.css';
 import { useBookings } from '@/hooks/useBookings';
+import YouTubePlayer from '@/components/YouTubePlayer';
 
 interface Testimonio {
   nombre: string;
@@ -433,23 +434,14 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
             </div>
             <div className={styles.heroVideo}>
               <div className={styles.videoContainer}>
-                <div className={styles.videoPlayer}>
-                  <div className={styles.videoPlaceholder}>
-                    <div className={styles.playIcon}>▶</div>
-                  </div>
-                  <div className={styles.videoControls}>
-                    <button className={styles.playButton}>⏸</button>
-                    <button className={styles.skipButton}>⏭</button>
-                    <div className={styles.progressBar}>
-                      <div className={styles.progressFill}></div>
-                    </div>
-                    <span className={styles.timeDisplay}>2:21 / 20:00</span>
-                    <button className={styles.volumeButton}>🔊</button>
-                    <button className={styles.settingsButton}>⚙</button>
-                    <button className={styles.pipButton}>⛶</button>
-                    <button className={styles.fullscreenButton}>⛶</button>
-                  </div>
-                </div>
+                <YouTubePlayer
+                  videoId="dQw4w9WgXcQ"
+                  title="Consultorio Financiero - Introducción"
+                  autoplay={false}
+                  muted={true}
+                  loop={false}
+                  className={styles.videoPlayer}
+                />
               </div>
             </div>
           </div>
@@ -680,34 +672,14 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                 </div>
                 
                 <div className={styles.videoPlayer}>
-                  <div className={styles.videoPlaceholder}>
-                    <div className={styles.playIcon}>
-                      <Play size={32} />
-                    </div>
-                  </div>
-                  <div className={styles.videoControls}>
-                    <span className={styles.videoTime}>2:21</span>
-                    <button className={styles.controlButton}>
-                      <Pause size={16} />
-                    </button>
-                    <button className={styles.controlButton}>
-                      <SkipForward size={16} />
-                    </button>
-                    <button className={styles.controlButton}>
-                      <Volume2 size={16} />
-                    </button>
-                    <div className={styles.progressBar}>
-                      <div className={styles.progressFilled}></div>
-                      <div className={styles.progressEmpty}></div>
-                    </div>
-                    <span className={styles.videoDuration}>20:00</span>
-                    <button className={styles.controlButton}>
-                      <Maximize2 size={16} />
-                    </button>
-                    <button className={styles.controlButton}>
-                      <Settings size={16} />
-                    </button>
-                  </div>
+                  <YouTubePlayer
+                    videoId="dQw4w9WgXcQ"
+                    title="Consultorio Financiero - Testimonios"
+                    autoplay={false}
+                    muted={true}
+                    loop={false}
+                    className={styles.videoPlayer}
+                  />
                 </div>
                 
                 <div className={styles.videoArrow}>

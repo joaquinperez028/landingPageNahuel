@@ -46,6 +46,164 @@ interface SiteConfigDocument extends Document {
       loop: boolean;
     };
   };
+  // Videos específicos por entrenamiento
+  trainingVideos: {
+    swingTrading: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      promoVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    dowJones: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      promoVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    advanced: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      promoVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+  };
+  // Videos específicos por página de asesorías
+  advisoryVideos: {
+    consultorioFinanciero: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      testimonialsVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    cuentaAsesorada: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      finalVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+  };
+  // Videos específicos por página de alertas
+  alertsVideos: {
+    index: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+      communityVideo?: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    traderCall: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    smartMoney: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+    cashFlow: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
+  };
+  // Videos específicos por página de recursos
+  resourcesVideos: {
+    mainVideo: {
+      youtubeId: string;
+      title: string;
+      description: string;
+      autoplay: boolean;
+      muted: boolean;
+      loop: boolean;
+    };
+  };
   statistics: {
     visible: boolean;
     backgroundColor: string;
@@ -180,6 +338,164 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
       youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
       title: { type: String, default: 'Video de Asesorías' },
       description: { type: String, default: 'Asesorías personalizadas para optimizar tu portafolio' },
+      autoplay: { type: Boolean, default: false },
+      muted: { type: Boolean, default: true },
+      loop: { type: Boolean, default: false }
+    }
+  },
+  // Videos específicos por entrenamiento
+  trainingVideos: {
+    swingTrading: {
+      heroVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Swing Trading - Video Promocional' },
+        description: { type: String, default: 'Descubre el programa completo de Swing Trading' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      },
+      promoVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Swing Trading - Video Adicional' },
+        description: { type: String, default: 'Video adicional del programa Swing Trading' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      }
+    },
+    dowJones: {
+      heroVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Dow Jones - Video Promocional' },
+        description: { type: String, default: 'Descubre el programa completo de Dow Jones' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      },
+      promoVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Dow Jones - Video Adicional' },
+        description: { type: String, default: 'Video adicional del programa Dow Jones' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      }
+    },
+    advanced: {
+      heroVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Programa Avanzado - Video Promocional' },
+        description: { type: String, default: 'Descubre el programa avanzado de trading' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      },
+      promoVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Programa Avanzado - Video Adicional' },
+        description: { type: String, default: 'Video adicional del programa avanzado' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      }
+    }
+  },
+  // Videos específicos por página de asesorías
+  advisoryVideos: {
+    consultorioFinanciero: {
+      heroVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Consultorio Financiero - Introducción' },
+        description: { type: String, default: 'Conoce nuestro consultorio financiero personalizado' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      },
+      testimonialsVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Consultorio Financiero - Testimonios' },
+        description: { type: String, default: 'Testimonios de clientes del consultorio' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      }
+    },
+    cuentaAsesorada: {
+      heroVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Cuenta Asesorada - Introducción' },
+        description: { type: String, default: 'Descubre nuestro servicio de cuenta asesorada' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      },
+      finalVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Cuenta Asesorada - Videos Finales' },
+        description: { type: String, default: 'Videos adicionales de cuenta asesorada' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      }
+    }
+  },
+  // Videos específicos por página de alertas
+  alertsVideos: {
+    index: {
+      heroVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Alertas de Trading - Introducción' },
+        description: { type: String, default: 'Descubre nuestras alertas de trading' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      },
+      communityVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Comunidad de YouTube - Alertas' },
+        description: { type: String, default: 'Únete a nuestra comunidad de YouTube' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      }
+    },
+    traderCall: {
+      heroVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Trader Call - Video Promocional' },
+        description: { type: String, default: 'Descubre el servicio Trader Call' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      }
+    },
+    smartMoney: {
+      heroVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Smart Money - Video Promocional' },
+        description: { type: String, default: 'Descubre el servicio Smart Money' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      }
+    },
+    cashFlow: {
+      heroVideo: {
+        youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+        title: { type: String, default: 'Cash Flow - Video Promocional' },
+        description: { type: String, default: 'Descubre el servicio Cash Flow' },
+        autoplay: { type: Boolean, default: false },
+        muted: { type: Boolean, default: true },
+        loop: { type: Boolean, default: false }
+      }
+    }
+  },
+  // Videos específicos por página de recursos
+  resourcesVideos: {
+    mainVideo: {
+      youtubeId: { type: String, default: 'dQw4w9WgXcQ' },
+      title: { type: String, default: 'Recursos de Trading' },
+      description: { type: String, default: 'Recursos y herramientas para trading' },
       autoplay: { type: Boolean, default: false },
       muted: { type: Boolean, default: true },
       loop: { type: Boolean, default: false }
