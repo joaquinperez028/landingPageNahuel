@@ -739,59 +739,7 @@ const DayTradingPage: React.FC<DayTradingPageProps> = ({
           </div>
         </section>
 
-        {/* Program Section */}
-        <section className={styles.programSection}>
-          <div className={styles.container}>
-            <motion.div 
-              className={styles.sectionHeader}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <h2 className={styles.sectionTitle}>Programa de Estudios</h2>
-              <p className={styles.sectionDescription}>
-                Curriculum completo diseñado para llevarte desde principiante hasta trader profesional
-              </p>
-            </motion.div>
 
-            <div className={styles.programGrid}>
-              {program.map((module, index) => (
-                <motion.div 
-                  key={module.module}
-                  className={styles.programCard}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.programHeader}>
-                    <span className={styles.moduleNumber}>Módulo {module.module}</span>
-                    <span className={styles.moduleDuration}>{module.duration}</span>
-                  </div>
-                  
-                  <h3 className={styles.programTitle}>{module.title}</h3>
-                  <p className={styles.programDescription}>{module.description}</p>
-                  
-                  <div className={styles.programMeta}>
-                    <span className={styles.programLessons}>
-                      <BookOpen size={16} />
-                      {module.lessons} lecciones
-                    </span>
-                  </div>
-
-                  <ul className={styles.programTopics}>
-                    {module.topics.slice(0, 3).map((topic, topicIndex) => (
-                      <li key={topicIndex}>{topic}</li>
-                    ))}
-                    {module.topics.length > 3 && (
-                      <li className={styles.moreTopics}>+{module.topics.length - 3} temas más</li>
-                    )}
-                  </ul>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Roadmap Section */}
         <section className={styles.roadmapSection}>
@@ -873,14 +821,7 @@ const DayTradingPage: React.FC<DayTradingPageProps> = ({
                   <ChevronLeft size={24} />
                 </button>
 
-                <motion.div 
-                  className={styles.testimonialCard}
-                  key={currentTestimonialIndex}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ duration: 0.5 }}
-                >
+                <div className={styles.testimonialCard}>
                   <div className={styles.testimonialAvatar}>
                     <div 
                       className={styles.avatarCircle}
@@ -897,7 +838,7 @@ const DayTradingPage: React.FC<DayTradingPageProps> = ({
                       {carouselTestimonials[currentTestimonialIndex].name}
                     </h4>
                   </div>
-                </motion.div>
+                </div>
 
                 <button 
                   onClick={nextTestimonial}
@@ -953,10 +894,10 @@ const DayTradingPage: React.FC<DayTradingPageProps> = ({
               viewport={{ once: true }}
             >
               <h2 className={styles.ctaTitle}>
-                ¿Listo para dominar el Day Trading?
+                ¿Listo para llevar tus inversiones al siguiente nivel?
               </h2>
               <p className={styles.ctaDescription}>
-                Únete a cientos de traders exitosos y transforma tu futuro financiero
+                Únete a nuestra comunidad y comienza a construir tu libertad financiera
               </p>
               
               <div className={styles.ctaActions}>
@@ -972,8 +913,7 @@ const DayTradingPage: React.FC<DayTradingPageProps> = ({
                     </>
                   ) : (
                     <>
-                      Comenzar Ahora
-                      <ArrowRight size={20} />
+                      Inscribirme ahora &gt;
                     </>
                   )}
                 </button>
@@ -984,6 +924,58 @@ const DayTradingPage: React.FC<DayTradingPageProps> = ({
                 </div>
               </div>
             </motion.div>
+          </div>
+        </section>
+
+        {/* YouTube Community Section */}
+        <section className={styles.youtubeSection}>
+          <div className={styles.container}>
+            <div className={styles.youtubeContent}>
+              <div className={styles.youtubeText}>
+                <h2 className={styles.youtubeTitle}>¡Sumate a nuestra comunidad en YouTube!</h2>
+                <p className={styles.youtubeDescription}>No te pierdas nuestros últimos videos</p>
+              </div>
+              
+              <div className={styles.youtubeVideo}>
+                <div className={styles.videoPlayer}>
+                  <div className={styles.videoThumbnail}>
+                    <div className={styles.playButton}>
+                      <PlayCircle size={60} />
+                    </div>
+                  </div>
+                  <div className={styles.videoInfo}>
+                    <div className={styles.videoHeader}>
+                      <div className={styles.channelIcon}>N</div>
+                      <div className={styles.videoTitle}>Cómo Comprar Acciones desde...</div>
+                      <div className={styles.videoOptions}>
+                        <span>Ver más ta...</span>
+                        <span>Compartir</span>
+                      </div>
+                    </div>
+                    <div className={styles.videoFooter}>
+                      <span>Mirar en</span>
+                      <div className={styles.youtubeLogo}>YouTube</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className={styles.videoNavigation}>
+                  <button className={styles.navButton}>
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button className={styles.navButton}>
+                    <ChevronRight size={24} />
+                  </button>
+                </div>
+                
+                <div className={styles.videoIndicators}>
+                  <div className={styles.indicator}></div>
+                  <div className={styles.indicator}></div>
+                  <div className={styles.indicator}></div>
+                  <div className={styles.indicator}></div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </main>
