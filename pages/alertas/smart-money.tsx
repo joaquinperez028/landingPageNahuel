@@ -246,50 +246,50 @@ const NonSubscriberView: React.FC<{
 
       {/* Métricas - Sección independiente para ocupar todo el ancho */}
       <section className={styles.metricsSection}>
-        <div className={styles.metricsGrid}>
-          <motion.div 
-            className={styles.metricCard}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-          >
+          <div className={styles.metricsGrid}>
+            <motion.div 
+              className={styles.metricCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
             <h3 className={styles.metricNumber}>+700</h3>
             <p className={styles.metricLabel}>USUARIOS ACTIVOS</p>
-          </motion.div>
+            </motion.div>
 
-          <motion.div 
-            className={styles.metricCard}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-          >
+            <motion.div 
+              className={styles.metricCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
             <h3 className={styles.metricNumber}>+87%</h3> 
             <p className={styles.metricLabel}>RENTABILIDAD ANUAL</p>
-          </motion.div>
+            </motion.div>
 
-          <motion.div 
-            className={styles.metricCard}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
+            <motion.div 
+              className={styles.metricCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
             <h3 className={styles.metricNumber}>+200</h3>
             <p className={styles.metricLabel}>ALERTAS ENVIADAS</p>
-          </motion.div>
+            </motion.div>
 
-          <motion.div 
-            className={styles.metricCard}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-          >
+            <motion.div 
+              className={styles.metricCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+            >
             <h3 className={styles.metricNumber}>+79%</h3>
             <p className={styles.metricLabel}>EFECTIVIDAD</p>
-          </motion.div>
+            </motion.div>
         </div>
       </section>
 
@@ -818,71 +818,71 @@ const SubscriberView: React.FC = () => {
                 <div className={styles.cardHeader}>
                   <div className={styles.iconContainer}>
                     <Activity size={20} />
-                  </div>
+            </div>
                   <div className={styles.statusDot}></div>
-                </div>
+              </div>
                 <div className={styles.metricContent}>
                   <h3 className={styles.metricTitle}>ALERTAS ACTIVAS</h3>
                   <div className={styles.metricValue}>{dashboardMetrics.alertasActivas}</div>
                   <p className={styles.metricSubtext}>Posiciones abiertas</p>
-                </div>
-              </div>
+            </div>
+          </div>
               
               <div className={`${styles.modernMetricCard} ${styles.successCard}`}>
                 <div className={styles.cardHeader}>
                   <div className={styles.iconContainer}>
                     <TrendingUp size={20} />
-                  </div>
+            </div>
                   <div className={styles.statusDot}></div>
-                </div>
+                  </div>
                 <div className={styles.metricContent}>
                   <h3 className={styles.metricTitle}>ALERTAS GANADORAS</h3>
                   <div className={styles.metricValue}>{dashboardMetrics.alertasGanadoras}</div>
                   <p className={styles.metricSubtext}>Cerradas con ganancia</p>
                 </div>
-              </div>
+            </div>
               
               <div className={`${styles.modernMetricCard} ${styles.errorCard}`}>
                 <div className={styles.cardHeader}>
                   <div className={styles.iconContainer}>
                     <TrendingDown size={20} />
-                  </div>
+            </div>
                   <div className={styles.statusDot}></div>
-                </div>
+              </div>
                 <div className={styles.metricContent}>
                   <h3 className={styles.metricTitle}>ALERTAS PERDEDORAS</h3>
                   <div className={styles.metricValue}>{dashboardMetrics.alertasPerdedoras}</div>
                   <p className={styles.metricSubtext}>Cerradas con pérdida</p>
-                </div>
-              </div>
-              
+            </div>
+          </div>
+
               <div className={`${styles.modernMetricCard} ${styles.warningCard}`}>
                 <div className={styles.cardHeader}>
                   <div className={styles.iconContainer}>
                     <BarChart3 size={20} />
-                  </div>
+              </div>
                   <div className={styles.statusDot}></div>
-                </div>
+            </div>
                 <div className={styles.metricContent}>
                   <h3 className={styles.metricTitle}>RENTABILIDAD ANUAL</h3>
                   <div className={styles.metricValue}>{dashboardMetrics.rentabilidadAnual}</div>
                   <p className={styles.metricSubtext}>Año {new Date().getFullYear()}</p>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
 
             {/* Actividad Reciente */}
             <div className={styles.activitySection}>
               <div className={styles.activityHeader}>
                 <h3>Actividad Reciente</h3>
                 <div className={styles.activityActions}>
-                  <button 
+            <button 
                     className={styles.viewAllButton}
                     onClick={() => setActiveTab('seguimiento')}
-                  >
+            >
                     Ver toda la actividad
-                  </button>
-                  <button 
+            </button>
+            <button 
                     className={styles.refreshButton}
                     onClick={() => {
                       setRefreshingActivity(true);
@@ -900,10 +900,10 @@ const SubscriberView: React.FC = () => {
                   <div key={activity.id || index} className={styles.activityItem}>
                     <span className={styles.activityTime}>{activity.timestamp}</span>
                     <span className={styles.activityMessage}>{activity.message}</span>
-                  </div>
-                ))}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
           </div>
         </main>
       </div>
@@ -946,20 +946,20 @@ const SmartMoneyPage: React.FC<SmartMoneyPageProps> = ({
       </Head>
 
       <div className={styles.pageContainer}>
-        <Navbar />
-        
+      <Navbar />
+      
         {isSubscribed ? (
           <SubscriberView />
         ) : (
           <NonSubscriberView 
-            metrics={metrics}
-            historicalAlerts={historicalAlerts}
+            metrics={metrics} 
+            historicalAlerts={historicalAlerts} 
             alertExamples={alertExamples}
             faqs={faqs}
           />
         )}
-        
-        <Footer />
+
+      <Footer />
       </div>
     </>
   );
