@@ -41,37 +41,51 @@ const RoadmapSection: React.FC<RoadmapSectionProps> = ({
   return (
     <section className={styles.roadmapSection}>
       <div className={styles.container}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          {loadingRoadmap ? (
+        {loadingRoadmap ? (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
             <div className={styles.loadingContainer}>
               <Loader size={40} className={styles.loadingSpinner} />
               <p>Cargando roadmap de aprendizaje...</p>
             </div>
-          ) : roadmapError ? (
+          </motion.div>
+        ) : roadmapError ? (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
             <div className={styles.errorContainer}>
               <p className={styles.errorMessage}>{roadmapError}</p>
               <button onClick={onRetry} className={styles.retryButton}>
                 Reintentar
               </button>
             </div>
-          ) : roadmapModules.length > 0 ? (
-            <TrainingRoadmap
-              modules={roadmapModules}
-              onModuleClick={handleModuleClick}
-              title="Roadmap de Swing Trading"
-              description="Progresión estructurada diseñada para llevarte de principiante a trader avanzado en Swing Trading"
-            />
-          ) : (
+          </motion.div>
+        ) : roadmapModules.length > 0 ? (
+          <TrainingRoadmap
+            modules={roadmapModules}
+            onModuleClick={handleModuleClick}
+            title="Roadmap de Swing Trading"
+            description="Progresión estructurada diseñada para llevarte de principiante a trader avanzado en Swing Trading"
+          />
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
             <div className={styles.noRoadmapContainer}>
               <p>No hay roadmap disponible para este entrenamiento.</p>
             </div>
-          )}
-        </motion.div>
+          </motion.div>
+        )}
       </div>
     </section>
   );
