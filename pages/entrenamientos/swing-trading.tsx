@@ -26,7 +26,9 @@ import {
   Calendar,
   User,
   Quote,
-  Loader
+  Loader,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import styles from '@/styles/SwingTrading.module.css';
 
@@ -1173,129 +1175,7 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
         {/* FAQ Section */}
         <SwingTradingFAQ />
 
-        {/* Programa Detallado */}
-        <section className={styles.programSection}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Programa Completo
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              {training.contenido.modulos} módulos progresivos con {training.contenido.lecciones} lecciones prácticas
-            </motion.p>
-            
-            <div className={styles.programGrid}>
-              {program.map((module, index) => (
-                <motion.div 
-                  key={module.module}
-                  className={styles.moduleCard}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className={styles.moduleHeader}>
-                    <div className={styles.moduleNumber}>
-                      <BookOpen size={24} />
-                      <span>Módulo {module.module}</span>
-                    </div>
-                    <div className={styles.moduleMeta}>
-                      <span className={styles.moduleDuration}>
-                        <Clock size={16} />
-                        {module.duration}
-                      </span>
-                      <span className={styles.moduleLessons}>
-                        {module.lessons} lecciones
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className={styles.moduleContent}>
-                    <h3 className={styles.moduleTitle}>{module.title}</h3>
-                    <p className={styles.moduleDescription}>{module.description}</p>
-                    
-                    <div className={styles.moduleTopics}>
-                      <h4>Temas principales:</h4>
-                      <ul>
-                        {module.topics.map((topic, topicIndex) => (
-                          <li key={topicIndex}>{topic}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonios */}
-        {testimonials && testimonials.length > 0 && (
-          <section className={styles.testimoniosSection}>
-            <div className={styles.container}>
-              <motion.h2 
-                className={styles.sectionTitle}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-              >
-                Testimonios de Estudiantes
-              </motion.h2>
-              <motion.p 
-                className={styles.sectionDescription}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-              >
-                Resultados reales de estudiantes que transformaron su trading
-              </motion.p>
-              
-              <div className={styles.testimoniosCarousel}>
-                <Carousel 
-                  items={testimonials.map((testimonial, index) => (
-                    <div key={index} className={styles.testimonioCard}>
-                      <div className={styles.testimonioHeader}>
-                        <img 
-                          src={testimonial.image} 
-                          alt={testimonial.name}
-                          className={styles.testimonioFoto}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = generateCircularAvatarDataURL(testimonial.name, '#3b82f6', '#ffffff', 80);
-                          }}
-                        />
-                        <div className={styles.testimonioInfo}>
-                          <h4 className={styles.testimonioNombre}>{testimonial.name}</h4>
-                          <span className={styles.testimonioRole}>{testimonial.role}</span>
-                          <div className={styles.testimonioRating}>
-                            {[...Array(testimonial.rating)].map((_, i) => (
-                              <Star key={i} size={16} fill="currentColor" />
-                            ))}
-                          </div>
-                          <span className={styles.testimonioResultado}>{testimonial.results}</span>
-                        </div>
-                      </div>
-                      <p className={styles.testimonioComentario}>"{testimonial.content}"</p>
-                    </div>
-                  ))}
-                  autoplay={true}
-                  showDots={true}
-                  className={styles.testimoniosCarouselWrapper}
-                />
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Call to Action Final */}
+        {/* CTA Section - Fondo Oscuro */}
         <section className={styles.ctaSection}>
           <div className={styles.container}>
             <motion.div 
@@ -1305,32 +1185,50 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
               viewport={{ once: true }}
             >
               <h2 className={styles.ctaTitle}>
-                ¿Listo para Transformar tu Trading?
+                ¿Listo para llevar tus inversiones al siguiente nivel?
               </h2>
               <p className={styles.ctaDescription}>
-                Únete a los {training.metricas.estudiantesActivos}+ estudiantes que ya están aplicando 
-                estas estrategias exitosamente.
+                Únete a nuestra comunidad y comienza construir tu libertad financiera
               </p>
-              <div className={styles.ctaPrice}>
-                <span className={styles.ctaPriceAmount}>${training.precio} USD</span>
-                <span className={styles.ctaPriceDescription}>
-                  Programa completo • Acceso de por vida • Certificación incluida
-                </span>
-              </div>
               <button 
                 onClick={handleEnroll}
                 className={styles.ctaButton}
                 disabled={checkingEnrollment}
               >
-                <Users size={20} />
                 {checkingEnrollment 
                   ? 'Verificando...' 
                   : isEnrolled 
                     ? 'Ir a las Lecciones' 
-                    : 'Comenzar Ahora'
+                    : 'Inscribirme ahora >'
                 }
-                <ArrowRight size={20} />
               </button>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* YouTube Community Section */}
+        <section className={styles.youtubeSection}>
+          <div className={styles.container}>
+            <motion.div
+              className={styles.youtubeContent}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className={styles.youtubeText}>
+                <h2 className={styles.youtubeTitle}>
+                  ¡Sumate a nuestra comunidad<br />
+                  en YouTube!
+                </h2>
+                <p className={styles.youtubeSubtitle}>
+                  No te pierdas nuestros últimos videos
+                </p>
+              </div>
+
+              <div className={styles.youtubeVideoContainer}>
+                <YouTubeAutoCarousel />
+              </div>
             </motion.div>
           </div>
         </section>
@@ -1338,6 +1236,92 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
 
       <Footer />
     </>
+  );
+};
+
+/**
+ * Componente de carousel automático para videos de YouTube
+ */
+const YouTubeAutoCarousel: React.FC = () => {
+  const [currentVideo, setCurrentVideo] = useState(0);
+  
+  const videos = [
+    {
+      id: '0NpdClGWaY8',
+      title: 'Video 1'
+    },
+    {
+      id: 'jl3lUCIluAs',
+      title: 'Video 2'
+    },
+    {
+      id: '_AMDVmj9_jw',
+      title: 'Video 3'
+    },
+    {
+      id: 'sUktp76givU',
+      title: 'Video 4'
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentVideo((prev) => (prev + 1) % videos.length);
+    }, 5000); // Cambia cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, [videos.length]);
+
+  const goToPrevious = () => {
+    setCurrentVideo((prev) => (prev - 1 + videos.length) % videos.length);
+  };
+
+  const goToNext = () => {
+    setCurrentVideo((prev) => (prev + 1) % videos.length);
+  };
+
+  return (
+    <div className={styles.youtubeAutoCarousel}>
+      <button 
+        onClick={goToPrevious}
+        className={styles.youtubeArrowLeft}
+        aria-label="Video anterior"
+      >
+        <ChevronLeft size={24} />
+      </button>
+      
+      <div className={styles.youtubeVideoFrame}>
+        <iframe
+          src={`https://www.youtube.com/embed/${videos[currentVideo].id}`}
+          title={videos[currentVideo].title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className={styles.youtubeVideoPlayer}
+        />
+      </div>
+      
+      <button 
+        onClick={goToNext}
+        className={styles.youtubeArrowRight}
+        aria-label="Siguiente video"
+      >
+        <ChevronRight size={24} />
+      </button>
+
+      <div className={styles.youtubeIndicators}>
+        {videos.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentVideo(index)}
+            className={`${styles.youtubeIndicator} ${
+              index === currentVideo ? styles.youtubeIndicatorActive : ''
+            }`}
+            aria-label={`Ver video ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
   );
 };
 
