@@ -105,7 +105,7 @@ const TestTrainingNotifications: React.FC = () => {
     <div className={styles.adminContainer}>
       <div className={styles.header}>
         <button 
-          onClick={() => router.push('/admin')}
+                      onClick={() => router.push('/admin/dashboard')}
           className={styles.backButton}
         >
           <ArrowLeft size={20} />

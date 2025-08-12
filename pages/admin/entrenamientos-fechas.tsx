@@ -224,10 +224,10 @@ export default function EntrenamientosFechasPage() {
         <div className={styles.header}>
           <div className={styles.headerContent}>
             <div className={styles.headerText}>
-              <Link href="/admin" className={styles.backButton}>
-                <ArrowLeft size={20} />
-                Volver al Admin
-              </Link>
+                      <Link href="/admin/dashboard" className={styles.backButton}>
+          <ArrowLeft size={20} />
+          Volver al Dashboard
+        </Link>
               <h1 className={styles.title}>
                 <Calendar className={styles.titleIcon} />
                 Gestión de Fechas de Entrenamientos

@@ -1,275 +1,31 @@
-import React from 'react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import { verifyAdminAccess } from '@/lib/adminAuth';
-import Head from 'next/head';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { 
-  Calendar, 
-  MessageSquare, 
-  Star, 
-  Users, 
-  Settings,
-  BarChart3,
-  Clock,
-  FileText,
-  ArrowRight,
-  Globe,
-  BookOpen,
-  Map,
-  Bell,
-  BarChart,
-  Shield
-} from 'lucide-react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import styles from '@/styles/AdminDashboard.module.css';
 
-interface AdminDashboardProps {
-  user: any;
-}
+const AdminRedirect: React.FC = () => {
+  const router = useRouter();
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
-  const adminSections = [
-    {
-      title: 'Configuración del Sitio',
-      description: 'Configura el video principal, secciones y elementos del landing page',
-      icon: <Globe size={32} />,
-      href: '/admin/site-config',
-      color: '#7c3aed'
-    },
-    {
-      title: 'Gestión de Lecciones',
-      description: 'Crea, edita y administra las lecciones de los entrenamientos TradingFundamentals y DowJones',
-      icon: <BookOpen size={32} />,
-      href: '/admin/lecciones',
-      color: '#dc2626'
-    },
-    {
-      title: 'Tarjetas de Cursos',
-      description: 'Gestiona las tarjetas de cursos personalizadas que aparecen en el landing',
-      icon: <FileText size={32} />,
-      href: '/admin/course-cards',
-      color: '#059669'
-    },
-    {
-      title: 'Gestión de Horarios',
-      description: 'Configura los días y horarios disponibles para entrenamientos',
-      icon: <Calendar size={32} />,
-      href: '/admin/horarios',
-      color: '#3b82f6'
-    },
-    {
-      title: 'Testimonios',
-      description: 'Gestiona testimonios de clientes para mostrar en el sitio',
-      icon: <Star size={32} />,
-      href: '/admin/testimonios',
-      color: '#f59e0b'
-    },
-    {
-      title: 'Preguntas Frecuentes',
-      description: 'Administra las FAQs por categoría (consultorio, entrenamientos, etc.)',
-      icon: <MessageSquare size={32} />,
-      href: '/admin/faqs',
-      color: '#10b981'
-    },
-    {
-      title: 'Usuarios',
-      description: 'Gestiona usuarios registrados y sus permisos',
-      icon: <Users size={32} />,
-      href: '/admin/usuarios',
-      color: '#8b5cf6'
-    },
-    {
-      title: 'Reservas',
-      description: 'Visualiza y gestiona todas las reservas de entrenamientos y asesorías',
-      icon: <Clock size={32} />,
-      href: '/admin/reservas',
-      color: '#ef4444'
-    },
-    {
-      title: 'Reportes',
-      description: 'Estadísticas y reportes de actividad del sitio',
-      icon: <BarChart3 size={32} />,
-      href: '/admin/reportes',
-      color: '#06b6d4'
-    },
-    {
-      title: 'Pruebas de Notificaciones',
-      description: 'Verifica que el sistema de notificaciones de entrenamientos funcione correctamente',
-      icon: <Bell size={32} />,
-      href: '/admin/test-training-notifications',
-      color: '#f97316'
-    },
-    {
-      title: 'Debug de Sesión',
-      description: 'Información detallada sobre el estado de la sesión y permisos',
-      icon: <Shield size={32} />,
-      href: '/admin/debug-session',
-      color: '#8b5cf6'
-    }
-  ];
+  useEffect(() => {
+    router.replace('/admin/dashboard');
+  }, [router]);
 
   return (
-    <>
-      <Head>
-        <title>Panel de Administración - Nahuel Lozano</title>
-        <meta name="description" content="Panel de administración para gestionar contenido y configuraciones" />
-      </Head>
-
-      <Navbar />
-
-      <main className={styles.main}>
-        <div className={styles.container}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={styles.header}
-          >
-            <h1 className={styles.title}>Panel de Administración</h1>
-            <p className={styles.subtitle}>
-              Bienvenido, {user?.name || 'Administrador'}. Gestiona el contenido y configuraciones del sitio.
-            </p>
-          </motion.div>
-
-          <div className={styles.sectionsGrid}>
-            {adminSections.map((section, index) => (
-              <motion.div
-                key={section.href}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Link href={section.href} className={styles.sectionCard}>
-                  <div 
-                    className={styles.sectionIcon}
-                    style={{ backgroundColor: `${section.color}20`, color: section.color }}
-                  >
-                    {section.icon}
-                  </div>
-                  <div className={styles.sectionContent}>
-                    <h3 className={styles.sectionTitle}>{section.title}</h3>
-                    <p className={styles.sectionDescription}>{section.description}</p>
-                  </div>
-                  <div className={styles.sectionArrow}>
-                    <ArrowRight size={20} />
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className={styles.quickStats}
-          >
-            <h2 className={styles.statsTitle}>Acceso Rápido</h2>
-            <div className={styles.statsGrid}>
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  <Globe size={24} />
-                </div>
-                <div className={styles.statContent}>
-                  <h4>Configuración del Sitio</h4>
-                  <p>Configura el video de YouTube y secciones del landing</p>
-                  <Link href="/admin/site-config" className={styles.statLink}>
-                    Configurar sitio →
-                  </Link>
-                </div>
-              </div>
-
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  <FileText size={24} />
-                </div>
-                <div className={styles.statContent}>
-                  <h4>Tarjetas de Cursos</h4>
-                  <p>Gestiona las tarjetas personalizadas de cursos</p>
-                  <Link href="/admin/course-cards" className={styles.statLink}>
-                    Gestionar cursos →
-                  </Link>
-                </div>
-              </div>
-
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  <BookOpen size={24} />
-                </div>
-                <div className={styles.statContent}>
-                  <h4>Gestión de Lecciones</h4>
-                  <p>Crea y administra lecciones de entrenamientos</p>
-                  <Link href="/admin/lecciones" className={styles.statLink}>
-                    Gestionar lecciones →
-                  </Link>
-                </div>
-              </div>
-
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  <Calendar size={24} />
-                </div>
-                <div className={styles.statContent}>
-                  <h4>Horarios Configurados</h4>
-                  <p>Gestiona los horarios de entrenamiento disponibles</p>
-                  <Link href="/admin/horarios" className={styles.statLink}>
-                    Ver horarios →
-                  </Link>
-                </div>
-              </div>
-
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  <Clock size={24} />
-                </div>
-                <div className={styles.statContent}>
-                  <h4>Reservas Recientes</h4>
-                  <p>Revisa las últimas reservas de clientes</p>
-                  <Link href="/admin/reservas" className={styles.statLink}>
-                    Ver reservas →
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          <div className={styles.quickActions}>
-            <Link href="/admin/lecciones" className={styles.quickAction}>
-              <BookOpen size={24} />
-              <span>Gestionar Lecciones</span>
-            </Link>
-            
-            <Link href="/admin/dashboard" className={styles.quickAction}>
-              <Map size={24} />
-              <span>Gestionar Roadmaps</span>
-            </Link>
-
-            <Link href="/admin/users" className={styles.quickAction}>
-              <Users size={24} />
-              <span>Gestionar Usuarios</span>
-            </Link>
-
-            <Link href="/admin/horarios" className={styles.quickAction}>
-              <Calendar size={24} />
-              <span>Gestionar Horarios</span>
-            </Link>
-
-            <Link href="/admin/notifications" className={styles.quickAction}>
-              <Bell size={24} />
-              <span>Enviar Notificación</span>
-            </Link>
-
-            <Link href="/admin/dashboard" className={styles.quickAction}>
-              <BarChart size={24} />
-              <span>Ver Dashboard</span>
-            </Link>
-          </div>
-        </div>
-      </main>
-
-      <Footer />
-    </>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      background: '#1f2937',
+      color: '#f9fafb',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🔄</div>
+        <h1>Redirigiendo al Dashboard...</h1>
+        <p>Si no eres redirigido automáticamente, haz clic <a href="/admin/dashboard" style={{ color: '#3b82f6' }}>aquí</a></p>
+      </div>
+    </div>
   );
 };
 
@@ -285,11 +41,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
+  // Redirigir automáticamente al dashboard
   return {
-    props: {
-      user: verification.session?.user || verification.user,
+    redirect: {
+      destination: '/admin/dashboard',
+      permanent: false,
     },
   };
 };
 
-export default AdminDashboard; 
+export default AdminRedirect; 

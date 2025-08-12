@@ -447,10 +447,10 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.headerContent}>
-            <Link href="/admin" className={styles.backButton}>
-              <ArrowLeft size={20} />
-              Volver al Admin
-            </Link>
+                    <Link href="/admin/dashboard" className={styles.backButton}>
+          <ArrowLeft size={20} />
+          Volver al Dashboard
+        </Link>
             <h1>Configuración del Sitio Web</h1>
             <p>Administra los elementos principales del landing page</p>
           </div>

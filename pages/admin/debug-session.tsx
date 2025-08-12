@@ -54,7 +54,7 @@ const DebugSession: React.FC = () => {
     <div className={styles.adminContainer}>
       <div className={styles.header}>
         <button 
-          onClick={() => router.push('/admin')}
+                      onClick={() => router.push('/admin/dashboard')}
           className={styles.backButton}
         >
           ← Volver al Admin
@@ -303,7 +303,7 @@ const DebugSession: React.FC = () => {
             </button>
 
             <button
-              onClick={() => router.push('/admin')}
+              onClick={() => router.push('/admin/dashboard')}
               className={styles.actionButton}
               disabled={session?.user?.role !== 'admin'}
             >

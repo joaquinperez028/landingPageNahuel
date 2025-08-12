@@ -666,4 +666,470 @@
   .tableCell {
     padding: 0.5rem;
   }
+}
+
+/* Video Config Styles */
+.videoConfigGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.configCard {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 2rem;
+  border: 1px solid #374151;
+}
+
+.configCard h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f9fafb;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.previewCard {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 2rem;
+  border: 1px solid #374151;
+}
+
+.previewCard h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f9fafb;
+  margin-bottom: 1.5rem;
+}
+
+.videoPreview {
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #111827;
+}
+
+.previewIframe {
+  width: 100%;
+  height: 250px;
+  border: none;
+}
+
+.noVideo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: #111827;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.noVideo p {
+  color: #9ca3af;
+  margin: 1rem 0 0.5rem 0;
+  font-weight: 500;
+}
+
+.noVideo small {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.videoInfo {
+  background: #374151;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.videoInfo h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f9fafb;
+  margin-bottom: 1rem;
+}
+
+.videoInfo p {
+  color: #d1d5db;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.videoInfo ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+}
+
+.videoInfo li {
+  color: #d1d5db;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* Responsive para Video Config */
+@media (max-width: 768px) {
+  .videoConfigGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actionsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Estilos para la Gestión Completa de Videos */
+.controlsSection {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #374151;
+}
+
+.controlsGrid {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.searchContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  color: #6b7280;
+  z-index: 1;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  color: #f9fafb;
+  font-size: 0.875rem;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.filterContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #9ca3af;
+}
+
+.filterSelect {
+  padding: 0.75rem 1rem;
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  color: #f9fafb;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.viewModeContainer {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.viewModeButton {
+  padding: 0.75rem;
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 8px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.viewModeButton:hover {
+  background: #4b5563;
+  color: #f9fafb;
+}
+
+.viewModeButton.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #f9fafb;
+}
+
+.videosContainer {
+  margin-bottom: 2rem;
+}
+
+.videosContainer.gridView {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.videosContainer.listView {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.videoCard {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #374151;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.videoCard:hover {
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.videoCard.selected {
+  border-color: #3b82f6;
+  background: #1e3a8a;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.videoCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.videoIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.videoStatus {
+  display: flex;
+  align-items: center;
+}
+
+.videoCardContent {
+  flex: 1;
+}
+
+.videoCardTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #f9fafb;
+  margin: 0 0 0.5rem 0;
+}
+
+.videoCardDescription {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+.videoCardInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.videoCardId {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+  background: #374151;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.videoCardCategory {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  background: #374151;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.videoCardActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionButton {
+  padding: 0.5rem;
+  background: #374151;
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionButton:hover {
+  background: #4b5563;
+  color: #f9fafb;
+  transform: translateY(-1px);
+}
+
+.configPanel {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid #374151;
+}
+
+.configPanelHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #374151;
+}
+
+.configPanelIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.configPanelTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #f9fafb;
+  margin: 0 0 0.25rem 0;
+}
+
+.configPanelDescription {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.configPanelContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.configSection {
+  background: #374151;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.configSection h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #f9fafb;
+  margin: 0 0 1rem 0;
+}
+
+.previewSection {
+  background: #374151;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.previewSection h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #f9fafb;
+  margin: 0 0 1rem 0;
+}
+
+.actionsSection {
+  background: #1f2937;
+  border-radius: 12px;
+  padding: 2rem;
+  border: 1px solid #374151;
+}
+
+/* Responsive para la gestión completa */
+@media (max-width: 1024px) {
+  .controlsGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .configPanelContent {
+    grid-template-columns: 1fr;
+  }
+  
+  .videosContainer.gridView {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .videosContainer.gridView {
+    grid-template-columns: 1fr;
+  }
+  
+  .videoCard {
+    padding: 1rem;
+  }
+  
+  .configPanel {
+    padding: 1rem;
+  }
+  
+  .configPanelContent {
+    gap: 1rem;
+  }
+  
+  .configSection,
+  .previewSection {
+    padding: 1rem;
+  }
 } 
