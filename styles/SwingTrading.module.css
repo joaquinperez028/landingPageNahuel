@@ -944,26 +944,28 @@
   overflow: hidden;
 }
 
-/* Carrusel de testimonios */
+/* Carrusel de testimonios - Mostrar todos los testimonios */
 .testimonialsCarousel {
   position: relative;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .testimonialsSlider {
   display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  align-items: flex-start;
   transition: transform 0.5s ease-in-out;
-  width: 300%; /* 3 testimonios = 300% */
+  width: 100%;
 }
 
 .testimonialSlide {
-  width: 33.333%; /* 100% / 3 testimonios */
-  flex-shrink: 0;
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 1rem;
+  max-width: 300px;
 }
 
 .testimonialSlide .testimonialHorizontalItem {
@@ -971,7 +973,6 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 300px;
   width: 100%;
 }
 
@@ -1089,10 +1090,15 @@
     padding: 0 1rem;
   }
   
-  .testimonialsHorizontalContent {
+  .testimonialsSlider {
     flex-direction: column;
     align-items: center;
     gap: 2.5rem;
+  }
+  
+  .testimonialSlide {
+    max-width: 400px;
+    flex: none;
   }
   
   .testimonialSlide .testimonialHorizontalItem {
@@ -1121,7 +1127,8 @@
   }
   
   .testimonialSlide {
-    padding: 0 0.5rem;
+    max-width: 100%;
+    flex: none;
   }
   
   .testimonialSlide .testimonialHorizontalItem {

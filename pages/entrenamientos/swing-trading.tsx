@@ -1139,10 +1139,7 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <div className={styles.testimonialsCarousel}>
-                <div 
-                  className={styles.testimonialsSlider}
-                  style={{ transform: `translateX(-${currentTestimonialIndex * 100}%)` }}
-                >
+                <div className={styles.testimonialsSlider}>
                   {carouselTestimonials.map((testimonial, index) => (
                     <div key={index} className={styles.testimonialSlide}>
                       <div className={styles.testimonialHorizontalItem}>
