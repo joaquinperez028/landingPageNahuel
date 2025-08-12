@@ -137,6 +137,29 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
   const [nextTrainingDate, setNextTrainingDate] = useState<TrainingDate | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // Estados para el carrusel de testimonios
+  const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
+  const testimonials = [
+    {
+      initial: 'C',
+      name: 'Carlos Mendoza',
+      text: '"Las alertas de Nahuel me han ayudado a incrementar mi cuenta un 25% en los últimos 6 meses."',
+      backgroundColor: '#6366f1'
+    },
+    {
+      initial: 'A', 
+      name: 'Ana Laura Quiroga',
+      text: '"Los cursos de análisis técnico son realmente muy buenos y didácticos. 100% recomendables!"',
+      backgroundColor: '#ef4444'
+    },
+    {
+      initial: 'T',
+      name: 'Tamara Rodriguez', 
+      text: '"Las recomendaciones que brindan en las asesorías a 1 a 1 son muy buenas. Estoy muy conforme"',
+      backgroundColor: '#22c55e'
+    }
+  ];
+
   // Función para calcular el countdown basado en la fecha de inicio
   const calculateCountdown = (startDate: Date, startTime: string) => {
     const now = new Date();
@@ -523,6 +546,25 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
     console.log(`Accediendo al módulo ${moduleId}`);
     // Aquí se implementaría la navegación al módulo específico
   };
+
+  // Funciones para el carrusel de testimonios
+  const nextTestimonial = () => {
+    setCurrentTestimonialIndex((prev) => 
+      prev === testimonials.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevTestimonial = () => {
+    setCurrentTestimonialIndex((prev) => 
+      prev === 0 ? testimonials.length - 1 : prev - 1
+    );
+  };
+
+  // Auto-play del carrusel
+  useEffect(() => {
+    const interval = setInterval(nextTestimonial, 5000); // Cambia cada 5 segundos
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
@@ -1069,12 +1111,18 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
 
               {/* Navigation arrows */}
               <div className={styles.testimonialsNavigation}>
-                <button className={styles.testimonialNavButton}>
+                <button 
+                  className={styles.testimonialNavButton}
+                  onClick={prevTestimonial}
+                >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </button>
-                <button className={styles.testimonialNavButton}>
+                <button 
+                  className={styles.testimonialNavButton}
+                  onClick={nextTestimonial}
+                >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -1082,7 +1130,7 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
               </div>
             </motion.div>
             
-            {/* Testimonios horizontales debajo del card principal */}
+            {/* Testimonios horizontales con carrusel */}
             <motion.div
               className={styles.testimonialsHorizontalContainer}
               initial={{ opacity: 0, y: 30 }}
@@ -1090,54 +1138,34 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <div className={styles.testimonialHorizontalItem}>
-                <div className={styles.testimonialAvatar}>
-                  <span className={styles.testimonialInitial}>C</span>
-                </div>
-                <div className={styles.testimonialVerticalInfo}>
-                  <h4 className={styles.testimonialName}>Carlos Mendoza</h4>
-                  <div className={styles.testimonialRating}>
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={16} className={styles.testimonialStar} />
-                    ))}
-                  </div>
-                  <p className={styles.testimonialText}>
-                    "Las alertas de Nahuel me han ayudado a incrementar mi cuenta un 25% en los últimos 6 meses."
-                  </p>
-                </div>
-              </div>
-
-              <div className={styles.testimonialHorizontalItem}>
-                <div className={styles.testimonialAvatar} style={{backgroundColor: '#ef4444'}}>
-                  <span className={styles.testimonialInitial}>A</span>
-                </div>
-                <div className={styles.testimonialVerticalInfo}>
-                  <h4 className={styles.testimonialName}>Ana Laura Quiroga</h4>
-                  <div className={styles.testimonialRating}>
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={16} className={styles.testimonialStar} />
-                    ))}
-                  </div>
-                  <p className={styles.testimonialText}>
-                    "Los cursos de análisis técnico son realmente muy buenos y didácticos. 100% recomendables!"
-                  </p>
-                </div>
-              </div>
-
-              <div className={styles.testimonialHorizontalItem}>
-                <div className={styles.testimonialAvatar} style={{backgroundColor: '#22c55e'}}>
-                  <span className={styles.testimonialInitial}>T</span>
-                </div>
-                <div className={styles.testimonialVerticalInfo}>
-                  <h4 className={styles.testimonialName}>Tamara Rodriguez</h4>
-                  <div className={styles.testimonialRating}>
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={16} className={styles.testimonialStar} />
-                    ))}
-                  </div>
-                  <p className={styles.testimonialText}>
-                    "Las recomendaciones que brindan en las asesorías a 1 a 1 son muy buenas. Estoy muy conforme"
-                  </p>
+              <div className={styles.testimonialsCarousel}>
+                <div 
+                  className={styles.testimonialsSlider}
+                  style={{ transform: `translateX(-${currentTestimonialIndex * 100}%)` }}
+                >
+                  {testimonials.map((testimonial, index) => (
+                    <div key={index} className={styles.testimonialSlide}>
+                      <div className={styles.testimonialHorizontalItem}>
+                        <div 
+                          className={styles.testimonialAvatar} 
+                          style={{backgroundColor: testimonial.backgroundColor}}
+                        >
+                          <span className={styles.testimonialInitial}>{testimonial.initial}</span>
+                        </div>
+                        <div className={styles.testimonialVerticalInfo}>
+                          <h4 className={styles.testimonialName}>{testimonial.name}</h4>
+                          <div className={styles.testimonialRating}>
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} size={16} className={styles.testimonialStar} />
+                            ))}
+                          </div>
+                          <p className={styles.testimonialText}>
+                            {testimonial.text}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.div>

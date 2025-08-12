@@ -75,13 +75,14 @@
 }
 
 .countdownBox {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(139, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   padding: 1.5rem 1rem;
   text-align: center;
   min-width: 80px;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(139, 0, 0, 0.3);
 }
 
 .countdownNumber {
@@ -937,13 +938,41 @@
 
 /* Nuevo contenedor para testimonios horizontales separado */
 .testimonialsHorizontalContainer {
-  display: flex;
-  justify-content: space-between;
-  gap: 2rem;
-  align-items: flex-start;
   max-width: 900px;
   margin: 0 auto;
   padding: 0 1rem;
+  overflow: hidden;
+}
+
+/* Carrusel de testimonios */
+.testimonialsCarousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.testimonialsSlider {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  width: 300%; /* 3 testimonios = 300% */
+}
+
+.testimonialSlide {
+  width: 33.333%; /* 100% / 3 testimonios */
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.testimonialSlide .testimonialHorizontalItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 300px;
+  width: 100%;
 }
 
 .testimonialsHorizontalContent {
@@ -1057,9 +1086,7 @@
 /* Responsive Design para Testimonials */
 @media (max-width: 1024px) {
   .testimonialsHorizontalContainer {
-    flex-direction: column;
-    align-items: center;
-    gap: 2.5rem;
+    padding: 0 1rem;
   }
   
   .testimonialsHorizontalContent {
@@ -1068,7 +1095,7 @@
     gap: 2.5rem;
   }
   
-  .testimonialHorizontalItem {
+  .testimonialSlide .testimonialHorizontalItem {
     max-width: 400px;
   }
 }
@@ -1090,15 +1117,14 @@
   }
   
   .testimonialsHorizontalContainer {
-    gap: 2rem;
-    padding: 0 1rem;
+    padding: 0 0.5rem;
   }
   
-  .testimonialsHorizontalContent {
-    gap: 2rem;
+  .testimonialSlide {
+    padding: 0 0.5rem;
   }
   
-  .testimonialHorizontalItem {
+  .testimonialSlide .testimonialHorizontalItem {
     max-width: 100%;
   }
   
