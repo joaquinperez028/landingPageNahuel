@@ -417,11 +417,19 @@ const NonSubscriberView: React.FC<{
   );
 };
 
+// Interfaces para tipos
+interface CommunityMessage {
+  id: number;
+  user: string;
+  message: string;
+  timestamp: string;
+}
+
 // Vista de suscriptor completa
 const SubscriberView: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [alerts, setAlerts] = useState<any[]>([]);
-  const [communityMessages, setCommunityMessages] = useState<any[]>([]);
+  const [communityMessages, setCommunityMessages] = useState<CommunityMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCreateAlert, setShowCreateAlert] = useState(false);
   const [newAlert, setNewAlert] = useState({
@@ -433,6 +441,7 @@ const SubscriberView: React.FC = () => {
   });
   const [stockPrice, setStockPrice] = useState<number | null>(null);
   const [priceLoading, setPriceLoading] = useState(false);
+  // Estados para imágenes del gráfico de TradingView
   const [chartImage, setChartImage] = useState<CloudinaryImage | null>(null);
   const [additionalImages, setAdditionalImages] = useState<CloudinaryImage[]>([]);
   const [uploadingChart, setUploadingChart] = useState(false);
@@ -491,9 +500,11 @@ const SubscriberView: React.FC = () => {
 
   // Función para calcular métricas reales del dashboard usando alertas reales
   const calculateDashboardMetrics = () => {
+    // Usar alertas reales en lugar de datos simulados
     const alertasActivas = realAlerts.filter(alert => alert.status === 'ACTIVE').length;
     const alertasCerradas = realAlerts.filter(alert => alert.status === 'CLOSED');
     
+    // Calcular ganadoras y perdedoras basándose en el profit
     const alertasGanadoras = alertasCerradas.filter(alert => {
       const profitValue = parseFloat(alert.profit.replace('%', '').replace('+', ''));
       return profitValue > 0;
@@ -504,6 +515,7 @@ const SubscriberView: React.FC = () => {
       return profitValue < 0;
     }).length;
     
+    // **CAMBIO: Calcular alertas del año actual (en lugar de semanal)**
     const ahora = new Date();
     const inicioAño = new Date(ahora.getFullYear(), 0, 1);
     const alertasAnuales = realAlerts.filter(alert => {
@@ -511,6 +523,7 @@ const SubscriberView: React.FC = () => {
       return fechaAlert >= inicioAño;
     }).length;
 
+    // **CAMBIO: Calcular rentabilidad anual usando alertas reales**
     const alertasAnualConGanancias = realAlerts.filter(alert => {
       const fechaAlert = new Date(alert.date);
       return fechaAlert >= inicioAño;
@@ -541,6 +554,7 @@ const SubscriberView: React.FC = () => {
   const generateRecentActivity = () => {
     const activities: any[] = [];
     
+    // Agregar alertas recientes
     realAlerts.forEach((alert) => {
       const alertDate = new Date(alert.createdAt);
       const now = new Date();
@@ -587,6 +601,7 @@ const SubscriberView: React.FC = () => {
       });
     });
 
+    // Agregar informes recientes
     informes.forEach((informe) => {
       const informeDate = new Date(informe.createdAt);
       const now = new Date();
@@ -617,6 +632,7 @@ const SubscriberView: React.FC = () => {
       });
     });
 
+    // Ordenar por fecha más reciente y tomar los primeros 6
     return activities
       .sort((a, b) => b.dateCreated.getTime() - a.dateCreated.getTime())
       .slice(0, 6);
@@ -665,15 +681,19 @@ const SubscriberView: React.FC = () => {
         console.log('Precios actualizados:', data.updated, 'alertas');
         setLastPriceUpdate(new Date());
         
+        // Actualizar información del mercado si está disponible
         if (data.alerts && data.alerts.length > 0) {
+          // Verificar si alguna alerta está usando precios simulados
           const hasSimulated = data.alerts.some((alert: any) => alert.isSimulated);
           setIsUsingSimulatedPrices(hasSimulated);
           
+          // Usar el estado del mercado de la primera alerta (todas deberían tener el mismo)
           if (data.alerts[0].marketStatus) {
             setMarketStatus(data.alerts[0].marketStatus);
           }
         }
         
+        // Recargar alertas para mostrar los nuevos precios
         await loadAlerts();
       } else {
         console.error('Error al actualizar precios:', response.status);
@@ -689,6 +709,7 @@ const SubscriberView: React.FC = () => {
   const loadInformes = async () => {
     setLoadingInformes(true);
     try {
+      // Filtrar solo informes de Cash Flow
       const response = await fetch('/api/reports?limit=6&featured=false&category=cash-flow', {
         method: 'GET',
         credentials: 'same-origin',
@@ -716,17 +737,20 @@ const SubscriberView: React.FC = () => {
 
   // Sistema de actualización automática de precios cada 30 segundos
   React.useEffect(() => {
+    // Solo actualizar si hay alertas activas
     const hasActiveAlerts = realAlerts.some(alert => alert.status === 'ACTIVE');
     
     if (!hasActiveAlerts) return;
 
+    // Actualizar precios inmediatamente si es la primera vez
     if (!lastPriceUpdate) {
       updatePrices(true);
     }
 
+    // Configurar intervalo de actualización cada 30 segundos
     const interval = setInterval(() => {
-      updatePrices(true);
-    }, 30000);
+      updatePrices(true); // silent = true para no mostrar loading
+    }, 30000); // 30 segundos
 
     return () => clearInterval(interval);
   }, [realAlerts, lastPriceUpdate]);
