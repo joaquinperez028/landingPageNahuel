@@ -140,11 +140,11 @@ const NonSubscriberView: React.FC<{
         }),
       });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.success && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
+        if (data.success && data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
         console.error('Error creando checkout:', data.error);
         alert('Error al procesar el pago. Por favor intenta nuevamente.');
       }
@@ -248,50 +248,50 @@ const NonSubscriberView: React.FC<{
 
       {/* Métricas - Sección independiente para ocupar todo el ancho */}
       <section className={styles.metricsSection}>
-        <div className={styles.metricsGrid}>
-          <motion.div 
-            className={styles.metricCard}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-          >
+          <div className={styles.metricsGrid}>
+            <motion.div 
+              className={styles.metricCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
             <h3 className={styles.metricNumber}>+700</h3>
             <p className={styles.metricLabel}>USUARIOS ACTIVOS</p>
-          </motion.div>
+            </motion.div>
 
-          <motion.div 
-            className={styles.metricCard}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-          >
+            <motion.div 
+              className={styles.metricCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
             <h3 className={styles.metricNumber}>+87%</h3> 
             <p className={styles.metricLabel}>RENTABILIDAD ANUAL</p>
-          </motion.div>
+            </motion.div>
 
-          <motion.div 
-            className={styles.metricCard}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
+            <motion.div 
+              className={styles.metricCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
             <h3 className={styles.metricNumber}>+200</h3>
             <p className={styles.metricLabel}>ALERTAS ENVIADAS</p>
-          </motion.div>
+            </motion.div>
 
-          <motion.div 
-            className={styles.metricCard}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-          >
+            <motion.div 
+              className={styles.metricCard}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+            >
             <h3 className={styles.metricNumber}>+79%</h3>
             <p className={styles.metricLabel}>EFECTIVIDAD</p>
-          </motion.div>
+            </motion.div>
         </div>
       </section>
 
@@ -349,42 +349,7 @@ const NonSubscriberView: React.FC<{
         </div>
       </section>
 
-      {/* CTA Final */}
-      <section className={styles.finalCtaSection}>
-        <div className={styles.container}>
-          <motion.div 
-            className={styles.finalCtaCard}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className={styles.finalCtaContent}>
-              <h2 className={styles.finalCtaTitle}>
-                ¿Listo para llevar tus inversiones al siguiente nivel?
-              </h2>
-              <p className={styles.finalCtaDescription}>
-                Únete a nuestra comunidad y comienza construir tu libertad financiera
-              </p>
-              <button 
-                className={styles.finalCtaButton}
-                onClick={handleSubscribe}
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader size={16} className={styles.spinner} />
-                    Procesando...
-                  </>
-                ) : session ? (
-                  'Quiero Suscribirme >'
-                ) : (
-                  'Iniciar Sesión y Suscribirme >'
-                )}
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+
 
       {/* CTA Final */}
       <section className={styles.ctaInvestmentSection}>
@@ -405,20 +370,20 @@ const NonSubscriberView: React.FC<{
             
             <div className={styles.ctaInvestmentActions}>
               {session ? (
-                <button 
-                  onClick={handleSubscribe}
+              <button 
+                onClick={handleSubscribe}
                   className={styles.ctaInvestmentButtonPrimary}
-                  disabled={isProcessing}
-                >
-                  {isProcessing ? (
-                    <>
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <>
                       <Loader size={20} className={styles.spinner} />
-                      Procesando...
-                    </>
-                  ) : (
+                    Procesando...
+                  </>
+                ) : (
                     'Suscribirse a Cash Flow - $35,000 ARS'
-                  )}
-                </button>
+                )}
+              </button>
               ) : (
                 <button 
                   onClick={() => signIn('google')} 
@@ -971,107 +936,107 @@ const SubscriberView: React.FC = () => {
 
         {/* Contenido Principal */}
         <main className={styles.mainContent}>
-          <div className={styles.dashboardContent}>
+    <div className={styles.dashboardContent}>
             <h2 className={styles.sectionTitle}>Dashboard de Cash Flow</h2>
             
             {/* Métricas principales */}
-            <div className={styles.modernMetricsGrid}>
-              <div className={`${styles.modernMetricCard} ${styles.activeCard}`}>
-                <div className={styles.cardHeader}>
-                  <div className={styles.iconContainer}>
-                    <Activity size={20} />
-                  </div>
-                  <div className={styles.statusDot}></div>
-                </div>
-                <div className={styles.metricContent}>
-                  <h3 className={styles.metricTitle}>ALERTAS ACTIVAS</h3>
-                  <div className={styles.metricValue}>{dashboardMetrics.alertasActivas}</div>
-                  <p className={styles.metricSubtext}>Posiciones abiertas</p>
-                </div>
-              </div>
-              
-              <div className={`${styles.modernMetricCard} ${styles.successCard}`}>
-                <div className={styles.cardHeader}>
-                  <div className={styles.iconContainer}>
-                    <TrendingUp size={20} />
-                  </div>
-                  <div className={styles.statusDot}></div>
-                </div>
-                <div className={styles.metricContent}>
-                  <h3 className={styles.metricTitle}>ALERTAS GANADORAS</h3>
-                  <div className={styles.metricValue}>{dashboardMetrics.alertasGanadoras}</div>
-                  <p className={styles.metricSubtext}>Cerradas con ganancia</p>
-                </div>
-              </div>
-              
-              <div className={`${styles.modernMetricCard} ${styles.errorCard}`}>
-                <div className={styles.cardHeader}>
-                  <div className={styles.iconContainer}>
-                    <TrendingDown size={20} />
-                  </div>
-                  <div className={styles.statusDot}></div>
-                </div>
-                <div className={styles.metricContent}>
-                  <h3 className={styles.metricTitle}>ALERTAS PERDEDORAS</h3>
-                  <div className={styles.metricValue}>{dashboardMetrics.alertasPerdedoras}</div>
-                  <p className={styles.metricSubtext}>Cerradas con pérdida</p>
-                </div>
-              </div>
-              
-              <div className={`${styles.modernMetricCard} ${styles.warningCard}`}>
-                <div className={styles.cardHeader}>
-                  <div className={styles.iconContainer}>
-                    <BarChart3 size={20} />
-                  </div>
-                  <div className={styles.statusDot}></div>
-                </div>
-                <div className={styles.metricContent}>
+      <div className={styles.modernMetricsGrid}>
+        <div className={`${styles.modernMetricCard} ${styles.activeCard}`}>
+          <div className={styles.cardHeader}>
+            <div className={styles.iconContainer}>
+              <Activity size={20} />
+            </div>
+            <div className={styles.statusDot}></div>
+          </div>
+          <div className={styles.metricContent}>
+            <h3 className={styles.metricTitle}>ALERTAS ACTIVAS</h3>
+            <div className={styles.metricValue}>{dashboardMetrics.alertasActivas}</div>
+            <p className={styles.metricSubtext}>Posiciones abiertas</p>
+          </div>
+        </div>
+        
+        <div className={`${styles.modernMetricCard} ${styles.successCard}`}>
+          <div className={styles.cardHeader}>
+            <div className={styles.iconContainer}>
+              <TrendingUp size={20} />
+            </div>
+            <div className={styles.statusDot}></div>
+          </div>
+          <div className={styles.metricContent}>
+            <h3 className={styles.metricTitle}>ALERTAS GANADORAS</h3>
+            <div className={styles.metricValue}>{dashboardMetrics.alertasGanadoras}</div>
+            <p className={styles.metricSubtext}>Cerradas con ganancia</p>
+          </div>
+        </div>
+        
+        <div className={`${styles.modernMetricCard} ${styles.errorCard}`}>
+          <div className={styles.cardHeader}>
+            <div className={styles.iconContainer}>
+              <TrendingDown size={20} />
+            </div>
+            <div className={styles.statusDot}></div>
+          </div>
+          <div className={styles.metricContent}>
+            <h3 className={styles.metricTitle}>ALERTAS PERDEDORAS</h3>
+            <div className={styles.metricValue}>{dashboardMetrics.alertasPerdedoras}</div>
+            <p className={styles.metricSubtext}>Cerradas con pérdida</p>
+          </div>
+        </div>
+        
+        <div className={`${styles.modernMetricCard} ${styles.warningCard}`}>
+          <div className={styles.cardHeader}>
+            <div className={styles.iconContainer}>
+              <BarChart3 size={20} />
+            </div>
+            <div className={styles.statusDot}></div>
+          </div>
+          <div className={styles.metricContent}>
                   <h3 className={styles.metricTitle}>RENTABILIDAD ANUAL</h3>
                   <div className={styles.metricValue}>{dashboardMetrics.rentabilidadAnual}</div>
                   <p className={styles.metricSubtext}>Año {new Date().getFullYear()}</p>
-                </div>
-              </div>
-            </div>
+          </div>
+        </div>
+      </div>
 
-            {/* Actividad Reciente */}
-            <div className={styles.activitySection}>
+      {/* Actividad Reciente */}
+      <div className={styles.activitySection}>
               <div className={styles.activityHeader}>
                 <h3>Actividad Reciente</h3>
-                <div className={styles.activityActions}>
-                  <button 
-                    className={styles.viewAllButton}
-                    onClick={() => setActiveTab('seguimiento')}
-                  >
-                    Ver toda la actividad
-                  </button>
-                  <button 
-                    className={styles.refreshButton}
+        <div className={styles.activityActions}>
+          <button 
+            className={styles.viewAllButton}
+            onClick={() => setActiveTab('seguimiento')}
+          >
+            Ver toda la actividad
+          </button>
+          <button 
+            className={styles.refreshButton}
                     onClick={() => {
                       setRefreshingActivity(true);
                       Promise.all([loadAlerts(), loadInformes()]).finally(() => setRefreshingActivity(false));
                     }}
-                    disabled={refreshingActivity}
-                  >
-                    <Activity size={16} />
-                    {refreshingActivity ? 'Actualizando...' : 'Actualizar'}
-                  </button>
-                </div>
-              </div>
+            disabled={refreshingActivity}
+          >
+            <Activity size={16} />
+            {refreshingActivity ? 'Actualizando...' : 'Actualizar'}
+          </button>
+        </div>
+      </div>
               <div className={styles.activityList}>
                 {recentActivity.slice(0, 5).map((activity, index) => (
                   <div key={activity.id || index} className={styles.activityItem}>
                     <span className={styles.activityTime}>{activity.timestamp}</span>
                     <span className={styles.activityMessage}>{activity.message}</span>
-                  </div>
+        </div>
                 ))}
-              </div>
-            </div>
-          </div>
-        </main>
       </div>
-    </div>
-  );
-};
+        </div>
+              </div>
+        </main>
+              </div>
+      </div>
+    );
+  };
 
 // Componente principal
 const CashFlowPage: React.FC<CashFlowPageProps> = ({ 
@@ -1086,13 +1051,13 @@ const CashFlowPage: React.FC<CashFlowPageProps> = ({
 
   // Mostrar loading mientras se verifica la sesión
   if (status === 'loading') {
-    return (
+      return (
       <div className={styles.loadingContainer}>
-        <div className={styles.loadingSpinner}></div>
+              <div className={styles.loadingSpinner}></div>
         <p>Cargando...</p>
-      </div>
-    );
-  }
+        </div>
+      );
+    }
 
   return (
     <>
@@ -1108,20 +1073,20 @@ const CashFlowPage: React.FC<CashFlowPageProps> = ({
       </Head>
 
       <div className={styles.pageContainer}>
-        <Navbar />
-        
+      <Navbar />
+      
         {isSubscribed ? (
           <SubscriberView />
         ) : (
           <NonSubscriberView 
-            metrics={metrics}
-            historicalAlerts={historicalAlerts}
+            metrics={metrics} 
+            historicalAlerts={historicalAlerts} 
             alertExamples={alertExamples}
             faqs={faqs}
           />
         )}
-        
-        <Footer />
+
+      <Footer />
       </div>
     </>
   );
@@ -1131,8 +1096,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
   
   let isSubscribed = false;
-  
-  if (session?.user?.email) {
+    
+    if (session?.user?.email) {
     try {
       const response = await fetch(`${process.env.NEXTAUTH_URL}/api/user/subscriptions`, {
         headers: {
