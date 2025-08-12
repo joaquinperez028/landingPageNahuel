@@ -108,7 +108,7 @@ function getRenewalUrl(service: string): string {
     'SmartMoney': 'https://lozanonahuel.vercel.app/alertas/smart-money',
     'CashFlow': 'https://lozanonahuel.vercel.app/alertas/cash-flow',
     'SwingTrading': 'https://lozanonahuel.vercel.app/entrenamientos/swing-trading',
-    'DowJones': 'https://lozanonahuel.vercel.app/entrenamientos/advanced'
+    'DayTrading': 'https://lozanonahuel.vercel.app/entrenamientos/day-trading'
   };
   
   return serviceUrls[service] || 'https://lozanonahuel.vercel.app';

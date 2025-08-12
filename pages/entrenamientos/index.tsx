@@ -328,9 +328,9 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
                                       Swing Trading
                   <ArrowRight size={20} />
                 </Link>
-                <Link href="/entrenamientos/advanced" className={styles.ctaButton}>
+                <Link href="/entrenamientos/day-trading" className={styles.ctaButton}>
                   <TrendingUp size={20} />
-                  Dow Jones Avanzado
+                  Day Trading Avanzado
                   <ArrowRight size={20} />
                 </Link>
               </div>
@@ -370,26 +370,26 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       badge: 'Más Popular'
     },
     {
-      id: 'advanced-strategies',
-      title: 'Dow Jones',
-      subtitle: 'Estrategias Avanzadas de Trading',
-      description: 'Programa especializado para traders con experiencia. Estrategias avanzadas, algoritmos, trading cuantitativo y técnicas institucionales para maximizar rendimientos.',
-      level: 'Avanzado - Experto',
-      duration: '60 horas',
-      lessons: 120,
-      students: 350,
+      id: 'day-trading',
+      title: 'Day Trading',
+      subtitle: 'Estrategias Avanzadas de Trading Intradía',
+      description: 'Domina el arte del Day Trading con estrategias profesionales. Aprende técnicas avanzadas de trading intradía, scalping, gestión de riesgo y psicología del trader.',
+      level: 'Intermedio - Avanzado',
+      duration: '45 horas',
+      lessons: 85,
+      students: 500,
       rating: 4.9,
-      price: '$599 USD',
+      price: '$997 USD',
       features: [
-        'Estrategias algorítmicas',
-        'Trading cuantitativo',
-        'Técnicas institucionales',
-        'Backtesting avanzado',
-        'Mentoría personalizada',
+        'Estrategias de scalping profesionales',
+        'Análisis técnico avanzado',
+        'Gestión de riesgo especializada',
+        'Psicología del day trading',
+        'Clases en vivo semanales',
         'Acceso de por vida'
       ],
-      href: '/entrenamientos/advanced',
-      image: '/entrenamientos/advanced-strategies.jpg',
+      href: '/entrenamientos/day-trading',
+      image: '/entrenamientos/day-trading.jpg',
       badge: 'Nuevo'
     }
   ];

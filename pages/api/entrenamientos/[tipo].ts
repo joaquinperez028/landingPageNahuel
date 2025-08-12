@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     const { tipo } = req.query;
 
-    if (!tipo || !['SwingTrading', 'DowJones'].includes(tipo as string)) {
+    if (!tipo || !['SwingTrading', 'DowJones', 'DayTrading'].includes(tipo as string)) {
       return res.status(400).json({ error: 'Tipo de entrenamiento inválido' });
     }
 
@@ -68,6 +68,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           contenido: {
             modulos: 16,
             lecciones: 120,
+            certificacion: true,
+            nivelAcceso: 'Avanzado'
+          },
+          solicitudes: [],
+          horarios: [],
+          activo: true
+        },
+        DayTrading: {
+          tipo: 'DayTrading',
+          nombre: 'Day Trading - Estrategias Avanzadas',
+          descripcion: 'Domina el arte del Day Trading con estrategias profesionales y técnicas avanzadas de trading intradía.',
+          videoMux: 'day-trading-intro',
+          precio: 997,
+          duracion: 45,
+          metricas: {
+            rentabilidad: 250,
+            estudiantesActivos: 500,
+            entrenamientosRealizados: 150,
+            satisfaccion: 4.9
+          },
+          contenido: {
+            modulos: 12,
+            lecciones: 85,
             certificacion: true,
             nivelAcceso: 'Avanzado'
           },
@@ -153,6 +176,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           topics: ["Modelos matemáticos", "Estadística avanzada", "Machine learning", "Risk modeling"],
           description: "Análisis cuantitativo avanzado para decisiones profesionales"
         }
+      ],
+      DayTrading: [
+        {
+          module: 1,
+          title: "Fundamentos del Day Trading",
+          duration: "4 horas",
+          lessons: 12,
+          topics: ["Conceptos básicos", "Mercados y horarios", "Plataformas de trading", "Tipos de órdenes"],
+          description: "Establece las bases sólidas para tu carrera como day trader"
+        },
+        {
+          module: 2,
+          title: "Análisis Técnico Avanzado",
+          duration: "5 horas",
+          lessons: 15,
+          topics: ["Patrones de velas", "Soportes y resistencias", "Indicadores técnicos", "Volume profile"],
+          description: "Domina las herramientas de análisis técnico más efectivas"
+        },
+        {
+          module: 3,
+          title: "Estrategias de Scalping",
+          duration: "4 horas",
+          lessons: 13,
+          topics: ["Scalping básico", "M1 y M5 timeframes", "Order flow", "High frequency trading"],
+          description: "Técnicas de scalping para ganancias rápidas y consistentes"
+        },
+        {
+          module: 4,
+          title: "Gestión de Riesgo",
+          duration: "3 horas",
+          lessons: 10,
+          topics: ["Position sizing", "Stop loss dinámico", "Risk/reward ratio", "Drawdown management"],
+          description: "Protege tu capital con estrategias profesionales de gestión de riesgo"
+        },
+        {
+          module: 5,
+          title: "Psicología del Day Trading",
+          duration: "3 horas",
+          lessons: 8,
+          topics: ["Control emocional", "Disciplina", "FOMO y revenge trading", "Mindset ganador"],
+          description: "Desarrolla la mentalidad correcta para ser un trader exitoso"
+        }
       ]
     };
 
@@ -192,6 +257,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           rating: 5,
           image: generateCircularAvatarDataURL("María López", "#f59e0b", "#ffffff", 80),
           results: "Gestión de $2M+ exitosa"
+        }
+      ],
+      DayTrading: [
+        {
+          name: "Diego Ramírez",
+          role: "Day Trader Profesional",
+          content: "El programa me enseñó a ser consistente en el day trading. Ahora genero ingresos diarios estables.",
+          rating: 5,
+          image: generateCircularAvatarDataURL("Diego Ramírez", "#ef4444", "#ffffff", 80),
+          results: "+180% en 6 meses"
+        },
+        {
+          name: "Sofía Torres",
+          role: "Trader Independiente",
+          content: "Las estrategias de scalping cambiaron mi vida. Pude dejar mi trabajo y vivir del trading.",
+          rating: 5,
+          image: generateCircularAvatarDataURL("Sofía Torres", "#06b6d4", "#ffffff", 80),
+          results: "$5,000 USD/mes"
+        },
+        {
+          name: "Andrés Vega",
+          role: "Ex-Ingeniero",
+          content: "La gestión de riesgo que enseñan es increíble. Nunca más tuve pérdidas devastadoras.",
+          rating: 5,
+          image: generateCircularAvatarDataURL("Andrés Vega", "#84cc16", "#ffffff", 80),
+          results: "Drawdown máximo 5%"
         }
       ]
     };

@@ -70,7 +70,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
       href: '/entrenamientos',
       dropdown: [
         { label: 'Swing Trading', href: '/entrenamientos/swing-trading' },
-        { label: 'Dow Jones', href: '/entrenamientos/advanced' },
+        { label: 'Day Trading', href: '/entrenamientos/day-trading' },
       ],
     },
     {
