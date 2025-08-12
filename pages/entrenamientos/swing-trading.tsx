@@ -345,24 +345,42 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
           const schedulesData = await schedulesResponse.json();
           
           if (schedulesData.schedules && schedulesData.schedules.length > 0) {
+            // Log para debugging
+            console.log('📅 Schedules data received:', schedulesData.schedules);
+            
             // Convertir horarios a fechas de entrenamiento
             const now = new Date();
-            const currentWeek = getWeekStart(now);
             
             dates = schedulesData.schedules.flatMap((schedule: any) => {
               const trainingDates: TrainingDate[] = [];
               
               // Generar las próximas 8 semanas de clases basadas en el horario
               for (let week = 0; week < 8; week++) {
-                const weekStart = new Date(currentWeek);
-                weekStart.setDate(weekStart.getDate() + (week * 7));
+                // Calcular la fecha de la clase para esta semana
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
                 
-                const classDate = new Date(weekStart);
-                classDate.setDate(classDate.getDate() + schedule.dayOfWeek);
+                // Encontrar el próximo día de la semana que coincida con el horario
+                let daysUntilNext = schedule.dayOfWeek - today.getDay();
+                if (daysUntilNext <= 0) {
+                  daysUntilNext += 7; // Si ya pasó esta semana, ir a la siguiente
+                }
+                
+                const classDate = new Date(today);
+                classDate.setDate(today.getDate() + daysUntilNext + (week * 7));
                 classDate.setHours(schedule.hour, schedule.minute, 0, 0);
                 
                 // Solo agregar fechas futuras
                 if (classDate > now) {
+                  // Log para debugging del schedule específico
+                  console.log('📋 Processing schedule:', {
+                    scheduleId: schedule._id,
+                    dayOfWeek: schedule.dayOfWeek,
+                    trainingName: schedule.trainingName,
+                    type: schedule.type,
+                    classDate: classDate.toISOString()
+                  });
+                  
                   trainingDates.push({
                     id: `schedule-${schedule._id}-week-${week}`,
                     date: classDate,
