@@ -3,6 +3,7 @@ import { verifyAdminAccess } from '@/lib/adminAuth';
 import dbConnect from '@/lib/mongodb';
 import Training from '@/models/Training';
 import { z } from 'zod';
+import { createTrainingScheduleNotification } from '@/lib/trainingNotifications';
 
 // Schema de validación para crear horarios de entrenamiento
 const createTrainingScheduleSchema = z.object({
@@ -162,6 +163,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await training.save();
 
       console.log('✅ Horario de entrenamiento creado exitosamente');
+
+      // ✅ NUEVO: Crear notificación de nuevo horario
+      try {
+        const trainingName = training.nombre;
+        
+        await createTrainingScheduleNotification(
+          training.tipo,
+          trainingName,
+          {
+            dayOfWeek: scheduleData.dayOfWeek,
+            hour: scheduleData.hour,
+            minute: scheduleData.minute,
+            duration: scheduleData.duration,
+            price: scheduleData.price
+          }
+        );
+
+        console.log('✅ Notificación de nuevo horario creada exitosamente');
+      } catch (notificationError) {
+        console.error('❌ Error al crear notificación de horario:', notificationError);
+        // No fallar la creación del horario si las notificaciones fallan
+      }
+
       return res.status(201).json({ 
         schedule: {
           ...newSchedule,

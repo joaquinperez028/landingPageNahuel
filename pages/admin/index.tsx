@@ -92,6 +92,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       icon: <BarChart3 size={32} />,
       href: '/admin/reportes',
       color: '#06b6d4'
+    },
+    {
+      title: 'Pruebas de Notificaciones',
+      description: 'Verifica que el sistema de notificaciones de entrenamientos funcione correctamente',
+      icon: <Bell size={32} />,
+      href: '/admin/test-training-notifications',
+      color: '#f97316'
     }
   ];
 

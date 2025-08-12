@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/googleAuth';
 import connectDB from '@/lib/mongodb';
 import User, { IUser } from '@/models/User';
 import { z } from 'zod';
+import { createTrainingEnrollmentNotification } from '@/lib/trainingNotifications';
 
 // Schema de validación para inscripción
 const inscripcionSchema = z.object({
@@ -124,6 +125,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       tipo: datosValidados.tipo,
       transactionId
     });
+
+    // ✅ NUEVO: Crear notificaciones de inscripción
+    try {
+      const trainingName = datosValidados.tipo === 'SwingTrading' ? 'Swing Trading' : 'Dow Jones Advanced';
+      
+      await createTrainingEnrollmentNotification(
+        usuario.email,
+        usuario.name || datosValidados.nombre,
+        datosValidados.tipo,
+        trainingName,
+        precio
+      );
+
+      console.log('✅ Notificaciones de inscripción creadas exitosamente');
+    } catch (notificationError) {
+      console.error('❌ Error al crear notificaciones de inscripción:', notificationError);
+      // No fallar la inscripción si las notificaciones fallan
+    }
 
     // Respuesta exitosa
     return res.status(200).json({
