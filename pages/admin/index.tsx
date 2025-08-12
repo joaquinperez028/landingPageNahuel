@@ -18,7 +18,8 @@ import {
   BookOpen,
   Map,
   Bell,
-  BarChart
+  BarChart,
+  Shield
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -99,6 +100,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       icon: <Bell size={32} />,
       href: '/admin/test-training-notifications',
       color: '#f97316'
+    },
+    {
+      title: 'Debug de Sesión',
+      description: 'Información detallada sobre el estado de la sesión y permisos',
+      icon: <Shield size={32} />,
+      href: '/admin/debug-session',
+      color: '#8b5cf6'
     }
   ];
 

@@ -38,12 +38,15 @@ const TestTrainingNotifications: React.FC = () => {
     );
   }
 
-  if (!session?.user?.email || !session.user.email.includes('admin')) {
+  if (!session?.user?.email || session.user.role !== 'admin') {
     return (
       <div className={styles.errorContainer}>
         <AlertCircle size={40} color="#ef4444" />
         <h2>Acceso Denegado</h2>
         <p>Solo los administradores pueden acceder a esta página.</p>
+        <p style={{ fontSize: '0.9rem', opacity: 0.8, marginTop: '0.5rem' }}>
+          Tu rol actual: {session?.user?.role || 'No definido'}
+        </p>
         <button 
           onClick={() => router.push('/')}
           className={styles.primaryButton}
