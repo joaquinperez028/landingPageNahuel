@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './ClassCalendar.module.css';
 
 interface ClassEvent {
-  date: number;
+  date: Date; // Cambio: ahora es una fecha completa en lugar de solo el día
   time: string;
   title: string;
   id: string;
@@ -51,7 +51,13 @@ const ClassCalendar: React.FC<ClassCalendarProps> = ({
   };
 
   const getEventsForDate = (day: number) => {
-    return events.filter(event => event.date === day);
+    // Comparar fechas completas: año, mes y día
+    return events.filter(event => {
+      const eventDate = new Date(event.date);
+      return eventDate.getDate() === day && 
+             eventDate.getMonth() === currentDate.getMonth() && 
+             eventDate.getFullYear() === currentDate.getFullYear();
+    });
   };
 
   const handleDateClick = (day: number) => {

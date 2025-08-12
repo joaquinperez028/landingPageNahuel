@@ -34,7 +34,7 @@ const CalendarSection: React.FC<CalendarSectionProps> = ({
         >
           <ClassCalendar
             events={trainingDates.map(trainingDate => ({
-              date: trainingDate.date.getDate(),
+              date: trainingDate.date,
               time: `${trainingDate.time}hs`,
               title: trainingDate.title,
               id: trainingDate.id
