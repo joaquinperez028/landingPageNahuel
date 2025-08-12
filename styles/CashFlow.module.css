@@ -5731,6 +5731,17 @@
   transform: scale(1.2);
 }
 
+/* Espaciado extra debajo del bloque de Preguntas Frecuentes */
+.faqSection {
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 768px) {
+  .faqSection {
+    margin-bottom: 2rem;
+  }
+}
+
 /* Responsive para CTA y YouTube */
 @media (max-width: 768px) {
   .ctaInvestmentSection {
