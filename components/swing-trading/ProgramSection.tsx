@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Clock } from 'lucide-react';
-import styles from '@/styles/SwingTrading.module.css';
+import styles from '../../styles/SwingTrading.module.css';
 
 interface TrainingData {
   contenido: {

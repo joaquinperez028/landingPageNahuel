@@ -10,20 +10,20 @@ import { Loader } from 'lucide-react';
 import styles from '@/styles/SwingTrading.module.css';
 
 // Importar componentes optimizados
-import HeroSection from '@/components/swing-trading/HeroSection';
-import InfoCardsSection from '@/components/swing-trading/InfoCardsSection';
-import RoadmapSection from '@/components/swing-trading/RoadmapSection';
-import MetricsSection from '@/components/swing-trading/MetricsSection';
-import CalendarSection from '@/components/swing-trading/CalendarSection';
-import TestimonialsSection from '@/components/swing-trading/TestimonialsSection';
-import ProgramSection from '@/components/swing-trading/ProgramSection';
-import CTASection from '@/components/swing-trading/CTASection';
-import EnrollmentModal from '@/components/swing-trading/EnrollmentModal';
+import HeroSection from '../../components/swing-trading/HeroSection';
+import InfoCardsSection from '../../components/swing-trading/InfoCardsSection';
+import RoadmapSection from '../../components/swing-trading/RoadmapSection';
+import MetricsSection from '../../components/swing-trading/MetricsSection';
+import CalendarSection from '../../components/swing-trading/CalendarSection';
+import TestimonialsSection from '../../components/swing-trading/TestimonialsSection';
+import ProgramSection from '../../components/swing-trading/ProgramSection';
+import CTASection from '../../components/swing-trading/CTASection';
+import EnrollmentModal from '../../components/swing-trading/EnrollmentModal';
 
 // Hooks personalizados
-import { useSwingTradingData } from '@/hooks/useSwingTradingData';
-import { useEnrollment } from '@/hooks/useEnrollment';
-import { useTrainingDates } from '@/hooks/useTrainingDates';
+import { useSwingTradingData } from '../../hooks/useSwingTradingData';
+import { useEnrollment } from '../../hooks/useEnrollment';
+import { useTrainingDates } from '../../hooks/useTrainingDates';
 
 interface TrainingData {
   tipo: string;

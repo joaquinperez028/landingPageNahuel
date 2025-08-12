@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '@/styles/SwingTrading.module.css';
+import styles from '../../styles/SwingTrading.module.css';
 
 interface FormData {
   nombre: string;

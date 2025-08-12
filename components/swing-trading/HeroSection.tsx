@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { PlayCircle, Loader } from 'lucide-react';
-import styles from '@/styles/SwingTrading.module.css';
+import styles from '../../styles/SwingTrading.module.css';
 
 interface TrainingData {
   tipo: string;

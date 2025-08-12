@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import styles from '@/styles/SwingTrading.module.css';
+import styles from '../../styles/SwingTrading.module.css';
 
 const InfoCardsSection: React.FC = () => {
   return (

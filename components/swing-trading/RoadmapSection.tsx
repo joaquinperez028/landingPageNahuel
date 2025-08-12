@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Loader } from 'lucide-react';
-import TrainingRoadmap from '@/components/TrainingRoadmap';
-import styles from '@/styles/SwingTrading.module.css';
+import TrainingRoadmap from '../TrainingRoadmap';
+import styles from '../../styles/SwingTrading.module.css';
 
 interface RoadmapModule {
   id: number;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import ClassCalendar from '@/components/ClassCalendar';
-import styles from '@/styles/SwingTrading.module.css';
+import ClassCalendar from '../ClassCalendar';
+import styles from '../../styles/SwingTrading.module.css';
 
 interface TrainingDate {
   id: string;
