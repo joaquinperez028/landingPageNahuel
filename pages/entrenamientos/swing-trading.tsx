@@ -18,6 +18,7 @@ import CalendarSection from '../../components/swing-trading/CalendarSection';
 import TestimonialsSection from '../../components/swing-trading/TestimonialsSection';
 import ProgramSection from '../../components/swing-trading/ProgramSection';
 import CTASection from '../../components/swing-trading/CTASection';
+import FAQSection from '../../components/swing-trading/FAQSection';
 import EnrollmentModal from '../../components/swing-trading/EnrollmentModal';
 
 // Hooks personalizados
@@ -171,6 +172,9 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
 
         {/* Program Section */}
         <ProgramSection training={training} program={program} />
+
+        {/* FAQ Section */}
+        <FAQSection />
 
         {/* CTA Section */}
         <CTASection

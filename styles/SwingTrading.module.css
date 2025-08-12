@@ -705,12 +705,122 @@
   transform: none;
 }
 
+/* FAQ Section */
+.faqSection {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #8B0000 0%, #A52A2A 50%, #8B0000 100%);
+  position: relative;
+  z-index: 2;
+}
+
+.faqSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(139, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.faqTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 2;
+}
+
+.faqDescription {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.faqContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.faqCard {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.faqCard:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.faqQuestion {
+  width: 100%;
+  padding: 1.5rem 2rem;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.faqQuestion:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.faqQuestionText {
+  flex: 1;
+  margin-right: 1rem;
+  line-height: 1.4;
+}
+
+.faqIcon {
+  color: #FFD700;
+  transition: transform 0.3s ease;
+}
+
+.faqAnswer {
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.faqAnswerContent {
+  padding: 1.5rem 2rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  line-height: 1.6;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* Info Cards Section */
 .infoCardsSection {
   padding: 4rem 0;
   position: relative;
   z-index: 2;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #8B0000 0%, #A52A2A 50%, #8B0000 100%);
   background-attachment: fixed;
 }
 
@@ -721,7 +831,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(139, 0, 0, 0.3);
   z-index: 1;
 }
 
@@ -737,13 +847,22 @@
 }
 
 .infoCard {
-  background: linear-gradient(135deg, #8B0000 0%, #A52A2A 50%, #8B0000 100%);
-  border: 2px solid #4169E1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
   padding: 2.5rem 2rem;
   color: white;
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.infoCard:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .infoCard::before {
@@ -846,6 +965,31 @@
     font-size: 0.9rem;
     margin-bottom: 1rem;
   }
+  
+  /* FAQ Responsive */
+  .faqSection {
+    padding: 3rem 0;
+  }
+  
+  .faqTitle {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .faqDescription {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .faqQuestion {
+    padding: 1.25rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .faqAnswerContent {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.95rem;
+  }
 }
 
 /* Roadmap Section */
@@ -859,24 +1003,45 @@
 /* Calendar Section */
 .calendarSection {
   padding: 4rem 0;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #8B0000 0%, #A52A2A 50%, #8B0000 100%);
   position: relative;
   z-index: 2;
+}
+
+.calendarSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(139, 0, 0, 0.3);
+  z-index: 1;
 }
 
 /* Testimonials Section */
 .testimonialsSection {
   padding: 4rem 0;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #8B0000 0%, #A52A2A 50%, #8B0000 100%);
   position: relative;
   z-index: 2;
 }
 
+.testimonialsSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(139, 0, 0, 0.3);
+  z-index: 1;
+}
+
 /* Testimonials Card - Similar to Hero Card */
 .testimonialsCard {
-  background: linear-gradient(135deg, rgba(139, 69, 19, 0.9), rgba(165, 42, 42, 0.9));
-  border: 3px solid;
-  border-image: linear-gradient(135deg, #8b5cf6, #06b6d4) 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   padding: 3rem 2rem;
   color: white;
@@ -886,6 +1051,7 @@
   max-width: 900px;
   margin: 0 auto 3rem auto;
   text-align: center;
+  z-index: 2;
 }
 
 /* Testimonials Header - Similar to Hero */
@@ -917,11 +1083,11 @@
 }
 
 .testimonialsButton {
-  background: rgba(139, 69, 19, 0.8);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  border: none;
   border-radius: 12px;
   padding: 1rem 2.5rem;
-  color: white;
+  color: #8B0000;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
@@ -930,10 +1096,8 @@
 }
 
 .testimonialsButton:hover {
-  background: rgba(139, 69, 19, 1);
-  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
 }
 
 /* Nuevo contenedor para testimonios horizontales separado */
