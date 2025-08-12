@@ -10,7 +10,7 @@ const createTrainingScheduleSchema = z.object({
   hour: z.number().min(0).max(23),
   minute: z.number().min(0).max(59).default(0),
   duration: z.number().min(60).max(240).default(90), // 1-4 horas por sesión
-  type: z.enum(['TradingFundamentals', 'DowJones']),
+  type: z.enum(['SwingTrading', 'DowJones']),
   price: z.number().min(0),
   maxBookingsPerDay: z.number().min(1).max(5).default(2), // Máximo 2 estudiantes por día
   activo: z.boolean().default(true)
@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       // Buscar entrenamientos activos
       const filter: any = { activo: true };
-      if (type && ['TradingFundamentals', 'DowJones'].includes(type as string)) {
+      if (type && ['SwingTrading', 'DowJones'].includes(type as string)) {
         filter.tipo = type;
       }
 
@@ -105,16 +105,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Crear entrenamiento básico si no existe
         training = new Training({
           tipo: scheduleData.type,
-          nombre: scheduleData.type === 'TradingFundamentals' 
-            ? 'Trading Fundamentals' 
+          nombre: scheduleData.type === 'SwingTrading' 
+            ? 'Swing Trading' 
             : 'Dow Jones Advanced',
-          descripcion: scheduleData.type === 'TradingFundamentals'
-            ? 'Entrenamiento completo de trading desde cero'
+          descripcion: scheduleData.type === 'SwingTrading'
+            ? 'Entrenamiento completo de Swing Trading desde cero'
             : 'Estrategias avanzadas de trading profesional',
           precio: scheduleData.price,
           duracion: scheduleData.duration,
           metricas: {
-            rentabilidad: scheduleData.type === 'TradingFundamentals' ? 120 : 180,
+            rentabilidad: scheduleData.type === 'SwingTrading' ? 120 : 180,
             estudiantesActivos: 0,
             entrenamientosRealizados: 0,
             satisfaccion: 5.0
@@ -122,10 +122,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           solicitudes: [],
           horarios: [],
           contenido: {
-            modulos: scheduleData.type === 'TradingFundamentals' ? 12 : 16,
-            lecciones: scheduleData.type === 'TradingFundamentals' ? 85 : 120,
+            modulos: scheduleData.type === 'SwingTrading' ? 12 : 16,
+            lecciones: scheduleData.type === 'SwingTrading' ? 85 : 120,
             certificacion: true,
-            nivelAcceso: scheduleData.type === 'TradingFundamentals' ? 'Básico' : 'Avanzado'
+            nivelAcceso: scheduleData.type === 'SwingTrading' ? 'Básico' : 'Avanzado'
           },
           activo: true
         });
