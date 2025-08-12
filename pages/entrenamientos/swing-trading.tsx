@@ -83,6 +83,15 @@ interface RoadmapModule {
   activo: boolean;
 }
 
+interface TrainingDate {
+  id: string;
+  date: Date;
+  time: string;
+  title: string;
+  isActive: boolean;
+  createdBy: string;
+}
+
 interface TradingPageProps {
   training: TrainingData;
   program: ProgramModule[];
@@ -122,6 +131,11 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
     minutes: 0
   });
   const [startDateText, setStartDateText] = useState('11 de octubre a las 13 hs');
+  
+  // Estados para gestión de fechas de entrenamiento
+  const [trainingDates, setTrainingDates] = useState<TrainingDate[]>([]);
+  const [nextTrainingDate, setNextTrainingDate] = useState<TrainingDate | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Función para calcular el countdown basado en la fecha de inicio
   const calculateCountdown = (startDate: Date, startTime: string) => {
@@ -161,42 +175,36 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
     fetchRoadmaps();
   }, []);
 
-  // Countdown timer dinámico
+  // Cargar fechas de entrenamiento y verificar admin
   useEffect(() => {
-    const updateCountdown = async () => {
-      try {
-        // Obtener configuración del sitio
-        const response = await fetch('/api/site-config');
-        const data = await response.json();
+    loadTrainingDates();
+    
+    // Verificar si el usuario es admin
+    if (session?.user?.email) {
+      setIsAdmin(session.user.email === 'joaquinperez028@gmail.com' || session.user.email === 'franco.l.varela99@gmail.com');
+    }
+  }, [session]);
+
+  // Countdown timer dinámico basado en la próxima fecha de entrenamiento
+  useEffect(() => {
+    const updateCountdown = () => {
+      if (nextTrainingDate) {
+        const newCountdown = calculateCountdown(nextTrainingDate.date, nextTrainingDate.time);
+        setCountdown(newCountdown);
         
-        if (data.trainingStartDates?.swingTrading?.enabled) {
-          const { startDate, startTime } = data.trainingStartDates.swingTrading;
-          const newCountdown = calculateCountdown(new Date(startDate), startTime);
-          setCountdown(newCountdown);
-          
-          // Actualizar texto de fecha de inicio
-          const date = new Date(startDate);
-          const formattedDate = date.toLocaleDateString('es-ES', {
-            day: 'numeric',
-            month: 'long'
-          });
-          setStartDateText(`${formattedDate} a las ${startTime} hs`);
-        } else {
-          // Fallback a valores por defecto si no hay configuración
-          const defaultDate = new Date('2024-10-11T13:00:00.000Z');
-          const defaultTime = '13:00';
-          const newCountdown = calculateCountdown(defaultDate, defaultTime);
-          setCountdown(newCountdown);
-          setStartDateText('11 de octubre a las 13 hs');
-        }
-      } catch (error) {
-        console.error('Error al obtener configuración del countdown:', error);
-        // Fallback a valores por defecto
+        // Actualizar texto de fecha de inicio
+        const formattedDate = nextTrainingDate.date.toLocaleDateString('es-ES', {
+          day: 'numeric',
+          month: 'long'
+        });
+        setStartDateText(`${formattedDate} a las ${nextTrainingDate.time} hs`);
+      } else {
+        // Fallback si no hay próxima fecha
         const defaultDate = new Date('2024-10-11T13:00:00.000Z');
         const defaultTime = '13:00';
         const newCountdown = calculateCountdown(defaultDate, defaultTime);
         setCountdown(newCountdown);
-        setStartDateText('11 de octubre a las 13 hs');
+        setStartDateText('Próximamente - Fechas por confirmar');
       }
     };
 
@@ -207,7 +215,22 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
     const timer = setInterval(updateCountdown, 60000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [nextTrainingDate]);
+
+  // Efecto para actualizar la próxima fecha cuando pasa el tiempo
+  useEffect(() => {
+    const checkForNextDate = () => {
+      const nextDate = findNextTrainingDate(trainingDates);
+      if (nextDate !== nextTrainingDate) {
+        setNextTrainingDate(nextDate);
+      }
+    };
+
+    // Verificar cada hora si hay que actualizar la próxima fecha
+    const timer = setInterval(checkForNextDate, 3600000); // 1 hora
+
+    return () => clearInterval(timer);
+  }, [trainingDates, nextTrainingDate]);
 
   const fetchRoadmaps = async () => {
     try {
@@ -274,6 +297,129 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
       console.error('Error checking enrollment:', error);
     } finally {
       setCheckingEnrollment(false);
+    }
+  };
+
+  // Función para encontrar la próxima fecha de entrenamiento
+  const findNextTrainingDate = (dates: TrainingDate[]): TrainingDate | null => {
+    const now = new Date();
+    const futureDates = dates
+      .filter(date => date.isActive && date.date > now)
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+    
+    return futureDates.length > 0 ? futureDates[0] : null;
+  };
+
+  // Función para cargar fechas de entrenamiento
+  const loadTrainingDates = async () => {
+    try {
+      const response = await fetch('/api/training-dates/SwingTrading');
+      const data = await response.json();
+      
+      if (data.success) {
+        const dates = data.dates.map((date: any) => ({
+          ...date,
+          date: new Date(date.date)
+        }));
+        
+        setTrainingDates(dates);
+        const nextDate = findNextTrainingDate(dates);
+        setNextTrainingDate(nextDate);
+        
+        // Actualizar el countdown y texto de fecha
+        if (nextDate) {
+          const dateOptions: Intl.DateTimeFormatOptions = { 
+            day: 'numeric', 
+            month: 'long' 
+          };
+          const formattedDate = nextDate.date.toLocaleDateString('es-ES', dateOptions);
+          setStartDateText(`${formattedDate} a las ${nextDate.time}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading training dates:', error);
+      // Usar fechas por defecto si hay error
+      const defaultDates: TrainingDate[] = [
+        {
+          id: 'default-1',
+          date: new Date(2024, 9, 11), // 11 de octubre
+          time: '13:00',
+          title: 'Clase 1',
+          isActive: true,
+          createdBy: 'system'
+        },
+        {
+          id: 'default-2', 
+          date: new Date(2024, 9, 18), // 18 de octubre
+          time: '13:00',
+          title: 'Clase 2',
+          isActive: true,
+          createdBy: 'system'
+        },
+        {
+          id: 'default-3',
+          date: new Date(2024, 9, 25), // 25 de octubre
+          time: '13:00', 
+          title: 'Clase 3',
+          isActive: true,
+          createdBy: 'system'
+        }
+      ];
+      
+      setTrainingDates(defaultDates);
+      const nextDate = findNextTrainingDate(defaultDates);
+      setNextTrainingDate(nextDate);
+    }
+  };
+
+  // Función para que el admin agregue una nueva fecha
+  const handleAddTrainingDate = async (date: Date, time: string, title: string) => {
+    if (!isAdmin) return;
+
+    const newDate: TrainingDate = {
+      id: `training-${Date.now()}`,
+      date,
+      time,
+      title,
+      isActive: true,
+      createdBy: session?.user?.email || 'admin'
+    };
+
+    try {
+      const response = await fetch('/api/training-dates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          trainingType: 'SwingTrading',
+          ...newDate
+        })
+      });
+
+      if (response.ok) {
+        const updatedDates = [...trainingDates, newDate];
+        setTrainingDates(updatedDates);
+        
+        const nextDate = findNextTrainingDate(updatedDates);
+        setNextTrainingDate(nextDate);
+        
+        toast.success('Fecha de entrenamiento agregada exitosamente');
+      }
+    } catch (error) {
+      console.error('Error adding training date:', error);
+      toast.error('Error al agregar la fecha');
+    }
+  };
+
+  // Función para manejar selección de fechas en el calendario
+  const handleCalendarDateSelect = (selectedDate: Date, existingEvents: any[]) => {
+    if (!isAdmin) return;
+
+    // Mostrar modal o form para agregar nueva fecha
+    const time = prompt('Ingrese la hora (formato HH:MM):', '13:00');
+    const title = prompt('Ingrese el título de la clase:', `Clase ${trainingDates.length + 1}`);
+    
+    if (time && title) {
+      handleAddTrainingDate(selectedDate, time, title);
     }
   };
 
@@ -863,30 +1009,14 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
               transition={{ duration: 0.8 }}
             >
               <ClassCalendar
-                events={[
-                  {
-                    date: 11,
-                    time: '13:00hs',
-                    title: 'Clase 1',
-                    id: 'clase-1'
-                  },
-                  {
-                    date: 18,
-                    time: '13:00hs', 
-                    title: 'Clase 2',
-                    id: 'clase-2'
-                  },
-                  {
-                    date: 25,
-                    time: '13:00hs',
-                    title: 'Clase 3', 
-                    id: 'clase-3'
-                  }
-                ]}
-                isAdmin={false}
-                onDateSelect={(date, events) => {
-                  console.log('Fecha seleccionada:', date, events);
-                }}
+                events={trainingDates.map(trainingDate => ({
+                  date: trainingDate.date.getDate(),
+                  time: `${trainingDate.time}hs`,
+                  title: trainingDate.title,
+                  id: trainingDate.id
+                }))}
+                isAdmin={isAdmin}
+                onDateSelect={handleCalendarDateSelect}
               />
             </motion.div>
           </div>
