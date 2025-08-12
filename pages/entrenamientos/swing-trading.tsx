@@ -318,154 +318,49 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
     return new Date(d.setDate(diff));
   };
 
-  // Función para cargar fechas de entrenamiento
+  // Función para cargar fechas de entrenamiento (simplificada)
   const loadTrainingDates = async () => {
     try {
-      // Primero intentar cargar desde training-dates
-      let dates: TrainingDate[] = [];
+      console.log('📅 Cargando fechas específicas de Swing Trading...');
       
-      try {
-        const trainingDatesResponse = await fetch('/api/training-dates/SwingTrading');
-        const trainingDatesData = await trainingDatesResponse.json();
+      const response = await fetch('/api/training-dates/SwingTrading');
+      const data = await response.json();
+      
+      if (data.success && data.dates) {
+        const dates = data.dates.map((date: any) => ({
+          ...date,
+          date: new Date(date.date)
+        }));
         
-        if (trainingDatesData.success && trainingDatesData.dates.length > 0) {
-          dates = trainingDatesData.dates.map((date: any) => ({
-            ...date,
-            date: new Date(date.date)
-          }));
+        console.log('✅ Fechas cargadas:', dates.length);
+        
+        setTrainingDates(dates);
+        const nextDate = findNextTrainingDate(dates);
+        setNextTrainingDate(nextDate);
+        
+        // Actualizar el countdown y texto de fecha
+        if (nextDate) {
+          const dateOptions: Intl.DateTimeFormatOptions = { 
+            day: 'numeric', 
+            month: 'long' 
+          };
+          const formattedDate = nextDate.date.toLocaleDateString('es-ES', dateOptions);
+          setStartDateText(`${formattedDate} a las ${nextDate.time} hs`);
+        } else {
+          setStartDateText('Próximamente - Fechas por confirmar');
         }
-      } catch (error) {
-        console.log('No training dates found, checking schedules...');
-      }
-      
-      // Si no hay training-dates, cargar desde entrenamientos/schedule
-      if (dates.length === 0) {
-        try {
-          const schedulesResponse = await fetch('/api/entrenamientos/schedule?type=SwingTrading');
-          const schedulesData = await schedulesResponse.json();
-          
-          if (schedulesData.schedules && schedulesData.schedules.length > 0) {
-            // Log para debugging
-            console.log('📅 Schedules data received:', schedulesData.schedules);
-            
-            // Convertir horarios a fechas de entrenamiento
-            const now = new Date();
-            
-            dates = schedulesData.schedules.flatMap((schedule: any) => {
-              const trainingDates: TrainingDate[] = [];
-              
-              // Generar las próximas 8 semanas de clases basadas en el horario
-              for (let week = 0; week < 8; week++) {
-                // Calcular la fecha de la clase para esta semana
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                // Encontrar el próximo día de la semana que coincida con el horario
-                let daysUntilNext = schedule.dayOfWeek - today.getDay();
-                if (daysUntilNext <= 0) {
-                  daysUntilNext += 7; // Si ya pasó esta semana, ir a la siguiente
-                }
-                
-                const classDate = new Date(today);
-                classDate.setDate(today.getDate() + daysUntilNext + (week * 7));
-                classDate.setHours(schedule.hour, schedule.minute, 0, 0);
-                
-                // Solo agregar fechas futuras
-                if (classDate > now) {
-                  // Log para debugging del schedule específico
-                  console.log('📋 Processing schedule:', {
-                    scheduleId: schedule._id,
-                    dayOfWeek: schedule.dayOfWeek,
-                    trainingName: schedule.trainingName,
-                    type: schedule.type,
-                    classDate: classDate.toISOString()
-                  });
-                  
-                  trainingDates.push({
-                    id: `schedule-${schedule._id}-week-${week}`,
-                    date: classDate,
-                    time: `${schedule.hour.toString().padStart(2, '0')}:${schedule.minute.toString().padStart(2, '0')}`,
-                    title: `Clase de ${schedule.trainingName || 'Swing Trading'}`,
-                    isActive: true,
-                    createdBy: 'schedule-system'
-                  });
-                }
-              }
-              
-              return trainingDates;
-            });
-            
-            // Ordenar por fecha
-            dates.sort((a, b) => a.date.getTime() - b.date.getTime());
-          }
-        } catch (error) {
-          console.log('No schedules found either, using defaults...');
-        }
-      }
-      
-      // Si aún no hay fechas, usar las por defecto
-      if (dates.length === 0) {
-        dates = [
-          {
-            id: 'default-1',
-            date: new Date(2024, 9, 11), // 11 de octubre
-            time: '13:00',
-            title: 'Clase 1',
-            isActive: true,
-            createdBy: 'system'
-          },
-          {
-            id: 'default-2', 
-            date: new Date(2024, 9, 18), // 18 de octubre
-            time: '13:00',
-            title: 'Clase 2',
-            isActive: true,
-            createdBy: 'system'
-          },
-          {
-            id: 'default-3',
-            date: new Date(2024, 9, 25), // 25 de octubre
-            time: '13:00', 
-            title: 'Clase 3',
-            isActive: true,
-            createdBy: 'system'
-          }
-        ];
-      }
-      
-      setTrainingDates(dates);
-      const nextDate = findNextTrainingDate(dates);
-      setNextTrainingDate(nextDate);
-      
-      // Actualizar el countdown y texto de fecha
-      if (nextDate) {
-        const dateOptions: Intl.DateTimeFormatOptions = { 
-          day: 'numeric', 
-          month: 'long' 
-        };
-        const formattedDate = nextDate.date.toLocaleDateString('es-ES', dateOptions);
-        setStartDateText(`${formattedDate} a las ${nextDate.time} hs`);
       } else {
+        console.log('📭 No hay fechas específicas configuradas');
+        setTrainingDates([]);
+        setNextTrainingDate(null);
         setStartDateText('Próximamente - Fechas por confirmar');
       }
       
     } catch (error) {
-      console.error('Error loading training dates:', error);
-      // Fallback a fechas por defecto
-      const defaultDates: TrainingDate[] = [
-        {
-          id: 'default-1',
-          date: new Date(2024, 9, 11),
-          time: '13:00',
-          title: 'Clase 1',
-          isActive: true,
-          createdBy: 'system'
-        }
-      ];
-      
-      setTrainingDates(defaultDates);
-      const nextDate = findNextTrainingDate(defaultDates);
-      setNextTrainingDate(nextDate);
+      console.error('❌ Error cargando fechas:', error);
+      setTrainingDates([]);
+      setNextTrainingDate(null);
+      setStartDateText('Próximamente - Fechas por confirmar');
     }
   };
 

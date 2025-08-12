@@ -14,10 +14,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return await handleGet(req, res, trainingType as string);
     } else if (req.method === 'POST') {
       return await handlePost(req, res, trainingType as string);
+    } else if (req.method === 'PUT') {
+      return await handlePut(req, res, trainingType as string);
     } else if (req.method === 'DELETE') {
       return await handleDelete(req, res, trainingType as string);
     } else {
-      res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
+      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
       return res.status(405).json({ 
         success: false, 
         error: `Método ${req.method} no permitido` 
@@ -110,6 +112,68 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse, trainingTyp
   }
 }
 
+// PUT /api/training-dates/[trainingType] - Actualizar fecha de entrenamiento (solo admin)
+async function handlePut(req: NextApiRequest, res: NextApiResponse, trainingType: string) {
+  try {
+    const session = await getServerSession(req, res, authOptions);
+    
+    if (!session?.user?.email) {
+      return res.status(401).json({
+        success: false,
+        error: 'No autorizado'
+      });
+    }
+
+    // Verificar si es admin
+    const adminEmails = ['joaquinperez028@gmail.com', 'franco.l.varela99@gmail.com'];
+    if (!adminEmails.includes(session.user.email)) {
+      return res.status(403).json({
+        success: false,
+        error: 'Permisos insuficientes'
+      });
+    }
+
+    const { id, date, time, title } = req.body;
+
+    if (!id || !date || !time || !title) {
+      return res.status(400).json({
+        success: false,
+        error: 'Campos requeridos: id, date, time, title'
+      });
+    }
+
+    const updatedTrainingDate = await TrainingDate.findByIdAndUpdate(
+      id,
+      {
+        date: new Date(date),
+        time,
+        title,
+        updatedAt: new Date()
+      },
+      { new: true }
+    );
+
+    if (!updatedTrainingDate) {
+      return res.status(404).json({
+        success: false,
+        error: 'Fecha de entrenamiento no encontrada'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: updatedTrainingDate,
+      message: 'Fecha de entrenamiento actualizada exitosamente'
+    });
+  } catch (error) {
+    console.error('Error actualizando fecha de entrenamiento:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Error al actualizar fecha de entrenamiento'
+    });
+  }
+}
+
 // DELETE /api/training-dates/[trainingType] - Eliminar fecha de entrenamiento (solo admin)
 async function handleDelete(req: NextApiRequest, res: NextApiResponse, trainingType: string) {
   try {
@@ -131,16 +195,16 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse, trainingT
       });
     }
 
-    const { dateId } = req.body;
+    const { id } = req.body;
 
-    if (!dateId) {
+    if (!id) {
       return res.status(400).json({
         success: false,
         error: 'ID de fecha requerido'
       });
     }
 
-    await TrainingDate.findByIdAndUpdate(dateId, {
+    await TrainingDate.findByIdAndUpdate(id, {
       isActive: false,
       updatedAt: new Date()
     });
