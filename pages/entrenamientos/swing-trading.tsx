@@ -139,7 +139,7 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
 
   // Estados para el carrusel de testimonios
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
-  const testimonials = [
+  const carouselTestimonials = [
     {
       initial: 'C',
       name: 'Carlos Mendoza',
@@ -550,13 +550,13 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
   // Funciones para el carrusel de testimonios
   const nextTestimonial = () => {
     setCurrentTestimonialIndex((prev) => 
-      prev === testimonials.length - 1 ? 0 : prev + 1
+      prev === carouselTestimonials.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevTestimonial = () => {
     setCurrentTestimonialIndex((prev) => 
-      prev === 0 ? testimonials.length - 1 : prev - 1
+      prev === 0 ? carouselTestimonials.length - 1 : prev - 1
     );
   };
 
@@ -1143,7 +1143,7 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
                   className={styles.testimonialsSlider}
                   style={{ transform: `translateX(-${currentTestimonialIndex * 100}%)` }}
                 >
-                  {testimonials.map((testimonial, index) => (
+                  {carouselTestimonials.map((testimonial, index) => (
                     <div key={index} className={styles.testimonialSlide}>
                       <div className={styles.testimonialHorizontalItem}>
                         <div 
