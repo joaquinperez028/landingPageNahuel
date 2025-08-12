@@ -1018,17 +1018,18 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
         <section className={styles.testimonialsSection}>
           <div className={styles.container}>
             <motion.div
+              className={styles.testimonialsCard}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
-              <div className={styles.testimonialsContainer}>
-                <div className={styles.testimonialCard}>
+              <div className={styles.testimonialsContent}>
+                <div className={styles.testimonialItem}>
                   <div className={styles.testimonialAvatar}>
                     <span className={styles.testimonialInitial}>C</span>
                   </div>
-                  <div className={styles.testimonialContent}>
+                  <div className={styles.testimonialInfo}>
                     <h4 className={styles.testimonialName}>Carlos Mendoza</h4>
                     <div className={styles.testimonialRating}>
                       {[...Array(5)].map((_, i) => (
@@ -1041,11 +1042,11 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
                   </div>
                 </div>
 
-                <div className={styles.testimonialCard}>
+                <div className={styles.testimonialItem}>
                   <div className={styles.testimonialAvatar} style={{backgroundColor: '#ef4444'}}>
                     <span className={styles.testimonialInitial}>A</span>
                   </div>
-                  <div className={styles.testimonialContent}>
+                  <div className={styles.testimonialInfo}>
                     <h4 className={styles.testimonialName}>Ana Laura Quiroga</h4>
                     <div className={styles.testimonialRating}>
                       {[...Array(5)].map((_, i) => (
@@ -1058,11 +1059,11 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
                   </div>
                 </div>
 
-                <div className={styles.testimonialCard}>
+                <div className={styles.testimonialItem}>
                   <div className={styles.testimonialAvatar} style={{backgroundColor: '#22c55e'}}>
                     <span className={styles.testimonialInitial}>T</span>
                   </div>
-                  <div className={styles.testimonialContent}>
+                  <div className={styles.testimonialInfo}>
                     <h4 className={styles.testimonialName}>Tamara Rodriguez</h4>
                     <div className={styles.testimonialRating}>
                       {[...Array(5)].map((_, i) => (
