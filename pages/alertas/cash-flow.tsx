@@ -248,50 +248,50 @@ const NonSubscriberView: React.FC<{
 
       {/* Métricas - Sección independiente para ocupar todo el ancho */}
       <section className={styles.metricsSection}>
-          <div className={styles.metricsGrid}>
-            <motion.div 
-              className={styles.metricCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
+        <div className={styles.metricsGrid}>
+          <motion.div 
+            className={styles.metricCard}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+          >
             <h3 className={styles.metricNumber}>+700</h3>
             <p className={styles.metricLabel}>USUARIOS ACTIVOS</p>
-            </motion.div>
+          </motion.div>
 
-            <motion.div 
-              className={styles.metricCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
+          <motion.div 
+            className={styles.metricCard}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
             <h3 className={styles.metricNumber}>+87%</h3> 
             <p className={styles.metricLabel}>RENTABILIDAD ANUAL</p>
-            </motion.div>
+          </motion.div>
 
-            <motion.div 
-              className={styles.metricCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
+          <motion.div 
+            className={styles.metricCard}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
             <h3 className={styles.metricNumber}>+200</h3>
             <p className={styles.metricLabel}>ALERTAS ENVIADAS</p>
-            </motion.div>
+          </motion.div>
 
-            <motion.div 
-              className={styles.metricCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-            >
+          <motion.div 
+            className={styles.metricCard}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+          >
             <h3 className={styles.metricNumber}>+79%</h3>
             <p className={styles.metricLabel}>EFECTIVIDAD</p>
-            </motion.div>
+          </motion.div>
         </div>
       </section>
 

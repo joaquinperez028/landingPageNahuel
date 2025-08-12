@@ -113,7 +113,11 @@
 /* Sección de Métricas */
 .metricsSection {
   padding: 4rem 0;
-  background: var(--bg-secondary);
+  background: #0f766e; /* Fondo teal sólido como en la imagen */
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sectionTitle {
@@ -135,9 +139,11 @@
 
 .metricsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  max-width: 1200px;
+  width: 100%;
+  padding: 0 2rem;
 }
 
 /* Métricas principales modernizadas */
@@ -997,19 +1003,21 @@
 }
 
 .metricCard {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
-  padding: 28px;
+  background: #0f766e; /* Mismo color teal que el fondo */
+  border-radius: 16px;
+  padding: 2rem;
   text-align: center;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  transform-style: preserve-3d;
+  transition: all 0.3s ease;
+  /* Efecto glassmorphism con sombras sutiles */
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  /* Borde sutil con efecto de resplandor */
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .metricCard::before {
@@ -1019,37 +1027,23 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
   opacity: 0;
-  transition: opacity 0.4s ease;
-  border-radius: 24px;
+  transition: opacity 0.3s ease;
+  border-radius: 16px;
 }
 
 .metricCard:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-2px);
   box-shadow: 
-    0 32px 64px -12px rgba(59, 130, 246, 0.25),
-    0 0 0 1px rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.3);
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .metricCard:hover::before {
-  opacity: 1;
-}
-
-.metricCard::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.8), transparent);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-
-.metricCard:hover::after {
   opacity: 1;
 }
 
@@ -1111,23 +1105,67 @@
 }
 
 .metricNumber {
-  font-size: 2.75rem;
-  font-weight: 900;
-  color: #f1f5f9;
-  margin-bottom: 8px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
   line-height: 1;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .metricLabel {
-  font-size: 0.8rem;
-  color: #94a3b8;
-  font-weight: 500;
-  opacity: 0.9;
+  font-size: 0.875rem;
+  color: #d1d5db;
+  font-weight: 400;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive para métricas */
+@media (max-width: 1024px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+  
+  .metricCard {
+    padding: 1.5rem;
+  }
+  
+  .metricNumber {
+    font-size: 2rem;
+  }
+  
+  .metricLabel {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+  
+  .metricsSection {
+    padding: 2rem 0;
+    min-height: auto;
+  }
+  
+  .metricCard {
+    padding: 1.25rem;
+  }
+  
+  .metricNumber {
+    font-size: 1.75rem;
+  }
+  
+  .metricLabel {
+    font-size: 0.7rem;
+  }
 }
 
 /* Activity and Chart Sections */
