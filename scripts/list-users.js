@@ -28,7 +28,7 @@ const UserSchema = new mongoose.Schema({
     default: 'normal'
   },
   phone: String,
-  address: String,
+  address: String, 
   tarjetas: [{
     numeroEnmascarado: String,
     tipo: String,
