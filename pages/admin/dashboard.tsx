@@ -175,7 +175,7 @@ const useDashboardSections = () => {
       color: 'from-indigo-500 to-purple-500',
       links: [
         { label: 'Horarios Asesorías', href: '/admin/asesorias-horarios', icon: <Clock size={16} /> },
-        { label: 'Horarios Entrenamientos', href: '/admin/entrenamientos-horarios', icon: <Calendar size={16} /> },
+        { label: 'Horarios Entrenamientos', href: '/admin/entrenamientos-fechas', icon: <Calendar size={16} /> },
         { label: 'Enviar Link de Reunión', href: '/admin/horarios', icon: <Settings size={16} /> }
       ]
     },
