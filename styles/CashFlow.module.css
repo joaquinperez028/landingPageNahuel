@@ -2641,7 +2641,96 @@
     transform: rotate(360deg);
   }
 }
-  
+
+/* --- Overrides: Métricas idénticas a Trader Call --- */
+.metricsSection {
+  width: 100%;
+  background: #0f766e;
+  padding: 4rem 0;
+  margin: 0;
+  position: relative;
+}
+
+.metricsGrid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0f766e;
+  padding: 0 2rem;
+  margin: 0;
+  width: 100%;
+  border-radius: 0;
+  position: relative;
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2rem 1.5rem;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0 1rem;
+  transition: all 0.3s ease;
+}
+
+.metricCard:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.metricNumber {
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.metricLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+  opacity: 0.95;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .metricsSection {
+    padding: 2rem 0;
+  }
+
+  .metricsGrid {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .metricCard {
+    flex-direction: row;
+    gap: 1rem;
+    width: 100%;
+    margin: 0;
+    padding: 1.5rem 1rem;
+  }
+
+  .metricNumber {
+    font-size: 2.5rem;
+  }
+
+  .metricLabel {
+    font-size: 0.8rem;
+  }
+}
   .emptyChat {
     padding: 1.5rem;
   }
