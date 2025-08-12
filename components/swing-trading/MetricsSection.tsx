@@ -19,7 +19,7 @@ interface MetricsSectionProps {
 const MetricsSection: React.FC<MetricsSectionProps> = ({ training }) => {
   return (
     <section className={styles.metricsSection}>
-      <div className={styles.container}>
+      <div className={styles.container} style={{ position: 'relative', zIndex: 2 }}>
         <motion.h2 
           className={styles.sectionTitle}
           initial={{ opacity: 0 }}

@@ -155,9 +155,9 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
         {/* Calendar Section */}
         <CalendarSection
           trainingDates={trainingDates}
-          isAdmin={isAdmin}
-          onDateSelect={handleCalendarDateSelect}
-        />
+                isAdmin={isAdmin}
+                onDateSelect={handleCalendarDateSelect}
+              />
 
         {/* Testimonials Section */}
         <TestimonialsSection

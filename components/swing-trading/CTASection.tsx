@@ -25,7 +25,7 @@ const CTASection: React.FC<CTASectionProps> = ({
 }) => {
   return (
     <section className={styles.ctaSection}>
-      <div className={styles.container}>
+      <div className={styles.container} style={{ position: 'relative', zIndex: 2 }}>
         <motion.div 
           className={styles.ctaContent}
           initial={{ opacity: 0, y: 30 }}

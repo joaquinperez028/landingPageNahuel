@@ -78,7 +78,7 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
 
   return (
     <section className={styles.testimonialsSection}>
-      <div className={styles.container}>
+      <div className={styles.container} style={{ position: 'relative', zIndex: 2 }}>
         <motion.div
           className={styles.testimonialsCard}
           initial={{ opacity: 0, y: 30 }}
