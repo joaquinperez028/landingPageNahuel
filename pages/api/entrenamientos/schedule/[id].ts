@@ -181,8 +181,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(404).json({ error: 'Horario de entrenamiento no encontrado' });
       }
 
-      // Eliminar el horario
-      training.horarios.id(id).remove();
+      // Eliminar el horario usando pull para mayor compatibilidad
+      training.horarios.pull({ _id: id });
       await training.save();
 
       console.log('✅ Horario eliminado exitosamente');
@@ -190,7 +190,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     } catch (error) {
       console.error('❌ Error al eliminar horario:', error);
-      return res.status(500).json({ error: 'Error al eliminar el horario' });
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        scheduleId: id
+      });
+      return res.status(500).json({ 
+        error: 'Error al eliminar el horario',
+        details: error instanceof Error ? error.message : 'Error desconocido'
+      });
     }
   }
 
