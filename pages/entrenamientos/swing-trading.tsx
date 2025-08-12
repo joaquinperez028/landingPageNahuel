@@ -1014,6 +1014,85 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
           </div>
         </section>
 
+        {/* Testimonios */}
+        <section className={styles.testimonialsSection}>
+          <div className={styles.container}>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className={styles.testimonialsContainer}>
+                <div className={styles.testimonialCard}>
+                  <div className={styles.testimonialAvatar}>
+                    <span className={styles.testimonialInitial}>C</span>
+                  </div>
+                  <div className={styles.testimonialContent}>
+                    <h4 className={styles.testimonialName}>Carlos Mendoza</h4>
+                    <div className={styles.testimonialRating}>
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={16} className={styles.testimonialStar} />
+                      ))}
+                    </div>
+                    <p className={styles.testimonialText}>
+                      "Las alertas de Nahuel me han ayudado a incrementar mi cuenta un 25% en los últimos 6 meses."
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.testimonialCard}>
+                  <div className={styles.testimonialAvatar} style={{backgroundColor: '#ef4444'}}>
+                    <span className={styles.testimonialInitial}>A</span>
+                  </div>
+                  <div className={styles.testimonialContent}>
+                    <h4 className={styles.testimonialName}>Ana Laura Quiroga</h4>
+                    <div className={styles.testimonialRating}>
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={16} className={styles.testimonialStar} />
+                      ))}
+                    </div>
+                    <p className={styles.testimonialText}>
+                      "Los cursos de análisis técnico son realmente muy buenos y didácticos. 100% recomendables!"
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.testimonialCard}>
+                  <div className={styles.testimonialAvatar} style={{backgroundColor: '#22c55e'}}>
+                    <span className={styles.testimonialInitial}>T</span>
+                  </div>
+                  <div className={styles.testimonialContent}>
+                    <h4 className={styles.testimonialName}>Tamara Rodriguez</h4>
+                    <div className={styles.testimonialRating}>
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={16} className={styles.testimonialStar} />
+                      ))}
+                    </div>
+                    <p className={styles.testimonialText}>
+                      "Las recomendaciones que brindan en las asesorías a 1 a 1 son muy buenas. Estoy muy conforme"
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation arrows */}
+              <div className={styles.testimonialsNavigation}>
+                <button className={styles.testimonialNavButton}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <button className={styles.testimonialNavButton}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Programa Detallado */}
         <section className={styles.programSection}>
           <div className={styles.container}>
