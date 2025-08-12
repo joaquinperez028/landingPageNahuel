@@ -1196,18 +1196,50 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const defaultFaqs: FAQ[] = [
     {
       id: '1',
-      question: '¿Qué es Cash Flow?',
-      answer: 'Cash Flow es un servicio de alertas de trading especializado en estrategias de corto plazo para inversiones en CEDEARs y acciones. Proporcionamos señales de compra y venta con análisis detallado y seguimiento activo.',
+      question: '¿Qué es SMART MONEY?',
+      answer: 'es un servicio de suscripción de alertas mediano/largo plazo, donde buscaremos detectar activos que se encuentren subvaluados en el mercado para poder sacarle rendimientos. este servicio tiene como finalidad encontrar oportunidades en el mercado de aquellos activos financieros que se precie de tener un rendimiento potencial significativo en el largo plazo. con este servicio podrás armar de forma fácil y práctica una cartera de inversión profesional que obtenga rentabilidades constantes y crecientes a lo largo del tiempo, sin la necesidad de asumir un riesgo muy elevado. ideal para inversores pacientes y que opten por un plazo de inversión más largo.',
       category: 'cash-flow',
       order: 1,
       visible: true
     },
     {
       id: '2',
-      question: '¿Cómo funcionan las alertas?',
-      answer: 'Recibirás notificaciones en tiempo real con señales de compra o venta, incluyendo precio de entrada, stop loss, take profit y análisis técnico detallado.',
+      question: '¿Como funcionan los informes de mercado?',
+      answer: 'los informes y seguimiento de la cartera de inversión se realizan mediante un canal privado de telegram donde detallamos los principales datos financieros de la semana y qué activos identificamos como oportunidad. la publicación de los informes es de modalidad semanal los días viernes entre las 18 y las 22 hs. se responderán consultas y dudas de los suscriptores en un lapso no mayor a 48hs. en cada informe se presentarán los principales datos financieros de la semana y se realizará un repaso del estado actual de todos los activos en cartera, detallando su estado actual. los activos seleccionados están rigurosamente analizados y tienen como horizonte de inversión entre unos pocos meses hasta incluso varios años. al momento de encontrar una oportunidad de mercado, se pasará una alerta de inversión y se añadirá a la cartera del servicio, detallando fecha, precio, objetivos y fundamentos de la inversión. el análisis, las alertas y el seguimiento se realiza sobre el activo que cotiza en usa, en dólares. pero esto no presenta ningun inconveniente en realizar operaciones en cedears contra pesos y en argentina. esto permite que puedas ingresar en cada alerta con menor cantidad de dinero y en pesos, ya que los cedears cotizan tanto en pesos como en dólares y tienen un ratio de conversión que facilita el acceso a inversores con menor capital inicial. de hecho, el servicio contempla la inversión en cedears y en pesos como la preferible ya que suele haber mucho más volumen de operaciones en el mercado local en esa moneda. cada alerta de compra tiene asignado un nivel de riesgo propio, que contempla tanto el riesgo del contexto general de mercado, como del riesgo particular de cada activo. este servicio no tiene vínculo alguno con brokers de bolsa argentinos o internacionales, por lo que dicha estrategia puede ser aplicada por los inversores en cualquier cuenta de inversiones, independientemente del broker o intermediario que utilice.',
       category: 'cash-flow',
       order: 2,
+      visible: true
+    },
+    {
+      id: '3',
+      question: '¿Las alertas tienen vencimiento?',
+      answer: 'si, tanto las alertas de compra como de venta tienen una semana de vencimiento. esto se debe a que el análisis realizado del activo y del contexto en general cambia constantemente, siguiendo el desarrollo del mercado. en cada informe detallamos a qué activos, de los que ya tuvieron alertas de compra con fechas anteriores, se puede ingresar a la semana siguiente en el caso que hubiera alguno.',
+      category: 'cash-flow',
+      order: 3,
+      visible: true
+    },
+    {
+      id: '4',
+      question: '¿cuánto dinero hay que invertir?',
+      answer: 'no hay un mínimo de dinero con el que tengas que comenzar, pero una suma recomendable sería el equivalente a u$d 1.000.-',
+      category: 'cash-flow',
+      order: 4,
+      visible: true
+    },
+    {
+      id: '5',
+      question: '¿Como son los pagos de la suscripción?',
+      answer: 'los cobros de mercado pago son automáticos. todos los 1ro de mes, se debitará del método de pago asociado el importe de la suscripción con la referencia "smartmoney". se debitará el prorrateo correspondiente de los días del mes en curso hasta llegar al primer día del mes siguiente. esto quiere decir que el primer cobro de la suscripción puede ser menor al valor del mes entero, ya que corresponden al prorrateo de días. luego de hecho el primer pago, todos los 1ro de cada mes, se debitará el valor total de la suscripción. cabe destacar, que son días corridos y no días hábiles. importante: tenga a bien contar con los fondos suficientes en el método de pago seleccionado en las fechas de cobro a para no tener inconvenientes con el estado de su suscripción. es oportuno aclarar que en ningún caso se cobrarán comisiones extras a la hora de realizar las operaciones a mercado, ya que no existe vínculo alguno entre el servicio y ningun broker de bolsa argentino o internacional.',
+      category: 'cash-flow',
+      order: 5,
+      visible: true
+    },
+    {
+      id: '6',
+      question: '¿Seguís con dudas?',
+      answer: 'escribime un correo electrónico a la siguiente casilla para resolver las dudas que te puedan surgir: lozanonahuel@gmail.com',
+      category: 'cash-flow',
+      order: 6,
       visible: true
     }
   ];
