@@ -5488,4 +5488,298 @@
     font-size: 0.9rem;
   }
 }
+
+/* CTA Investment Section */
+.ctaInvestmentSection {
+  padding: 6rem 0;
+  background: #1a202c;
+  position: relative;
+}
+
+.ctaInvestmentSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.ctaInvestmentContent {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.ctaInvestmentTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.ctaInvestmentSubtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 3rem;
+  font-weight: 400;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.ctaInvestmentActions {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ctaInvestmentButtonPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: #03dac6;
+  color: #1a202c;
+  text-decoration: none;
+  border: 2px solid #03dac6;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-width: 200px;
+  justify-content: center;
+}
+
+.ctaInvestmentButtonPrimary:hover {
+  background: rgba(3, 218, 198, 0.8);
+  border-color: rgba(3, 218, 198, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(3, 218, 198, 0.3);
+}
+
+.ctaInvestmentButtonSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: #bb86fc;
+  color: #1a202c;
+  text-decoration: none;
+  border: 2px solid #bb86fc;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-width: 200px;
+  justify-content: center;
+}
+
+.ctaInvestmentButtonSecondary:hover {
+  background: #a66ffc;
+  border-color: #a66ffc;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(187, 134, 252, 0.3);
+}
+
+/* YouTube Section */
+.youtubeSection {
+  padding: 6rem 0;
+  background: #4c1d95;
+  position: relative;
+  overflow: hidden;
+}
+
+.youtubeSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.youtubeContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.youtubeText {
+  color: white;
+}
+
+.youtubeTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.youtubeSubtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.youtubeVideoContainer {
+  position: relative;
+}
+
+.youtubeAutoCarousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.youtubeVideoFrame {
+  flex: 1;
+  position: relative;
+}
+
+.youtubeVideoPlayer {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.youtubeArrowLeft,
+.youtubeArrowRight {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  color: #4c1d95;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.youtubeArrowLeft:hover,
+.youtubeArrowRight:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.youtubeArrowLeft {
+  left: -25px;
+}
+
+.youtubeArrowRight {
+  right: -25px;
+}
+
+.youtubeIndicators {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.youtubeIndicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.youtubeIndicator:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.youtubeIndicatorActive {
+  background: white;
+  transform: scale(1.2);
+}
+
+/* Responsive para CTA y YouTube */
+@media (max-width: 768px) {
+  .ctaInvestmentSection {
+    padding: 4rem 0;
+  }
+  
+  .ctaInvestmentTitle {
+    font-size: 2rem;
+  }
+  
+  .ctaInvestmentSubtitle {
+    font-size: 1rem;
+  }
+  
+  .ctaInvestmentActions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .ctaInvestmentButtonPrimary,
+  .ctaInvestmentButtonSecondary {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .youtubeSection {
+    padding: 4rem 0;
+  }
+  
+  .youtubeContent {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  .youtubeTitle {
+    font-size: 2rem;
+  }
+  
+  .youtubeSubtitle {
+    font-size: 1rem;
+  }
+  
+  .youtubeArrowLeft {
+    left: -15px;
+  }
+  
+  .youtubeArrowRight {
+    right: -15px;
+  }
+}
   
