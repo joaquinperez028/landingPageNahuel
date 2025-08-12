@@ -110,15 +110,6 @@
   display: block;
 }
 
-/* Sección de Métricas */
-.metricsSection {
-  width: 100%;
-  background: #0f766e;
-  padding: 4rem 0;
-  margin: 0;
-  position: relative;
-}
-
 .sectionTitle {
   text-align: center;
   font-size: 2.5rem;
@@ -134,19 +125,6 @@
   max-width: 600px;
   margin: 0 auto 3rem;
   line-height: 1.6;
-}
-
-/* Métricas Grid */
-.metricsGrid {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #0f766e;
-  padding: 0 2rem;
-  margin: 0;
-  width: 100%;
-  border-radius: 0;
-  position: relative;
 }
 
 /* Métricas principales modernizadas */
@@ -998,139 +976,7 @@
   border-radius: 2px;
 }
 
-.metricsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px;
-  margin-bottom: 40px;
-}
 
-.metricCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  flex: 1;
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 2rem 1.5rem;
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  margin: 0 1rem;
-  transition: all 0.3s ease;
-}
-
-.metricCard:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
-}
-
-.metricIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 20px;
-  background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
-  border-radius: 20px;
-  color: white;
-  box-shadow: 
-    0 20px 40px rgba(59, 130, 246, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.metricIcon::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  animation: rotateGlow 3s linear infinite;
-}
-
-.metricCard:hover .metricIcon::before {
-  opacity: 1;
-}
-
-@keyframes rotateGlow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.metricCard:hover .metricIcon {
-  transform: scale(1.1);
-  box-shadow: 
-    0 25px 50px rgba(59, 130, 246, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.2);
-}
-
-.metricCard h3 {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #94a3b8;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  position: relative;
-}
-
-.metricNumber {
-  font-size: 3rem;
-  font-weight: 800;
-  margin: 0 0 0.5rem 0;
-  line-height: 1;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.metricLabel {
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin: 0;
-  opacity: 0.95;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  letter-spacing: 0.5px;
-}
-
-/* Responsive para métricas */
-@media (max-width: 768px) {
-  .metricsSection {
-    padding: 2rem 0;
-  }
-  
-  .metricsGrid {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 0 1rem;
-    width: 100%;
-    margin: 0;
-    border-radius: 0;
-  }
-  
-  .metricCard {
-    flex-direction: row;
-    gap: 1rem;
-    width: 100%;
-    margin: 0;
-    padding: 1.5rem 1rem;
-  }
-  
-  .metricNumber {
-    font-size: 2.5rem;
-  }
-  
-  .metricLabel {
-    font-size: 0.8rem;
-  }
-}
 
 /* Activity and Chart Sections */
 .activitySection {
