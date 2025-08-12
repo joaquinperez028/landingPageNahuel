@@ -310,57 +310,136 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
     return futureDates.length > 0 ? futureDates[0] : null;
   };
 
+  // Función auxiliar para obtener el inicio de la semana (domingo)
+  const getWeekStart = (date: Date): Date => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+  };
+
   // Función para cargar fechas de entrenamiento
   const loadTrainingDates = async () => {
     try {
-      const response = await fetch('/api/training-dates/SwingTrading');
-      const data = await response.json();
+      // Primero intentar cargar desde training-dates
+      let dates: TrainingDate[] = [];
       
-      if (data.success) {
-        const dates = data.dates.map((date: any) => ({
-          ...date,
-          date: new Date(date.date)
-        }));
+      try {
+        const trainingDatesResponse = await fetch('/api/training-dates/SwingTrading');
+        const trainingDatesData = await trainingDatesResponse.json();
         
-        setTrainingDates(dates);
-        const nextDate = findNextTrainingDate(dates);
-        setNextTrainingDate(nextDate);
-        
-        // Actualizar el countdown y texto de fecha
-        if (nextDate) {
-          const dateOptions: Intl.DateTimeFormatOptions = { 
-            day: 'numeric', 
-            month: 'long' 
-          };
-          const formattedDate = nextDate.date.toLocaleDateString('es-ES', dateOptions);
-          setStartDateText(`${formattedDate} a las ${nextDate.time}`);
+        if (trainingDatesData.success && trainingDatesData.dates.length > 0) {
+          dates = trainingDatesData.dates.map((date: any) => ({
+            ...date,
+            date: new Date(date.date)
+          }));
+        }
+      } catch (error) {
+        console.log('No training dates found, checking schedules...');
+      }
+      
+      // Si no hay training-dates, cargar desde entrenamientos/schedule
+      if (dates.length === 0) {
+        try {
+          const schedulesResponse = await fetch('/api/entrenamientos/schedule?type=SwingTrading');
+          const schedulesData = await schedulesResponse.json();
+          
+          if (schedulesData.schedules && schedulesData.schedules.length > 0) {
+            // Convertir horarios a fechas de entrenamiento
+            const now = new Date();
+            const currentWeek = getWeekStart(now);
+            
+            dates = schedulesData.schedules.flatMap((schedule: any) => {
+              const trainingDates: TrainingDate[] = [];
+              
+              // Generar las próximas 8 semanas de clases basadas en el horario
+              for (let week = 0; week < 8; week++) {
+                const weekStart = new Date(currentWeek);
+                weekStart.setDate(weekStart.getDate() + (week * 7));
+                
+                const classDate = new Date(weekStart);
+                classDate.setDate(classDate.getDate() + schedule.dayOfWeek);
+                classDate.setHours(schedule.hour, schedule.minute, 0, 0);
+                
+                // Solo agregar fechas futuras
+                if (classDate > now) {
+                  trainingDates.push({
+                    id: `schedule-${schedule._id}-week-${week}`,
+                    date: classDate,
+                    time: `${schedule.hour.toString().padStart(2, '0')}:${schedule.minute.toString().padStart(2, '0')}`,
+                    title: `Clase de ${schedule.trainingName || 'Swing Trading'}`,
+                    isActive: true,
+                    createdBy: 'schedule-system'
+                  });
+                }
+              }
+              
+              return trainingDates;
+            });
+            
+            // Ordenar por fecha
+            dates.sort((a, b) => a.date.getTime() - b.date.getTime());
+          }
+        } catch (error) {
+          console.log('No schedules found either, using defaults...');
         }
       }
+      
+      // Si aún no hay fechas, usar las por defecto
+      if (dates.length === 0) {
+        dates = [
+          {
+            id: 'default-1',
+            date: new Date(2024, 9, 11), // 11 de octubre
+            time: '13:00',
+            title: 'Clase 1',
+            isActive: true,
+            createdBy: 'system'
+          },
+          {
+            id: 'default-2', 
+            date: new Date(2024, 9, 18), // 18 de octubre
+            time: '13:00',
+            title: 'Clase 2',
+            isActive: true,
+            createdBy: 'system'
+          },
+          {
+            id: 'default-3',
+            date: new Date(2024, 9, 25), // 25 de octubre
+            time: '13:00', 
+            title: 'Clase 3',
+            isActive: true,
+            createdBy: 'system'
+          }
+        ];
+      }
+      
+      setTrainingDates(dates);
+      const nextDate = findNextTrainingDate(dates);
+      setNextTrainingDate(nextDate);
+      
+      // Actualizar el countdown y texto de fecha
+      if (nextDate) {
+        const dateOptions: Intl.DateTimeFormatOptions = { 
+          day: 'numeric', 
+          month: 'long' 
+        };
+        const formattedDate = nextDate.date.toLocaleDateString('es-ES', dateOptions);
+        setStartDateText(`${formattedDate} a las ${nextDate.time} hs`);
+      } else {
+        setStartDateText('Próximamente - Fechas por confirmar');
+      }
+      
     } catch (error) {
       console.error('Error loading training dates:', error);
-      // Usar fechas por defecto si hay error
+      // Fallback a fechas por defecto
       const defaultDates: TrainingDate[] = [
         {
           id: 'default-1',
-          date: new Date(2024, 9, 11), // 11 de octubre
+          date: new Date(2024, 9, 11),
           time: '13:00',
           title: 'Clase 1',
-          isActive: true,
-          createdBy: 'system'
-        },
-        {
-          id: 'default-2', 
-          date: new Date(2024, 9, 18), // 18 de octubre
-          time: '13:00',
-          title: 'Clase 2',
-          isActive: true,
-          createdBy: 'system'
-        },
-        {
-          id: 'default-3',
-          date: new Date(2024, 9, 25), // 25 de octubre
-          time: '13:00', 
-          title: 'Clase 3',
           isActive: true,
           createdBy: 'system'
         }
