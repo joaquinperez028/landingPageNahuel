@@ -160,7 +160,21 @@
 
 .videoContainer {
   width: 100%;
-  max-width: 500px;
+  max-width: 900px;
+  aspect-ratio: 16 / 9;
+}
+
+/* Tamaños grandes */
+@media (min-width: 1280px) {
+  .videoContainer {
+    max-width: 1000px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .videoContainer {
+    max-width: 1120px;
+  }
 }
 
 .videoPlayer {

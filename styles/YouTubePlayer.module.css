@@ -8,6 +8,22 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
+/* Asegurar relación 16:9 si el padre define aspect-ratio */
+.playerContainer::before {
+  content: '';
+  display: block;
+  padding-top: 56.25%; /* 16:9 */
+}
+
+.playerContainer > .iframe,
+.playerContainer > iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .iframe {
   width: 100%;
   height: 100%;

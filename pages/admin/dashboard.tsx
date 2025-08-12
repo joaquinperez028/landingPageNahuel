@@ -110,12 +110,12 @@ const useDashboardSections = () => {
     {
       id: 'siteconfig',
       title: 'Configuración del Sitio',
-      description: 'Configura el video principal de YouTube, secciones del landing page y elementos visuales del sitio web.',
+      description: 'Configura todos los videos de YouTube del sitio web, secciones del landing page y elementos visuales.',
       icon: <Settings size={32} />,
       color: 'from-violet-500 to-purple-500',
       links: [
-        { label: 'Configurar Video', href: '/admin/site-config', icon: <Settings size={16} /> },
-        { label: 'Gestionar Secciones', href: '/admin/site-config', icon: <FileText size={16} /> },
+        { label: 'Configuración de Videos', href: '/admin/video-config', icon: <Settings size={16} /> },
+        { label: 'Configuración General', href: '/admin/site-config', icon: <FileText size={16} /> },
         { label: 'Ver Landing', href: '/', icon: <TrendingUp size={16} /> }
       ]
     },
