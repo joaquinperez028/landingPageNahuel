@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           nombre: 'Trading Fundamentals',
           descripcion: 'Programa completo de trading desde cero hasta nivel intermedio con metodología step-by-step',
           videoMux: 'trading-fundamentals-intro',
-          precio: 497,
+          precio: 10,
           duracion: 40,
           metricas: {
             rentabilidad: 120,
@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           nombre: 'Dow Jones - Estrategias Avanzadas',
           descripcion: 'Técnicas institucionales y estrategias avanzadas de trading profesional para traders experimentados',
           videoMux: 'dow-jones-intro',
-          precio: 997,
+          precio: 20,
           duracion: 60,
           metricas: {
             rentabilidad: 180,

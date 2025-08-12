@@ -91,6 +91,11 @@ interface SiteConfig {
       enabled: boolean;
     };
   };
+  // Configuración de precios de entrenamientos
+  trainingPrices: {
+    swingTrading: number;
+    dowJones: number;
+  };
   alertExamples: {
     traderCall: Array<{
       id: string;
@@ -204,7 +209,8 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
 
       console.log('Enviando configuración:', JSON.stringify(configToSend, null, 2));
 
-      const response = await fetch('/api/site-config', {
+      // Guardar configuración del sitio
+      const siteConfigResponse = await fetch('/api/site-config', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -212,12 +218,32 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
         body: JSON.stringify(configToSend),
       });
 
-      if (response.ok) {
+      // Guardar precios de entrenamientos
+      const trainingPricesResponse = await fetch('/api/admin/training-prices', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          swingTrading: config.trainingPrices?.swingTrading || 10,
+          dowJones: config.trainingPrices?.dowJones || 20
+        }),
+      });
+
+      if (siteConfigResponse.ok && trainingPricesResponse.ok) {
         toast.success('Configuración actualizada correctamente');
       } else {
-        const errorData = await response.json();
-        console.error('Error response:', errorData);
-        toast.error(`Error al actualizar la configuración: ${errorData.error || 'Error desconocido'}`);
+        const siteConfigError = await siteConfigResponse.json().catch(() => null);
+        const trainingPricesError = await trainingPricesResponse.json().catch(() => null);
+        
+        console.error('Error responses:', { siteConfigError, trainingPricesError });
+        
+        if (!siteConfigResponse.ok) {
+          toast.error(`Error al actualizar configuración del sitio: ${siteConfigError?.error || 'Error desconocido'}`);
+        }
+        if (!trainingPricesResponse.ok) {
+          toast.error(`Error al actualizar precios de entrenamientos: ${trainingPricesError?.error || 'Error desconocido'}`);
+        }
       }
     } catch (error) {
       console.error('Error:', error);
@@ -423,6 +449,16 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
           ...prev.trainingStartDates[trainingType],
           [field]: value
         }
+      }
+    }));
+  };
+
+  const handleTrainingPriceChange = (trainingType: 'swingTrading' | 'dowJones', price: number) => {
+    setConfig(prev => ({
+      ...prev,
+      trainingPrices: {
+        ...prev.trainingPrices,
+        [trainingType]: price
       }
     }));
   };
@@ -1335,6 +1371,53 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
               </div>
             </div>
 
+            {/* Configuración de Precios de Entrenamientos */}
+            <div className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <BarChart3 size={24} />
+                <h2>Precios de Entrenamientos</h2>
+                <p>Configura los precios en pesos argentinos para cada entrenamiento</p>
+              </div>
+
+              {/* Swing Trading */}
+              <div className={styles.trainingPriceGroup}>
+                <h3>🎯 Swing Trading</h3>
+                <div className={styles.trainingPriceForm}>
+                  <div className={styles.formGroup}>
+                    <label>Precio (ARS)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={config.trainingPrices?.swingTrading ?? 10}
+                      onChange={(e) => handleTrainingPriceChange('swingTrading', Number(e.target.value))}
+                      className={styles.input}
+                      placeholder="10"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Dow Jones */}
+              <div className={styles.trainingPriceGroup}>
+                <h3>📈 Dow Jones</h3>
+                <div className={styles.trainingPriceForm}>
+                  <div className={styles.formGroup}>
+                    <label>Precio (ARS)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={config.trainingPrices?.dowJones ?? 20}
+                      onChange={(e) => handleTrainingPriceChange('dowJones', Number(e.target.value))}
+                      className={styles.input}
+                      placeholder="20"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Configuración de Ejemplos de Alertas */}
             <div className={styles.section}>
               <div className={styles.sectionHeader}>
@@ -2082,6 +2165,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           enabled: true
         }
       },
+      trainingPrices: {
+        swingTrading: 10,
+        dowJones: 20
+      },
       alertExamples: {
         traderCall: [],
         smartMoney: [],
@@ -2094,10 +2181,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const entrenamientosResponse = await fetch(`${process.env.NEXTAUTH_URL}/api/entrenamientos`);
     const entrenamientos = entrenamientosResponse.ok ? await entrenamientosResponse.json() : [];
 
+    // Obtener precios actuales de entrenamientos
+    const trainingPricesResponse = await fetch(`${process.env.NEXTAUTH_URL}/api/admin/training-prices`);
+    const trainingPrices = trainingPricesResponse.ok ? await trainingPricesResponse.json() : { prices: { swingTrading: 10, dowJones: 20 } };
+
+    // Combinar configuración con precios actuales
+    const finalConfig = {
+      ...siteConfig,
+      trainingPrices: trainingPrices.prices
+    };
+
     return {
       props: {
         session: adminCheck.user,
-        initialConfig: siteConfig,
+        initialConfig: finalConfig,
         entrenamientos
       },
     };

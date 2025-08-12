@@ -469,8 +469,8 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
         body: JSON.stringify({
           type: 'training',
           service: 'SwingTrading',
-          amount: 497,
-          currency: 'USD'
+          amount: training.precio,
+          currency: 'ARS'
         }),
       });
 
@@ -1354,7 +1354,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           tipo: 'SwingTrading',
           nombre: 'Swing Trading',
           descripcion: 'Experiencia de aprendizaje premium, personalizada y con acompañamiento constante, donde aprenderás a operar movimientos de varios días o semanas, identificando oportunidades con análisis técnico y estrategias que combinan precisión y paciencia',
-          precio: 497,
+          precio: 10,
           duracion: 40,
           metricas: {
             rentabilidad: '120%',
