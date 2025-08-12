@@ -918,10 +918,7 @@ const DayTradingPage: React.FC<DayTradingPageProps> = ({
                   )}
                 </button>
                 
-                <div className={styles.ctaPriceInfo}>
-                  <span className={styles.ctaPrice}>${training.precio?.toLocaleString() || '997'}</span>
-                  <span className={styles.ctaPriceLabel}>Inversión única - Acceso de por vida</span>
-                </div>
+                {/* Se removió el bloque de precio a pedido del usuario */}
               </div>
             </motion.div>
           </div>

@@ -1053,7 +1053,7 @@
 }
 
 .testimonialsTitle {
-  font-size: 3rem;
+  font-size: 3.25rem;
   font-weight: bold;
   margin-bottom: 1.5rem;
   color: white;
@@ -1105,6 +1105,10 @@
   position: relative;
   width: 100%;
   overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .testimonialsSlider {
@@ -1157,8 +1161,8 @@
 }
 
 .testimonialAvatar {
-  width: 50px;
-  height: 50px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: #6366f1;
   display: flex;
@@ -1843,6 +1847,7 @@
 .indicator:first-child {
   background: white;
   transform: scale(1.2);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.4);
 }
 
 /* Responsive para las nuevas secciones */
