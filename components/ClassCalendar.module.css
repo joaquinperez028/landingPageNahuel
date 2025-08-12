@@ -1,0 +1,250 @@
+/* Calendar Container */
+.calendarContainer {
+  background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+  border-radius: 16px;
+  padding: 0;
+  margin: 2rem 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Header */
+.calendarHeader {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.calendarTitle {
+  color: #FFFFFF;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+/* Content */
+.calendarContent {
+  padding: 2rem;
+}
+
+/* Month Navigation */
+.monthNavigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.navButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #FFFFFF;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.monthTitle {
+  color: #FFFFFF;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Calendar Grid */
+.calendarGrid {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dayHeaders {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.dayHeader {
+  padding: 1rem 0.5rem;
+  text-align: center;
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 0.8rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dayHeader:last-child {
+  border-right: none;
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+/* Calendar Days */
+.calendarDay {
+  min-height: 80px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.5rem;
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s ease;
+}
+
+.calendarDay:nth-child(7n) {
+  border-right: none;
+}
+
+.calendarDay:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.adminMode {
+  cursor: pointer;
+}
+
+.adminMode:hover {
+  background: rgba(187, 134, 252, 0.1);
+  border-color: rgba(187, 134, 252, 0.3);
+}
+
+.emptyDay {
+  min-height: 80px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.emptyDay:nth-child(7n) {
+  border-right: none;
+}
+
+.dayNumber {
+  color: #FFFFFF;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Events */
+.hasEvents {
+  background: rgba(139, 0, 0, 0.2);
+}
+
+.eventsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.eventItem {
+  background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  color: #FFFFFF;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.eventTime {
+  font-weight: 600;
+  font-size: 0.65rem;
+}
+
+.eventTitle {
+  font-weight: 400;
+  font-size: 0.65rem;
+  margin-top: 0.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .calendarContainer {
+    margin: 1rem;
+    border-radius: 12px;
+  }
+
+  .calendarContent {
+    padding: 1rem;
+  }
+
+  .calendarHeader {
+    padding: 1rem;
+  }
+
+  .calendarTitle {
+    font-size: 1.2rem;
+  }
+
+  .monthTitle {
+    font-size: 1.1rem;
+  }
+
+  .dayHeader {
+    padding: 0.75rem 0.25rem;
+    font-size: 0.7rem;
+  }
+
+  .calendarDay {
+    min-height: 60px;
+    padding: 0.25rem;
+  }
+
+  .dayNumber {
+    font-size: 0.8rem;
+  }
+
+  .eventItem {
+    padding: 0.2rem 0.3rem;
+    font-size: 0.6rem;
+  }
+
+  .eventTime,
+  .eventTitle {
+    font-size: 0.55rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendarContainer {
+    margin: 0.5rem;
+  }
+
+  .dayHeader {
+    padding: 0.5rem 0.1rem;
+    font-size: 0.6rem;
+  }
+
+  .calendarDay {
+    min-height: 50px;
+  }
+
+  .monthNavigation {
+    margin-bottom: 1rem;
+  }
+
+  .navButton {
+    padding: 0.4rem;
+  }
+}

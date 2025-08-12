@@ -9,6 +9,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
 import TrainingRoadmap from '@/components/TrainingRoadmap';
+import ClassCalendar from '@/components/ClassCalendar';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -848,6 +849,45 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
                   </p>
                 </div>
               )}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Calendario de Clases */}
+        <section className={styles.calendarSection}>
+          <div className={styles.container}>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <ClassCalendar
+                events={[
+                  {
+                    date: 11,
+                    time: '13:00hs',
+                    title: 'Clase 1',
+                    id: 'clase-1'
+                  },
+                  {
+                    date: 18,
+                    time: '13:00hs', 
+                    title: 'Clase 2',
+                    id: 'clase-2'
+                  },
+                  {
+                    date: 25,
+                    time: '13:00hs',
+                    title: 'Clase 3', 
+                    id: 'clase-3'
+                  }
+                ]}
+                isAdmin={false}
+                onDateSelect={(date, events) => {
+                  console.log('Fecha seleccionada:', date, events);
+                }}
+              />
             </motion.div>
           </div>
         </section>
