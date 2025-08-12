@@ -1061,63 +1061,10 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
                     </>
                   ) : (
                     <>
-                      Inscribirse Ahora &gt;
+                      Inscribirme Ahora &gt;
                     </>
                   )}
                 </button>
-              </div>
-
-              <div className={styles.testimonialsHorizontalContent}>
-                <div className={styles.testimonialHorizontalItem}>
-                  <div className={styles.testimonialAvatar}>
-                    <span className={styles.testimonialInitial}>C</span>
-                  </div>
-                  <div className={styles.testimonialVerticalInfo}>
-                    <h4 className={styles.testimonialName}>Carlos Mendoza</h4>
-                    <div className={styles.testimonialRating}>
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={16} className={styles.testimonialStar} />
-                      ))}
-                    </div>
-                    <p className={styles.testimonialText}>
-                      "Las alertas de Nahuel me han ayudado a incrementar mi cuenta un 25% en los últimos 6 meses."
-                    </p>
-                  </div>
-                </div>
-
-                <div className={styles.testimonialHorizontalItem}>
-                  <div className={styles.testimonialAvatar} style={{backgroundColor: '#ef4444'}}>
-                    <span className={styles.testimonialInitial}>A</span>
-                  </div>
-                  <div className={styles.testimonialVerticalInfo}>
-                    <h4 className={styles.testimonialName}>Ana Laura Quiroga</h4>
-                    <div className={styles.testimonialRating}>
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={16} className={styles.testimonialStar} />
-                      ))}
-                    </div>
-                    <p className={styles.testimonialText}>
-                      "Los cursos de análisis técnico son realmente muy buenos y didácticos. 100% recomendables!"
-                    </p>
-                  </div>
-                </div>
-
-                <div className={styles.testimonialHorizontalItem}>
-                  <div className={styles.testimonialAvatar} style={{backgroundColor: '#22c55e'}}>
-                    <span className={styles.testimonialInitial}>T</span>
-                  </div>
-                  <div className={styles.testimonialVerticalInfo}>
-                    <h4 className={styles.testimonialName}>Tamara Rodriguez</h4>
-                    <div className={styles.testimonialRating}>
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={16} className={styles.testimonialStar} />
-                      ))}
-                    </div>
-                    <p className={styles.testimonialText}>
-                      "Las recomendaciones que brindan en las asesorías a 1 a 1 son muy buenas. Estoy muy conforme"
-                    </p>
-                  </div>
-                </div>
               </div>
 
               {/* Navigation arrows */}
@@ -1132,6 +1079,66 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
                     <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </button>
+              </div>
+            </motion.div>
+            
+            {/* Testimonios horizontales debajo del card principal */}
+            <motion.div
+              className={styles.testimonialsHorizontalContainer}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <div className={styles.testimonialHorizontalItem}>
+                <div className={styles.testimonialAvatar}>
+                  <span className={styles.testimonialInitial}>C</span>
+                </div>
+                <div className={styles.testimonialVerticalInfo}>
+                  <h4 className={styles.testimonialName}>Carlos Mendoza</h4>
+                  <div className={styles.testimonialRating}>
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={16} className={styles.testimonialStar} />
+                    ))}
+                  </div>
+                  <p className={styles.testimonialText}>
+                    "Las alertas de Nahuel me han ayudado a incrementar mi cuenta un 25% en los últimos 6 meses."
+                  </p>
+                </div>
+              </div>
+
+              <div className={styles.testimonialHorizontalItem}>
+                <div className={styles.testimonialAvatar} style={{backgroundColor: '#ef4444'}}>
+                  <span className={styles.testimonialInitial}>A</span>
+                </div>
+                <div className={styles.testimonialVerticalInfo}>
+                  <h4 className={styles.testimonialName}>Ana Laura Quiroga</h4>
+                  <div className={styles.testimonialRating}>
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={16} className={styles.testimonialStar} />
+                    ))}
+                  </div>
+                  <p className={styles.testimonialText}>
+                    "Los cursos de análisis técnico son realmente muy buenos y didácticos. 100% recomendables!"
+                  </p>
+                </div>
+              </div>
+
+              <div className={styles.testimonialHorizontalItem}>
+                <div className={styles.testimonialAvatar} style={{backgroundColor: '#22c55e'}}>
+                  <span className={styles.testimonialInitial}>T</span>
+                </div>
+                <div className={styles.testimonialVerticalInfo}>
+                  <h4 className={styles.testimonialName}>Tamara Rodriguez</h4>
+                  <div className={styles.testimonialRating}>
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={16} className={styles.testimonialStar} />
+                    ))}
+                  </div>
+                  <p className={styles.testimonialText}>
+                    "Las recomendaciones que brindan en las asesorías a 1 a 1 son muy buenas. Estoy muy conforme"
+                  </p>
+                </div>
               </div>
             </motion.div>
           </div>
