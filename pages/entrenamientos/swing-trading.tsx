@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import Carousel from '@/components/Carousel';
 import TrainingRoadmap from '@/components/TrainingRoadmap';
 import ClassCalendar from '@/components/ClassCalendar';
+import SwingTradingFAQ from '@/components/SwingTradingFAQ';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -1168,6 +1169,9 @@ const SwingTradingPage: React.FC<TradingPageProps> = ({
             </motion.div>
           </div>
         </section>
+
+        {/* FAQ Section */}
+        <SwingTradingFAQ />
 
         {/* Programa Detallado */}
         <section className={styles.programSection}>
