@@ -19,6 +19,7 @@ interface AlertServiceProps {
   backgroundColor: string;
   buttonTextColor: string;
   tag: string;
+  videoId: string;
 }
 
 const AlertService: React.FC<AlertServiceProps> = ({ 
@@ -28,7 +29,8 @@ const AlertService: React.FC<AlertServiceProps> = ({
   href, 
   backgroundColor, 
   buttonTextColor,
-  tag
+  tag,
+  videoId
 }) => {
   const router = useRouter();
 
@@ -50,27 +52,16 @@ const AlertService: React.FC<AlertServiceProps> = ({
       whileHover={{ scale: 1.02, y: -5 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Video Player Placeholder */}
-      <div className={styles.videoPlayerPlaceholder}>
-        <div className={styles.videoScreen}>
-          <div className={styles.playIcon}>▶</div>
-        </div>
-        <div className={styles.videoControls}>
-          <span className={styles.currentTime}>2:21</span>
-          <div className={styles.progressBar}>
-            <div className={styles.progressFill}></div>
-          </div>
-          <span className={styles.totalTime}>20:00</span>
-        </div>
-        <div className={styles.controlIcons}>
-          <button className={styles.controlIcon}>⏮</button>
-          <button className={styles.controlIcon}>⏯</button>
-          <button className={styles.controlIcon}>⏭</button>
-          <button className={styles.controlIcon}>🔊</button>
-          <button className={styles.controlIcon}>⚙️</button>
-          <button className={styles.controlIcon}>⏹</button>
-          <button className={styles.controlIcon}>⛶</button>
-        </div>
+      {/* Video Player */}
+      <div className={styles.videoPlayerContainer}>
+        <YouTubePlayer
+          videoId={videoId}
+          title={`${title} - Introducción`}
+          autoplay={false}
+          muted={true}
+          loop={false}
+          className={styles.videoPlayer}
+        />
       </div>
 
       {/* Main Content */}
@@ -126,7 +117,8 @@ const AlertasPage: React.FC = () => {
       href: '/alertas/trader-call',
       backgroundColor: '#0f766e',
       buttonTextColor: '#10b981',
-      tag: 'Corto Plazo'
+      tag: 'Corto Plazo',
+      videoId: 'dQw4w9WgXcQ'
     },
     {
       title: 'Smart Money',
@@ -140,7 +132,8 @@ const AlertasPage: React.FC = () => {
       href: '/alertas/smart-money',
       backgroundColor: '#7f1d1d',
       buttonTextColor: '#dc2626',
-      tag: 'Mediano y Largo Plazo'
+      tag: 'Mediano y Largo Plazo',
+      videoId: 'dQw4w9WgXcQ'
     },
     {
       title: 'CashFlow',
@@ -154,7 +147,8 @@ const AlertasPage: React.FC = () => {
       href: '/alertas/cash-flow',
       backgroundColor: '#1e3a8a',
       buttonTextColor: '#3b82f6',
-      tag: 'Ingresos Pasivos'
+      tag: 'Ingresos Pasivos',
+      videoId: 'dQw4w9WgXcQ'
     }
   ];
 
