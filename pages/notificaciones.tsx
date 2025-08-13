@@ -116,15 +116,9 @@ export default function NotificacionesPage() {
     }
   };
 
-  // Función para manejar enlaces a informes de manera segura
+  // Función para manejar enlaces a informes
   const handleReportLink = (actionUrl: string, actionText: string) => {
-    // Si es un enlace a un informe y el usuario no es admin, mostrar advertencia
-    if (actionUrl.includes('/reports/') && userRole !== 'admin') {
-      alert('Los informes solo pueden ser accedidos por administradores. Contacta al administrador si necesitas acceso.');
-      return;
-    }
-    
-    // Si es admin o no es un informe, abrir normalmente
+    // Todos los usuarios pueden acceder a los informes para leerlos
     window.open(actionUrl, '_blank', 'noopener,noreferrer');
   };
 

@@ -5,18 +5,19 @@ Se han implementado medidas de seguridad para proteger el contenido del sitio we
 
 ## Medidas Implementadas
 
-### 1. Protección de Informes - Acceso Restringido para Todos
+### 1. Protección de Informes - Lectura Permitida, Descarga/Compartir Bloqueada
 
 #### Para Todos los Usuarios (Incluyendo Administradores):
-- **Sin botones de descarga**: Los botones de descarga han sido **ELIMINADOS COMPLETAMENTE**
-- **Sin botones de compartir**: Los botones de compartir han sido **ELIMINADOS COMPLETAMENTE**
-- **Acceso de solo lectura**: Solo pueden ver el contenido en el navegador
-- **Prevención de filtración**: Medida de seguridad máxima para proteger información sensible
+- **✅ Lectura permitida**: Todos los usuarios pueden leer los informes en el navegador
+- **❌ Sin botones de descarga**: Los botones de descarga han sido **ELIMINADOS COMPLETAMENTE**
+- **❌ Sin botones de compartir**: Los botones de compartir han sido **ELIMINADOS COMPLETAMENTE**
+- **🔒 Acceso controlado**: Pueden ver el contenido pero no pueden descargarlo o compartirlo
+- **📱 Acceso desde notificaciones**: Los usuarios pueden acceder a informes desde notificaciones sin restricciones
 
 #### Razón de la Medida:
-- **Protección total**: Evita cualquier posibilidad de descarga o compartir de informes
-- **Simplicidad**: Elimina la complejidad de gestión de roles para estas funciones
-- **Seguridad máxima**: Previene filtraciones tanto accidentales como intencionales
+- **Protección selectiva**: Permite lectura pero bloquea descarga/compartir
+- **Funcionalidad completa**: Los usuarios pueden consumir el contenido como se espera
+- **Seguridad inteligente**: Previene filtraciones manteniendo la usabilidad
 
 ### 2. Protección Global del Sitio
 
@@ -91,10 +92,10 @@ img {
 - Estilos inline de protección
 
 #### Sistema de Notificaciones:
-- **Página de Notificaciones (`/notificaciones`)**: Verificación de rol para enlaces a informes
-- **NotificationDropdown**: Protección de enlaces a informes en el dropdown
-- **API de Rol**: Endpoint `/api/users/role` para verificar permisos
-- **Enlaces Seguros**: Función `handleReportLink` que bloquea acceso a informes para usuarios normales
+- **Página de Notificaciones (`/notificaciones`)**: Acceso libre a informes desde notificaciones
+- **NotificationDropdown**: Acceso libre a informes desde el dropdown de notificaciones
+- **API de Rol**: Endpoint `/api/users/role` para verificar permisos (solo para funcionalidades administrativas)
+- **Enlaces Funcionales**: Función `handleReportLink` que permite acceso a informes para todos los usuarios
 
 ## Archivos Modificados
 
