@@ -64,6 +64,9 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Debug: mostrar el rol del usuario
+  console.log('🔍 [REPORT VIEW] Rol del usuario:', userRole, 'Es admin:', userRole === 'admin');
+
   const handleBack = () => {
     router.back();
   };
@@ -334,6 +337,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     await dbConnect();
     const user = await User.findOne({ email: session.user.email }).select('role');
     const userRole = user?.role || 'normal';
+    
+    console.log('👤 [REPORT] Usuario:', session.user.email, 'Rol:', userRole);
 
     const { id } = context.params!;
     

@@ -48,8 +48,11 @@ Se han implementado medidas de seguridad para proteger el contenido del sitio we
 
 #### `SecurityWarning`:
 - Muestra advertencias cuando se detectan intentos de violación
+- **Modal de pantalla completa** con fondo oscuro y blur
 - Mensajes específicos según el tipo de acción bloqueada
-- Aparece en la esquina superior derecha
+- **Diseño profesional** con gradientes, animaciones y efectos visuales
+- **Múltiples formas de cerrar**: botón "Entendido", clic fuera, tecla ESC
+- **Accesibilidad mejorada** con aria-labels y navegación por teclado
 
 #### `useSecurityProtection` Hook:
 - Protección centralizada y reutilizable
