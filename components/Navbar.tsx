@@ -62,7 +62,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
       dropdown: [
         { label: 'Trader Call', href: '/alertas/trader-call' },
         { label: 'Smart Money', href: '/alertas/smart-money' },
-        { label: 'CashFlow', href: '/alertas/cash-flow' },
+        { label: 'CashFlow - Próximamente', href: '/alertas/cash-flow' },
       ],
     },
     {
