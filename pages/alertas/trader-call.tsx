@@ -1272,6 +1272,7 @@ const SubscriberView: React.FC = () => {
   );
 
   const renderSeguimientoAlertas = () => {
+    // Solo mostrar alertas activas en el seguimiento 3D
     const alertasActivas = realAlerts.filter(alert => alert.status === 'ACTIVE');
     const alertasCerradas = realAlerts.filter(alert => alert.status === 'CLOSED');
     
@@ -1282,8 +1283,8 @@ const SubscriberView: React.FC = () => {
       '#14B8A6', '#F43F5E', '#A855F7', '#EAB308', '#22C55E'
     ];
     
-    // Preparar datos para el gráfico de torta 3D
-    const chartData = [...alertasActivas, ...alertasCerradas].map((alert, index) => {
+    // Preparar datos para el gráfico de torta 3D - Solo alertas activas
+    const chartData = alertasActivas.map((alert, index) => {
       const profitValue = parseFloat(alert.profit.replace(/[+%]/g, ''));
       return {
         id: alert.id,
