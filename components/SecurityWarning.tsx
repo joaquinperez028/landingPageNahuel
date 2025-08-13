@@ -63,30 +63,92 @@ const SecurityWarning: React.FC<SecurityWarningProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md animate-in fade-in duration-300"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        backdropFilter: 'blur(8px)',
+        animation: 'fadeIn 0.3s ease-out'
+      }}
       onClick={() => setShowWarning(false)}
     >
       <div 
-        className="bg-gradient-to-br from-red-600 to-red-700 text-white p-10 rounded-3xl shadow-2xl border-2 border-red-500 max-w-lg mx-4 text-center animate-in zoom-in duration-300 relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+          color: 'white',
+          padding: '2.5rem',
+          borderRadius: '1.5rem',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
+          border: '2px solid #ef4444',
+          maxWidth: '28rem',
+          margin: '0 1rem',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+          animation: 'zoomIn 0.3s ease-out'
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Efecto de brillo en el fondo */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
+        <div 
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
+            animation: 'pulse 2s infinite'
+          }}
+        />
         
-        <div className="relative flex flex-col items-center gap-8">
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem' }}>
           {/* Icono de advertencia con animación */}
-          <div className="flex items-center justify-center w-20 h-20 bg-red-800 rounded-full shadow-lg animate-pulse">
-            <AlertTriangle size={40} className="text-white" />
+          <div 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '5rem',
+              height: '5rem',
+              backgroundColor: '#991b1b',
+              borderRadius: '50%',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+              animation: 'pulse 2s infinite'
+            }}
+          >
+            <AlertTriangle size={40} style={{ color: 'white' }} />
           </div>
           
-          <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-white drop-shadow-lg">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <h3 style={{ 
+              fontSize: '1.5rem', 
+              fontWeight: 'bold', 
+              color: 'white',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
+            }}>
               ⚠️ Advertencia de Seguridad
             </h3>
-            <p className="text-xl font-semibold text-white drop-shadow">
+            <p style={{ 
+              fontSize: '1.25rem', 
+              fontWeight: '600', 
+              color: 'white',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)'
+            }}>
               {warningMessage}
             </p>
-            <p className="text-base text-red-100 leading-relaxed">
+            <p style={{ 
+              fontSize: '1rem', 
+              color: '#fecaca',
+              lineHeight: '1.6'
+            }}>
               Esta acción no está permitida por razones de seguridad del sitio. 
               Por favor, respeta las políticas de seguridad establecidas.
             </p>
@@ -94,7 +156,29 @@ const SecurityWarning: React.FC<SecurityWarningProps> = ({
           
           <button
             onClick={() => setShowWarning(false)}
-            className="px-8 py-4 bg-red-800 hover:bg-red-900 text-white font-bold rounded-xl transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            style={{
+              padding: '1rem 2rem',
+              backgroundColor: '#991b1b',
+              color: 'white',
+              fontWeight: 'bold',
+              borderRadius: '0.75rem',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+              transition: 'all 0.2s ease',
+              transform: 'scale(1)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#7f1d1d';
+              e.currentTarget.style.transform = 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#991b1b';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
             aria-label="Cerrar advertencia de seguridad"
           >
             <X size={24} />
@@ -102,11 +186,46 @@ const SecurityWarning: React.FC<SecurityWarningProps> = ({
           </button>
           
           {/* Texto de ayuda */}
-          <p className="text-xs text-red-200 mt-4">
+          <p style={{ 
+            fontSize: '0.75rem', 
+            color: '#fca5a5',
+            marginTop: '1rem'
+          }}>
             Presiona ESC o haz clic fuera para cerrar
           </p>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
+        @keyframes zoomIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.7;
+          }
+        }
+      `}</style>
     </div>
   );
 };

@@ -5,17 +5,18 @@ Se han implementado medidas de seguridad para proteger el contenido del sitio we
 
 ## Medidas Implementadas
 
-### 1. Protección de Informes por Rol de Usuario
+### 1. Protección de Informes - Acceso Restringido para Todos
 
-#### Para Usuarios Normales:
-- **Sin botones de descarga**: Los usuarios normales no pueden descargar informes
-- **Sin botones de compartir**: Los usuarios normales no pueden compartir informes
+#### Para Todos los Usuarios (Incluyendo Administradores):
+- **Sin botones de descarga**: Los botones de descarga han sido **ELIMINADOS COMPLETAMENTE**
+- **Sin botones de compartir**: Los botones de compartir han sido **ELIMINADOS COMPLETAMENTE**
 - **Acceso de solo lectura**: Solo pueden ver el contenido en el navegador
+- **Prevención de filtración**: Medida de seguridad máxima para proteger información sensible
 
-#### Para Administradores:
-- **Botones de descarga**: Pueden descargar informes como archivos HTML
-- **Botones de compartir**: Pueden compartir enlaces a informes
-- **Acceso completo**: Control total sobre el contenido
+#### Razón de la Medida:
+- **Protección total**: Evita cualquier posibilidad de descarga o compartir de informes
+- **Simplicidad**: Elimina la complejidad de gestión de roles para estas funciones
+- **Seguridad máxima**: Previene filtraciones tanto accidentales como intencionales
 
 ### 2. Protección Global del Sitio
 
@@ -80,9 +81,9 @@ img {
 ### 5. Protección en Páginas Específicas
 
 #### Páginas de Informes (`/reports/[id]`):
-- Verificación de rol de usuario en `getServerSideProps`
-- Botones de acción solo para administradores
+- **Botones de acción ELIMINADOS** para todos los usuarios
 - Protección de imágenes de portada y galería
+- Acceso de solo lectura universal
 
 #### Páginas de Alertas:
 - Protección de imágenes en tarjetas de informes
@@ -114,7 +115,7 @@ img {
 
 ### Estilos:
 - `styles/globals.css` - Protección CSS global
-- `styles/ReportView.module.css` - Estilos para botones de admin
+- `styles/ReportView.module.css` - Estilos de protección (botones eliminados)
 
 ## Consideraciones Técnicas
 
@@ -135,15 +136,19 @@ img {
 
 ## Uso para Administradores
 
-### Para Habilitar Descarga/Compartir:
-1. Verificar que el usuario tenga rol `admin`
-2. Los botones aparecen automáticamente
-3. Funcionalidad integrada en la interfaz
+### Funcionalidades Disponibles:
+- **Gestión de informes**: Crear, editar, publicar informes
+- **Gestión de usuarios**: Administrar roles y permisos
+- **Análisis de datos**: Ver estadísticas y métricas
+- **Configuración del sitio**: Personalizar contenido y funcionalidades
 
 ### Para Deshabilitar Protecciones (Desarrollo):
 1. Comentar el componente `SecurityProtection` en `_app.tsx`
 2. Remover estilos de protección en `globals.css`
 3. Restaurar para producción
+
+### Nota Importante:
+Los botones de descarga y compartir han sido **ELIMINADOS PERMANENTEMENTE** para todos los usuarios como medida de seguridad máxima.
 
 ## Monitoreo y Logs
 

@@ -12,8 +12,6 @@ import {
   Clock,
   User as UserIcon,
   Eye,
-  Download,
-  Share2,
   BookOpen,
   TrendingUp,
   FileText
@@ -172,49 +170,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
                 </div>
               </div>
 
-              {/* Acciones del informe - Solo para administradores */}
-              {userRole === 'admin' && (
-                <div className={styles.reportActions}>
-                  <button 
-                    className={styles.actionButton}
-                    onClick={() => {
-                      // Función para descargar informe
-                      const element = document.createElement('a');
-                      const file = new Blob([report.content], {type: 'text/html'});
-                      element.href = URL.createObjectURL(file);
-                      element.download = `${report.title}.html`;
-                      document.body.appendChild(element);
-                      element.click();
-                      document.body.removeChild(element);
-                    }}
-                    title="Descargar informe"
-                  >
-                    <Download size={16} />
-                    Descargar
-                  </button>
-                  <button 
-                    className={styles.actionButton}
-                    onClick={() => {
-                      // Función para compartir informe
-                      if (navigator.share) {
-                        navigator.share({
-                          title: report.title,
-                          text: `Informe: ${report.title}`,
-                          url: window.location.href
-                        });
-                      } else {
-                        // Fallback: copiar URL al portapapeles
-                        navigator.clipboard.writeText(window.location.href);
-                        alert('URL copiada al portapapeles');
-                      }
-                    }}
-                    title="Compartir informe"
-                  >
-                    <Share2 size={16} />
-                    Compartir
-                  </button>
-                </div>
-              )}
+              {/* Acciones del informe - ELIMINADAS POR SEGURIDAD */}
+              {/* Los botones de descargar y compartir han sido removidos para prevenir filtración de información */}
 
               {/* Imagen de portada */}
               {report.coverImage && (
