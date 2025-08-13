@@ -122,8 +122,18 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
     signIn('google');
   };
 
-  const handleLogout = () => {
-    signOut();
+  const handleLogout = async () => {
+    try {
+      console.log('🚪 [LOGOUT] Iniciando cierre de sesión...');
+      await signOut({ 
+        callbackUrl: '/',
+        redirect: true 
+      });
+    } catch (error) {
+      console.error('❌ [LOGOUT] Error durante el logout:', error);
+      // Fallback: redirección manual si falla signOut
+      window.location.href = '/';
+    }
   };
 
   // Verificación defensiva para asegurar que session.user existe

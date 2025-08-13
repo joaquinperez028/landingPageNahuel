@@ -20,8 +20,17 @@ export default function RefreshSessionPage() {
   };
 
   const handleLogout = async () => {
-    console.log('🚪 Cerrando sesión...');
-    await signOut({ callbackUrl: '/' });
+    try {
+      console.log('🚪 [LOGOUT] Iniciando cierre de sesión...');
+      await signOut({ 
+        callbackUrl: '/',
+        redirect: true 
+      });
+    } catch (error) {
+      console.error('❌ [LOGOUT] Error durante el logout:', error);
+      // Fallback: redirección manual si falla signOut
+      window.location.href = '/';
+    }
   };
 
   return (
