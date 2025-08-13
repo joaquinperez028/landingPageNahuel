@@ -1457,13 +1457,6 @@ const SubscriberView: React.FC = () => {
                       <span className={styles.summaryValue}>{alertasActivas.length}</span>
                     </div>
                   </div>
-                  <div className={styles.summaryCard}>
-                    <div className={styles.summaryIcon}>🔴</div>
-                    <div className={styles.summaryContent}>
-                      <span className={styles.summaryLabel}>Cerradas</span>
-                      <span className={styles.summaryValue}>{alertasCerradas.length}</span>
-                    </div>
-                  </div>
                 </div>
                 
                 {/* Leyenda mejorada con colores dinámicos */}
