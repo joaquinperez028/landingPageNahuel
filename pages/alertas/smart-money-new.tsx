@@ -2401,61 +2401,8 @@ const ReportViewModal = ({ report, onClose }: {
     }
   };
 
-  const handleDownload = async () => {
-    setIsLoading(true);
-    try {
-      // Aquí se puede implementar la descarga del informe
-      // Por ahora simulamos una descarga
-      const link = document.createElement('a');
-      link.href = `data:text/html;charset=utf-8,${encodeURIComponent(`
-        <html>
-          <head>
-            <title>${report.title}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 40px; }
-              h1 { color: #333; }
-              .meta { color: #666; margin-bottom: 20px; }
-              .content { line-height: 1.6; }
-            </style>
-          </head>
-          <body>
-            <h1>${report.title}</h1>
-            <div class="meta">
-              <p>Fecha: ${formatDate(report.publishedAt || report.createdAt)}</p>
-              <p>Tipo: ${getReportTypeLabel(report.type)}</p>
-              ${report.author ? `<p>Autor: ${report.author}</p>` : ''}
-            </div>
-            <div class="content">${report.content}</div>
-          </body>
-        </html>
-      `)}`;
-      link.download = `${report.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
-      link.click();
-    } catch (error) {
-      console.error('Error al descargar:', error);
-      alert('Error al descargar el informe');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: report.title,
-          text: report.content?.substring(0, 200) + '...' || report.title,
-          url: window.location.href
-        });
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        alert('✅ Enlace copiado al portapapeles');
-      }
-    } catch (error) {
-      console.error('Error al compartir:', error);
-      alert('Error al compartir el informe');
-    }
-  };
+  // Funciones de descarga y compartir ELIMINADAS POR SEGURIDAD
+  // Los botones de descargar y compartir han sido removidos para prevenir filtración de información
 
   const calculateReadTime = (content: string) => {
     const wordsPerMinute = 200;
@@ -2583,19 +2530,8 @@ const ReportViewModal = ({ report, onClose }: {
           </div>
 
           <div className={styles.modalFooter}>
-            <button 
-              className={styles.downloadButton}
-              onClick={handleDownload}
-              disabled={isLoading}
-            >
-              {isLoading ? '⏳ Descargando...' : '📥 Descargar Informe'}
-            </button>
-            <button 
-              className={styles.shareButton}
-              onClick={handleShare}
-            >
-              📤 Compartir
-            </button>
+            {/* Botones de descarga y compartir ELIMINADOS POR SEGURIDAD */}
+            {/* Los botones de descargar y compartir han sido removidos para prevenir filtración de información */}
           </div>
         </div>
       </div>
