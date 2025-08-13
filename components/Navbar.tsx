@@ -78,7 +78,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
       href: '/asesorias',
       dropdown: [
         { label: 'Consultorio Financiero', href: '/asesorias/consultorio-financiero' },
-        { label: 'Cuenta Asesorada', href: '/asesorias/cuenta-asesorada' },
+        { label: 'Cuenta Asesorada - Próximamente', href: '/asesorias/cuenta-asesorada' },
       ],
     },
     {
