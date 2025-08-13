@@ -1784,6 +1784,15 @@ const SubscriberView: React.FC = () => {
                       src={informe.coverImage.secure_url || informe.coverImage.url} 
                       alt={informe.title}
                       loading="lazy"
+                      onContextMenu={(e) => e.preventDefault()}
+                      onDragStart={(e) => e.preventDefault()}
+                      style={{
+                        userSelect: 'none',
+                        WebkitUserSelect: 'none',
+                        MozUserSelect: 'none',
+                        msUserSelect: 'none',
+                        pointerEvents: 'none'
+                      }}
                     />
                   </div>
                 )}

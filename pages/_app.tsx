@@ -1,9 +1,18 @@
+import React from 'react';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { SessionProvider } from 'next-auth/react';
 import ToasterProvider from '@/components/ToasterProvider';
 import LoginTracker from '@/components/LoginTracker';
+import SecurityWarning from '@/components/SecurityWarning';
+import { useSecurityProtection } from '@/hooks/useSecurityProtection';
 import '@/styles/globals.css';
+
+// Componente para proteger contra click derecho y otras acciones no deseadas
+const SecurityProtection: React.FC = () => {
+  useSecurityProtection();
+  return null;
+};
 
 export default function App({
   Component,
@@ -21,8 +30,14 @@ export default function App({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        {/* Meta tags adicionales para protección */}
+        <meta name="robots" content="noindex, nofollow" />
+        <meta httpEquiv="X-Frame-Options" content="DENY" />
+        <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
       </Head>
       <ToasterProvider>
+        <SecurityProtection />
+        <SecurityWarning />
         <LoginTracker />
         <Component {...pageProps} />
       </ToasterProvider>

@@ -56,9 +56,10 @@ interface ReportData {
 interface ReportViewProps {
   report: ReportData;
   currentUser: any;
+  userRole: string;
 }
 
-const ReportView: React.FC<ReportViewProps> = ({ report, currentUser }) => {
+const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }) => {
   const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -150,10 +151,10 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser }) => {
 
               {/* Meta información */}
               <div className={styles.metaInfo}>
-                               <div className={styles.metaItem}>
-                 <UserIcon size={16} />
-                 <span>{report.author.name}</span>
-               </div>
+                <div className={styles.metaItem}>
+                  <UserIcon size={16} />
+                  <span>{report.author.name}</span>
+                </div>
                 <div className={styles.metaItem}>
                   <Calendar size={16} />
                   <span>{formatDate(report.publishedAt)}</span>
@@ -167,6 +168,50 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser }) => {
                   <span>{report.views} vistas</span>
                 </div>
               </div>
+
+              {/* Acciones del informe - Solo para administradores */}
+              {userRole === 'admin' && (
+                <div className={styles.reportActions}>
+                  <button 
+                    className={styles.actionButton}
+                    onClick={() => {
+                      // Función para descargar informe
+                      const element = document.createElement('a');
+                      const file = new Blob([report.content], {type: 'text/html'});
+                      element.href = URL.createObjectURL(file);
+                      element.download = `${report.title}.html`;
+                      document.body.appendChild(element);
+                      element.click();
+                      document.body.removeChild(element);
+                    }}
+                    title="Descargar informe"
+                  >
+                    <Download size={16} />
+                    Descargar
+                  </button>
+                  <button 
+                    className={styles.actionButton}
+                    onClick={() => {
+                      // Función para compartir informe
+                      if (navigator.share) {
+                        navigator.share({
+                          title: report.title,
+                          text: `Informe: ${report.title}`,
+                          url: window.location.href
+                        });
+                      } else {
+                        // Fallback: copiar URL al portapapeles
+                        navigator.clipboard.writeText(window.location.href);
+                        alert('URL copiada al portapapeles');
+                      }
+                    }}
+                    title="Compartir informe"
+                  >
+                    <Share2 size={16} />
+                    Compartir
+                  </button>
+                </div>
+              )}
 
               {/* Imagen de portada */}
               {report.coverImage && (
@@ -284,6 +329,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         },
       };
     }
+
+    // Obtener el rol del usuario
+    await dbConnect();
+    const user = await User.findOne({ email: session.user.email }).select('role');
+    const userRole = user?.role || 'normal';
 
     const { id } = context.params!;
     
@@ -422,6 +472,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       props: {
         report: processedReport,
         currentUser: session.user,
+        userRole: userRole,
       },
     };
   } catch (error) {

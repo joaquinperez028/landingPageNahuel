@@ -3,6 +3,7 @@ import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 import { 
   Bell, 
   Search, 
@@ -40,6 +41,8 @@ interface PaginationInfo {
 }
 
 export default function NotificacionesPage() {
+  const { data: session } = useSession();
+  const [userRole, setUserRole] = useState<string>('normal');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState<PaginationInfo>({
@@ -68,6 +71,25 @@ export default function NotificacionesPage() {
     }
   };
 
+  // Verificar el rol del usuario
+  useEffect(() => {
+    const checkUserRole = async () => {
+      if (!session?.user?.email) return;
+      
+      try {
+        const response = await fetch(`/api/users/role?email=${session.user.email}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUserRole(data.role || 'normal');
+        }
+      } catch (error) {
+        console.error('Error verificando rol:', error);
+      }
+    };
+
+    checkUserRole();
+  }, [session]);
+
   // Cargar notificaciones al montar el componente
   useEffect(() => {
     fetchNotifications(currentPage);
@@ -92,6 +114,18 @@ export default function NotificacionesPage() {
     if (pagination.hasMore) {
       setCurrentPage(currentPage + 1);
     }
+  };
+
+  // Función para manejar enlaces a informes de manera segura
+  const handleReportLink = (actionUrl: string, actionText: string) => {
+    // Si es un enlace a un informe y el usuario no es admin, mostrar advertencia
+    if (actionUrl.includes('/reports/') && userRole !== 'admin') {
+      alert('Los informes solo pueden ser accedidos por administradores. Contacta al administrador si necesitas acceso.');
+      return;
+    }
+    
+    // Si es admin o no es un informe, abrir normalmente
+    window.open(actionUrl, '_blank', 'noopener,noreferrer');
   };
 
   // Función para obtener el ícono del tipo
@@ -258,15 +292,13 @@ export default function NotificacionesPage() {
                       {/* Action */}
                       {notification.actionUrl && notification.actionText && (
                         <div className={styles.cardFooter}>
-                          <a 
-                            href={notification.actionUrl}
+                          <button 
+                            onClick={() => handleReportLink(notification.actionUrl!, notification.actionText!)}
                             className={styles.actionButton}
-                            target="_blank"
-                            rel="noopener noreferrer"
                           >
                             {notification.actionText}
                             <ExternalLink size={16} />
-                          </a>
+                          </button>
                         </div>
                       )}
                     </div>
