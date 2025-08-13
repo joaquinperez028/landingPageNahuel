@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { Bell, X, ExternalLink, Clock, ArrowRight, Check, CheckCheck, Trash2 } from 'lucide-react';
 import styles from '@/styles/NotificationDropdown.module.css';
 
@@ -28,6 +29,7 @@ interface NotificationDropdownProps {
 
 const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onClose, onUpdate }) => {
   const { data: session } = useSession();
+  const router = useRouter();
   const [userRole, setUserRole] = useState<string>('normal');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
@@ -204,7 +206,12 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
   // Función para manejar enlaces a informes
   const handleReportLink = (actionUrl: string, actionText: string) => {
     // Todos los usuarios pueden acceder a los informes para leerlos
-    window.open(actionUrl, '_blank', 'noopener,noreferrer');
+    // Usar router.push en lugar de window.open para evitar bloqueos del navegador
+    if (actionUrl.startsWith('/')) {
+      router.push(actionUrl);
+    } else {
+      window.open(actionUrl, '_blank', 'noopener,noreferrer');
+    }
   };
 
   // Manejar clic en notificación

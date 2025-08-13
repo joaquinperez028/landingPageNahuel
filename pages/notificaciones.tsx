@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { 
   Bell, 
   Search, 
@@ -42,6 +43,7 @@ interface PaginationInfo {
 
 export default function NotificacionesPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [userRole, setUserRole] = useState<string>('normal');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,7 +121,12 @@ export default function NotificacionesPage() {
   // Función para manejar enlaces a informes
   const handleReportLink = (actionUrl: string, actionText: string) => {
     // Todos los usuarios pueden acceder a los informes para leerlos
-    window.open(actionUrl, '_blank', 'noopener,noreferrer');
+    // Usar router.push en lugar de window.open para evitar bloqueos del navegador
+    if (actionUrl.startsWith('/')) {
+      router.push(actionUrl);
+    } else {
+      window.open(actionUrl, '_blank', 'noopener,noreferrer');
+    }
   };
 
   // Función para obtener el ícono del tipo
