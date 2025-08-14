@@ -39,7 +39,9 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Loader
+  Loader,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import styles from '@/styles/TraderCall.module.css';
 import { useRouter } from 'next/router';
@@ -402,27 +404,26 @@ const NonSubscriberView: React.FC<{
 
       {/* YouTube Community Section */}
       <section className={styles.youtubeSection}>
-        <div className={styles.container}>
-          <motion.div 
+        <div className="container">
+          <motion.div
             className={styles.youtubeContent}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
             <div className={styles.youtubeText}>
               <h2 className={styles.youtubeTitle}>
-                ¡Sumate a nuestra comunidad en YouTube!
+                ¡Sumate a nuestra comunidad<br />
+                en YouTube!
               </h2>
-              <p className={styles.youtubeDescription}>
+              <p className={styles.youtubeSubtitle}>
                 No te pierdas nuestros últimos videos
               </p>
             </div>
-            <div className={styles.youtubeVideo}>
-              <div className={styles.videoContainer}>
-                <div className={styles.videoPlaceholder}>
-                  <p>Video de YouTube</p>
-                </div>
-              </div>
+
+            <div className={styles.youtubeVideoContainer}>
+              <YouTubeAutoCarousel />
             </div>
           </motion.div>
         </div>
@@ -3271,6 +3272,90 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       faqs
     }
   };
+};
+
+// Componente YouTubeAutoCarousel idéntico al de la landing page
+const YouTubeAutoCarousel: React.FC = () => {
+  const [currentVideo, setCurrentVideo] = useState(0);
+  
+  const videos = [
+    {
+      id: '0NpdClGWaY8',
+      title: 'Video 1'
+    },
+    {
+      id: 'jl3lUCIluAs',
+      title: 'Video 2'
+    },
+    {
+      id: '_AMDVmj9_jw',
+      title: 'Video 3'
+    },
+    {
+      id: 'sUktp76givU',
+      title: 'Video 4'
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentVideo((prev) => (prev + 1) % videos.length);
+    }, 5000); // Cambia cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, [videos.length]);
+
+  const goToPrevious = () => {
+    setCurrentVideo((prev) => (prev - 1 + videos.length) % videos.length);
+  };
+
+  const goToNext = () => {
+    setCurrentVideo((prev) => (prev + 1) % videos.length);
+  };
+
+  return (
+    <div className={styles.youtubeAutoCarousel}>
+      <button 
+        onClick={goToPrevious}
+        className={styles.youtubeArrowLeft}
+        aria-label="Video anterior"
+      >
+        <ChevronLeft size={24} />
+      </button>
+      
+      <div className={styles.youtubeVideoFrame}>
+        <iframe
+          src={`https://www.youtube.com/embed/${videos[currentVideo].id}`}
+          title={videos[currentVideo].title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className={styles.youtubeVideoPlayer}
+        />
+      </div>
+      
+      <button 
+        onClick={goToNext}
+        className={styles.youtubeArrowRight}
+        aria-label="Siguiente video"
+      >
+        <ChevronRight size={24} />
+      </button>
+
+      <div className={styles.youtubeIndicators}>
+        {videos.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentVideo(index)}
+            className={`${styles.youtubeIndicator} ${
+              index === currentVideo ? styles.youtubeIndicatorActive : ''
+            }`}
+            aria-label={`Ver video ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default TraderCallPage; 
