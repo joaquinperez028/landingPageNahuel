@@ -366,7 +366,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         // Enviar notificación al administrador
-        console.log('📧 Enviando notificación al administrador...');
+        console.log('📧 Enviando notificación al administrador..');
         await sendAdminNotificationEmail({
           userEmail,
           userName,
