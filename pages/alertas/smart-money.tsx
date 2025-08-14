@@ -181,8 +181,22 @@ const NonSubscriberView: React.FC<{
 
   return (
     <div className={styles.nonSubscriberView}>
-      {/* Hero Section con Video */}
+      {/* Hero Section con Video Background */}
       <section className={styles.heroSection}>
+        {/* Video Background */}
+        <div className={styles.videoBackground}>
+          <video 
+            className={styles.backgroundVideo}
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+          >
+            <source src="/logos/DiseñoWeb-LozanoNahuel-Alertas-TraderCall.mp4" type="video/mp4" />
+          </video>
+          <div className={styles.videoOverlay}></div>
+        </div>
+        
         <div className={styles.container}>
           <motion.div 
             className={styles.heroContent}

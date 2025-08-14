@@ -44,23 +44,38 @@
 
 /* Hero Section */
 .heroSection {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
   padding: 4rem 0;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
   position: relative;
   overflow: hidden;
 }
 
-.heroSection::before {
-  content: '';
+/* Video Background */
+.videoBackground {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('/logos/logo-nahuel.png') no-repeat center right;
-  background-size: contain;
-  opacity: 0.1;
+  z-index: 0;
+}
+
+.backgroundVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(8px) brightness(0.3);
+}
+
+.videoOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(6, 95, 70, 0.4) 0%, rgba(6, 78, 59, 0.4) 50%, rgba(2, 44, 34, 0.4) 100%);
   z-index: 1;
 }
 
@@ -73,14 +88,16 @@
   z-index: 2;
 }
 
-.heroText h1 {
+.heroText {
+  color: white;
+  text-align: left;
+}
+
+.heroTitle {
   font-size: 3.5rem;
   font-weight: 800;
   margin-bottom: 1.5rem;
-  background: linear-gradient(45deg, #ffffff, #f0f0f0);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: white;
 }
 
 .heroDescription {
@@ -88,6 +105,7 @@
   line-height: 1.6;
   margin-bottom: 2rem;
   opacity: 0.9;
+  color: white;
 }
 
 .heroFeatures {
@@ -113,15 +131,15 @@
 
 .videoContainer {
   position: relative;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .video {
   width: 100%;
-  height: 300px;
-  object-fit: cover;
+  height: auto;
+  border-radius: 16px;
 }
 
 /* Ejemplos de Alertas */
