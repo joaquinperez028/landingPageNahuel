@@ -190,32 +190,61 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
       // Procesar reserva
       console.log('✅ Procesando pago de reserva...');
       
-      // Extraer bookingId del external_reference
-      const bookingId = externalRef.split('_').pop(); // Último elemento después de booking_serviceType_userId_timestamp
+      // Extraer datos de la reserva del external_reference
+      const refParts = externalRef.split('_');
+      const serviceType = refParts[1];
+      const userId = refParts[2];
+      const timestamp = refParts[3];
       
-      if (bookingId) {
-        // Buscar la reserva
-        const booking = await Booking.findById(bookingId);
-        
-        if (booking) {
-          // Actualizar estado de pago de la reserva
-          booking.paymentStatus = 'paid';
-          booking.status = 'confirmed';
-          booking.updatedAt = new Date();
-          await booking.save();
-
-          console.log('✅ Reserva confirmada y pagada:', {
-            bookingId: booking._id,
-            user: user.email,
-            serviceType: booking.serviceType,
-            amount: amount,
-            transactionId: paymentInfo.id
-          });
-        } else {
-          console.error('❌ Reserva no encontrada:', bookingId);
+      console.log('📋 Datos extraídos del external_reference:', {
+        serviceType,
+        userId,
+        timestamp,
+        externalRef
+      });
+      
+      // Crear la reserva después del pago exitoso
+      try {
+        // Buscar el usuario
+        const bookingUser = await User.findById(userId);
+        if (!bookingUser) {
+          console.error('❌ Usuario no encontrado para crear reserva:', userId);
+          return;
         }
-      } else {
-        console.error('❌ No se pudo extraer bookingId del external_reference:', externalRef);
+        
+        // Crear la reserva con los datos del pago
+        const newBooking = new Booking({
+          userId: userId,
+          userEmail: bookingUser.email,
+          userName: bookingUser.name || bookingUser.email,
+          type: 'advisory',
+          serviceType: serviceType,
+          startDate: new Date(), // Esto debería venir de los datos de reserva
+          endDate: new Date(Date.now() + 60 * 60 * 1000), // 1 hora después
+          duration: 60,
+          status: 'confirmed',
+          price: amount,
+          paymentStatus: 'paid',
+          notes: `Reserva creada automáticamente después del pago exitoso - Transaction ID: ${paymentInfo.id}`,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        
+        await newBooking.save();
+        
+        console.log('✅ Reserva creada y confirmada después del pago:', {
+          bookingId: newBooking._id,
+          user: bookingUser.email,
+          serviceType: serviceType,
+          amount: amount,
+          transactionId: paymentInfo.id
+        });
+        
+        // Aquí podrías enviar emails de confirmación
+        // await sendBookingConfirmationEmail(bookingUser.email, newBooking);
+        
+      } catch (bookingError) {
+        console.error('❌ Error creando reserva después del pago:', bookingError);
       }
     }
 

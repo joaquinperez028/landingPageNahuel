@@ -191,7 +191,8 @@ export const createBookingPreference = async (
   externalReference: string,
   successUrl: string,
   failureUrl: string,
-  pendingUrl: string
+  pendingUrl: string,
+  reservationData?: any
 ) => {
   try {
     console.log('🔧 MercadoPago - Creando preferencia de reserva:', {

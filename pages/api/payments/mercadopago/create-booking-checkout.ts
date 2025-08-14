@@ -11,7 +11,16 @@ const bookingCheckoutSchema = z.object({
   serviceType: z.enum(['ConsultorioFinanciero', 'CuentaAsesorada', 'SwingTrading', 'AdvancedStrategies']),
   amount: z.number().positive('El monto debe ser positivo'),
   currency: z.enum(['ARS', 'USD', 'UYU']).default('ARS'),
-  bookingId: z.string().optional() // ID de la reserva si ya existe
+  reservationData: z.object({
+    type: z.enum(['training', 'advisory']),
+    serviceType: z.string(),
+    startDate: z.string(),
+    duration: z.number(),
+    price: z.number(),
+    notes: z.string(),
+    userEmail: z.string(),
+    userName: z.string()
+  })
 });
 
 /**
@@ -43,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Validar datos de entrada
     const validatedData = bookingCheckoutSchema.parse(req.body);
-    const { serviceType, amount, currency, bookingId } = validatedData;
+    const { serviceType, amount, currency, reservationData } = validatedData;
 
     // Buscar usuario
     const user = await User.findOne({ email: session.user.email });
@@ -68,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       amount,
       currency,
       externalReference,
-      bookingId,
+      reservationData,
       successUrl,
       failureUrl,
       pendingUrl
@@ -81,7 +90,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       externalReference,
       successUrl,
       failureUrl,
-      pendingUrl
+      pendingUrl,
+      reservationData
     );
 
     console.log('📊 Resultado de preferencia de reserva:', preferenceResult);
@@ -101,7 +111,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       amount,
       currency,
       externalReference: externalReference,
-      bookingId: bookingId || 'Nuevo'
+      reservationData
     });
 
     return res.status(200).json({
@@ -111,7 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       serviceType,
       amount,
       currency,
-      bookingId,
+      reservationData,
       message: 'Checkout de reserva creado exitosamente'
     });
 

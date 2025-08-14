@@ -335,74 +335,66 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     const bookingPrice = 50000; // $50,000 ARS
     const bookingCurrency = 'ARS';
 
-    // Crear la reserva primero
-    const bookingData = {
-      type: 'advisory' as const,
-      serviceType: 'ConsultorioFinanciero' as const,
-      startDate: utcDate.toISOString(),
-      duration: 60,
-      price: bookingPrice,
-      notes: `Reserva desde página de Consultorio Financiero - ${selectedDate} a las ${selectedTime}`
-    };
-
+    // Crear checkout de MercadoPago PRIMERO (sin crear reserva)
     try {
-      const booking = await createBooking(bookingData);
-
-      if (booking) {
-        console.log('✅ Reserva creada exitosamente, procediendo al pago');
-        
-        // Crear checkout de MercadoPago
-        try {
-          const response = await fetch('/api/payments/mercadopago/create-booking-checkout', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              serviceType: 'ConsultorioFinanciero',
-              amount: bookingPrice,
-              currency: bookingCurrency,
-              bookingId: booking._id
-            }),
-          });
-
-          const data = await response.json();
-
-          if (data.success && data.checkoutUrl) {
-            console.log('✅ Checkout de MercadoPago creado, redirigiendo...');
-            
-            // Actualizar inmediatamente la UI removiendo el turno reservado
-            setProximosTurnos(prevTurnos => 
-              prevTurnos.map(turno => {
-                if (turno.fecha === selectedDate) {
-                  const horariosActualizados = turno.horarios.filter(h => h !== selectedTime);
-                  return {
-                    ...turno,
-                    horarios: horariosActualizados,
-                    disponibles: horariosActualizados.length
-                  };
-                }
-                return turno;
-              }).filter(turno => turno.disponibles > 0) // Remover días sin turnos disponibles
-            );
-            
-            // Limpiar selección inmediatamente
-            setSelectedDate('');
-            setSelectedTime('');
-            
-            // Redirigir a MercadoPago
-            window.location.href = data.checkoutUrl;
-          } else {
-            console.error('❌ Error creando checkout:', data.error);
-            alert('Error al procesar el pago. Por favor intenta nuevamente.');
+      console.log('💳 Creando checkout de MercadoPago...');
+      
+      const response = await fetch('/api/payments/mercadopago/create-booking-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          serviceType: 'ConsultorioFinanciero',
+          amount: bookingPrice,
+          currency: bookingCurrency,
+          // Datos de la reserva para crear después del pago
+          reservationData: {
+            type: 'advisory',
+            serviceType: 'ConsultorioFinanciero',
+            startDate: utcDate.toISOString(),
+            duration: 60,
+            price: bookingPrice,
+            notes: `Reserva desde página de Consultorio Financiero - ${selectedDate} a las ${selectedTime}`,
+            userEmail: session.user?.email,
+            userName: session.user?.name || 'Usuario'
           }
-        } catch (paymentError) {
-          console.error('❌ Error en el proceso de pago:', paymentError);
-          alert('Error al procesar el pago. Por favor intenta nuevamente.');
-        }
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.checkoutUrl) {
+        console.log('✅ Checkout de MercadoPago creado, redirigiendo...');
+        
+        // Actualizar inmediatamente la UI removiendo el turno reservado
+        setProximosTurnos(prevTurnos => 
+          prevTurnos.map(turno => {
+            if (turno.fecha === selectedDate) {
+              const horariosActualizados = turno.horarios.filter(h => h !== selectedTime);
+              return {
+                ...turno,
+                horarios: horariosActualizados,
+                disponibles: horariosActualizados.length
+              };
+            }
+            return turno;
+          }).filter(turno => turno.disponibles > 0) // Remover días sin turnos disponibles
+        );
+        
+        // Limpiar selección inmediatamente
+        setSelectedDate('');
+        setSelectedTime('');
+        
+        // Redirigir a MercadoPago
+        window.location.href = data.checkoutUrl;
+      } else {
+        console.error('❌ Error creando checkout:', data.error);
+        alert('Error al procesar el pago. Por favor intenta nuevamente.');
       }
     } catch (error: any) {
-      console.log('❌ Error al crear la reserva:', error);
+      console.error('❌ Error en el proceso de pago:', error);
+      alert('Error al procesar el pago. Por favor intenta nuevamente.');
       
       // Si es un error de conflicto (409), recargar turnos para mostrar disponibilidad actualizada
       if (error.message?.includes('Horario no disponible') || error.message?.includes('409')) {
