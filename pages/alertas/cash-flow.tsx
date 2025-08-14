@@ -1238,7 +1238,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     {
       
       id: '4',
-      question: '¿Cuánto dinero hay que invertir?',
+      question: '¿Cuánto dinero hay que invertir?', 
       answer: 'No hay un mínimo de dinero con el que tengas que comenzar, pero una suma recomendable sería el equivalente a u$d 1.000.-',
       category: 'cash-flow',
       order: 4,
