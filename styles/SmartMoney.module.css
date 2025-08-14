@@ -33,7 +33,7 @@
 
 /* Vista No Suscripto */
 .nonSubscriberView {
-  background: #f8fafc;
+  background: var(--bg-primary);
 }
 
 .container {
