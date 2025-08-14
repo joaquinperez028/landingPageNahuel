@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../lib/googleAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import VideoPlayerMux from '@/components/VideoPlayerMux';
 
 import Carousel from '@/components/Carousel';
 import ImageUploader, { CloudinaryImage } from '@/components/ImageUploader';
@@ -217,6 +218,15 @@ const NonSubscriberView: React.FC<{
                   <CheckCircle size={20} />
                   <span>Quiero Suscribirme</span>
                 </div>
+              </div>
+            </div>
+            <div className={styles.heroVideo}>
+              <div className={styles.videoContainer}>
+                <VideoPlayerMux 
+                  playbackId="sample-trader-call-video" 
+                  autoplay={true}
+                  className={styles.video}
+                />
               </div>
             </div>
           </motion.div>

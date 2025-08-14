@@ -55,18 +55,33 @@
 
 .heroContent {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 3rem;
   align-items: center;
   position: relative;
   z-index: 2;
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
 }
 
 .heroText {
   color: white;
+  text-align: left;
+}
+
+.heroVideo {
+  position: relative;
+}
+
+.videoContainer {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.video {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
 }
 
 
