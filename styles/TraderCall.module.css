@@ -19,7 +19,6 @@
 /* Hero Section */
 .heroSection {
   padding: 4rem 0;
-  background: linear-gradient(135deg, #065f46 0%, #064e3b 50%, #022c22 100%);
   min-height: 80vh;
   display: flex;
   align-items: center;
@@ -27,84 +26,50 @@
   overflow: hidden;
 }
 
-.heroSection::before {
-  content: '';
+/* Video Background */
+.videoBackground {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
-    /* Efecto de gráficos financieros */
-    linear-gradient(45deg, transparent 0%, rgba(139, 92, 246, 0.1) 25%, transparent 50%),
-    linear-gradient(-45deg, transparent 0%, rgba(16, 185, 129, 0.1) 25%, transparent 50%),
-    radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
-    radial-gradient(circle at 30% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 40%),
-    /* Líneas de gráficos */
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 48px,
-      rgba(255, 255, 255, 0.03) 50px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 48px,
-      rgba(255, 255, 255, 0.03) 50px
-    );
-  opacity: 0.6;
-  pointer-events: none;
+  z-index: 0;
 }
 
-.heroSection::after {
-  content: '';
+.backgroundVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(8px) brightness(0.3);
+}
+
+.videoOverlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    /* Simulación de candlesticks */
-    radial-gradient(ellipse 2px 20px at 15% 40%, rgba(16, 185, 129, 0.4) 0%, transparent 70%),
-    radial-gradient(ellipse 2px 30px at 25% 60%, rgba(239, 68, 68, 0.4) 0%, transparent 70%),
-    radial-gradient(ellipse 2px 25px at 35% 35%, rgba(16, 185, 129, 0.4) 0%, transparent 70%),
-    radial-gradient(ellipse 2px 35px at 45% 70%, rgba(16, 185, 129, 0.4) 0%, transparent 70%),
-    radial-gradient(ellipse 2px 15px at 55% 45%, rgba(239, 68, 68, 0.4) 0%, transparent 70%),
-    radial-gradient(ellipse 2px 40px at 65% 30%, rgba(16, 185, 129, 0.4) 0%, transparent 70%),
-    radial-gradient(ellipse 2px 20px at 75% 65%, rgba(16, 185, 129, 0.4) 0%, transparent 70%),
-    radial-gradient(ellipse 2px 30px at 85% 50%, rgba(239, 68, 68, 0.4) 0%, transparent 70%),
-    /* Líneas de tendencia */
-    linear-gradient(125deg, transparent 0%, transparent 45%, rgba(139, 92, 246, 0.3) 47%, rgba(139, 92, 246, 0.3) 49%, transparent 51%, transparent 100%),
-    linear-gradient(65deg, transparent 0%, transparent 35%, rgba(59, 130, 246, 0.3) 37%, rgba(59, 130, 246, 0.3) 39%, transparent 41%, transparent 100%);
-  opacity: 0.4;
-  pointer-events: none;
-  z-index: 0;
+  background: linear-gradient(135deg, rgba(6, 95, 70, 0.7) 0%, rgba(6, 78, 59, 0.7) 50%, rgba(2, 44, 34, 0.7) 100%);
+  z-index: 1;
 }
 
 .heroContent {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 3rem;
   align-items: center;
   position: relative;
   z-index: 2;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .heroText {
   color: white;
 }
 
-.heroVideo {
-  position: relative;
-}
 
-.videoContainer {
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
 
 /* Sección Seguimiento de Alertas - Gráfico de Torta */
 .seguimientoContent {

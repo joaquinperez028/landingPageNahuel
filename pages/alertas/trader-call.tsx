@@ -7,7 +7,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../lib/googleAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import VideoPlayerMux from '@/components/VideoPlayerMux';
+
 import Carousel from '@/components/Carousel';
 import ImageUploader, { CloudinaryImage } from '@/components/ImageUploader';
 import AlertExamplesCarousel from '@/components/AlertExamplesCarousel';
@@ -181,8 +181,23 @@ const NonSubscriberView: React.FC<{
 
   return (
     <div className={styles.nonSubscriberView}>
-      {/* Hero Section con Video */}
+      {/* Hero Section con Video de Fondo */}
       <section className={styles.heroSection}>
+        {/* Video Background */}
+        <div className={styles.videoBackground}>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={styles.backgroundVideo}
+          >
+            <source src="/logos/DiseñoWeb-LozanoNahuel-Alertas-TraderCall.mp4" type="video/mp4" />
+            Tu navegador no soporta el elemento de video.
+          </video>
+          <div className={styles.videoOverlay}></div>
+        </div>
+        
         <div className={styles.container}>
           <motion.div 
             className={styles.heroContent}
@@ -202,15 +217,6 @@ const NonSubscriberView: React.FC<{
                   <CheckCircle size={20} />
                   <span>Quiero Suscribirme</span>
                 </div>
-              </div>
-            </div>
-            <div className={styles.heroVideo}>
-              <div className={styles.videoContainer}>
-                <VideoPlayerMux 
-                  playbackId="sample-trader-call-video" 
-                  autoplay={true}
-                  className={styles.video}
-                />
               </div>
             </div>
           </motion.div>
@@ -403,11 +409,9 @@ const NonSubscriberView: React.FC<{
             </div>
             <div className={styles.youtubeVideo}>
               <div className={styles.videoContainer}>
-                <VideoPlayerMux 
-                  playbackId="sample-youtube-video" 
-                  autoplay={false}
-                  className={styles.video}
-                />
+                <div className={styles.videoPlaceholder}>
+                  <p>Video de YouTube</p>
+                </div>
               </div>
             </div>
           </motion.div>
