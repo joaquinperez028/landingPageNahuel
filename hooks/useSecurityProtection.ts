@@ -15,6 +15,17 @@ export const useSecurityProtection = () => {
     };
 
     const preventKeyCombinations = (e: KeyboardEvent) => {
+      // Verificar si el usuario está escribiendo en un campo de formulario
+      const target = e.target as HTMLElement;
+      
+      // Permitir escritura normal en inputs, textareas, contenteditable
+      if (target.tagName === 'INPUT' || 
+          target.tagName === 'TEXTAREA' || 
+          target.contentEditable === 'true' ||
+          target.isContentEditable) {
+        return;
+      }
+      
       // Prevenir combinaciones de teclas que podrían usarse para descargar o inspeccionar
       if (
         (e.ctrlKey && e.key === 's') || // Ctrl+S (guardar)
@@ -37,6 +48,17 @@ export const useSecurityProtection = () => {
     };
 
     const preventSelect = (e: Event) => {
+      // Verificar si el usuario está interactuando con un campo de formulario
+      const target = e.target as HTMLElement;
+      
+      // Permitir selección en inputs, textareas, contenteditable
+      if (target.tagName === 'INPUT' || 
+          target.tagName === 'TEXTAREA' || 
+          target.contentEditable === 'true' ||
+          target.isContentEditable) {
+        return;
+      }
+      
       e.preventDefault();
       return false;
     };
