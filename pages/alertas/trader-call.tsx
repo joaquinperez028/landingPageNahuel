@@ -3028,8 +3028,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     alertExamples = [
       {
         id: 'example-1',
-        title: 'Alerta de Compra',
+        title: 'Alerta de Compra SATL',
         description: 'Señal de compra confirmada: precio por encima de SMA200 y EMA50, MACD cruza a positivo y RSI > 50.',
+        chartImage: '/logos/ALERTACOMPRASATL.png',
         entryPrice: 'USD $132.31',
         exitPrice: 'USD $145.54',
         profit: '$13.23',
@@ -3037,13 +3038,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         riskLevel: 'MEDIO' as const,
         status: 'CERRADO TP1' as const,
         country: 'United States',
-        ticker: 'AAPL',
+        ticker: 'SATL',
         order: 1
       },
       {
         id: 'example-2',
-        title: 'Alerta de Venta Parcial',
+        title: 'Alerta de Venta Parcial EDN',
         description: 'Venta parcial del 50% tras fuerte avance: aseguramos ganancias y mantenemos el resto con stop ajustado.',
+        chartImage: '/logos/ALERTAVENTAPARCIALEDN.png',
         entryPrice: 'USD $180.50',
         exitPrice: 'USD $225.63',
         profit: '$45.13',
@@ -3051,13 +3053,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         riskLevel: 'MEDIO' as const,
         status: 'CERRADO TP1 Y SL' as const,
         country: 'United States',
-        ticker: 'TSLA',
+        ticker: 'EDN',
         order: 2
       },
       {
         id: 'example-3',
-        title: 'Alerta de Venta Total',
+        title: 'Alerta de Compra ETHA',
         description: 'Objetivo alcanzado: cerramos el 50% restante y finalizamos el trade con excelente rendimiento.',
+        chartImage: '/logos/ALERTACOMPRAETHA.png',
         entryPrice: 'USD $420.00',
         exitPrice: 'USD $504.00',
         profit: '$84.00',
@@ -3065,7 +3068,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         riskLevel: 'BAJO' as const,
         status: 'CERRADO TP1' as const,
         country: 'United States',
-        ticker: 'SPY',
+        ticker: 'ETHA',
         order: 3
       }
     ];

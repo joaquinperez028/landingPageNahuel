@@ -1038,8 +1038,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const defaultAlertExamples: AlertExample[] = [
     {
       id: '1',
-      title: 'Alerta AAPL - Entrada Perfecta',
-      description: 'Señal de compra en Apple con +15% de ganancia en 3 días',
+      title: 'Alerta SPOT - Venta Total',
+      description: 'Señal de venta total en SPOT con +15% de ganancia en 3 días',
+      chartImage: '/logos/ALERTAVENTATOTALSPOT.png',
       entryPrice: 'USD $132.31',
       exitPrice: 'USD $230.25 ($203.64)',
       profit: '$75.00',
@@ -1047,13 +1048,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       riskLevel: 'MEDIO',
       status: 'CERRADO TP1',
       country: 'United States',
-      ticker: 'AAPL',
+      ticker: 'SPOT',
       order: 1
     },
     {
       id: '2',
-      title: 'Alerta TSLA - Stop Loss Activado',
-      description: 'Protección de capital con stop loss inteligente',
+      title: 'Alerta SATL - Venta Parcial',
+      description: 'Protección de capital con venta parcial inteligente',
+      chartImage: '/logos/ALERTAVENTAPARCIALSATL.png',
       entryPrice: 'USD $185.50',
       exitPrice: 'USD $210.75 ($200.00)',
       profit: '$45.00',
@@ -1061,8 +1063,23 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       riskLevel: 'BAJO',
       status: 'CERRADO TP1 Y SL',
       country: 'United States',
-      ticker: 'TSLA',
+      ticker: 'SATL',
       order: 2
+    },
+    {
+      id: '3',
+      title: 'Alerta ETHA - Venta Total',
+      description: 'Venta total exitosa con excelente rendimiento',
+      chartImage: '/logos/ALERTAVENTATOTALETHA.png',
+      entryPrice: 'USD $420.00',
+      exitPrice: 'USD $504.00',
+      profit: '$84.00',
+      profitPercentage: '+20.0%',
+      riskLevel: 'BAJO',
+      status: 'CERRADO TP1',
+      country: 'United States',
+      ticker: 'ETHA',
+      order: 3
     }
   ];
 
