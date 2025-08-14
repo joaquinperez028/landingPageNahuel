@@ -11,6 +11,7 @@ export async function sendTrainingConfirmationEmail(
     date: string;
     time: string;
     duration: number;
+    meetLink?: string;
   }
 ) {
   try {
@@ -44,6 +45,7 @@ export async function sendAdvisoryConfirmationEmail(
     time: string;
     duration: number;
     price?: number;
+    meetLink?: string;
   }
 ) {
   try {
@@ -78,6 +80,7 @@ export async function sendAdminNotificationEmail(
     time: string;
     duration: number;
     price?: number;
+    meetLink?: string;
   }
 ) {
   try {

@@ -646,8 +646,27 @@ export function createTrainingConfirmationTemplate(
     date: string;
     time: string;
     duration: number;
+    meetLink?: string;
   }
 ): string {
+  const meetLinkSection = trainingDetails.meetLink ? `
+    <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
+      <h3 style="color: white; margin: 0 0 15px 0; font-size: 18px;">🔗 Link de Google Meet</h3>
+      <p style="color: white; margin: 0 0 15px 0; font-size: 14px;">Tu reunión ya está configurada. Haz clic en el botón para unirte:</p>
+      <a href="${trainingDetails.meetLink}" target="_blank" style="display: inline-block; background: white; color: #3b82f6; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+        🎥 Unirse a la Reunión
+      </a>
+      <p style="color: rgba(255,255,255,0.8); margin: 15px 0 0 0; font-size: 12px;">
+        El link estará activo 5 minutos antes del horario programado
+      </p>
+    </div>
+  ` : `
+    <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
+      <h3 style="color: #92400e; margin-top: 0;">⏳ Link de Reunión</h3>
+      <p style="color: #92400e; margin: 0;">Recibirás el link de Google Meet 24 horas antes de la sesión.</p>
+    </div>
+  `;
+
   return createEmailTemplate({
     title: `🎯 Entrenamiento Confirmado`,
     content: `
@@ -669,13 +688,15 @@ export function createTrainingConfirmationTemplate(
         <p style="margin: 8px 0;"><strong>⏱️ Duración:</strong> ${trainingDetails.duration} minutos</p>
       </div>
       
+      ${meetLinkSection}
+      
       <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; border-left: 4px solid #00ff88; margin: 20px 0;">
         <h3 style="color: #1a1a1a; margin-top: 0;">📋 Próximos Pasos:</h3>
         <ul style="color: #333; line-height: 1.6; margin: 0; padding-left: 20px;">
-          <li>Recibirás el link de la reunión por email 24 horas antes</li>
           <li>Asegúrate de tener una conexión estable a internet</li>
           <li>Prepara tus preguntas específicas sobre trading</li>
           <li>Ten a mano tu plataforma de trading si quieres revisarla</li>
+          <li>Únete a la reunión 5 minutos antes del horario programado</li>
         </ul>
       </div>
       
@@ -700,8 +721,27 @@ export function createAdvisoryConfirmationTemplate(
     time: string;
     duration: number;
     price?: number;
+    meetLink?: string;
   }
 ): string {
+  const meetLinkSection = advisoryDetails.meetLink ? `
+    <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
+      <h3 style="color: white; margin: 0 0 15px 0; font-size: 18px;">🔗 Link de Google Meet</h3>
+      <p style="color: white; margin: 0 0 15px 0; font-size: 14px;">Tu reunión ya está configurada. Haz clic en el botón para unirte:</p>
+      <a href="${advisoryDetails.meetLink}" target="_blank" style="display: inline-block; background: white; color: #3b82f6; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+        🎥 Unirse a la Reunión
+      </a>
+      <p style="color: rgba(255,255,255,0.8); margin: 15px 0 0 0; font-size: 12px;">
+        El link estará activo 5 minutos antes del horario programado
+      </p>
+    </div>
+  ` : `
+    <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 20px 0;">
+      <h3 style="color: #92400e; margin-top: 0;">⏳ Link de Reunión</h3>
+      <p style="color: #92400e; margin: 0;">Recibirás el link de Google Meet 24 horas antes de la sesión.</p>
+    </div>
+  `;
+
   return createEmailTemplate({
     title: `🩺 Asesoría Confirmada`,
     content: `
@@ -724,6 +764,8 @@ export function createAdvisoryConfirmationTemplate(
         ${advisoryDetails.price ? `<p style="margin: 8px 0;"><strong>💰 Precio:</strong> $${advisoryDetails.price} USD</p>` : ''}
       </div>
       
+      ${meetLinkSection}
+      
       <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; border-left: 4px solid #00ff88; margin: 20px 0;">
         <h3 style="color: #1a1a1a; margin-top: 0;">📋 Qué Incluye tu Asesoría:</h3>
         <ul style="color: #333; line-height: 1.6; margin: 0; padding-left: 20px;">
@@ -745,10 +787,6 @@ export function createAdvisoryConfirmationTemplate(
           <li>Anota las preguntas específicas que quieras hacer</li>
         </ul>
       </div>
-      
-      <p style="color: #666; font-size: 14px; text-align: center; margin-top: 30px;">
-        Recibirás el link de Google Meet 24 horas antes de la sesión.
-      </p>
     `,
     buttonText: 'Ver Mi Perfil',
     buttonUrl: `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/perfil`
@@ -768,6 +806,7 @@ export function createAdminNotificationTemplate(
     time: string;
     duration: number;
     price?: number;
+    meetLink?: string;
   }
 ): string {
   const typeEmoji = bookingDetails.type === 'training' ? '🎯' : '🩺';
@@ -795,11 +834,24 @@ export function createAdminNotificationTemplate(
         ${bookingDetails.price ? `<p style="margin: 8px 0;"><strong>💰 Precio:</strong> $${bookingDetails.price} USD</p>` : ''}
       </div>
       
+      ${bookingDetails.meetLink ? `
+        <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
+          <h3 style="color: white; margin: 0 0 15px 0; font-size: 18px;">🔗 Google Meet Creado Automáticamente</h3>
+          <p style="color: white; margin: 0 0 15px 0; font-size: 14px;">El link de reunión ya está configurado:</p>
+          <a href="${bookingDetails.meetLink}" target="_blank" style="display: inline-block; background: white; color: #3b82f6; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+            🎥 Unirse a la Reunión
+          </a>
+          <p style="color: rgba(255,255,255,0.8); margin: 15px 0 0 0; font-size: 12px;">
+            El link estará activo 5 minutos antes del horario programado
+          </p>
+        </div>
+      ` : ''}
+      
       <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
         <h3 style="color: #92400e; margin-top: 0;">📋 Acciones Requeridas:</h3>
         <ul style="color: #92400e; line-height: 1.6; margin: 0; padding-left: 20px;">
           <li>Confirmar disponibilidad para la fecha y hora</li>
-          <li>Enviar link de Google Meet 24 horas antes</li>
+          ${bookingDetails.meetLink ? '<li>✅ Google Meet ya creado automáticamente</li>' : '<li>Enviar link de Google Meet 24 horas antes</li>'}
           <li>Revisar el perfil del usuario si es necesario</li>
           <li>Preparar material específico según el tipo de sesión</li>
         </ul>

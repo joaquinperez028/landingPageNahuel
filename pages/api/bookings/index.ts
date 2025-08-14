@@ -242,46 +242,61 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Definir nombre del evento
       const eventName = serviceType || (type === 'training' ? 'Entrenamiento de Trading' : 'Asesoría Financiera');
 
-      // Crear evento solo en el calendario del admin
-      try {
-        console.log('📅 Intentando crear evento en Google Calendar...');
-        console.log('🔑 Variables de entorno disponibles:', {
-          hasAdminAccessToken: !!process.env.ADMIN_GOOGLE_ACCESS_TOKEN,
-          hasAdminRefreshToken: !!process.env.ADMIN_GOOGLE_REFRESH_TOKEN,
-          hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
-          hasGoogleClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
-          calendarId: process.env.GOOGLE_CALENDAR_ID,
-          timezone: process.env.GOOGLE_CALENDAR_TIMEZONE
-        });
-        
-        let googleEvent;
-        
-        if (type === 'training') {
-          console.log('🏋️ Creando evento de entrenamiento...');
-          googleEvent = await createTrainingEvent(userEmail, eventName, startDateTime, duration);
-        } else {
-          console.log('💼 Creando evento de asesoría...');
-          googleEvent = await createAdvisoryEvent(userEmail, eventName, startDateTime, duration);
-        }
-
-        // Actualizar la reserva con el ID del evento de Google
-        if (googleEvent?.id) {
-          console.log('✅ Evento creado exitosamente con ID:', googleEvent.id);
-          await Booking.findByIdAndUpdate(newBooking._id, {
-            googleEventId: googleEvent.id
+              // Crear evento con Google Meet automáticamente en el calendario del admin
+        try {
+          console.log('📅 Intentando crear evento con Google Meet en Google Calendar...');
+          console.log('🔑 Variables de entorno disponibles:', {
+            hasAdminAccessToken: !!process.env.ADMIN_GOOGLE_ACCESS_TOKEN,
+            hasAdminRefreshToken: !!process.env.ADMIN_GOOGLE_REFRESH_TOKEN,
+            hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
+            hasGoogleClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+            calendarId: process.env.GOOGLE_CALENDAR_ID,
+            timezone: process.env.GOOGLE_CALENDAR_TIMEZONE
           });
-        } else {
-          console.log('⚠️ Evento creado pero sin ID');
+          
+          let meetData;
+          
+          if (type === 'training') {
+            console.log('🏋️ Creando evento de entrenamiento con Google Meet...');
+            meetData = await createTrainingEvent(userEmail, eventName, startDateTime, duration);
+          } else {
+            console.log('💼 Creando evento de asesoría con Google Meet...');
+            meetData = await createAdvisoryEvent(userEmail, eventName, startDateTime, duration);
+          }
+
+          // Actualizar la reserva con los datos de Google Meet
+          if (meetData?.success) {
+            console.log('✅ Evento creado exitosamente con ID:', meetData.eventId);
+            
+            const updateData: any = {
+              googleEventId: meetData.eventId
+            };
+            
+            // Si se creó el Google Meet, guardar el link
+            if (meetData.meetLink) {
+              updateData.meetingLink = meetData.meetLink;
+              console.log('🔗 Google Meet creado:', meetData.meetLink);
+            }
+            
+            await Booking.findByIdAndUpdate(newBooking._id, updateData);
+          } else {
+            console.log('⚠️ Evento creado pero sin Google Meet:', meetData?.error);
+            // Guardar solo el ID del evento si existe
+            if (meetData?.eventId) {
+              await Booking.findByIdAndUpdate(newBooking._id, {
+                googleEventId: meetData.eventId
+              });
+            }
+          }
+        } catch (calendarError: any) {
+          console.error('❌ Error detallado al crear evento en Google Calendar:', {
+            error: calendarError?.message || 'Error desconocido',
+            stack: calendarError?.stack,
+            code: calendarError?.code,
+            status: calendarError?.status
+          });
+          // No fallar la reserva si el calendario falla
         }
-      } catch (calendarError: any) {
-        console.error('❌ Error detallado al crear evento en Google Calendar:', {
-          error: calendarError?.message || 'Error desconocido',
-          stack: calendarError?.stack,
-          code: calendarError?.code,
-          status: calendarError?.status
-        });
-        // No fallar la reserva si el calendario falla
-      }
 
       // ✅ CRÍTICO: Invalidar caché de turnos después de crear reserva exitosa
       try {
@@ -332,13 +347,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           price
         };
 
+        // Obtener el link de Meet si existe
+        const meetLink = newBooking.meetingLink;
+        
         // Enviar email de confirmación al usuario
         if (type === 'training') {
           console.log('📧 Enviando email de confirmación de entrenamiento...');
-          await sendTrainingConfirmationEmail(userEmail, userName, emailDetails);
+          await sendTrainingConfirmationEmail(userEmail, userName, {
+            ...emailDetails,
+            meetLink
+          });
         } else {
           console.log('📧 Enviando email de confirmación de asesoría...');
-          await sendAdvisoryConfirmationEmail(userEmail, userName, emailDetails);
+          await sendAdvisoryConfirmationEmail(userEmail, userName, {
+            ...emailDetails,
+            meetLink
+          });
         }
 
         // Enviar notificación al administrador
@@ -351,7 +375,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           date: formattedDate,
           time: formattedTime,
           duration,
-          price
+          price,
+          meetLink
         });
 
         console.log('✅ Notificaciones por email enviadas exitosamente');

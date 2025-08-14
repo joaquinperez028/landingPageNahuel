@@ -22,6 +22,21 @@ interface CalendarEvent {
   attendees?: Array<{
     email: string;
   }>;
+  conferenceData?: {
+    createRequest: {
+      requestId: string;
+      conferenceSolutionKey: {
+        type: string;
+      };
+    };
+  };
+}
+
+interface GoogleMeetData {
+  success: boolean;
+  meetLink?: string;
+  eventId?: string;
+  error?: string;
 }
 
 /**
@@ -88,6 +103,64 @@ async function getCorrectCalendarId(calendar: any): Promise<string> {
 }
 
 /**
+ * Crea automáticamente un Google Meet para un evento
+ */
+async function createGoogleMeetForEvent(
+  calendar: any,
+  eventData: any,
+  calendarId: string
+): Promise<GoogleMeetData> {
+  try {
+    console.log('🔗 Creando Google Meet automáticamente...');
+    
+    // Agregar configuración de conferencia al evento
+    const eventWithMeet = {
+      ...eventData,
+      conferenceData: {
+        createRequest: {
+          requestId: `meet_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+          conferenceSolutionKey: {
+            type: 'hangoutsMeet'
+          }
+        }
+      }
+    };
+
+    console.log('📤 Enviando evento con Google Meet a Calendar API...');
+    
+    const response = await calendar.events.insert({
+      calendarId: calendarId,
+      requestBody: eventWithMeet,
+      conferenceDataVersion: 1 // Habilitar conferencias
+    });
+
+    const meetLink = response.data.conferenceData?.entryPoints?.[0]?.uri;
+    
+    if (meetLink) {
+      console.log('✅ Google Meet creado exitosamente:', meetLink);
+      return {
+        success: true,
+        meetLink,
+        eventId: response.data.id
+      };
+    } else {
+      console.log('⚠️ Evento creado pero sin link de Meet');
+      return {
+        success: true,
+        eventId: response.data.id
+      };
+    }
+
+  } catch (error: any) {
+    console.error('❌ Error al crear Google Meet:', error);
+    return {
+      success: false,
+      error: error.message || 'Error desconocido al crear Google Meet'
+    };
+  }
+}
+
+/**
  * Crea un evento en el calendario del administrador para un entrenamiento
  */
 export async function createTrainingEvent(
@@ -95,7 +168,7 @@ export async function createTrainingEvent(
   trainingName: string,
   startDate: Date,
   durationMinutes: number = 180
-) {
+): Promise<GoogleMeetData> {
   try {
     console.log('📅 Creando evento de entrenamiento en calendario del admin');
 
@@ -117,7 +190,7 @@ export async function createTrainingEvent(
 
     const event = {
       summary: `${trainingName} - ${userEmail} - ${formattedDate} (${uniqueId})`,
-      description: `Entrenamiento de trading reservado por: ${userEmail}\n\nTipo: ${trainingName}\nDuración: ${durationMinutes} minutos\n\nID único: ${uniqueId}`,
+      description: `Entrenamiento de trading reservado por: ${userEmail}\n\nTipo: ${trainingName}\nDuración: ${durationMinutes} minutos\n\nID único: ${uniqueId}\n\nLink de reunión: [Se generará automáticamente]`,
       start: {
         dateTime: startDate.toISOString(),
         timeZone: timezone,
@@ -149,20 +222,21 @@ export async function createTrainingEvent(
       }
     };
 
-    console.log('📤 Enviando evento de entrenamiento a Google Calendar API...');
-    
     // Obtener el calendar ID correcto
     const calendarId = await getCorrectCalendarId(calendar);
     console.log('🎯 Calendar ID:', calendarId);
     console.log('📋 Resumen del evento:', event.summary);
 
-    const response = await calendar.events.insert({
-      calendarId: calendarId,
-      requestBody: event,
-    });
+    // Crear evento con Google Meet automáticamente
+    const meetData = await createGoogleMeetForEvent(calendar, event, calendarId);
+    
+    if (meetData.success && meetData.meetLink) {
+      console.log('✅ Evento de entrenamiento creado con Google Meet:', meetData.meetLink);
+    } else {
+      console.log('⚠️ Evento creado pero sin Google Meet:', meetData.error);
+    }
 
-    console.log('✅ Evento de entrenamiento creado en calendario del admin:', response.data.id);
-    return response.data;
+    return meetData;
 
   } catch (error) {
     console.error('❌ Error al crear evento de entrenamiento:', error);
@@ -178,7 +252,7 @@ export async function createAdvisoryEvent(
   advisoryName: string,
   startDate: Date,
   durationMinutes: number = 60
-) {
+): Promise<GoogleMeetData> {
   try {
     console.log('📅 Creando evento de asesoría en calendario del admin');
     console.log('📋 Datos del evento:', {
@@ -212,7 +286,7 @@ export async function createAdvisoryEvent(
 
     const event = {
       summary: `${advisoryName} - ${userEmail} - ${formattedDate} ${formattedTime} (${uniqueId})`,
-      description: `Asesoría financiera reservada por: ${userEmail}\n\nTipo: ${advisoryName}\nDuración: ${durationMinutes} minutos\n\nFecha: ${formattedDate} a las ${formattedTime}\nID único: ${uniqueId}\n\nLink de reunión: [Se enviará por email]`,
+      description: `Asesoría financiera reservada por: ${userEmail}\n\nTipo: ${advisoryName}\nDuración: ${durationMinutes} minutos\n\nFecha: ${formattedDate} a las ${formattedTime}\nID único: ${uniqueId}\n\nLink de reunión: [Se generará automáticamente]`,
       start: {
         dateTime: startDate.toISOString(),
         timeZone: timezone,
@@ -244,30 +318,21 @@ export async function createAdvisoryEvent(
       }
     };
 
-    console.log('📤 Enviando evento a Google Calendar API...');
-
     // Obtener el calendar ID correcto
     const calendarId = await getCorrectCalendarId(calendar);
-    console.log(`🧪 Probando acceso al calendario: ${calendarId}`);
-    
-    try {
-      await calendar.calendars.get({ calendarId: calendarId });
-      console.log(`✅ Calendario ${calendarId} accesible`);
-    } catch (error: any) {
-      console.log(`⚠️ Error accediendo al calendario ${calendarId}:`, error.message);
-    }
-
     console.log('🎯 Calendar ID:', calendarId);
     console.log('📋 Resumen del evento:', event.summary);
 
-    const response = await calendar.events.insert({
-      calendarId: calendarId,
-      requestBody: event,
-    });
+    // Crear evento con Google Meet automáticamente
+    const meetData = await createGoogleMeetForEvent(calendar, event, calendarId);
+    
+    if (meetData.success && meetData.meetLink) {
+      console.log('✅ Evento de asesoría creado con Google Meet:', meetData.meetLink);
+    } else {
+      console.log('⚠️ Evento creado pero sin Google Meet:', meetData.error);
+    }
 
-    console.log('✅ Evento de asesoría creado en calendario del admin:', response.data.id);
-    console.log('🔗 Link del evento:', response.data.htmlLink);
-    return response.data;
+    return meetData;
 
   } catch (error: any) {
     console.error('❌ Error detallado al crear evento de asesoría:', {
@@ -278,5 +343,48 @@ export async function createAdvisoryEvent(
       response: error?.response?.data
     });
     throw error;
+  }
+}
+
+/**
+ * Actualiza un evento existente con Google Meet
+ */
+export async function updateEventWithGoogleMeet(
+  eventId: string,
+  meetLink?: string
+): Promise<boolean> {
+  try {
+    console.log('🔄 Actualizando evento con Google Meet:', eventId);
+    
+    const calendar = await getAdminCalendarClient();
+    const calendarId = await getCorrectCalendarId(calendar);
+
+    // Obtener el evento actual
+    const currentEvent = await calendar.events.get({
+      calendarId,
+      eventId
+    });
+
+    // Actualizar descripción con el link de Meet
+    const updatedDescription = meetLink 
+      ? `${currentEvent.data.description}\n\n🔗 Link de Google Meet: ${meetLink}`
+      : currentEvent.data.description;
+
+    // Actualizar el evento
+    await calendar.events.update({
+      calendarId,
+      eventId,
+      requestBody: {
+        ...currentEvent.data,
+        description: updatedDescription
+      }
+    });
+
+    console.log('✅ Evento actualizado con Google Meet');
+    return true;
+
+  } catch (error) {
+    console.error('❌ Error al actualizar evento con Google Meet:', error);
+    return false;
   }
 } 
