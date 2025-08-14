@@ -20,8 +20,6 @@ const SecurityWarning: React.FC<SecurityWarningProps> = ({
       // Detectar el tipo de violación
       if (e.type === 'contextmenu') {
         violationMessage = "Click derecho deshabilitado por seguridad";
-      } else if (e.type === 'keydown') {
-        violationMessage = "Combinación de teclas no permitida";
       } else if (e.type === 'dragstart') {
         violationMessage = "Arrastrar elementos no está permitido";
       }
@@ -35,14 +33,196 @@ const SecurityWarning: React.FC<SecurityWarningProps> = ({
       }, duration);
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Solo interceptar combinaciones de teclas específicas, no escritura normal
+      const target = e.target as HTMLElement;
+      
+      // Permitir escritura normal en inputs, textareas, contenteditable
+      if (target.tagName === 'INPUT' || 
+          target.tagName === 'TEXTAREA' || 
+          target.contentEditable === 'true' ||
+          target.isContentEditable) {
+        return;
+      }
+      
+      // Solo interceptar combinaciones de teclas específicas
+      const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+      const isShift = e.shiftKey;
+      const isAlt = e.altKey;
+      
+      // Combinaciones de teclas a bloquear
+      const blockedCombinations = [
+        // Ctrl/Cmd + teclas
+        (isCtrlOrCmd && e.key === 'c'), // Ctrl+C
+        (isCtrlOrCmd && e.key === 'v'), // Ctrl+V
+        (isCtrlOrCmd && e.key === 'x'), // Ctrl+X
+        (isCtrlOrCmd && e.key === 'a'), // Ctrl+A
+        (isCtrlOrCmd && e.key === 'z'), // Ctrl+Z
+        (isCtrlOrCmd && e.key === 'y'), // Ctrl+Y
+        (isCtrlOrCmd && e.key === 's'), // Ctrl+S
+        (isCtrlOrCmd && e.key === 'p'), // Ctrl+P
+        (isCtrlOrCmd && e.key === 'u'), // Ctrl+U
+        (isCtrlOrCmd && e.key === 'f'), // Ctrl+F
+        (isCtrlOrCmd && e.key === 'd'), // Ctrl+D
+        (isCtrlOrCmd && e.key === 'r'), // Ctrl+R
+        (isCtrlOrCmd && e.key === 'n'), // Ctrl+N
+        (isCtrlOrCmd && e.key === 't'), // Ctrl+T
+        (isCtrlOrCmd && e.key === 'w'), // Ctrl+W
+        (isCtrlOrCmd && e.key === 'l'), // Ctrl+L
+        (isCtrlOrCmd && e.key === 'k'), // Ctrl+K
+        (isCtrlOrCmd && e.key === 'j'), // Ctrl+J
+        (isCtrlOrCmd && e.key === 'h'), // Ctrl+H
+        (isCtrlOrCmd && e.key === 'g'), // Ctrl+G
+        (isCtrlOrCmd && e.key === 'b'), // Ctrl+B
+        (isCtrlOrCmd && e.key === 'i'), // Ctrl+I
+        (isCtrlOrCmd && e.key === 'o'), // Ctrl+O
+        (isCtrlOrCmd && e.key === 'm'), // Ctrl+M
+        (isCtrlOrCmd && e.key === 'q'), // Ctrl+Q
+        (isCtrlOrCmd && e.key === 'e'), // Ctrl+E
+        (isCtrlOrCmd && e.key === 'w'), // Ctrl+W
+        (isCtrlOrCmd && e.key === '1'), // Ctrl+1
+        (isCtrlOrCmd && e.key === '2'), // Ctrl+2
+        (isCtrlOrCmd && e.key === '3'), // Ctrl+3
+        (isCtrlOrCmd && e.key === '4'), // Ctrl+4
+        (isCtrlOrCmd && e.key === '5'), // Ctrl+5
+        (isCtrlOrCmd && e.key === '6'), // Ctrl+6
+        (isCtrlOrCmd && e.key === '7'), // Ctrl+7
+        (isCtrlOrCmd && e.key === '8'), // Ctrl+8
+        (isCtrlOrCmd && e.key === '9'), // Ctrl+9
+        (isCtrlOrCmd && e.key === '0'), // Ctrl+0
+        (isCtrlOrCmd && e.key === '-'), // Ctrl+-
+        (isCtrlOrCmd && e.key === '='), // Ctrl+=
+        (isCtrlOrCmd && e.key === '['), // Ctrl+[
+        (isCtrlOrCmd && e.key === ']'), // Ctrl+]
+        (isCtrlOrCmd && e.key === '\\'), // Ctrl+\
+        (isCtrlOrCmd && e.key === ';'), // Ctrl+;
+        (isCtrlOrCmd && e.key === "'"), // Ctrl+'
+        (isCtrlOrCmd && e.key === ','), // Ctrl+,
+        (isCtrlOrCmd && e.key === '.'), // Ctrl+.
+        (isCtrlOrCmd && e.key === '/'), // Ctrl+/
+        (isCtrlOrCmd && e.key === '`'), // Ctrl+`
+        (isCtrlOrCmd && e.key === '~'), // Ctrl+~
+        (isCtrlOrCmd && e.key === '!'), // Ctrl+!
+        (isCtrlOrCmd && e.key === '@'), // Ctrl+@
+        (isCtrlOrCmd && e.key === '#'), // Ctrl+#
+        (isCtrlOrCmd && e.key === '$'), // Ctrl+$
+        (isCtrlOrCmd && e.key === '%'), // Ctrl+%
+        (isCtrlOrCmd && e.key === '^'), // Ctrl+^
+        (isCtrlOrCmd && e.key === '&'), // Ctrl+&
+        (isCtrlOrCmd && e.key === '*'), // Ctrl+*
+        (isCtrlOrCmd && e.key === '('), // Ctrl+(
+        (isCtrlOrCmd && e.key === ')'), // Ctrl+)
+        (isCtrlOrCmd && e.key === '_'), // Ctrl+_
+        (isCtrlOrCmd && e.key === '+'), // Ctrl++
+        (isCtrlOrCmd && e.key === '{'), // Ctrl+{
+        (isCtrlOrCmd && e.key === '}'), // Ctrl+}
+        (isCtrlOrCmd && e.key === '|'), // Ctrl+|
+        (isCtrlOrCmd && e.key === ':'), // Ctrl+:
+        (isCtrlOrCmd && e.key === '"'), // Ctrl+"
+        (isCtrlOrCmd && e.key === '<'), // Ctrl+<
+        (isCtrlOrCmd && e.key === '>'), // Ctrl+>
+        (isCtrlOrCmd && e.key === '?'), // Ctrl+?
+        (isCtrlOrCmd && e.key === 'Tab'), // Ctrl+Tab
+        (isCtrlOrCmd && e.key === 'Enter'), // Ctrl+Enter
+        (isCtrlOrCmd && e.key === 'Backspace'), // Ctrl+Backspace
+        (isCtrlOrCmd && e.key === 'Delete'), // Ctrl+Delete
+        (isCtrlOrCmd && e.key === 'Insert'), // Ctrl+Insert
+        (isCtrlOrCmd && e.key === 'Home'), // Ctrl+Home
+        (isCtrlOrCmd && e.key === 'End'), // Ctrl+End
+        (isCtrlOrCmd && e.key === 'PageUp'), // Ctrl+PageUp
+        (isCtrlOrCmd && e.key === 'PageDown'), // Ctrl+PageDown
+        (isCtrlOrCmd && e.key === 'ArrowUp'), // Ctrl+ArrowUp
+        (isCtrlOrCmd && e.key === 'ArrowDown'), // Ctrl+ArrowDown
+        (isCtrlOrCmd && e.key === 'ArrowLeft'), // Ctrl+ArrowLeft
+        (isCtrlOrCmd && e.key === 'ArrowRight'), // Ctrl+ArrowRight
+        (isCtrlOrCmd && e.key === 'F1'), // Ctrl+F1
+        (isCtrlOrCmd && e.key === 'F2'), // Ctrl+F2
+        (isCtrlOrCmd && e.key === 'F3'), // Ctrl+F3
+        (isCtrlOrCmd && e.key === 'F4'), // Ctrl+F4
+        (isCtrlOrCmd && e.key === 'F5'), // Ctrl+F5
+        (isCtrlOrCmd && e.key === 'F6'), // Ctrl+F6
+        (isCtrlOrCmd && e.key === 'F7'), // Ctrl+F7
+        (isCtrlOrCmd && e.key === 'F8'), // Ctrl+F8
+        (isCtrlOrCmd && e.key === 'F9'), // Ctrl+F9
+        (isCtrlOrCmd && e.key === 'F10'), // Ctrl+F10
+        (isCtrlOrCmd && e.key === 'F11'), // Ctrl+F11
+        (isCtrlOrCmd && e.key === 'F12'), // Ctrl+F12
+        // Shift + teclas
+        (isShift && e.key === 'F10'), // Shift+F10 (menú contextual)
+        (isShift && e.key === 'Insert'), // Shift+Insert
+        (isShift && e.key === 'Delete'), // Shift+Delete
+        (isShift && e.key === 'Home'), // Shift+Home
+        (isShift && e.key === 'End'), // Shift+End
+        (isShift && e.key === 'PageUp'), // Shift+PageUp
+        (isShift && e.key === 'PageDown'), // Shift+PageDown
+        (isShift && e.key === 'ArrowUp'), // Shift+ArrowUp
+        (isShift && e.key === 'ArrowDown'), // Shift+ArrowDown
+        (isShift && e.key === 'ArrowLeft'), // Shift+ArrowLeft
+        (isShift && e.key === 'ArrowRight'), // Shift+ArrowRight
+        // Alt + teclas
+        (isAlt && e.key === 'F4'), // Alt+F4
+        (isAlt && e.key === 'Tab'), // Alt+Tab
+        (isAlt && e.key === 'Enter'), // Alt+Enter
+        (isAlt && e.key === 'Backspace'), // Alt+Backspace
+        (isAlt && e.key === 'Delete'), // Alt+Delete
+        (isAlt && e.key === 'Home'), // Alt+Home
+        (isAlt && e.key === 'End'), // Alt+End
+        (isAlt && e.key === 'PageUp'), // Alt+PageUp
+        (isAlt && e.key === 'PageDown'), // Alt+PageDown
+        (isAlt && e.key === 'ArrowUp'), // Alt+ArrowUp
+        (isAlt && e.key === 'ArrowDown'), // Alt+ArrowDown
+        (isAlt && e.key === 'ArrowLeft'), // Alt+ArrowLeft
+        (isAlt && e.key === 'ArrowRight'), // Alt+ArrowRight
+        // F1-F12 solos
+        e.key === 'F1',
+        e.key === 'F2',
+        e.key === 'F3',
+        e.key === 'F4',
+        e.key === 'F5',
+        e.key === 'F6',
+        e.key === 'F7',
+        e.key === 'F8',
+        e.key === 'F9',
+        e.key === 'F10',
+        e.key === 'F11',
+        e.key === 'F12',
+        // Teclas de función especiales
+        e.key === 'PrintScreen',
+        e.key === 'ScrollLock',
+        e.key === 'Pause',
+        e.key === 'Insert',
+        e.key === 'Home',
+        e.key === 'End',
+        e.key === 'PageUp',
+        e.key === 'PageDown',
+        e.key === 'NumLock',
+        e.key === 'CapsLock',
+        e.key === 'ContextMenu'
+      ];
+      
+      // Verificar si la combinación está bloqueada
+      const isBlocked = blockedCombinations.some(combination => combination);
+      
+      if (isBlocked) {
+        const violationMessage = "Combinación de teclas no permitida por seguridad";
+        setWarningMessage(violationMessage);
+        setShowWarning(true);
+        
+        // Ocultar después del tiempo especificado
+        setTimeout(() => { 
+          setShowWarning(false);
+        }, duration);
+      }
+    };
+
     // Escuchar eventos de seguridad
     document.addEventListener('contextmenu', handleSecurityViolation);
-    document.addEventListener('keydown', handleSecurityViolation);
+    document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('dragstart', handleSecurityViolation);
 
     return () => {
       document.removeEventListener('contextmenu', handleSecurityViolation);
-      document.removeEventListener('keydown', handleSecurityViolation);
+      document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('dragstart', handleSecurityViolation);
     };
   }, [message, duration]);

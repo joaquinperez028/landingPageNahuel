@@ -967,35 +967,75 @@
 
 /* Formulario de Reserva */
 .reservaSection {
-  background: #1a1a1a;
-  padding: 4rem 0;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  padding: 6rem 0;
+  position: relative;
+}
+
+.reservaSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(139, 92, 246, 0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  opacity: 0.3;
 }
 
 .reservaContainer {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+  position: relative;
+  z-index: 2;
 }
 
 .reservaTitle {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 800;
   color: #FFFFFF;
   text-align: center;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.reservaSubtitle {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  text-align: center;
   margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .reservaCard {
-  background: #FFFFFF;
-  border-radius: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 24px;
   padding: 3rem;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.reservaCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #8B5CF6 0%, #A855F7 50%, #C084FC 100%);
 }
 
 .reservaContent {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
+  position: relative;
+  z-index: 2;
 }
 
 /* Calendario Section */
@@ -1006,38 +1046,75 @@
 }
 
 .calendarioTitle {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #000000;
+  color: #1e293b;
   margin: 0;
+  text-align: center;
+  position: relative;
+}
+
+.calendarioTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #8B5CF6 0%, #A855F7 100%);
+  border-radius: 2px;
 }
 
 .fechasGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
 }
 
 .fechaCard {
-  background: #F8F9FA;
-  border: 2px solid #E9ECEF;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
   padding: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.fechaCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .fechaCard:hover {
   border-color: #8B5CF6;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+}
+
+.fechaCard:hover::before {
+  opacity: 1;
 }
 
 .fechaSelected {
   border-color: #8B5CF6;
-  background: rgba(139, 92, 246, 0.1);
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.25);
+  transform: translateY(-2px);
+}
+
+.fechaSelected::before {
+  opacity: 1;
 }
 
 .fechaHeader {
@@ -1061,46 +1138,90 @@
 }
 
 .horariosSection {
-  margin-top: 1rem;
+  margin-top: 2rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid rgba(139, 92, 246, 0.1);
 }
 
 .horariosTitle {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: 600;
-  color: #000000;
-  margin-bottom: 1rem;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.horariosTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, #8B5CF6 0%, #A855F7 100%);
+  border-radius: 1px;
 }
 
 .horariosGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
 }
 
 .horarioButton {
-  background: #FFFFFF;
-  border: 2px solid #E9ECEF;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 0.95rem;
-  color: #000000;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+  position: relative;
+  overflow: hidden;
+}
+
+.horarioButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .horarioButton:hover {
   border-color: #8B5CF6;
-  background: rgba(139, 92, 246, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+}
+
+.horarioButton:hover::before {
+  opacity: 1;
 }
 
 .horarioSelected {
   border-color: #8B5CF6;
-  background: #8B5CF6;
+  background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
   color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+}
+
+.horarioSelected::before {
+  opacity: 0;
 }
 
 /* Formulario Section */
@@ -1111,10 +1232,24 @@
 }
 
 .formularioTitle {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #333;
+  color: #1e293b;
   margin: 0;
+  text-align: center;
+  position: relative;
+}
+
+.formularioTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #8B5CF6 0%, #A855F7 100%);
+  border-radius: 2px;
 }
 
 .formGrid {
@@ -1129,80 +1264,145 @@
 
 .formLabel {
   display: block;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 0.5rem;
+  color: #374151;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.formLabel::after {
+  content: ' *';
+  color: #ef4444;
+  font-weight: 700;
 }
 
 .formInput,
 .formTextarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 2px solid #E9ECEF;
-  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: #FFFFFF;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  color: #1e293b;
+  font-weight: 500;
 }
 
 .formInput:focus,
 .formTextarea:focus {
   outline: none;
   border-color: #8B5CF6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.formInput::placeholder,
+.formTextarea::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
 }
 
 .formTextarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 100px;
+  line-height: 1.6;
 }
 
 .precioSection {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  background: #F8F9FA;
-  border-radius: 8px;
-  border: 1px solid #E9ECEF;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+  border-radius: 16px;
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  margin: 2rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.precioSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(139, 92, 246, 0.05) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .precioLabel {
-  font-size: 1rem;
-  color: #333;
-  font-weight: 500;
+  font-size: 1.1rem;
+  color: #374151;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
 }
 
 .precioValor {
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: #8B5CF6;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 1px 2px rgba(139, 92, 246, 0.1);
 }
 
 .confirmarButton {
-  background: #FFFFFF;
-  color: #000000;
-  border: 2px solid #000000;
-  border-radius: 8px;
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
-  font-weight: 600;
+  background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  padding: 1.25rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
-  margin-top: 1rem;
+  margin-top: 2rem;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.confirmarButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+  transition: left 0.5s ease;
 }
 
 .confirmarButton:hover:not(:disabled) {
-  background: #F8F8F8;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+}
+
+.confirmarButton:hover:not(:disabled)::before {
+  left: 100%;
 }
 
 .confirmarButton:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.confirmarButton:disabled::before {
+  display: none;
 }
 
 .loginRequired {

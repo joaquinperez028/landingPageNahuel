@@ -464,6 +464,9 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
         <section className={styles.reservaSection} id="formulario-turno">
           <div className={styles.reservaContainer}>
             <h2 className={styles.reservaTitle}>Próximos Turnos</h2>
+            <p className={styles.reservaSubtitle}>
+              Selecciona la fecha y hora que mejor se adapte a tu agenda. Sesiones de 60 minutos para un análisis completo de tu situación financiera.
+            </p>
             
             <div className={styles.reservaCard}>
               <div className={styles.reservaContent}>
