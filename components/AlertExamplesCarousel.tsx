@@ -57,24 +57,6 @@ const AlertExamplesCarousel: React.FC<AlertExamplesCarouselProps> = ({
     setCurrentIndex(index);
   };
 
-  const getRiskColor = (risk: string) => {
-    switch (risk) {
-      case 'BAJO': return '#10b981';
-      case 'MEDIO': return '#f59e0b';
-      case 'ALTO': return '#ef4444';
-      default: return '#6b7280';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'CERRADO TP1': return '#10b981';
-      case 'CERRADO TP1 Y SL': return '#059669';
-      case 'CERRADO SL': return '#ef4444';
-      default: return '#6b7280';
-    }
-  };
-
   if (examples.length === 0) {
     return (
       <div className={styles.emptyState}>
@@ -83,12 +65,12 @@ const AlertExamplesCarousel: React.FC<AlertExamplesCarouselProps> = ({
     );
   }
 
-  // Mostrar 3 ejemplos a la vez
+  // Mostrar 4 ejemplos a la vez para mostrar más imágenes
   const getVisibleExamples = () => {
-    if (examples.length <= 3) return examples;
+    if (examples.length <= 4) return examples;
     
     const visibleExamples = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
       const index = (currentIndex + i) % examples.length;
       visibleExamples.push(examples[index]);
     }
@@ -99,7 +81,7 @@ const AlertExamplesCarousel: React.FC<AlertExamplesCarouselProps> = ({
     <div className={styles.carousel}>
       <div className={styles.carouselContainer}>
         {/* Navigation Arrows */}
-        {examples.length > 3 && (
+        {examples.length > 4 && (
           <>
             <button 
               className={`${styles.navButton} ${styles.prevButton}`}
@@ -132,12 +114,12 @@ const AlertExamplesCarousel: React.FC<AlertExamplesCarouselProps> = ({
               <div className={styles.alertsGrid}>
                 {getVisibleExamples().map((example, index) => (
                   <div key={`${example.id}-${index}`} className={styles.alertCard}>
-                    {/* Chart Image or Background */}
+                    {/* Chart Image Only */}
                     <div className={styles.chartContainer}>
                       {example.chartImage ? (
                         <img 
                           src={example.chartImage} 
-                          alt={`Gráfico de ${example.title}`}
+                          alt={`Ejemplo de alerta ${example.ticker}`}
                           className={styles.chartImage}
                         />
                       ) : (
@@ -146,38 +128,10 @@ const AlertExamplesCarousel: React.FC<AlertExamplesCarouselProps> = ({
                           <div className={styles.candlesticks}></div>
                         </div>
                       )}
-                      <div className={styles.chartOverlay}></div>
-                    </div>
-                    
-                    {/* Content */}
-                    <div className={styles.cardContent}>
-                      {/* Header */}
-                      <div className={styles.alertHeader}>
-                        <h3 className={styles.alertTitle}>{example.title}</h3>
+                      {/* Simple overlay with ticker */}
+                      <div className={styles.chartOverlay}>
+                        <span className={styles.tickerLabel}>{example.ticker}</span>
                       </div>
-
-                      {/* Description */}
-                      <div className={styles.alertDescription}>
-                        <p>{example.description}</p>
-                      </div>
-
-                      {/* Trading Details */}
-                      <div className={styles.tradingDetails}>
-                        <div className={styles.priceItem}>
-                          <span className={styles.priceLabel}>💰 Precio de entrada:</span>
-                          <span className={styles.priceValue}>{example.entryPrice}</span>
-                        </div>
-                        <div className={styles.priceItem}>
-                          <span className={styles.priceLabel}>💸 Precio de salida:</span>
-                          <span className={styles.priceValue}>{example.exitPrice}</span>
-                        </div>
-                        <div className={styles.profitItem}>
-                          <span className={styles.profitLabel}>📊 Rendimiento:</span>
-                          <span className={styles.profitValue}>{example.profitPercentage}</span>
-                        </div>
-                      </div>
-
-
                     </div>
                   </div>
                 ))}
@@ -185,6 +139,20 @@ const AlertExamplesCarousel: React.FC<AlertExamplesCarouselProps> = ({
             </motion.div>
           </AnimatePresence>
         </div>
+
+        {/* Dots Indicator */}
+        {examples.length > 4 && (
+          <div className={styles.dotsContainer}>
+            {Array.from({ length: Math.ceil(examples.length / 4) }, (_, i) => (
+              <button
+                key={i}
+                className={`${styles.dot} ${Math.floor(currentIndex / 4) === i ? styles.activeDot : ''}`}
+                onClick={() => goToSlide(i * 4)}
+                aria-label={`Ir a página ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
