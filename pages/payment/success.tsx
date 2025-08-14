@@ -57,15 +57,15 @@ export default function PaymentSuccess() {
       </Head>
 
       <div className={styles.container}>
-        <div className={styles.card}>
-          <div className={styles.iconContainer}>
-            <CheckCircle className={styles.successIcon} />
+        <div className={styles.content}>
+          <div className={styles.successIcon}>
+            <CheckCircle size={60} />
           </div>
           
           <h1 className={styles.title}>¡Pago Exitoso!</h1>
           
-          <p className={styles.message}>
-            Tu suscripción ha sido activada correctamente. Ya puedes acceder a todo el contenido.
+          <p className={styles.subtitle}>
+            Tu pago ha sido procesado correctamente. Ya puedes acceder a todo el contenido.
           </p>
 
           {paymentDetails && (
@@ -85,13 +85,13 @@ export default function PaymentSuccess() {
             </div>
           )}
 
-          <div className={styles.actions}>
-            <Link href="/alertas" className={styles.primaryButton}>
+          <div className={styles.buttonGroup}>
+            <Link href="/alertas" className={`${styles.button} ${styles.primaryButton}`}>
               Ir a las Alertas
               <ArrowRight size={20} />
             </Link>
             
-            <Link href="/" className={styles.secondaryButton}>
+            <Link href="/" className={`${styles.button} ${styles.secondaryButton}`}>
               <Home size={20} />
               Volver al Inicio
             </Link>

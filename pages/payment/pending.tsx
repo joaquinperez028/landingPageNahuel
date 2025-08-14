@@ -66,14 +66,14 @@ export default function PaymentPending() {
       </Head>
 
       <div className={styles.container}>
-        <div className={styles.card}>
-          <div className={styles.iconContainer}>
-            <Clock className={styles.pendingIcon} />
+        <div className={styles.content}>
+          <div className={styles.pendingIcon}>
+            <Clock size={60} />
           </div>
           
           <h1 className={styles.title}>Pago en Proceso</h1>
           
-          <p className={styles.message}>
+          <p className={styles.subtitle}>
             Tu pago está siendo procesado por el banco. Esto puede tomar unos minutos.
           </p>
 

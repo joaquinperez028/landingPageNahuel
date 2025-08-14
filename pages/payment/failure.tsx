@@ -17,51 +17,52 @@ export default function PaymentFailure() {
       </Head>
 
       <div className={styles.container}>
-        <div className={styles.card}>
-          <div className={styles.iconContainer}>
-            <XCircle className={styles.errorIcon} />
+        <div className={styles.content}>
+          <div className={styles.errorIcon}>
+            <XCircle size={60} />
           </div>
           
           <h1 className={styles.title}>Pago No Completado</h1>
           
-          <p className={styles.message}>
+          <p className={styles.subtitle}>
             Hubo un problema al procesar tu pago. No te preocupes, no se ha cobrado nada.
           </p>
 
           {error && (
-            <div className={styles.errorDetails}>
-              <p><strong>Error:</strong> {error}</p>
+            <div className={styles.errorInfo}>
+              <div className={styles.errorTitle}>Detalles del Error</div>
+              <div className={styles.errorDescription}>{error}</div>
             </div>
           )}
 
-          <div className={styles.actions}>
-            <button 
-              onClick={() => window.history.back()} 
-              className={styles.primaryButton}
-            >
-              <RefreshCw size={20} />
-              Intentar Nuevamente
-            </button>
-            
-            <Link href="/" className={styles.secondaryButton}>
-              <Home size={20} />
-              Volver al Inicio
-            </Link>
-          </div>
-
-          <div className={styles.help}>
-            <h3>¿Necesitas ayuda?</h3>
-            <ul>
+          <div className={styles.suggestions}>
+            <div className={styles.suggestionsTitle}>¿Necesitas ayuda?</div>
+            <ul className={styles.suggestionsList}>
               <li>Verifica que tu tarjeta tenga fondos suficientes</li>
               <li>Asegúrate de que los datos sean correctos</li>
               <li>Intenta con otro método de pago</li>
               <li>Contacta a soporte si el problema persiste</li>
             </ul>
+          </div>
+
+          <div className={styles.buttonGroup}>
+            <button 
+              onClick={() => window.history.back()} 
+              className={`${styles.button} ${styles.primaryButton}`}
+            >
+              <RefreshCw size={20} />
+              Intentar Nuevamente
+            </button>
             
-            <div className={styles.support}>
-              <HelpCircle size={16} />
-              <span>Soporte: soporte@lozanonahuel.com</span>
-            </div>
+            <Link href="/" className={`${styles.button} ${styles.secondaryButton}`}>
+              <Home size={20} />
+              Volver al Inicio
+            </Link>
+          </div>
+
+          <div className={styles.support}>
+            <HelpCircle size={16} />
+            <span>Soporte: soporte@lozanonahuel.com</span>
           </div>
         </div>
       </div>
