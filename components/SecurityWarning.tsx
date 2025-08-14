@@ -30,7 +30,7 @@ const SecurityWarning: React.FC<SecurityWarningProps> = ({
       setShowWarning(true);
       
       // Ocultar después del tiempo especificado
-      setTimeout(() => {
+      setTimeout(() => { 
         setShowWarning(false);
       }, duration);
     };
