@@ -1126,36 +1126,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     ticker: 'ETHA',
     order: 6
   },
-  {
-    id: '7',
-    title: 'Alerta EDN - Compra',
-    description: 'Señal de compra confirmada en EDN',
-    chartImage: '/logos/ALERTACOMPRAEDN.png',
-    entryPrice: 'USD $250.00',
-    exitPrice: 'USD $300.00',
-    profit: '$50.00',
-    profitPercentage: '+20.0%',
-    riskLevel: 'BAJO',
-    status: 'CERRADO TP1',
-    country: 'United States',
-    ticker: 'EDN',
-    order: 7
-  },
-  {
-    id: '8',
-    title: 'Alerta SPOT - Compra',
-    description: 'Señal de compra confirmada en SPOT',
-    chartImage: '/logos/ALERTACOMPRASPOT.png',
-    entryPrice: 'USD $100.00',
-    exitPrice: 'USD $120.00',
-    profit: '$20.00',
-    profitPercentage: '+20.0%',
-    riskLevel: 'MEDIO',
-    status: 'CERRADO TP1',
-    country: 'United States',
-    ticker: 'SPOT',
-    order: 8
-  }
+  
 ];
 
   const defaultFaqs: FAQ[] = [
