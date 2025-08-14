@@ -182,6 +182,83 @@ export const isPaymentRejected = (payment: any): boolean => {
 };
 
 /**
+ * Crear preferencia de pago para reservas usando Checkout Pro
+ */
+export const createBookingPreference = async (
+  serviceType: string,
+  amount: number,
+  currency: string = 'ARS',
+  externalReference: string,
+  successUrl: string,
+  failureUrl: string,
+  pendingUrl: string
+) => {
+  try {
+    console.log('🔧 MercadoPago - Creando preferencia de reserva:', {
+      serviceType,
+      amount,
+      currency,
+      externalReference,
+      accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN ? 'Configurado' : 'No configurado'
+    });
+
+    const preferenceData = {
+      items: [
+        {
+          id: `booking_${serviceType}_${Date.now()}`,
+          title: `Reserva - ${serviceType}`,
+          unit_price: amount,
+          quantity: 1,
+          currency_id: currency,
+        }
+      ],
+      external_reference: externalReference,
+      back_urls: {
+        success: successUrl,
+        failure: failureUrl,
+        pending: pendingUrl
+      },
+      auto_return: 'approved',
+      notification_url: `${process.env.NEXTAUTH_URL}/api/webhooks/mercadopago`,
+      expires: true,
+      expiration_date_to: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutos
+      payment_methods: {
+        installments: 1 // Sin cuotas para reservas
+      }
+    };
+
+    console.log('🔧 MercadoPago - Datos de preferencia de reserva:', preferenceData);
+    
+    const response = await preference.create({ body: preferenceData });
+    
+    console.log('✅ MercadoPago - Preferencia de reserva creada:', {
+      id: response.id,
+      initPoint: response.init_point,
+      sandboxInitPoint: response.sandbox_init_point
+    });
+    
+    return {
+      success: true,
+      preferenceId: response.id,
+      initPoint: response.init_point,
+      sandboxInitPoint: response.sandbox_init_point
+    };
+  } catch (error) {
+    console.error('❌ Error creando preferencia de reserva:', error);
+    console.error('🔍 Error detallado:', {
+      message: error instanceof Error ? error.message : 'Error desconocido',
+      stack: error instanceof Error ? error.stack : 'No stack',
+      error: error
+    });
+    
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Error desconocido'
+    };
+  }
+};
+
+/**
  * Crear preferencia de pago genérica usando Checkout Pro
  */
 export const createMercadoPagoPreference = async (

@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Payment from '@/models/Payment';
+import Booking from '@/models/Booking';
 import { getMercadoPagoPayment, isPaymentSuccessful, isPaymentPending, isPaymentRejected } from '@/lib/mercadopago';
 
 /**
@@ -148,9 +149,11 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
     const amount = payment.amount;
     const currency = payment.currency;
 
-    // Determinar tipo de pago
+    // Determinar tipo de pago basado en external_reference
+    const externalRef = payment.externalReference;
     const isSubscription = ['TraderCall', 'SmartMoney', 'CashFlow'].includes(service);
     const isTraining = ['SwingTrading', 'DowJones'].includes(service);
+    const isBooking = externalRef && externalRef.startsWith('booking_');
 
     if (isSubscription) {
       // Procesar suscripción
@@ -182,6 +185,38 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
         training: service,
         transactionId: paymentInfo.id
       });
+
+    } else if (isBooking) {
+      // Procesar reserva
+      console.log('✅ Procesando pago de reserva...');
+      
+      // Extraer bookingId del external_reference
+      const bookingId = externalRef.split('_').pop(); // Último elemento después de booking_serviceType_userId_timestamp
+      
+      if (bookingId) {
+        // Buscar la reserva
+        const booking = await Booking.findById(bookingId);
+        
+        if (booking) {
+          // Actualizar estado de pago de la reserva
+          booking.paymentStatus = 'paid';
+          booking.status = 'confirmed';
+          booking.updatedAt = new Date();
+          await booking.save();
+
+          console.log('✅ Reserva confirmada y pagada:', {
+            bookingId: booking._id,
+            user: user.email,
+            serviceType: booking.serviceType,
+            amount: amount,
+            transactionId: paymentInfo.id
+          });
+        } else {
+          console.error('❌ Reserva no encontrada:', bookingId);
+        }
+      } else {
+        console.error('❌ No se pudo extraer bookingId del external_reference:', externalRef);
+      }
     }
 
     // Actualizar estado del pago

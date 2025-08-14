@@ -331,12 +331,17 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     console.log(`📍 Hora local esperada: ${selectedTime}`);
     console.log(`📍 Hora UTC enviada: ${utcDate.getUTCHours()}:${String(utcDate.getUTCMinutes()).padStart(2, '0')}`);
 
+    // Precio dinámico para Consultorio Financiero
+    const bookingPrice = 50000; // $50,000 ARS
+    const bookingCurrency = 'ARS';
+
+    // Crear la reserva primero
     const bookingData = {
       type: 'advisory' as const,
       serviceType: 'ConsultorioFinanciero' as const,
       startDate: utcDate.toISOString(),
       duration: 60,
-      price: 199,
+      price: bookingPrice,
       notes: `Reserva desde página de Consultorio Financiero - ${selectedDate} a las ${selectedTime}`
     };
 
@@ -344,47 +349,57 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       const booking = await createBooking(bookingData);
 
       if (booking) {
-        console.log('✅ Reserva creada exitosamente');
+        console.log('✅ Reserva creada exitosamente, procediendo al pago');
         
-        // ✅ SOLUCIÓN OPTIMIZADA: Actualización inmediata de la UI sin recargas múltiples
-        console.log('🔄 Actualizando interfaz inmediatamente...');
-        
-        // Guardar datos de la reserva antes de limpiar la selección
-        const reservedSlotData = { date: selectedDate, time: selectedTime };
-        
-        // Actualizar inmediatamente la UI removiendo el turno reservado
-        setProximosTurnos(prevTurnos => 
-          prevTurnos.map(turno => {
-            if (turno.fecha === selectedDate) {
-              const horariosActualizados = turno.horarios.filter(h => h !== selectedTime);
-              return {
-                ...turno,
-                horarios: horariosActualizados,
-                disponibles: horariosActualizados.length
-              };
-            }
-            return turno;
-          }).filter(turno => turno.disponibles > 0) // Remover días sin turnos disponibles
-        );
-        
-        // Limpiar selección inmediatamente
-        setSelectedDate('');
-        setSelectedTime('');
-        
-        // ✅ NUEVO SISTEMA: Con AvailableSlot, no necesitamos invalidar caché
-        // El horario ya fue marcado como no disponible en la base de datos
-        console.log('✅ Horario marcado como no disponible en la base de datos');
-        
-        // ✅ MEJORADO: Una sola recarga para confirmar sincronización (opcional)
-        setTimeout(async () => {
-          console.log('🔄 Recarga de confirmación...');
-          await loadProximosTurnos();
-          console.log('✅ Confirmación de sincronización completada');
-        }, 1000);
-        
-        // Mostrar modal de éxito inmediatamente
-        setReservedSlot(reservedSlotData);
-        setShowSuccessModal(true);
+        // Crear checkout de MercadoPago
+        try {
+          const response = await fetch('/api/payments/mercadopago/create-booking-checkout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              serviceType: 'ConsultorioFinanciero',
+              amount: bookingPrice,
+              currency: bookingCurrency,
+              bookingId: booking._id
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success && data.checkoutUrl) {
+            console.log('✅ Checkout de MercadoPago creado, redirigiendo...');
+            
+            // Actualizar inmediatamente la UI removiendo el turno reservado
+            setProximosTurnos(prevTurnos => 
+              prevTurnos.map(turno => {
+                if (turno.fecha === selectedDate) {
+                  const horariosActualizados = turno.horarios.filter(h => h !== selectedTime);
+                  return {
+                    ...turno,
+                    horarios: horariosActualizados,
+                    disponibles: horariosActualizados.length
+                  };
+                }
+                return turno;
+              }).filter(turno => turno.disponibles > 0) // Remover días sin turnos disponibles
+            );
+            
+            // Limpiar selección inmediatamente
+            setSelectedDate('');
+            setSelectedTime('');
+            
+            // Redirigir a MercadoPago
+            window.location.href = data.checkoutUrl;
+          } else {
+            console.error('❌ Error creando checkout:', data.error);
+            alert('Error al procesar el pago. Por favor intenta nuevamente.');
+          }
+        } catch (paymentError) {
+          console.error('❌ Error en el proceso de pago:', paymentError);
+          alert('Error al procesar el pago. Por favor intenta nuevamente.');
+        }
       }
     } catch (error: any) {
       console.log('❌ Error al crear la reserva:', error);
@@ -608,7 +623,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                     
                     <div className={styles.precioSection}>
                       <span className={styles.precioLabel}>Valor de la consulta:</span>
-                      <span className={styles.precioValor}>$50.000</span>
+                      <span className={styles.precioValor}>$50.000 ARS</span>
                     </div>
                     
                     {session ? (
@@ -840,16 +855,17 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                 </div>
                 <div className={styles.detailItem}>
                   <span className={styles.detailLabel}>💰 Precio:</span>
-                  <span className={styles.detailValue}>$199 USD</span>
+                  <span className={styles.detailValue}>$50.000 ARS</span>
                 </div>
               </div>
               
               <div className={styles.modalInfo}>
                 <div className={styles.infoBox}>
-                  <h4>📧 Próximos pasos:</h4>
+                  <h4>💳 Proceso de Pago:</h4>
                   <ul>
-                    <li>Recibirás un email de confirmación con todos los detalles</li>
-                    <li>El evento se agregó al calendario del administrador</li>
+                    <li>Serás redirigido a MercadoPago para completar el pago</li>
+                    <li>Una vez confirmado el pago, recibirás un email de confirmación</li>
+                    <li>El evento se agregará al calendario del administrador</li>
                     <li>Te contactaremos 24 horas antes con el link de la reunión</li>
                   </ul>
                 </div>

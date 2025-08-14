@@ -761,7 +761,7 @@ export function createAdvisoryConfirmationTemplate(
         <p style="margin: 8px 0;"><strong>📅 Fecha:</strong> ${advisoryDetails.date}</p>
         <p style="margin: 8px 0;"><strong>⏰ Hora:</strong> ${advisoryDetails.time}</p>
         <p style="margin: 8px 0;"><strong>⏱️ Duración:</strong> ${advisoryDetails.duration} minutos</p>
-        ${advisoryDetails.price ? `<p style="margin: 8px 0;"><strong>💰 Precio:</strong> $${advisoryDetails.price} USD</p>` : ''}
+        ${advisoryDetails.price ? `<p style="margin: 8px 0;"><strong>💰 Precio:</strong> $${advisoryDetails.price.toLocaleString('es-AR')} ARS</p>` : ''}
       </div>
       
       ${meetLinkSection}
@@ -831,7 +831,7 @@ export function createAdminNotificationTemplate(
         <p style="margin: 8px 0;"><strong>📅 Fecha:</strong> ${bookingDetails.date}</p>
         <p style="margin: 8px 0;"><strong>⏰ Hora:</strong> ${bookingDetails.time}</p>
         <p style="margin: 8px 0;"><strong>⏱️ Duración:</strong> ${bookingDetails.duration} minutos</p>
-        ${bookingDetails.price ? `<p style="margin: 8px 0;"><strong>💰 Precio:</strong> $${bookingDetails.price} USD</p>` : ''}
+        ${bookingDetails.price ? `<p style="margin: 8px 0;"><strong>💰 Precio:</strong> $${bookingDetails.price.toLocaleString('es-AR')} ARS</p>` : ''}
       </div>
       
       ${bookingDetails.meetLink ? `
