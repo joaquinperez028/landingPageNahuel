@@ -257,23 +257,40 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
               <button className={styles.carouselArrow} aria-label="Anterior">&#60;</button>
               <div className={styles.bibliotecaCards}>
                 <div className={styles.bibliotecaCard}>
-                  <img src="/images/wickoff.jpg" alt="El Método Wickoff" className={styles.bibliotecaImg} />
-                  <div className={styles.bibliotecaCardText}>
-                    <div className={styles.bibliotecaBookTitle}>El Método Wickoff</div>
-                    <div className={styles.bibliotecaBookAuthor}><em>Enrique Díaz Valdecantos</em></div>
-                  </div>
+                  <a href="/logos/EMW.pdf" target="_blank" rel="noopener noreferrer" className={styles.bibliotecaCardLink}>
+                    <img src="/logos/tituloMW.png" alt="El Método Wickoff" className={styles.bibliotecaImg} />
+                    <div className={styles.bibliotecaCardText}>
+                      <div className={styles.bibliotecaBookTitle}>El Método Wickoff</div>
+                      <div className={styles.bibliotecaBookAuthor}><em>Enrique Díaz Valdecantos</em></div>
+                    </div>
+                  </a>
                 </div>
                 <div className={styles.bibliotecaCard}>
-                  <img src="/images/padrerico.jpg" alt="Padre Rico, Padre Pobre" className={styles.bibliotecaImg} />
-                  <div className={styles.bibliotecaCardText}>
-                    <div className={styles.bibliotecaBookTitle}>Padre Rico, Padre Pobre</div>
-                    <div className={styles.bibliotecaBookAuthor}><em>Robert T. Kiyosaki</em></div>
-                  </div>
+                  <a href="/logos/PRPP.pdf" target="_blank" rel="noopener noreferrer" className={styles.bibliotecaCardLink}>
+                    <img src="/logos/tituloPP.png" alt="Padre Rico, Padre Pobre" className={styles.bibliotecaImg} />
+                    <div className={styles.bibliotecaCardText}>
+                      <div className={styles.bibliotecaBookTitle}>Padre Rico, Padre Pobre</div>
+                      <div className={styles.bibliotecaBookAuthor}><em>Robert T. Kiyosaki</em></div>
+                    </div>
+                  </a>
                 </div>
                 <div className={styles.bibliotecaCard}>
-                  <img src="/images/murphy.jpg" alt="Análisis Técnico de los Mercados Financieros" className={styles.bibliotecaImg} />
-                  <div className={styles.bibliotecaBookTitle}>Análisis Técnico de los Mercados Financieros</div>
-                  <div className={styles.bibliotecaBookAuthor}><em>John J. Murphy</em></div>
+                  <a href="/logos/ATMF.pdf" target="_blank" rel="noopener noreferrer" className={styles.bibliotecaCardLink}>
+                    <img src="/logos/tituloATMF.png" alt="Análisis Técnico de los Mercados Financieros" className={styles.bibliotecaImg} />
+                    <div className={styles.bibliotecaCardText}>
+                      <div className={styles.bibliotecaBookTitle}>Análisis Técnico de los Mercados Financieros</div>
+                      <div className={styles.bibliotecaBookAuthor}><em>John J. Murphy</em></div>
+                    </div>
+                  </a>
+                </div>
+                <div className={styles.bibliotecaCard}>
+                  <a href="/logos/LGI.pdf" target="_blank" rel="noopener noreferrer" className={styles.bibliotecaCardLink}>
+                    <img src="/logos/tituloGPI.png" alt="Guía para Invertir" className={styles.bibliotecaImg} />
+                    <div className={styles.bibliotecaCardText}>
+                      <div className={styles.bibliotecaBookTitle}>Guía para Invertir</div>
+                      <div className={styles.bibliotecaBookAuthor}><em>Robert T. Kiyosaki</em></div>
+                    </div>
+                  </a>
                 </div>
               </div>
               <button className={styles.carouselArrow} aria-label="Siguiente">&#62;</button>

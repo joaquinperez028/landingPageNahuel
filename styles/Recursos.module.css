@@ -689,6 +689,21 @@
   box-shadow: 0 12px 32px rgba(0,0,0,0.28);
 }
 
+.bibliotecaCardLink {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.bibliotecaCardLink:hover {
+  transform: translateY(-8px) scale(1.04);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+}
+
 .bibliotecaImg {
   width: 100%;
   height: 80%;
