@@ -184,62 +184,62 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
             </motion.p>
             
                          <div className={styles.cardsGridLarge}>
-               <div className={styles.card} style={{background: 'none'}}>
+               <a href="https://www.tradingview.com/symbols/NYSE-SPY/" target="_blank" rel="noopener noreferrer" className={styles.card} style={{background: 'none', textDecoration: 'none'}}>
                  <img src="/logos/swst.png" className={styles.cardImage} alt="Lista de Seguimiento Wall Street" />
                  <div className={styles.cardOverlay}></div>
                  <div className={styles.cardContent}>
                    <div className={styles.cardTitle}>Lista de Seguimiento<br/>Wall Street</div>
                  </div>
-               </div>
-               <div className={styles.card} style={{background: 'none'}}>
+               </a>
+               <a href="https://www.tradingview.com/symbols/BCBA-IMV/" target="_blank" rel="noopener noreferrer" className={styles.card} style={{background: 'none', textDecoration: 'none'}}>
                  <img src="/logos/swsm.png" className={styles.cardImage} alt="Lista de Seguimiento Merval" />
                  <div className={styles.cardOverlay}></div>
                  <div className={styles.cardContent}>
                    <div className={styles.cardTitle}>Lista de Seguimiento<br/>Merval</div>
                  </div>
-               </div>
-               <div className={styles.card} style={{background: 'none'}}>
+               </a>
+               <a href="https://www.tradingview.com/chart/?symbol=BCBA%3AKO*5%2FNYSE%3AKO" target="_blank" rel="noopener noreferrer" className={styles.card} style={{background: 'none', textDecoration: 'none'}}>
                  <img src="/logos/fdccl.png" className={styles.cardImage} alt="Fórmula Dólar CCL" />
                  <div className={styles.cardOverlay}></div>
                  <div className={styles.cardContent}>
                    <div className={styles.cardTitle}>Fórmula<br/>Dólar CCL</div>
                  </div>
-               </div>
-               <div className={styles.card} style={{background: 'none'}}>
+               </a>
+               <a href="https://www.tradingview.com/chart/?symbol=BCBA%3AALUA%2F(BCBA%3AKO*5%2FNYSE%3AKO)" target="_blank" rel="noopener noreferrer" className={styles.card} style={{background: 'none', textDecoration: 'none'}}>
                  <img src="/logos/faccl.png" className={styles.cardImage} alt="Fórmula Acciones en CCL" />
                  <div className={styles.cardOverlay}></div>
                  <div className={styles.cardContent}>
                    <div className={styles.cardTitle}>Fórmula<br/>Acciones en CCL</div>
                  </div>
-               </div>
-               <div className={styles.card} style={{background: 'none'}}>
+               </a>
+               <a href="https://www.tradingview.com/chart/?symbol=BCBA%3AIMV%2F(BCBA%3AKO*5%2FNYSE%3AKO)" target="_blank" rel="noopener noreferrer" className={styles.card} style={{background: 'none', textDecoration: 'none'}}>
                  <img src="/logos/fmccl.png" className={styles.cardImage} alt="Fórmula Merval en CCL" />
                  <div className={styles.cardOverlay}></div>
                  <div className={styles.cardContent}>
                    <div className={styles.cardTitle}>Fórmula<br/>Merval en CCL</div>
                  </div>
-               </div>
-               <div className={styles.card} style={{background: 'none'}}>
+               </a>
+               <a href="https://www.tradingview.com/chart/?symbol=BCBA%3AIMV%2F(BCBA%3AKO*5%2FNYSE%3AKO)%2FSP%3ASPX" target="_blank" rel="noopener noreferrer" className={styles.card} style={{background: 'none', textDecoration: 'none'}}>
                  <img src="/logos/fpiws.png" className={styles.cardImage} alt="Fórmula Promedio Índices Wall Street" />
                  <div className={styles.cardOverlay}></div>
                  <div className={styles.cardContent}>
                    <div className={styles.cardTitle}>Fórmula Promedio<br/>Índices Wall Street</div>
                  </div>
-               </div>
-               <div className={styles.card} style={{background: 'none'}}>
+               </a>
+               <a href="https://www.tradingview.com/chart/?symbol=BCBA%3AIMV%2F(BCBA%3AKO*5%2FNYSE%3AKO)%2FSP%3ASPX" target="_blank" rel="noopener noreferrer" className={styles.card} style={{background: 'none', textDecoration: 'none'}}>
                  <img src="/logos/fcms500.png" className={styles.cardImage} alt="Fórmula Comparación Merval vs S&P500" />
                  <div className={styles.cardOverlay}></div>
                  <div className={styles.cardContent}>
                    <div className={styles.cardTitle}>Fórmula Comparación<br/>Merval vs S&amp;P500</div>
                  </div>
-               </div>
-               <div className={styles.card} style={{background: 'none'}}>
+               </a>
+               <a href="https://www.tradingview.com/chart/?symbol=NASDAQ%3ANDX%2FTVC%3ADJI" target="_blank" rel="noopener noreferrer" className={styles.card} style={{background: 'none', textDecoration: 'none'}}>
                  <img src="/logos/fcndj.png" className={styles.cardImage} alt="Fórmula Comparación Nasdaq vs Dow Jones" />
                  <div className={styles.cardOverlay}></div>
                  <div className={styles.cardContent}>
                    <div className={styles.cardTitle}>Fórmula Comparación<br/>Nasdaq vs Dow Jones</div>
                  </div>
-               </div>
+               </a>
              </div>
           </div>
         </section>
@@ -276,19 +276,15 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
                 <div className={styles.bibliotecaCard}>
                   <a href="/logos/ATMF.pdf" target="_blank" rel="noopener noreferrer" className={styles.bibliotecaCardLink}>
                     <img src="/logos/tituloATMF.png" alt="Análisis Técnico de los Mercados Financieros" className={styles.bibliotecaImg} />
-                    <div className={styles.bibliotecaCardText}>
-                      <div className={styles.bibliotecaBookTitle}>Análisis Técnico de los Mercados Financieros</div>
-                      <div className={styles.bibliotecaBookAuthor}><em>John J. Murphy</em></div>
-                    </div>
+                    <div className={styles.bibliotecaBookTitle}>Análisis Técnico de los Mercados Financieros</div>
+                    <div className={styles.bibliotecaBookAuthor}><em>John J. Murphy</em></div>
                   </a>
                 </div>
                 <div className={styles.bibliotecaCard}>
                   <a href="/logos/LGI.pdf" target="_blank" rel="noopener noreferrer" className={styles.bibliotecaCardLink}>
                     <img src="/logos/tituloGPI.png" alt="Guía para Invertir" className={styles.bibliotecaImg} />
-                    <div className={styles.bibliotecaCardText}>
-                      <div className={styles.bibliotecaBookTitle}>Guía para Invertir</div>
-                      <div className={styles.bibliotecaBookAuthor}><em>Robert T. Kiyosaki</em></div>
-                    </div>
+                    <div className={styles.bibliotecaBookTitle}>Guía para Invertir</div>
+                    <div className={styles.bibliotecaBookAuthor}><em>Robert T. Kiyosaki</em></div>
                   </a>
                 </div>
               </div>
@@ -301,51 +297,51 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
          <section className={styles.infoTradersSection}>
            <h2 className={styles.infoTradersTitle}>Información para Traders</h2>
            <div className={styles.infoTradersGrid}>
-             <div className={styles.infoTradersCard}>
+             <a href="https://es.investing.com/economic-calendar/" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
                <img src="/logos/cdeus.png" alt="Calendario datos económicos USA" className={styles.infoTradersImg} />
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Calendario datos económicos USA</div>
-             </div>
-             <div className={styles.infoTradersCard}>
+             </a>
+             <a href="https://es.investing.com/economic-calendar/interest-rate-decision-168" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
                <img src="/logos/cdtif.png" alt="Calendario datos de tasa de interés FED" className={styles.infoTradersImg} />
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Calendario datos de tasa de interés FED</div>
-             </div>
-             <div className={styles.infoTradersCard}>
+             </a>
+             <a href="https://es.investing.com/earnings-calendar/" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
                <img src="/logos/cbusa.png" alt="Calendario de Balances en USA" className={styles.infoTradersImg} />
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Calendario de Balances en USA</div>
-             </div>
-             <div className={styles.infoTradersCard}>
+             </a>
+             <a href="https://es.investing.com/economic-calendar/cpi-733" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
                <img src="/logos/cdinfla.png" alt="Calendario datos de Inflación USA" className={styles.infoTradersImg} />
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Calendario datos de Inflación USA</div>
-             </div>
-             <div className={styles.infoTradersCard}>
+             </a>
+             <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
                <img src="/logos/bdtf.png" alt="Barómetro datos de tasa de interés FED" className={styles.infoTradersImg} />
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Barómetro datos de tasa de interés FED</div>
-             </div>
-             <div className={styles.infoTradersCard}>
+             </a>
+             <a href="https://finance.yahoo.com/calendar/dividends" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
                <img src="/logos/cdusa.png" alt="Calendario de Dividendos en USA" className={styles.infoTradersImg} />
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Calendario de Dividendos en USA</div>
-             </div>
-             <div className={styles.infoTradersCard}>
+             </a>
+             <a href="https://www.byma.com.ar/cedears/" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
                <img src="/logos/rccars.png" alt="Ratios de Conversión de CEDEARS" className={styles.infoTradersImg} />
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Ratios de Conversión de CEDEARS</div>
-             </div>
-             <div className={styles.infoTradersCard}>
+             </a>
+             <a href="https://finviz.com/map.ashx?t=sec" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
                <img src="/logos/mcws.png" alt="Mapa de Calor Wall Street" className={styles.infoTradersImg} />
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Mapa de Calor Wall Street</div>
-             </div>
-             <div className={styles.infoTradersCard}>
+             </a>
+             <a href="https://docs.google.com/spreadsheets/d/17H8-_IUFi5Pbl4S9kWwKc0iiH0w7dlpJeoORb8rv85E/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
                <img src="/logos/cdcdears.png" alt="Calculadora de Desarbitrajes para CEDEARS" className={styles.infoTradersImg} />
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Calculadora de Desarbitrajes para CEDEARS</div>
-             </div>
+             </a>
            </div>
          </section>
 
@@ -444,34 +440,34 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     {
       nombre: 'Lista de Activos de USA',
       descripcion: 'Watchlist completa con los principales activos del mercado estadounidense que analizo regularmente',
-      url: '#',
+      url: 'https://www.tradingview.com/markets/stocks-usa/sectorandindustry-sector/',
       icon: '🇺🇸'
     },
     {
       nombre: 'Lista de Activos de ARG',
       descripcion: 'Activos del mercado argentino: acciones locales, CEDEARs y bonos más relevantes para análisis',
-      url: '#',
+      url: 'https://www.tradingview.com/markets/stocks-argentina/sectorandindustry-sector/',
       icon: '🇦🇷'
     }
   ];
 
   const linksImportantes = [
     {
-      nombre: 'Calendario Dato Inflación USA',
-      descripcion: 'Información oficial del Bureau of Labor Statistics sobre inflación y datos económicos estadounidenses',
-      url: 'https://www.bls.gov/cpi/',
+      nombre: 'Calendario Dato Inflacional USA',
+      descripcion: 'Calendario oficial de datos de inflación (CPI) de Estados Unidos con fechas y expectativas del mercado',
+      url: 'https://es.investing.com/economic-calendar/cpi-733',
       icon: '📈'
     },
     {
       nombre: 'Calendario FED Tasa de Interés USA',
       descripcion: 'Calendario oficial de reuniones de la Reserva Federal y decisiones de política monetaria',
-      url: 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
+      url: 'https://es.investing.com/economic-calendar/interest-rate-decision-168',
       icon: '🏦'
     },
     {
       nombre: 'Balances Próximos',
       descripcion: 'Fechas de presentación de resultados trimestrales de empresas argentinas e internacionales',
-      url: 'https://finance.yahoo.com/calendar/earnings',
+      url: 'https://es.investing.com/earnings-calendar/',
       icon: '📅'
     },
     {
@@ -482,20 +478,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     },
     {
       nombre: 'Calculadora de CEDEARs',
-      descripcion: 'Herramienta para calcular el precio justo de CEDEARs versus sus activos subyacentes',
-      url: '#',
+      descripcion: 'Herramienta para calcular el precio justo de CEDEARs versus sus activos subyacentes y detectar oportunidades de arbitraje',
+      url: 'https://docs.google.com/spreadsheets/d/17H8-_IUFi5Pbl4S9kWwKc0iiH0w7dlpJeoORb8rv85E/edit?gid=0#gid=0',
       icon: '💰'
     },
     {
       nombre: 'Indicador Fear and Greed',
-      descripcion: 'Medidor de sentimiento del mercado que combina 7 indicadores diferentes de volatilidad y momentum',
-      url: 'https://cnn.com/markets/fear-and-greed',
+      descripcion: 'Medidor de sentimiento del mercado que combina 7 indicadores diferentes de volatilidad y momentum para identificar oportunidades',
+      url: 'https://edition.cnn.com/markets/fear-and-greed',
       icon: '😰'
     },
     {
       nombre: 'Mercap Abbaco - Renta Fija',
-      descripcion: 'Información detallada sobre bonos y instrumentos de renta fija del mercado argentino',
-      url: '#',
+      descripcion: 'Información detallada sobre bonos e instrumentos de renta fija del mercado argentino con análisis y datos actualizados',
+      url: 'https://bonds.mercapabbaco.com',
       icon: '📋'
     }
   ];
@@ -504,25 +500,25 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     {
       nombre: 'Ratios de Conversión COMAFI',
       descripcion: 'Guía completa con todos los ratios de conversión de CEDEARs proporcionada por COMAFI',
-      descarga: '/downloads/ratios-conversion-comafi.pdf',
+      descarga: 'https://www.comafi.com.ar/cedears',
       icon: '🔄'
     },
     {
       nombre: 'Ratios de Conversión BYMA',
       descripcion: 'Ratios oficiales de conversión de CEDEARs según BYMA (Bolsas y Mercados Argentinos)',
-      descarga: '/downloads/ratios-conversion-byma.pdf',
+      descarga: 'https://www.byma.com.ar/cedears/',
       icon: '📊'
     },
     {
       nombre: 'Cálculo para Comprar y Vender CEDEARs',
       descripcion: 'Manual práctico con ejemplos para calcular correctamente operaciones con CEDEARs',
-      descarga: '/downloads/calculo-cedears.pdf',
+      descarga: 'https://www.byma.com.ar/cedears/',
       icon: '💵'
     },
     {
       nombre: '¿Cómo Medir la Cartera?',
       descripcion: 'Manual para evaluar correctamente el performance de tu portafolio y compararlo con benchmarks',
-      descarga: '/downloads/como-medir-cartera.pdf',
+      descarga: 'https://www.investing.com/portfolio/',
       icon: '📏'
     }
   ];
