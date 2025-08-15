@@ -183,65 +183,64 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
               Para utilizarlas debe copiarlas y pegarlas al momento de añadir un nuevo símbolo en la plataforma de TradingView
             </motion.p>
             
-            <div className={styles.cardsGridLarge}>
-              {/* Ejemplo de imágenes, puedes personalizar cada una luego */}
-              <div className={styles.card} style={{background: 'none'}}>
-                <img src="/images/wallstreet.jpg" className={styles.cardImage} alt="Wall Street" />
-                <div className={styles.cardOverlay}></div>
-                <div className={styles.cardContent}>
-                  <div className={styles.cardTitle}>Lista de Seguimiento<br/>Wall Street</div>
-                </div>
-              </div>
-              <div className={styles.card} style={{background: 'none'}}>
-                <img src="/images/argentina.jpg" className={styles.cardImage} alt="Merval" />
-                <div className={styles.cardOverlay}></div>
-                <div className={styles.cardContent}>
-                  <div className={styles.cardTitle}>Lista de Seguimiento<br/>Merval</div>
-                </div>
-              </div>
-              <div className={styles.card} style={{background: 'none'}}>
-                <img src="/images/dolares.jpg" className={styles.cardImage} alt="Dólar CCL" />
-                <div className={styles.cardOverlay}></div>
-                <div className={styles.cardContent}>
-                  <div className={styles.cardTitle}>Fórmula<br/>Dólar CCL</div>
-                </div>
-              </div>
-              <div className={styles.card} style={{background: 'none'}}>
-                <img src="/images/acciones.jpg" className={styles.cardImage} alt="Acciones en CCL" />
-                <div className={styles.cardOverlay}></div>
-                <div className={styles.cardContent}>
-                  <div className={styles.cardTitle}>Fórmula<br/>Acciones en CCL</div>
-                </div>
-              </div>
-              <div className={styles.card} style={{background: 'none'}}>
-                <img src="/images/merval-ccl.jpg" className={styles.cardImage} alt="Merval en CCL" />
-                <div className={styles.cardOverlay}></div>
-                <div className={styles.cardContent}>
-                  <div className={styles.cardTitle}>Fórmula<br/>Merval en CCL</div>
-                </div>
-              </div>
-              <div className={styles.card} style={{background: 'none'}}>
-                <img src="/images/wallstreet-bull.jpg" className={styles.cardImage} alt="Promedio Wall Street" />
-                <div className={styles.cardOverlay}></div>
-                <div className={styles.cardContent}>
-                  <div className={styles.cardTitle}>Fórmula Promedio<br/>Índices Wall Street</div>
-                </div>
-              </div>
-              <div className={styles.card} style={{background: 'none'}}>
-                <img src="/images/mer-val-sp.jpg" className={styles.cardImage} alt="MerVal vs SP500" />
-                <div className={styles.cardOverlay}></div>
-                <div className={styles.cardContent}>
-                  <div className={styles.cardTitle}>Fórmula Comparación<br/>Merval vs S&amp;P500</div>
-                </div>
-              </div>
-              <div className={styles.card} style={{background: 'none'}}>
-                <img src="/images/nasdaq-dow.jpg" className={styles.cardImage} alt="Nasdaq vs Dow Jones" />
-                <div className={styles.cardOverlay}></div>
-                <div className={styles.cardContent}>
-                  <div className={styles.cardTitle}>Fórmula Comparación<br/>Nasdaq vs Dow Jones</div>
-                </div>
-              </div>
-            </div>
+                         <div className={styles.cardsGridLarge}>
+               <div className={styles.card} style={{background: 'none'}}>
+                 <img src="/logos/swst.png" className={styles.cardImage} alt="Lista de Seguimiento Wall Street" />
+                 <div className={styles.cardOverlay}></div>
+                 <div className={styles.cardContent}>
+                   <div className={styles.cardTitle}>Lista de Seguimiento<br/>Wall Street</div>
+                 </div>
+               </div>
+               <div className={styles.card} style={{background: 'none'}}>
+                 <img src="/logos/swsm.png" className={styles.cardImage} alt="Lista de Seguimiento Merval" />
+                 <div className={styles.cardOverlay}></div>
+                 <div className={styles.cardContent}>
+                   <div className={styles.cardTitle}>Lista de Seguimiento<br/>Merval</div>
+                 </div>
+               </div>
+               <div className={styles.card} style={{background: 'none'}}>
+                 <img src="/logos/fdccl.png" className={styles.cardImage} alt="Fórmula Dólar CCL" />
+                 <div className={styles.cardOverlay}></div>
+                 <div className={styles.cardContent}>
+                   <div className={styles.cardTitle}>Fórmula<br/>Dólar CCL</div>
+                 </div>
+               </div>
+               <div className={styles.card} style={{background: 'none'}}>
+                 <img src="/logos/faccl.png" className={styles.cardImage} alt="Fórmula Acciones en CCL" />
+                 <div className={styles.cardOverlay}></div>
+                 <div className={styles.cardContent}>
+                   <div className={styles.cardTitle}>Fórmula<br/>Acciones en CCL</div>
+                 </div>
+               </div>
+               <div className={styles.card} style={{background: 'none'}}>
+                 <img src="/logos/fmccl.png" className={styles.cardImage} alt="Fórmula Merval en CCL" />
+                 <div className={styles.cardOverlay}></div>
+                 <div className={styles.cardContent}>
+                   <div className={styles.cardTitle}>Fórmula<br/>Merval en CCL</div>
+                 </div>
+               </div>
+               <div className={styles.card} style={{background: 'none'}}>
+                 <img src="/logos/fpiws.png" className={styles.cardImage} alt="Fórmula Promedio Índices Wall Street" />
+                 <div className={styles.cardOverlay}></div>
+                 <div className={styles.cardContent}>
+                   <div className={styles.cardTitle}>Fórmula Promedio<br/>Índices Wall Street</div>
+                 </div>
+               </div>
+               <div className={styles.card} style={{background: 'none'}}>
+                 <img src="/logos/fcms500.png" className={styles.cardImage} alt="Fórmula Comparación Merval vs S&P500" />
+                 <div className={styles.cardOverlay}></div>
+                 <div className={styles.cardContent}>
+                   <div className={styles.cardTitle}>Fórmula Comparación<br/>Merval vs S&amp;P500</div>
+                 </div>
+               </div>
+               <div className={styles.card} style={{background: 'none'}}>
+                 <img src="/logos/fcndj.png" className={styles.cardImage} alt="Fórmula Comparación Nasdaq vs Dow Jones" />
+                 <div className={styles.cardOverlay}></div>
+                 <div className={styles.cardContent}>
+                   <div className={styles.cardTitle}>Fórmula Comparación<br/>Nasdaq vs Dow Jones</div>
+                 </div>
+               </div>
+             </div>
           </div>
         </section>
 
