@@ -61,7 +61,7 @@ const SecurityWarning: React.FC<SecurityWarningProps> = ({
         (isCtrlOrCmd && e.key === 'y'), // Ctrl+Y
         (isCtrlOrCmd && e.key === 's'), // Ctrl+S
         (isCtrlOrCmd && e.key === 'p'), // Ctrl+P
-        (isCtrlOrCmd && e.key === 'u'), // Ctrl+U
+        (isCtrlOrCmd && e.key === 'u'), // Ctrl+U 
         (isCtrlOrCmd && e.key === 'f'), // Ctrl+F
         (isCtrlOrCmd && e.key === 'd'), // Ctrl+D
         (isCtrlOrCmd && e.key === 'r'), // Ctrl+R
