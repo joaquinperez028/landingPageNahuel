@@ -297,57 +297,57 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
           </div>
         </section>
 
-        {/* Información para Traders */}
-        <section className={styles.infoTradersSection}>
-          <h2 className={styles.infoTradersTitle}>Información para Traders</h2>
-          <div className={styles.infoTradersGrid}>
-            <div className={styles.infoTradersCard}>
-              <img src="/images/economia.jpg" alt="Económicos USA" className={styles.infoTradersImg} />
-              <div className={styles.infoTradersOverlay}></div>
-              <div className={styles.infoTradersText}>Calendario datos económicos USA</div>
-            </div>
-            <div className={styles.infoTradersCard}>
-              <img src="/images/fed.jpg" alt="Tasa FED" className={styles.infoTradersImg} />
-              <div className={styles.infoTradersOverlay}></div>
-              <div className={styles.infoTradersText}>Calendario datos de tasa de interés FED</div>
-            </div>
-            <div className={styles.infoTradersCard}>
-              <img src="/images/balances.jpg" alt="Balances USA" className={styles.infoTradersImg} />
-              <div className={styles.infoTradersOverlay}></div>
-              <div className={styles.infoTradersText}>Calendario de Balances en USA</div>
-            </div>
-            <div className={styles.infoTradersCard}>
-              <img src="/images/inflacion.jpg" alt="Inflación USA" className={styles.infoTradersImg} />
-              <div className={styles.infoTradersOverlay}></div>
-              <div className={styles.infoTradersText}>Calendario datos de Inflación USA</div>
-            </div>
-            <div className={styles.infoTradersCard}>
-              <img src="/images/barometro.jpg" alt="Barómetro FED" className={styles.infoTradersImg} />
-              <div className={styles.infoTradersOverlay}></div>
-              <div className={styles.infoTradersText}>Barómetro datos de tasa de interés FED</div>
-            </div>
-            <div className={styles.infoTradersCard}>
-              <img src="/images/dividendos.jpg" alt="Dividendos USA" className={styles.infoTradersImg} />
-              <div className={styles.infoTradersOverlay}></div>
-              <div className={styles.infoTradersText}>Calendario de Dividendos en USA</div>
-            </div>
-            <div className={styles.infoTradersCard}>
-              <img src="/images/cedeares.jpg" alt="Ratios CEDEARs" className={styles.infoTradersImg} />
-              <div className={styles.infoTradersOverlay}></div>
-              <div className={styles.infoTradersText}>Ratios de Conversión de CEDEARS</div>
-            </div>
-            <div className={styles.infoTradersCard}>
-              <img src="/images/heatmap.jpg" alt="Mapa Wall Street" className={styles.infoTradersImg} />
-              <div className={styles.infoTradersOverlay}></div>
-              <div className={styles.infoTradersText}>Mapa de Calor Wall Street</div>
-            </div>
-            <div className={styles.infoTradersCard}>
-              <img src="/images/desarbitraje.jpg" alt="Desarbitraje CEDEARs" className={styles.infoTradersImg} />
-              <div className={styles.infoTradersOverlay}></div>
-              <div className={styles.infoTradersText}>Calculadora de Desarbitrajes para CEDEARS</div>
-            </div>
-          </div>
-        </section>
+                 {/* Información para Traders */}
+         <section className={styles.infoTradersSection}>
+           <h2 className={styles.infoTradersTitle}>Información para Traders</h2>
+           <div className={styles.infoTradersGrid}>
+             <div className={styles.infoTradersCard}>
+               <img src="/logos/cdeus.png" alt="Calendario datos económicos USA" className={styles.infoTradersImg} />
+               <div className={styles.infoTradersOverlay}></div>
+               <div className={styles.infoTradersText}>Calendario datos económicos USA</div>
+             </div>
+             <div className={styles.infoTradersCard}>
+               <img src="/logos/cdtif.png" alt="Calendario datos de tasa de interés FED" className={styles.infoTradersImg} />
+               <div className={styles.infoTradersOverlay}></div>
+               <div className={styles.infoTradersText}>Calendario datos de tasa de interés FED</div>
+             </div>
+             <div className={styles.infoTradersCard}>
+               <img src="/logos/cbusa.png" alt="Calendario de Balances en USA" className={styles.infoTradersImg} />
+               <div className={styles.infoTradersOverlay}></div>
+               <div className={styles.infoTradersText}>Calendario de Balances en USA</div>
+             </div>
+             <div className={styles.infoTradersCard}>
+               <img src="/logos/cdinfla.png" alt="Calendario datos de Inflación USA" className={styles.infoTradersImg} />
+               <div className={styles.infoTradersOverlay}></div>
+               <div className={styles.infoTradersText}>Calendario datos de Inflación USA</div>
+             </div>
+             <div className={styles.infoTradersCard}>
+               <img src="/logos/bdtf.png" alt="Barómetro datos de tasa de interés FED" className={styles.infoTradersImg} />
+               <div className={styles.infoTradersOverlay}></div>
+               <div className={styles.infoTradersText}>Barómetro datos de tasa de interés FED</div>
+             </div>
+             <div className={styles.infoTradersCard}>
+               <img src="/logos/cdusa.png" alt="Calendario de Dividendos en USA" className={styles.infoTradersImg} />
+               <div className={styles.infoTradersOverlay}></div>
+               <div className={styles.infoTradersText}>Calendario de Dividendos en USA</div>
+             </div>
+             <div className={styles.infoTradersCard}>
+               <img src="/logos/rccars.png" alt="Ratios de Conversión de CEDEARS" className={styles.infoTradersImg} />
+               <div className={styles.infoTradersOverlay}></div>
+               <div className={styles.infoTradersText}>Ratios de Conversión de CEDEARS</div>
+             </div>
+             <div className={styles.infoTradersCard}>
+               <img src="/logos/mcws.png" alt="Mapa de Calor Wall Street" className={styles.infoTradersImg} />
+               <div className={styles.infoTradersOverlay}></div>
+               <div className={styles.infoTradersText}>Mapa de Calor Wall Street</div>
+             </div>
+             <div className={styles.infoTradersCard}>
+               <img src="/logos/cdcdears.png" alt="Calculadora de Desarbitrajes para CEDEARS" className={styles.infoTradersImg} />
+               <div className={styles.infoTradersOverlay}></div>
+               <div className={styles.infoTradersText}>Calculadora de Desarbitrajes para CEDEARS</div>
+             </div>
+           </div>
+         </section>
 
         {/* CTA Principal */}
         <section className={styles.ctaSection}>
