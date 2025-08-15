@@ -237,7 +237,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
                  <img src="/logos/fcndj.png" className={styles.cardImage} alt="Fórmula Comparación Nasdaq vs Dow Jones" />
                  <div className={styles.cardOverlay}></div>
                  <div className={styles.cardContent}>
-                   <div className={styles.cardTitle}>Fórmula Comparación<br/>Nasdaq vs Dow Jones</div>
+                   <div className={styles.cardTitle}>Fórmula Comparación<br/>Nasdaq vs Dow Jones</div> 
                  </div>
                </a>
              </div>
