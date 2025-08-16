@@ -300,7 +300,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // ✅ CRÍTICO: Invalidar caché de turnos después de crear reserva exitosa
       try {
-        console.log('🧹 Invalidando caché de turnos después de crear reserva..');
+        console.log('🧹 Invalidando caché de turnos después de crear reserva...');
         
         // Usar endpoint interno para invalidar caché
         const invalidateResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/turnos/invalidate-cache`, {
