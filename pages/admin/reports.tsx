@@ -4,6 +4,16 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import styles from '../../styles/AdminReports.module.css';
 
+interface Article {
+  _id?: string;
+  title: string;
+  content: string;
+  order: number;
+  isPublished: boolean;
+  readTime: number;
+  createdAt: string;
+}
+
 interface Report {
   id: string;
   title: string;
@@ -18,6 +28,7 @@ interface Report {
   publishedAt?: string;
   createdAt: string;
   tags: string[];
+  articles?: Article[];
 }
 
 const AdminReportsPage: React.FC = () => {
@@ -29,6 +40,9 @@ const AdminReportsPage: React.FC = () => {
   const [creating, setCreating] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [migrating, setMigrating] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [showArticlesForm, setShowArticlesForm] = useState(false);
+  const [managingArticles, setManagingArticles] = useState(false);
   
   const [newReport, setNewReport] = useState({
     title: '',
@@ -37,7 +51,15 @@ const AdminReportsPage: React.FC = () => {
     content: '',
     status: 'draft' as const,
     tags: '',
-    isFeature: false
+    isFeature: false,
+    articles: [] as Article[]
+  });
+
+  const [newArticle, setNewArticle] = useState({
+    title: '',
+    content: '',
+    order: 1,
+    isPublished: true
   });
 
   // Verificar autenticación y permisos
@@ -128,7 +150,8 @@ const AdminReportsPage: React.FC = () => {
           content: '',
           status: 'draft',
           tags: '',
-          isFeature: false
+          isFeature: false,
+          articles: []
         });
         setShowCreateForm(false);
         alert('Informe creado exitosamente');
@@ -141,6 +164,87 @@ const AdminReportsPage: React.FC = () => {
       alert('Error al crear informe');
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleManageArticles = (report: Report) => {
+    setSelectedReport(report);
+    setShowArticlesForm(true);
+  };
+
+  const handleAddArticle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedReport) return;
+
+    setManagingArticles(true);
+    try {
+      const response = await fetch(`/api/admin/reports/${selectedReport.id}/articles`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(newArticle),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Actualizar el informe local con el nuevo artículo
+        setReports(prev => prev.map(report => 
+          report.id === selectedReport.id 
+            ? { ...report, articles: [...(report.articles || []), data.data.article] }
+            : report
+        ));
+        
+        setNewArticle({
+          title: '',
+          content: '',
+          order: (selectedReport.articles?.length || 0) + 1,
+          isPublished: true
+        });
+        
+        alert('Artículo agregado exitosamente');
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error al agregar artículo:', error);
+      alert('Error al agregar artículo');
+    } finally {
+      setManagingArticles(false);
+    }
+  };
+
+  const handleDeleteArticle = async (articleId: string) => {
+    if (!selectedReport || !confirm('¿Estás seguro de que quieres eliminar este artículo?')) return;
+
+    try {
+      const response = await fetch(`/api/admin/reports/${selectedReport.id}/articles`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ articleId }),
+      });
+
+      if (response.ok) {
+        // Actualizar el informe local eliminando el artículo
+        setReports(prev => prev.map(report => 
+          report.id === selectedReport.id 
+            ? { ...report, articles: report.articles?.filter(article => article._id !== articleId) || [] }
+            : report
+        ));
+        
+        alert('Artículo eliminado exitosamente');
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error al eliminar artículo:', error);
+      alert('Error al eliminar artículo');
     }
   };
 
@@ -235,7 +339,7 @@ const AdminReportsPage: React.FC = () => {
           </div>
         )}
 
-        {/* Modal de creación */}
+        {/* Modal de creación de informe */}
         {showCreateForm && (
           <div className={styles.modal}>
             <div className={styles.modalContent}>
@@ -342,6 +446,141 @@ const AdminReportsPage: React.FC = () => {
           </div>
         )}
 
+        {/* Modal de gestión de artículos */}
+        {showArticlesForm && selectedReport && (
+          <div className={styles.modal}>
+            <div className={styles.modalContent} style={{ maxWidth: '800px' }}>
+              <div className={styles.modalHeader}>
+                <h2>Gestionar Artículos: {selectedReport.title}</h2>
+                <button 
+                  className={styles.closeButton}
+                  onClick={() => {
+                    setShowArticlesForm(false);
+                    setSelectedReport(null);
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <h3>Agregar Nuevo Artículo</h3>
+                <form onSubmit={handleAddArticle} className={styles.form}>
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label>Título del Artículo *</label>
+                      <input
+                        type="text"
+                        value={newArticle.title}
+                        onChange={(e) => setNewArticle(prev => ({...prev, title: e.target.value}))}
+                        required
+                        maxLength={200}
+                      />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>Orden *</label>
+                      <input
+                        type="number"
+                        value={newArticle.order}
+                        onChange={(e) => setNewArticle(prev => ({...prev, order: parseInt(e.target.value)}))}
+                        required
+                        min={1}
+                        max={10}
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Contenido del Artículo *</label>
+                    <textarea
+                      value={newArticle.content}
+                      onChange={(e) => setNewArticle(prev => ({...prev, content: e.target.value}))}
+                      required
+                      rows={6}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        checked={newArticle.isPublished}
+                        onChange={(e) => setNewArticle(prev => ({...prev, isPublished: e.target.checked}))}
+                      />
+                      Publicar inmediatamente
+                    </label>
+                  </div>
+
+                  <div className={styles.formActions}>
+                    <button type="submit" disabled={managingArticles}>
+                      {managingArticles ? 'Agregando...' : 'Agregar Artículo'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <div>
+                <h3>Artículos Existentes ({selectedReport.articles?.length || 0})</h3>
+                {selectedReport.articles && selectedReport.articles.length > 0 ? (
+                  <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                    {selectedReport.articles
+                      .sort((a, b) => a.order - b.order)
+                      .map((article) => (
+                        <div key={article._id} style={{
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                          padding: '1rem',
+                          marginBottom: '1rem',
+                          background: '#f9fafb'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                            <h4 style={{ margin: 0 }}>Artículo {article.order}: {article.title}</h4>
+                            <div>
+                              <span style={{
+                                background: article.isPublished ? '#10b981' : '#6b7280',
+                                color: 'white',
+                                padding: '0.25rem 0.5rem',
+                                borderRadius: '4px',
+                                fontSize: '0.75rem',
+                                marginRight: '0.5rem'
+                              }}>
+                                {article.isPublished ? 'Publicado' : 'Borrador'}
+                              </span>
+                              <button
+                                onClick={() => handleDeleteArticle(article._id!)}
+                                style={{
+                                  background: '#ef4444',
+                                  color: 'white',
+                                  border: 'none',
+                                  padding: '0.25rem 0.5rem',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontSize: '0.75rem'
+                                }}
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          </div>
+                          <p style={{ margin: '0.5rem 0', color: '#6b7280' }}>
+                            {article.content.substring(0, 150)}...
+                          </p>
+                          <small style={{ color: '#9ca3af' }}>
+                            Tiempo de lectura: {article.readTime} min | Creado: {new Date(article.createdAt).toLocaleDateString('es-ES')}
+                          </small>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <p style={{ color: '#6b7280', fontStyle: 'italic' }}>
+                    Este informe no tiene artículos aún. Agrega el primero arriba.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Lista de informes */}
         <div className={styles.reportsList}>
           {reports.length > 0 ? (
@@ -368,6 +607,9 @@ const AdminReportsPage: React.FC = () => {
                   <span>{report.readTime} min lectura</span>
                   <span>{report.views} vistas</span>
                   <span>{new Date(report.createdAt).toLocaleDateString('es-ES')}</span>
+                  {report.articles && report.articles.length > 0 && (
+                    <span>📚 {report.articles.length} artículo{report.articles.length !== 1 ? 's' : ''}</span>
+                  )}
                 </div>
 
                 {report.tags && report.tags.length > 0 && (
@@ -377,6 +619,24 @@ const AdminReportsPage: React.FC = () => {
                     ))}
                   </div>
                 )}
+
+                <div className={styles.reportActions}>
+                  <button
+                    onClick={() => handleManageArticles(report)}
+                    style={{
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '0.875rem',
+                      marginRight: '0.5rem'
+                    }}
+                  >
+                    📚 Gestionar Artículos
+                  </button>
+                </div>
               </div>
             ))
           ) : (

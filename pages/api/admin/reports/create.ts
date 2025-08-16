@@ -44,7 +44,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       imageUrl,
       status = 'published',
       tags = [],
-      isFeature = false
+      isFeature = false,
+      articles = [] // Nuevo campo para artículos
     } = req.body;
 
     // Validaciones
@@ -53,6 +54,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         success: false,
         message: 'Título, tipo, contenido y resumen son campos requeridos'
       });
+    }
+
+    // Validar artículos si se proporcionan
+    if (articles && Array.isArray(articles)) {
+      if (articles.length > 10) {
+        return res.status(400).json({
+          success: false,
+          message: 'Un informe no puede tener más de 10 artículos'
+        });
+      }
+
+      // Validar cada artículo
+      for (const article of articles) {
+        if (!article.title || !article.content || !article.order) {
+          return res.status(400).json({
+            success: false,
+            message: 'Cada artículo debe tener título, contenido y orden'
+          });
+        }
+        if (article.order < 1 || article.order > 10) {
+          return res.status(400).json({
+            success: false,
+            message: 'El orden de los artículos debe estar entre 1 y 10'
+          });
+        }
+      }
     }
 
     // Crear nuevo informe
@@ -69,17 +96,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       status,
       tags: Array.isArray(tags) ? tags : [],
       isFeature,
+      articles: articles || [] // Incluir artículos en el informe
     });
 
-    // Calcular tiempo de lectura
-    newReport.calculateReadTime();
+    // Calcular tiempo de lectura total
+    let totalReadTime = Math.ceil(content.length / 1000);
+    if (articles && articles.length > 0) {
+      articles.forEach((article: any) => {
+        article.readTime = Math.ceil(article.content.length / 1000);
+        totalReadTime += article.readTime;
+      });
+    }
 
     await newReport.save();
 
     return res.status(201).json({
       success: true,
       message: 'Informe creado exitosamente',
-      data: { report: newReport }
+      data: { 
+        report: newReport,
+        totalReadTime
+      }
     });
 
   } catch (error) {

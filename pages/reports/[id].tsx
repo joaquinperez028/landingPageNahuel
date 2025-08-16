@@ -14,17 +14,31 @@ import {
   Eye,
   BookOpen,
   TrendingUp,
-  FileText
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+  List
 } from 'lucide-react';
 import styles from '@/styles/ReportView.module.css';
 import dbConnect from '@/lib/mongodb';
 import Report from '@/models/Report';
 import User from '@/models/User';
 
+interface Article {
+  _id: string;
+  title: string;
+  content: string;
+  order: number;
+  isPublished: boolean;
+  readTime: number;
+  createdAt: string;
+}
+
 interface ReportData {
   _id: string;
   title: string;
   content: string;
+  articles?: Article[];
   author: {
     _id: string;
     name: string;
@@ -61,6 +75,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
   const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentArticleIndex, setCurrentArticleIndex] = useState(0);
+  const [showArticlesList, setShowArticlesList] = useState(false);
 
   // Debug: mostrar el rol del usuario
   console.log('🔍 [REPORT VIEW] Rol del usuario:', userRole, 'Es admin:', userRole === 'admin');
@@ -101,6 +117,29 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
       default:
         return 'Análisis';
     }
+  };
+
+  // Obtener artículos publicados ordenados
+  const publishedArticles = report.articles?.filter(article => article.isPublished).sort((a, b) => a.order - b.order) || [];
+
+  // Calcular tiempo de lectura total
+  const totalReadTime = publishedArticles.reduce((total, article) => total + article.readTime, 0) + report.readTime;
+
+  const handlePreviousArticle = () => {
+    if (currentArticleIndex > 0) {
+      setCurrentArticleIndex(currentArticleIndex - 1);
+    }
+  };
+
+  const handleNextArticle = () => {
+    if (currentArticleIndex < publishedArticles.length - 1) {
+      setCurrentArticleIndex(currentArticleIndex + 1);
+    }
+  };
+
+  const handleArticleSelect = (index: number) => {
+    setCurrentArticleIndex(index);
+    setShowArticlesList(false);
   };
 
   return (
@@ -162,16 +201,19 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
                 </div>
                 <div className={styles.metaItem}>
                   <Clock size={16} />
-                  <span>{report.readTime} min de lectura</span>
+                  <span>{totalReadTime} min de lectura total</span>
                 </div>
                 <div className={styles.metaItem}>
                   <Eye size={16} />
                   <span>{report.views} vistas</span>
                 </div>
+                {publishedArticles.length > 0 && (
+                  <div className={styles.metaItem}>
+                    <BookOpen size={16} />
+                    <span>{publishedArticles.length} artículo{publishedArticles.length !== 1 ? 's' : ''}</span>
+                  </div>
+                )}
               </div>
-
-              {/* Acciones del informe - ELIMINADAS POR SEGURIDAD */}
-              {/* Los botones de descargar y compartir han sido removidos para prevenir filtración de información */}
 
               {/* Imagen de portada */}
               {report.coverImage && (
@@ -196,10 +238,89 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
             <div className={styles.contentWrapper}>
               {/* Contenido principal */}
               <div className={styles.mainContent}>
-                <div 
-                  className={styles.content}
-                  dangerouslySetInnerHTML={{ __html: report.content }}
-                />
+                {/* Navegación de artículos */}
+                {publishedArticles.length > 0 && (
+                  <div className={styles.articlesNavigation}>
+                    <div className={styles.articlesHeader}>
+                      <h2>📚 Artículos del Informe</h2>
+                      <button 
+                        onClick={() => setShowArticlesList(!showArticlesList)}
+                        className={styles.articlesListButton}
+                      >
+                        <List size={20} />
+                        Lista de Artículos
+                      </button>
+                    </div>
+
+                    {/* Lista desplegable de artículos */}
+                    {showArticlesList && (
+                      <div className={styles.articlesList}>
+                        {publishedArticles.map((article, index) => (
+                          <button
+                            key={article._id}
+                            onClick={() => handleArticleSelect(index)}
+                            className={`${styles.articleListItem} ${index === currentArticleIndex ? styles.activeArticle : ''}`}
+                          >
+                            <div className={styles.articleListInfo}>
+                              <span className={styles.articleOrder}>Artículo {article.order}</span>
+                              <h4 className={styles.articleListTitle}>{article.title}</h4>
+                              <span className={styles.articleReadTime}>{article.readTime} min</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Navegación entre artículos */}
+                    <div className={styles.articleNavigation}>
+                      <button
+                        onClick={handlePreviousArticle}
+                        disabled={currentArticleIndex === 0}
+                        className={styles.articleNavButton}
+                      >
+                        <ChevronLeft size={20} />
+                        Anterior
+                      </button>
+                      
+                      <span className={styles.articleCounter}>
+                        Artículo {currentArticleIndex + 1} de {publishedArticles.length}
+                      </span>
+                      
+                      <button
+                        onClick={handleNextArticle}
+                        disabled={currentArticleIndex === publishedArticles.length - 1}
+                        className={styles.articleNavButton}
+                      >
+                        Siguiente
+                        <ChevronRight size={20} />
+                      </button>
+                    </div>
+
+                    {/* Contenido del artículo actual */}
+                    <div className={styles.currentArticle}>
+                      <h3 className={styles.articleTitle}>
+                        Artículo {publishedArticles[currentArticleIndex].order}: {publishedArticles[currentArticleIndex].title}
+                      </h3>
+                      <div 
+                        className={styles.articleContent}
+                        dangerouslySetInnerHTML={{ __html: publishedArticles[currentArticleIndex].content }}
+                      />
+                      <div className={styles.articleMeta}>
+                        <span>Tiempo de lectura: {publishedArticles[currentArticleIndex].readTime} min</span>
+                        <span>Publicado: {formatDate(publishedArticles[currentArticleIndex].createdAt)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Contenido principal del informe */}
+                <div className={styles.reportContent}>
+                  <h2>📋 Contenido Principal del Informe</h2>
+                  <div 
+                    className={styles.content}
+                    dangerouslySetInnerHTML={{ __html: report.content }}
+                  />
+                </div>
               </div>
 
               {/* Sidebar con información adicional */}
@@ -218,7 +339,34 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
                   <div className={styles.infoItem}>
                     <strong>Publicado:</strong> {formatDate(report.publishedAt)}
                   </div>
+                  {publishedArticles.length > 0 && (
+                    <div className={styles.infoItem}>
+                      <strong>Artículos:</strong> {publishedArticles.length} publicados
+                    </div>
+                  )}
                 </div>
+
+                {/* Lista de artículos en sidebar */}
+                {publishedArticles.length > 0 && (
+                  <div className={styles.sidebarCard}>
+                    <h3>📚 Artículos del Informe</h3>
+                    <div className={styles.sidebarArticlesList}>
+                      {publishedArticles.map((article, index) => (
+                        <button
+                          key={article._id}
+                          onClick={() => handleArticleSelect(index)}
+                          className={`${styles.sidebarArticleItem} ${index === currentArticleIndex ? styles.activeSidebarArticle : ''}`}
+                        >
+                          <div className={styles.sidebarArticleInfo}>
+                            <span className={styles.sidebarArticleOrder}>Artículo {article.order}</span>
+                            <h4 className={styles.sidebarArticleTitle}>{article.title}</h4>
+                            <span className={styles.sidebarArticleReadTime}>{article.readTime} min</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Imágenes adicionales */}
                 {report.images && report.images.length > 0 && (
@@ -427,7 +575,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       // Imágenes adicionales optimizadas
       images: optimizedImages,
       // Calcular tiempo de lectura estimado
-      readTime: Math.ceil((reportDoc.content?.length || 0) / 1000) || 1
+      readTime: Math.ceil((reportDoc.content?.length || 0) / 1000) || 1,
+      // Procesar artículos si existen
+      articles: reportDoc.articles ? reportDoc.articles.map((article: any) => ({
+        ...article,
+        _id: article._id.toString(),
+        readTime: Math.ceil((article.content?.length || 0) / 1000) || 1
+      })) : []
     };
 
     return {

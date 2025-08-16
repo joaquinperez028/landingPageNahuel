@@ -25,6 +25,37 @@ const CloudinaryImageSchema = new mongoose.Schema({
   }
 });
 
+// Esquema para artículos del informe
+const ArticleSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    maxlength: 200
+  },
+  content: {
+    type: String,
+    required: true
+  },
+  order: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 10
+  },
+  isPublished: {
+    type: Boolean,
+    default: true
+  },
+  readTime: {
+    type: Number,
+    default: 0
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const ReportSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -34,6 +65,8 @@ const ReportSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // Nuevo campo para artículos
+  articles: [ArticleSchema],
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
