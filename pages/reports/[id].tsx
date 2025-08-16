@@ -78,9 +78,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
   const [currentArticleIndex, setCurrentArticleIndex] = useState(0);
   const [showArticlesList, setShowArticlesList] = useState(false);
 
-  // Debug: mostrar el rol del usuario
-  console.log('🔍 [REPORT VIEW] Rol del usuario:', userRole, 'Es admin:', userRole === 'admin');
-
   const handleBack = () => {
     router.back();
   };
@@ -124,25 +121,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
 
   // Calcular tiempo de lectura total
   const totalReadTime = publishedArticles.reduce((total, article) => total + article.readTime, 0) + report.readTime;
-
-  // Debug: mostrar información de artículos y tiempo de lectura
-  console.log('🔍 [REPORT VIEW] Informe completo:', report);
-  console.log('📚 [REPORT VIEW] Artículos del informe:', report.articles);
-  console.log('✅ [REPORT VIEW] Artículos publicados:', publishedArticles);
-  console.log('⏱️ [REPORT VIEW] Tiempo de lectura del informe:', report.readTime);
-  console.log('⏱️ [REPORT VIEW] Tiempo total calculado:', totalReadTime);
-  console.log('🔍 [REPORT VIEW] ¿Tiene artículos?', !!report.articles);
-  console.log('🔍 [REPORT VIEW] Cantidad de artículos:', report.articles?.length || 0);
-  console.log('🔍 [REPORT VIEW] Artículos publicados:', publishedArticles.length);
-
-  // Mostrar alerta temporal de debug (se puede quitar después)
-  useEffect(() => {
-    if (report.articles && report.articles.length > 0) {
-      alert(`🔍 DEBUG: Informe tiene ${report.articles.length} artículos\n📚 Publicados: ${publishedArticles.length}\n⏱️ Tiempo total: ${totalReadTime} min`);
-    } else {
-      alert(`🔍 DEBUG: Informe NO tiene artículos\n⏱️ Tiempo: ${report.readTime} min`);
-    }
-  }, [report.articles, publishedArticles.length, totalReadTime, report.readTime]);
 
   const handlePreviousArticle = () => {
     if (currentArticleIndex > 0) {
@@ -220,7 +198,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
                 </div>
                 <div className={styles.metaItem}>
                   <Clock size={16} />
-                  <span>{totalReadTime} min de lectura total</span>
+                  <span>{report.readTime} min de lectura</span>
                 </div>
                 <div className={styles.metaItem}>
                   <Eye size={16} />
@@ -257,11 +235,27 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
             <div className={styles.contentWrapper}>
               {/* Contenido principal */}
               <div className={styles.mainContent}>
-                {/* Navegación de artículos */}
+                {/* Contenido principal del informe - AHORA PRIMERO */}
+                <div className={styles.reportContent}>
+                  <h2>📋 Contenido Principal del Informe</h2>
+                  <div 
+                    className={styles.content}
+                    dangerouslySetInnerHTML={{ __html: report.content }}
+                  />
+                </div>
+
+                {/* Navegación de artículos - AHORA DESPUÉS */}
                 {publishedArticles.length > 0 && (
                   <div className={styles.articlesNavigation}>
                     <div className={styles.articlesHeader}>
-                      <h2>📚 Artículos del Informe</h2>
+                      <div className={styles.articlesHeaderLeft}>
+                        <h2>📚 Artículos del Informe</h2>
+                        {publishedArticles.length > 0 && (
+                          <span className={styles.totalReadTime}>
+                            Tiempo total: {totalReadTime} min
+                          </span>
+                        )}
+                      </div>
                       <button 
                         onClick={() => setShowArticlesList(!showArticlesList)}
                         className={styles.articlesListButton}
@@ -331,15 +325,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
                     </div>
                   </div>
                 )}
-
-                {/* Contenido principal del informe */}
-                <div className={styles.reportContent}>
-                  <h2>📋 Contenido Principal del Informe</h2>
-                  <div 
-                    className={styles.content}
-                    dangerouslySetInnerHTML={{ __html: report.content }}
-                  />
-                </div>
               </div>
 
               {/* Sidebar con información adicional */}
@@ -462,14 +447,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const user = await User.findOne({ email: session.user.email }).select('role');
     const userRole = user?.role || 'normal';
     
-    console.log('👤 [REPORT] Usuario:', session.user.email, 'Rol:', userRole);
-
     const { id } = context.params!;
     
-    console.log('🔍 [REPORT] Buscando informe con ID:', id);
-
     if (!id || typeof id !== 'string') {
-      console.log('❌ [REPORT] ID inválido:', id);
       return {
         notFound: true,
       };
@@ -477,7 +457,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     // Obtener el informe directamente desde la base de datos para evitar problemas de fetch
     await dbConnect();
-    console.log('✅ [REPORT] Conectado a MongoDB');
 
     // Asegurar que el modelo User esté registrado
     try {
@@ -505,25 +484,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         }
       }
 
-      console.log('📄 [REPORT] Resultado de búsqueda:', reportDoc ? 'Encontrado' : 'No encontrado');
-
       if (!reportDoc) {
-        console.log('❌ [REPORT] Informe no encontrado en BD');
         return {
           notFound: true,
         };
       }
 
-      console.log('📋 [REPORT] Detalles del informe:', {
-        id: reportDoc._id,
-        title: reportDoc.title,
-        isPublished: reportDoc.isPublished,
-        author: reportDoc.author?.name || 'Sin autor'
-      });
-
       // Verificar que el informe esté publicado
       if (!reportDoc.isPublished) {
-        console.log('❌ [REPORT] Informe no publicado');
         return {
           notFound: true,
         };
@@ -602,33 +570,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         readTime: Math.ceil((article.content?.length || 0) / 1000) || 1
       })) : []
     };
-
-    // Debug: mostrar información del informe procesado
-    console.log('🔍 [REPORT] Informe original:', {
-      id: reportDoc._id,
-      title: reportDoc.title,
-      hasArticles: !!reportDoc.articles,
-      articlesCount: reportDoc.articles?.length || 0,
-      readTime: reportDoc.readTime
-    });
-
-    console.log('🔍 [REPORT] Informe procesado:', {
-      id: processedReport._id,
-      title: processedReport.title,
-      hasArticles: !!processedReport.articles,
-      articlesCount: processedReport.articles?.length || 0,
-      readTime: processedReport.readTime
-    });
-
-    if (processedReport.articles && processedReport.articles.length > 0) {
-      console.log('📚 [REPORT] Artículos procesados:', processedReport.articles.map((article: any) => ({
-        id: article._id,
-        title: article.title,
-        order: article.order,
-        isPublished: article.isPublished,
-        readTime: article.readTime
-      })));
-    }
 
     return {
       props: {
