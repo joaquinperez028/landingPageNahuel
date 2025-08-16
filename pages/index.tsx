@@ -21,7 +21,7 @@ interface Training {
   precio: number;
   duracion: number;
   contenido: {
-    modulos: number;
+    modulos: number; 
     lecciones: number;
     certificacion: boolean;
     nivelAcceso: string;
