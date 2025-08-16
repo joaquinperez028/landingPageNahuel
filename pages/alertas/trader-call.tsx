@@ -744,90 +744,17 @@ const SubscriberView: React.FC = () => {
     }
   };
 
-  // Función para abrir informe completo mejorada
+  // Función para abrir informe completo - Ahora redirige a la página de reportes
   const openReport = async (reportId: string) => {
     try {
-      console.log('🔍 Abriendo informe:', reportId);
+      console.log('🔍 Redirigiendo a informe:', reportId);
       
-      // Mostrar loading state
-      setSelectedReport(null);
-      setShowReportModal(true);
+      // Redirigir directamente a la página de reportes individuales
+      router.push(`/reports/${reportId}`);
       
-      const response = await fetch(`/api/reports/${reportId}`, {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: {
-          'Cache-Control': 'no-cache'
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        const report = data.data.report;
-        
-        // Procesar y enriquecer los datos del informe
-        const enrichedReport = {
-          ...report,
-          // Asegurar que tenemos un ID válido
-          id: report.id || report._id,
-          // Procesar autor
-          author: report.author ? 
-            (typeof report.author === 'object' ? 
-              report.author.name || report.author.email : 
-              report.author) : 
-            'Anónimo',
-          // Procesar imágenes
-          images: report.images || [],
-          coverImage: report.coverImage || null,
-          // Procesar tags
-          tags: report.tags || [],
-          // Procesar estadísticas
-          views: report.views || 0,
-          // Procesar fechas
-          publishedAt: report.publishedAt || report.createdAt,
-          // Procesar contenido
-          content: report.content || 'Sin contenido disponible',
-          // Procesar tipo y categoría
-          type: report.type || 'text',
-          category: report.category || 'general'
-        };
-        
-        // Debug: Mostrar qué datos estamos recibiendo
-        console.log('📊 Informe enriquecido:', {
-          id: enrichedReport.id,
-          title: enrichedReport.title,
-          author: enrichedReport.author,
-          type: enrichedReport.type,
-          category: enrichedReport.category,
-          hasCoverImage: !!enrichedReport.coverImage,
-          imagesCount: enrichedReport.images.length,
-          tagsCount: enrichedReport.tags.length,
-          views: enrichedReport.views,
-          contentLength: enrichedReport.content.length
-        });
-        
-        setSelectedReport(enrichedReport);
-        
-        // Incrementar contador de vistas (opcional)
-        try {
-          await fetch(`/api/reports/${reportId}/view`, {
-            method: 'POST',
-            credentials: 'same-origin'
-          });
-        } catch (viewError) {
-          console.log('No se pudo incrementar el contador de vistas:', viewError);
-        }
-        
-      } else {
-        console.error('Error al cargar informe:', response.status);
-        const errorData = await response.json().catch(() => ({}));
-        alert(`Error al cargar el informe: ${errorData.message || 'Error desconocido'}`);
-        setShowReportModal(false);
-      }
     } catch (error) {
-      console.error('Error al cargar informe:', error);
-      alert('Error de conexión al cargar el informe. Verifica tu internet e intenta nuevamente.');
-      setShowReportModal(false);
+      console.error('Error al redirigir al informe:', error);
+      alert('Error al abrir el informe. Intenta nuevamente.');
     }
   };
 
