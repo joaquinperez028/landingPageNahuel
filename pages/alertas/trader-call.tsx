@@ -2564,7 +2564,6 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     summary: '',
     readTime: '',
     tags: '',
-    author: 'Nahuel Lozano',
     isFeature: false,
     publishedAt: new Date().toISOString().split('T')[0],
     status: 'published'
@@ -2724,32 +2723,19 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               </select>
             </div>
 
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label htmlFor="readTime">Tiempo de Lectura (min)</label>
-                <input
-                  id="readTime"
-                  type="number"
-                  value={formData.readTime}
-                  onChange={(e) => handleInputChange('readTime', e.target.value)}
-                  placeholder="5"
-                  min="1"
-                  max="60"
-                  disabled={loading}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="author">Autor</label>
-                <input
-                  id="author"
-                  type="text"
-                  value={formData.author}
-                  onChange={(e) => handleInputChange('author', e.target.value)}
-                  placeholder="Nahuel Lozano"
-                  disabled={loading}
-                />
-              </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="readTime">Tiempo de Lectura (min) *</label>
+              <input
+                id="readTime"
+                type="number"
+                value={formData.readTime}
+                onChange={(e) => handleInputChange('readTime', e.target.value)}
+                placeholder="5"
+                min="1"
+                max="60"
+                required
+                disabled={loading}
+              />
             </div>
 
             <div className={styles.formRow}>

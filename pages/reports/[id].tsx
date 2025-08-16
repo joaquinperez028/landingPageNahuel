@@ -125,6 +125,25 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
   // Calcular tiempo de lectura total
   const totalReadTime = publishedArticles.reduce((total, article) => total + article.readTime, 0) + report.readTime;
 
+  // Debug: mostrar información de artículos y tiempo de lectura
+  console.log('🔍 [REPORT VIEW] Informe completo:', report);
+  console.log('📚 [REPORT VIEW] Artículos del informe:', report.articles);
+  console.log('✅ [REPORT VIEW] Artículos publicados:', publishedArticles);
+  console.log('⏱️ [REPORT VIEW] Tiempo de lectura del informe:', report.readTime);
+  console.log('⏱️ [REPORT VIEW] Tiempo total calculado:', totalReadTime);
+  console.log('🔍 [REPORT VIEW] ¿Tiene artículos?', !!report.articles);
+  console.log('🔍 [REPORT VIEW] Cantidad de artículos:', report.articles?.length || 0);
+  console.log('🔍 [REPORT VIEW] Artículos publicados:', publishedArticles.length);
+
+  // Mostrar alerta temporal de debug (se puede quitar después)
+  useEffect(() => {
+    if (report.articles && report.articles.length > 0) {
+      alert(`🔍 DEBUG: Informe tiene ${report.articles.length} artículos\n📚 Publicados: ${publishedArticles.length}\n⏱️ Tiempo total: ${totalReadTime} min`);
+    } else {
+      alert(`🔍 DEBUG: Informe NO tiene artículos\n⏱️ Tiempo: ${report.readTime} min`);
+    }
+  }, [report.articles, publishedArticles.length, totalReadTime, report.readTime]);
+
   const handlePreviousArticle = () => {
     if (currentArticleIndex > 0) {
       setCurrentArticleIndex(currentArticleIndex - 1);
@@ -574,8 +593,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       } : null,
       // Imágenes adicionales optimizadas
       images: optimizedImages,
-      // Calcular tiempo de lectura estimado
-      readTime: Math.ceil((reportDoc.content?.length || 0) / 1000) || 1,
+      // Usar el tiempo de lectura almacenado en la base de datos
+      readTime: reportDoc.readTime || Math.ceil((reportDoc.content?.length || 0) / 1000) || 1,
       // Procesar artículos si existen
       articles: reportDoc.articles ? reportDoc.articles.map((article: any) => ({
         ...article,
@@ -583,6 +602,33 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         readTime: Math.ceil((article.content?.length || 0) / 1000) || 1
       })) : []
     };
+
+    // Debug: mostrar información del informe procesado
+    console.log('🔍 [REPORT] Informe original:', {
+      id: reportDoc._id,
+      title: reportDoc.title,
+      hasArticles: !!reportDoc.articles,
+      articlesCount: reportDoc.articles?.length || 0,
+      readTime: reportDoc.readTime
+    });
+
+    console.log('🔍 [REPORT] Informe procesado:', {
+      id: processedReport._id,
+      title: processedReport.title,
+      hasArticles: !!processedReport.articles,
+      articlesCount: processedReport.articles?.length || 0,
+      readTime: processedReport.readTime
+    });
+
+    if (processedReport.articles && processedReport.articles.length > 0) {
+      console.log('📚 [REPORT] Artículos procesados:', processedReport.articles.map((article: any) => ({
+        id: article._id,
+        title: article.title,
+        order: article.order,
+        isPublished: article.isPublished,
+        readTime: article.readTime
+      })));
+    }
 
     return {
       props: {

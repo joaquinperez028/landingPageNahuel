@@ -39,9 +39,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       type,
       content,
       summary,
+      readTime, // Agregar campo de tiempo de lectura
       videoMuxId,
       pdfUrl,
       imageUrl,
+      coverImage, // Agregar imagen de portada
+      images, // Agregar imágenes adicionales
       status = 'published',
       tags = [],
       isFeature = false,
@@ -53,6 +56,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({
         success: false,
         message: 'Título, tipo, contenido y resumen son campos requeridos'
+      });
+    }
+
+    // Validar tiempo de lectura
+    if (!readTime || isNaN(parseInt(readTime))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tiempo de lectura es requerido y debe ser un número válido'
       });
     }
 
@@ -88,9 +99,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       type,
       content,
       summary: summary.trim(),
+      readTime: parseInt(readTime), // Usar el tiempo de lectura enviado por el usuario
       videoMuxId,
       pdfUrl,
       imageUrl,
+      coverImage: coverImage || null, // Incluir imagen de portada
+      images: images || [], // Incluir imágenes adicionales
       author: user.name || user.email,
       authorId: user._id.toString(),
       status,
@@ -99,10 +113,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       articles: articles || [] // Incluir artículos en el informe
     });
 
-    // Calcular tiempo de lectura total
-    let totalReadTime = Math.ceil(content.length / 1000);
+    // Calcular tiempo de lectura total usando el valor del usuario + artículos
+    let totalReadTime = parseInt(readTime);
     if (articles && articles.length > 0) {
       articles.forEach((article: any) => {
+        // Usar el tiempo de lectura calculado del artículo
         article.readTime = Math.ceil(article.content.length / 1000);
         totalReadTime += article.readTime;
       });
