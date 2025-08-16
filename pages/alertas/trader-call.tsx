@@ -2598,6 +2598,17 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     isPublished: true
   });
 
+  // Debug: monitorear cambios en formData
+  React.useEffect(() => {
+    console.log('📊 [FORM] Estado actual del formulario:', {
+      title: formData.title,
+      type: formData.type,
+      category: formData.category,
+      readTime: formData.readTime,
+      hasContent: !!formData.content
+    });
+  }, [formData]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -2644,6 +2655,8 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
   };
 
   const handleInputChange = (field: string, value: string) => {
+    console.log(`🔄 [FORM] Cambiando campo '${field}' de '${formData[field as keyof typeof formData]}' a '${value}'`);
+    
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -2740,13 +2753,38 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
               <select
                 id="type"
                 value={formData.type}
-                onChange={(e) => handleInputChange('type', e.target.value)}
+                onChange={(e) => {
+                  console.log('🎯 [SELECT] Cambio detectado en tipo:', e.target.value);
+                  handleInputChange('type', e.target.value);
+                }}
                 disabled={loading}
+                style={{ 
+                  cursor: 'pointer',
+                  backgroundColor: '#1e293b',
+                  color: '#ffffff',
+                  border: '2px solid rgba(139, 92, 246, 0.3)',
+                  borderRadius: '12px',
+                  padding: '0.75rem 1rem',
+                  fontSize: '1rem',
+                  width: '100%'
+                }}
               >
                 <option value="text">📄 Texto</option>
                 <option value="video">🎥 Video</option>
                 <option value="mixed">🔄 Mixto</option>
               </select>
+              {/* Debug: mostrar el valor actual */}
+              <div style={{ 
+                fontSize: '0.8rem', 
+                color: '#94a3b8', 
+                marginTop: '0.5rem',
+                padding: '0.5rem',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                borderRadius: '8px',
+                border: '1px solid rgba(139, 92, 246, 0.2)'
+              }}>
+                🔍 Valor actual del tipo: <strong>{formData.type}</strong>
+              </div>
             </div>
 
             <div className={styles.formGroup}>

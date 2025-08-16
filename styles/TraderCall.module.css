@@ -2003,6 +2003,15 @@
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
   padding-right: 3rem;
+  /* Asegurar que el select funcione correctamente */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* Asegurar que sea clickeable */
+  pointer-events: auto;
+  /* Asegurar que se vea como un select */
+  display: block;
+  width: 100%;
 }
 
 .formGroup textarea {
