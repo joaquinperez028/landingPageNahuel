@@ -119,8 +119,8 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
   // Obtener artículos publicados ordenados
   const publishedArticles = report.articles?.filter(article => article.isPublished).sort((a, b) => a.order - b.order) || [];
 
-  // Calcular tiempo de lectura total
-  const totalReadTime = publishedArticles.reduce((total, article) => total + article.readTime, 0) + report.readTime;
+  // Tiempo de lectura total (solo del informe principal)
+  const totalReadTime = report.readTime;
 
   const handlePreviousArticle = () => {
     if (currentArticleIndex > 0) {
@@ -248,14 +248,7 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
                 {publishedArticles.length > 0 && (
                   <div className={styles.articlesNavigation}>
                     <div className={styles.articlesHeader}>
-                      <div className={styles.articlesHeaderLeft}>
-                        <h2>📚 Artículos del Informe</h2>
-                        {publishedArticles.length > 0 && (
-                          <span className={styles.totalReadTime}>
-                            Tiempo total: {totalReadTime} min
-                          </span>
-                        )}
-                      </div>
+                      <h2>📚 Artículos del Informe</h2>
                       <button 
                         onClick={() => setShowArticlesList(!showArticlesList)}
                         className={styles.articlesListButton}
@@ -277,7 +270,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
                             <div className={styles.articleListInfo}>
                               <span className={styles.articleOrder}>Artículo {article.order}</span>
                               <h4 className={styles.articleListTitle}>{article.title}</h4>
-                              <span className={styles.articleReadTime}>{article.readTime} min</span>
                             </div>
                           </button>
                         ))}
@@ -319,7 +311,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
                         dangerouslySetInnerHTML={{ __html: publishedArticles[currentArticleIndex].content }}
                       />
                       <div className={styles.articleMeta}>
-                        <span>Tiempo de lectura: {publishedArticles[currentArticleIndex].readTime} min</span>
                         <span>Publicado: {formatDate(publishedArticles[currentArticleIndex].createdAt)}</span>
                       </div>
                     </div>
@@ -364,7 +355,6 @@ const ReportView: React.FC<ReportViewProps> = ({ report, currentUser, userRole }
                           <div className={styles.sidebarArticleInfo}>
                             <span className={styles.sidebarArticleOrder}>Artículo {article.order}</span>
                             <h4 className={styles.sidebarArticleTitle}>{article.title}</h4>
-                            <span className={styles.sidebarArticleReadTime}>{article.readTime} min</span>
                           </div>
                         </button>
                       ))}

@@ -2581,7 +2581,6 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     content: string;
     order: number;
     isPublished: boolean;
-    readTime: number;
     createdAt: string;
   }>>([]);
 
@@ -2616,7 +2615,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
         content: article.content,
         order: article.order,
         isPublished: article.isPublished,
-        readTime: article.readTime
+        createdAt: article.createdAt
         // No incluir _id ni createdAt - MongoDB los generará automáticamente
       }))
     };
@@ -2648,7 +2647,6 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
       const articleToAdd = {
         ...newArticle,
         _id: `temp-${Date.now()}`,
-        readTime: Math.ceil(newArticle.content.length / 1000),
         createdAt: new Date().toISOString()
       };
       
@@ -3013,7 +3011,6 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
                             {article.content.substring(0, 100)}...
                           </div>
                           <div style={{ fontSize: '0.75rem', color: '#667eea', marginTop: '0.25rem' }}>
-                            Tiempo de lectura: {article.readTime} min | 
                             Estado: {article.isPublished ? 'Publicado' : 'Borrador'}
                           </div>
                         </div>
