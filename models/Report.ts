@@ -70,7 +70,6 @@ const ReportSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['text', 'video', 'mixed'],
     default: 'text'
   },
   category: {
