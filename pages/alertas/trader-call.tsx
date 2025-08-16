@@ -2610,7 +2610,15 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
       publishedAt: new Date(formData.publishedAt),
       coverImage: coverImage,
       images: images,
-      articles: articles // Incluir artículos en el envío
+      // Limpiar artículos eliminando campos temporales antes de enviar
+      articles: articles.map(article => ({
+        title: article.title,
+        content: article.content,
+        order: article.order,
+        isPublished: article.isPublished,
+        readTime: article.readTime
+        // No incluir _id ni createdAt - MongoDB los generará automáticamente
+      }))
     };
 
     // Debug: mostrar qué datos se están enviando
