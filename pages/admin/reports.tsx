@@ -248,6 +248,49 @@ const AdminReportsPage: React.FC = () => {
     }
   };
 
+  // Funciones para gestionar artículos en el formulario de creación
+  const addArticleToForm = () => {
+    if (newArticle.title && newArticle.content) {
+      const articleToAdd = {
+        ...newArticle,
+        _id: `temp-${Date.now()}`,
+        readTime: Math.ceil(newArticle.content.length / 1000),
+        createdAt: new Date().toISOString()
+      };
+      
+      setNewReport(prev => ({
+        ...prev,
+        articles: [...prev.articles, articleToAdd]
+      }));
+      
+      // Resetear el formulario de artículo
+      setNewArticle({
+        title: '',
+        content: '',
+        order: newReport.articles.length + 1,
+        isPublished: true
+      });
+    } else {
+      alert('Por favor completa el título y contenido del artículo');
+    }
+  };
+
+  const removeArticleFromForm = (index: number) => {
+    setNewReport(prev => ({
+      ...prev,
+      articles: prev.articles.filter((_, i) => i !== index)
+    }));
+    
+    // Reordenar artículos restantes
+    setNewReport(prev => ({
+      ...prev,
+      articles: prev.articles.map((article, i) => ({
+        ...article,
+        order: i + 1
+      }))
+    }));
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'published': return '#10b981';
@@ -342,7 +385,7 @@ const AdminReportsPage: React.FC = () => {
         {/* Modal de creación de informe */}
         {showCreateForm && (
           <div className={styles.modal}>
-            <div className={styles.modalContent}>
+            <div className={styles.modalContent} style={{ maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto' }}>
               <div className={styles.modalHeader}>
                 <h2>Crear Nuevo Informe</h2>
                 <button 
@@ -354,83 +397,230 @@ const AdminReportsPage: React.FC = () => {
               </div>
 
               <form onSubmit={handleCreateReport} className={styles.form}>
-                <div className={styles.formGroup}>
-                  <label>Título *</label>
-                  <input
-                    type="text"
-                    value={newReport.title}
-                    onChange={(e) => setNewReport(prev => ({...prev, title: e.target.value}))}
-                    required
-                    maxLength={200}
-                  />
-                </div>
-
-                <div className={styles.formRow}>
+                {/* Información básica del informe */}
+                <div className={styles.formSection}>
+                  <h3>📋 Información Básica del Informe</h3>
+                  
                   <div className={styles.formGroup}>
-                    <label>Tipo *</label>
-                    <select
-                      value={newReport.type}
-                      onChange={(e) => setNewReport(prev => ({...prev, type: e.target.value as any}))}
-                    >
-                      <option value="informe">📄 Informe</option>
-                      <option value="video">🎥 Video</option>
-                      <option value="analisis">📊 Análisis</option>
-                    </select>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label>Estado</label>
-                    <select
-                      value={newReport.status}
-                      onChange={(e) => setNewReport(prev => ({...prev, status: e.target.value as any}))}
-                    >
-                      <option value="draft">Borrador</option>
-                      <option value="published">Publicado</option>
-                      <option value="archived">Archivado</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Resumen *</label>
-                  <textarea
-                    value={newReport.summary}
-                    onChange={(e) => setNewReport(prev => ({...prev, summary: e.target.value}))}
-                    required
-                    rows={3}
-                    maxLength={500}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Contenido *</label>
-                  <textarea
-                    value={newReport.content}
-                    onChange={(e) => setNewReport(prev => ({...prev, content: e.target.value}))}
-                    required
-                    rows={8}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Tags (separados por comas)</label>
-                  <input
-                    type="text"
-                    value={newReport.tags}
-                    onChange={(e) => setNewReport(prev => ({...prev, tags: e.target.value}))}
-                    placeholder="trading, analisis, mercados"
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.checkboxLabel}>
+                    <label>Título del Informe *</label>
                     <input
-                      type="checkbox"
-                      checked={newReport.isFeature}
-                      onChange={(e) => setNewReport(prev => ({...prev, isFeature: e.target.checked}))}
+                      type="text"
+                      value={newReport.title}
+                      onChange={(e) => setNewReport(prev => ({...prev, title: e.target.value}))}
+                      required
+                      maxLength={200}
+                      placeholder="Ej: Análisis del Mercado Q4 2024"
                     />
-                    Marcar como destacado
-                  </label>
+                  </div>
+
+                  <div className={styles.formRow}>
+                    <div className={styles.formGroup}>
+                      <label>Tipo *</label>
+                      <select
+                        value={newReport.type}
+                        onChange={(e) => setNewReport(prev => ({...prev, type: e.target.value as any}))}
+                      >
+                        <option value="informe">📄 Informe</option>
+                        <option value="video">🎥 Video</option>
+                        <option value="analisis">📊 Análisis</option>
+                      </select>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label>Estado</label>
+                      <select
+                        value={newReport.status}
+                        onChange={(e) => setNewReport(prev => ({...prev, status: e.target.value as any}))}
+                      >
+                        <option value="draft">Borrador</option>
+                        <option value="published">Publicado</option>
+                        <option value="archived">Archivado</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Resumen *</label>
+                    <textarea
+                      value={newReport.summary}
+                      onChange={(e) => setNewReport(prev => ({...prev, summary: e.target.value}))}
+                      required
+                      rows={3}
+                      maxLength={500}
+                      placeholder="Breve descripción del contenido del informe..."
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Contenido Principal del Informe *</label>
+                    <textarea
+                      value={newReport.content}
+                      onChange={(e) => setNewReport(prev => ({...prev, content: e.target.value}))}
+                      required
+                      rows={6}
+                      placeholder="Contenido principal del informe (puede incluir HTML)..."
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Tags (separados por comas)</label>
+                    <input
+                      type="text"
+                      value={newReport.tags}
+                      onChange={(e) => setNewReport(prev => ({...prev, tags: e.target.value}))}
+                      placeholder="trading, analisis, mercados, economia"
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        checked={newReport.isFeature}
+                        onChange={(e) => setNewReport(prev => ({...prev, isFeature: e.target.checked}))}
+                      />
+                      Marcar como destacado
+                    </label>
+                  </div>
+                </div>
+
+                {/* Sección de artículos */}
+                <div className={styles.formSection}>
+                  <h3>📚 Artículos del Informe (Opcional)</h3>
+                  <p style={{ color: '#6b7280', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                    Puedes dividir el informe en artículos más pequeños para mejor organización. 
+                    Máximo 10 artículos permitidos.
+                  </p>
+
+                  {/* Formulario para agregar artículo */}
+                  <div style={{
+                    background: 'rgba(102, 126, 234, 0.05)',
+                    border: '1px solid rgba(102, 126, 234, 0.2)',
+                    borderRadius: '12px',
+                    padding: '1.5rem',
+                    marginBottom: '1.5rem'
+                  }}>
+                    <h4 style={{ margin: '0 0 1rem 0', color: '#667eea' }}>➕ Agregar Nuevo Artículo</h4>
+                    
+                    <div className={styles.formRow}>
+                      <div className={styles.formGroup}>
+                        <label>Título del Artículo *</label>
+                        <input
+                          type="text"
+                          value={newArticle.title}
+                          onChange={(e) => setNewArticle(prev => ({...prev, title: e.target.value}))}
+                          placeholder="Ej: Introducción al Mercado"
+                          maxLength={200}
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Orden *</label>
+                        <input
+                          type="number"
+                          value={newArticle.order}
+                          onChange={(e) => setNewArticle(prev => ({...prev, order: parseInt(e.target.value)}))}
+                          min={1}
+                          max={10}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label>Contenido del Artículo *</label>
+                      <textarea
+                        value={newArticle.content}
+                        onChange={(e) => setNewArticle(prev => ({...prev, content: e.target.value}))}
+                        rows={4}
+                        placeholder="Contenido del artículo (puede incluir HTML)..."
+                      />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label className={styles.checkboxLabel}>
+                        <input
+                          type="checkbox"
+                          checked={newArticle.isPublished}
+                          onChange={(e) => setNewArticle(prev => ({...prev, isPublished: e.target.checked}))}
+                        />
+                        Publicar inmediatamente
+                      </label>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={addArticleToForm}
+                      style={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.75rem 1.5rem',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: '500'
+                      }}
+                    >
+                      + Agregar Artículo al Informe
+                    </button>
+                  </div>
+
+                  {/* Lista de artículos agregados */}
+                  {newReport.articles.length > 0 && (
+                    <div style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '12px',
+                      padding: '1.5rem'
+                    }}>
+                      <h4 style={{ margin: '0 0 1rem 0', color: '#ffffff' }}>
+                        📋 Artículos Agregados ({newReport.articles.length})
+                      </h4>
+                      
+                      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                        {newReport.articles
+                          .sort((a, b) => a.order - b.order)
+                          .map((article, index) => (
+                            <div key={article._id} style={{
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              borderRadius: '8px',
+                              padding: '1rem',
+                              marginBottom: '0.75rem',
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center'
+                            }}>
+                              <div>
+                                <div style={{ fontWeight: '600', color: '#ffffff', marginBottom: '0.25rem' }}>
+                                  Artículo {article.order}: {article.title}
+                                </div>
+                                <div style={{ fontSize: '0.8rem', color: '#a0a0a0' }}>
+                                  {article.content.substring(0, 100)}...
+                                </div>
+                                <div style={{ fontSize: '0.75rem', color: '#667eea', marginTop: '0.25rem' }}>
+                                  Tiempo de lectura: {article.readTime} min | 
+                                  Estado: {article.isPublished ? 'Publicado' : 'Borrador'}
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeArticleFromForm(index)}
+                                style={{
+                                  background: '#ef4444',
+                                  color: 'white',
+                                  border: 'none',
+                                  padding: '0.5rem',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '0.8rem'
+                                }}
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className={styles.formActions}>
