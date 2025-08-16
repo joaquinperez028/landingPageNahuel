@@ -1690,7 +1690,8 @@ const SubscriberView: React.FC = () => {
           {informes.map((informe: any) => {
             const reportDate = new Date(informe.publishedAt || informe.createdAt);
             const isRecent = (Date.now() - reportDate.getTime()) < 7 * 24 * 60 * 60 * 1000; // 7 días
-            const readTime = Math.ceil((informe.content?.length || 0) / 1000);
+            // Usar el tiempo de lectura almacenado en la base de datos
+            const readTime = informe.readTime || 1;
             
             return (
               <div key={informe.id || informe._id} className={styles.informeCard}>
@@ -2373,13 +2374,8 @@ const ReportViewModal = ({ report, onClose }: {
   // Funciones de descarga y compartir ELIMINADAS POR SEGURIDAD
   // Los botones de descargar y compartir han sido removidos para prevenir filtración de información
 
-  const calculateReadTime = (content: string) => {
-    const wordsPerMinute = 200;
-    const words = content?.split(' ').length || 0;
-    return Math.ceil(words / wordsPerMinute);
-  };
-
-  const readTime = calculateReadTime(report.content);
+  // Usar el tiempo de lectura almacenado en la base de datos
+  const readTime = report.readTime || 1;
 
   return (
     <>

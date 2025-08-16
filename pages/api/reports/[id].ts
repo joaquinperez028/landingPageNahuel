@@ -81,8 +81,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       imageUrl: optimizedImageUrl,
       // Imágenes adicionales optimizadas
       optimizedImages,
-      // Calcular tiempo de lectura estimado
-      readTime: Math.ceil(report.content?.length / 1000) || 1
+      // Usar el tiempo de lectura almacenado en la base de datos
+      readTime: report.readTime || 1
     };
 
     // Incrementar contador de vistas de forma asíncrona

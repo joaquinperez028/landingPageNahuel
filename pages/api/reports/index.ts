@@ -98,8 +98,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         summary: report.summary || (report.content ? 
           report.content.substring(0, 150) + '...' : 
           'Sin descripción disponible'),
-        // Calcular tiempo de lectura estimado
-        readTime: Math.ceil(report.content?.length / 1000) || 1
+        // Usar el tiempo de lectura almacenado en la base de datos
+        readTime: report.readTime || 1
       };
     });
 

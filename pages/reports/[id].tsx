@@ -552,12 +552,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       // Imágenes adicionales optimizadas
       images: optimizedImages,
       // Usar el tiempo de lectura almacenado en la base de datos
-      readTime: reportDoc.readTime || Math.ceil((reportDoc.content?.length || 0) / 1000) || 1,
+      readTime: reportDoc.readTime || 1,
       // Procesar artículos si existen
       articles: reportDoc.articles ? reportDoc.articles.map((article: any) => ({
         ...article,
         _id: article._id.toString(),
-        readTime: Math.ceil((article.content?.length || 0) / 1000) || 1
+        readTime: article.readTime || Math.ceil((article.content?.length || 0) / 1000) || 1
       })) : []
     };
 

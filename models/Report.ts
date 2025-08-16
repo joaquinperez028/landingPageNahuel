@@ -91,6 +91,11 @@ const ReportSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  readTime: {
+    type: Number,
+    required: true,
+    min: 1
+  },
   isPublished: {
     type: Boolean,
     default: true
