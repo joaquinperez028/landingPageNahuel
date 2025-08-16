@@ -489,6 +489,12 @@ const SubscriberView: React.FC = () => {
   const [marketStatus, setMarketStatus] = useState<string>('');
   const [isUsingSimulatedPrices, setIsUsingSimulatedPrices] = useState(false);
 
+  // Estados para paginación de informes
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalInformes, setTotalInformes] = useState(0);
+  const [informesPerPage] = useState(8);
+
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -720,12 +726,12 @@ const SubscriberView: React.FC = () => {
     }
   };
 
-  // Función para cargar informes desde la API
-  const loadInformes = async () => {
+  // Función para cargar informes desde la API con paginación
+  const loadInformes = async (page: number = 1) => {
     setLoadingInformes(true);
     try {
-      // Filtrar solo informes de Trader Call
-      const response = await fetch('/api/reports?limit=6&featured=false&category=trader-call', {
+      // Filtrar solo informes de Trader Call con paginación
+      const response = await fetch(`/api/reports?page=${page}&limit=${informesPerPage}&featured=false&category=trader-call`, {
         method: 'GET',
         credentials: 'same-origin',
       });
@@ -733,7 +739,10 @@ const SubscriberView: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setInformes(data.data?.reports || []);
-        console.log('Informes Trader Call cargados:', data.data?.reports?.length || 0);
+        setTotalPages(data.data?.pagination?.totalPages || 1);
+        setTotalInformes(data.data?.pagination?.total || 0);
+        setCurrentPage(page);
+        console.log('Informes Trader Call cargados:', data.data?.reports?.length || 0, 'Página:', page);
       } else {
         console.error('Error al cargar informes:', response.status);
       }
@@ -741,6 +750,25 @@ const SubscriberView: React.FC = () => {
       console.error('Error al cargar informes:', error);
     } finally {
       setLoadingInformes(false);
+    }
+  };
+
+  // Funciones para manejar la paginación
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      loadInformes(page);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      handlePageChange(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      handlePageChange(currentPage - 1);
     }
   };
 
@@ -1664,7 +1692,8 @@ const SubscriberView: React.FC = () => {
     );
   };
 
-  const renderInformes = () => (
+  const renderInformes = () => {
+    return (
     <div className={styles.informesContent}>
       <div className={styles.informesHeader}>
         <h2 className={styles.sectionTitle}>📊 Informes y Análisis</h2>
@@ -1791,6 +1820,59 @@ const SubscriberView: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className={styles.pagination}>
+            <div className={styles.paginationInfo}>
+              <span>Mostrando {((currentPage - 1) * informesPerPage) + 1} - {Math.min(currentPage * informesPerPage, totalInformes)} de {totalInformes} informes</span>
+            </div>
+            <div className={styles.paginationControls}>
+              <button 
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className={`${styles.paginationButton} ${currentPage === 1 ? styles.disabled : ''}`}
+              >
+                <ChevronLeft size={16} />
+                Anterior
+              </button>
+              
+              <div className={styles.pageNumbers}>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`${styles.pageButton} ${currentPage === pageNum ? styles.active : ''}`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <button 
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                className={`${styles.paginationButton} ${currentPage === totalPages ? styles.disabled : ''}`}
+              >
+                Siguiente
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       ) : (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>📄</div>
@@ -1799,7 +1881,8 @@ const SubscriberView: React.FC = () => {
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   // Componente separado para el Chat de Comunidad
   const CommunityChat = () => {
