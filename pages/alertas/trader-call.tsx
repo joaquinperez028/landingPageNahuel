@@ -2648,6 +2648,24 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
 
+  // Nuevos estados para artículos
+  const [articles, setArticles] = useState<Array<{
+    _id: string;
+    title: string;
+    content: string;
+    order: number;
+    isPublished: boolean;
+    readTime: number;
+    createdAt: string;
+  }>>([]);
+
+  const [newArticle, setNewArticle] = useState({
+    title: '',
+    content: '',
+    order: 1,
+    isPublished: true
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -2658,14 +2676,15 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
 
     const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
 
-    // Preparar datos con imágenes de Cloudinary
+    // Preparar datos con imágenes de Cloudinary y artículos
     const submitData = {
       ...formData,
       tags: tagsArray,
       readTime: formData.readTime ? parseInt(formData.readTime) : null,
       publishedAt: new Date(formData.publishedAt),
       coverImage: coverImage,
-      images: images
+      images: images,
+      articles: articles // Incluir artículos en el envío
     };
     
     onSubmit(submitData);
@@ -2676,6 +2695,40 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Funciones para gestionar artículos
+  const addArticle = () => {
+    if (newArticle.title && newArticle.content) {
+      const articleToAdd = {
+        ...newArticle,
+        _id: `temp-${Date.now()}`,
+        readTime: Math.ceil(newArticle.content.length / 1000),
+        createdAt: new Date().toISOString()
+      };
+      
+      setArticles(prev => [...prev, articleToAdd]);
+      
+      // Resetear el formulario de artículo
+      setNewArticle({
+        title: '',
+        content: '',
+        order: articles.length + 1,
+        isPublished: true
+      });
+    } else {
+      alert('Por favor completa el título y contenido del artículo');
+    }
+  };
+
+  const removeArticle = (index: number) => {
+    setArticles(prev => prev.filter((_, i) => i !== index));
+    
+    // Reordenar artículos restantes
+    setArticles(prev => prev.map((article, i) => ({
+      ...article,
+      order: i + 1
+    })));
   };
 
   const handleCoverImageUploaded = (image: CloudinaryImage) => {
@@ -2713,198 +2766,342 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.createReportForm}>
-          <div className={styles.formGroup}>
-            <label htmlFor="title">Título *</label>
-            <input
-              id="title"
-              type="text"
-              value={formData.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="Título del informe Trader Call"
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="type">Tipo</label>
-            <select
-              id="type"
-              value={formData.type}
-              onChange={(e) => handleInputChange('type', e.target.value)}
-              disabled={loading}
-            >
-              <option value="text">📄 Texto</option>
-              <option value="video">🎥 Video</option>
-              <option value="mixed">🔄 Mixto</option>
-            </select>
-          </div>
-
-          <div className={styles.formRow}>
+          {/* Sección de información básica */}
+          <div className={styles.formSection}>
+            <h3>📋 Información Básica del Informe</h3>
+            
             <div className={styles.formGroup}>
-              <label htmlFor="readTime">Tiempo de Lectura (min)</label>
+              <label htmlFor="title">Título *</label>
               <input
-                id="readTime"
-                type="number"
-                value={formData.readTime}
-                onChange={(e) => handleInputChange('readTime', e.target.value)}
-                placeholder="5"
-                min="1"
-                max="60"
-                disabled={loading}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="author">Autor</label>
-              <input
-                id="author"
+                id="title"
                 type="text"
-                value={formData.author}
-                onChange={(e) => handleInputChange('author', e.target.value)}
-                placeholder="Nahuel Lozano"
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label htmlFor="publishedAt">Fecha de Publicación</label>
-              <input
-                id="publishedAt"
-                type="date"
-                value={formData.publishedAt}
-                onChange={(e) => handleInputChange('publishedAt', e.target.value)}
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                placeholder="Título del informe Trader Call"
+                required
                 disabled={loading}
               />
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="tags">Tags (separados por comas)</label>
-              <input
-                id="tags"
-                type="text"
-                value={formData.tags}
-                onChange={(e) => handleInputChange('tags', e.target.value)}
-                placeholder="trading, análisis, señales"
+              <label htmlFor="type">Tipo</label>
+              <select
+                id="type"
+                value={formData.type}
+                onChange={(e) => handleInputChange('type', e.target.value)}
+                disabled={loading}
+              >
+                <option value="text">📄 Texto</option>
+                <option value="video">🎥 Video</option>
+                <option value="mixed">🔄 Mixto</option>
+              </select>
+            </div>
+
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="readTime">Tiempo de Lectura (min)</label>
+                <input
+                  id="readTime"
+                  type="number"
+                  value={formData.readTime}
+                  onChange={(e) => handleInputChange('readTime', e.target.value)}
+                  placeholder="5"
+                  min="1"
+                  max="60"
+                  disabled={loading}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="author">Autor</label>
+                <input
+                  id="author"
+                  type="text"
+                  value={formData.author}
+                  onChange={(e) => handleInputChange('author', e.target.value)}
+                  placeholder="Nahuel Lozano"
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="publishedAt">Fecha de Publicación</label>
+                <input
+                  id="publishedAt"
+                  type="date"
+                  value={formData.publishedAt}
+                  onChange={(e) => handleInputChange('publishedAt', e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="tags">Tags (separados por comas)</label>
+                <input
+                  id="tags"
+                  type="text"
+                  value={formData.tags}
+                  onChange={(e) => handleInputChange('tags', e.target.value)}
+                  placeholder="trading, análisis, señales"
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="summary">Resumen</label>
+              <textarea
+                id="summary"
+                value={formData.summary}
+                onChange={(e) => handleInputChange('summary', e.target.value)}
+                placeholder="Breve descripción del análisis de Trader Call"
+                rows={3}
                 disabled={loading}
               />
             </div>
-          </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="summary">Resumen</label>
-            <textarea
-              id="summary"
-              value={formData.summary}
-              onChange={(e) => handleInputChange('summary', e.target.value)}
-              placeholder="Breve descripción del análisis de Trader Call"
-              rows={3}
-              disabled={loading}
-            />
-          </div>
+            {/* Imagen de portada */}
+            <div className={styles.formGroup}>
+              <label>Imagen de Portada</label>
+              {!coverImage ? (
+                <ImageUploader
+                  onImageUploaded={handleCoverImageUploaded}
+                  onUploadStart={() => setUploadingCover(true)}
+                  onUploadProgress={() => {}}
+                  onError={(error) => {
+                    console.error('Error subiendo imagen de portada:', error);
+                    alert('Error subiendo imagen: ' + error);
+                    setUploadingCover(false);
+                  }}
+                  maxFiles={1}
+                  multiple={false}
+                  buttonText="Subir Imagen de Portada"
+                  className={styles.coverImageUploader}
+                />
+              ) : (
+                <div className={styles.uploadedImagePreview}>
+                  <img 
+                    src={coverImage.secure_url} 
+                    alt="Imagen de portada"
+                    className={styles.previewImage}
+                  />
+                  <div className={styles.previewActions}>
+                    <span className={styles.imageInfo}>
+                      {coverImage.width} × {coverImage.height} | 
+                      {Math.round(coverImage.bytes / 1024)}KB
+                    </span>
+                    <button 
+                      type="button" 
+                      onClick={removeCoverImage}
+                      className={styles.removeImageButton}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {/* Imagen de portada */}
-          <div className={styles.formGroup}>
-            <label>Imagen de Portada</label>
-            {!coverImage ? (
+            <div className={styles.formGroup}>
+              <label htmlFor="content">Contenido Principal del Informe *</label>
+              <textarea
+                id="content"
+                value={formData.content}
+                onChange={(e) => handleInputChange('content', e.target.value)}
+                placeholder="Contenido principal del informe"
+                rows={6}
+                required
+                disabled={loading}
+              />
+            </div>
+
+            {/* Imágenes adicionales */}
+            <div className={styles.formGroup}>
+              <label>Imágenes Adicionales</label>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                Imágenes que se mostrarán dentro del contenido del informe
+              </p>
+              
               <ImageUploader
-                onImageUploaded={handleCoverImageUploaded}
-                onUploadStart={() => setUploadingCover(true)}
+                onImageUploaded={handleImageUploaded}
+                onUploadStart={() => setUploadingImages(true)}
                 onUploadProgress={() => {}}
                 onError={(error) => {
-                  console.error('Error subiendo imagen de portada:', error);
+                  console.error('Error subiendo imagen adicional:', error);
                   alert('Error subiendo imagen: ' + error);
-                  setUploadingCover(false);
+                  setUploadingImages(false);
                 }}
-                maxFiles={1}
-                multiple={false}
-                buttonText="Subir Imagen de Portada"
-                className={styles.coverImageUploader}
+                maxFiles={5}
+                multiple={true}
+                buttonText="Subir Imágenes Adicionales"
+                className={styles.additionalImagesUploader}
               />
-            ) : (
-              <div className={styles.uploadedImagePreview}>
-                <img 
-                  src={coverImage.secure_url} 
-                  alt="Imagen de portada"
-                  className={styles.previewImage}
-                />
-                <div className={styles.previewActions}>
-                  <span className={styles.imageInfo}>
-                    {coverImage.width} × {coverImage.height} | 
-                    {Math.round(coverImage.bytes / 1024)}KB
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={removeCoverImage}
-                    className={styles.removeImageButton}
-                  >
-                    Eliminar
-                  </button>
+
+              {/* Preview de imágenes adicionales */}
+              {images.length > 0 && (
+                <div className={styles.additionalImagesPreview}>
+                  <h4>Imágenes Adicionales ({images.length}/5)</h4>
+                  <div className={styles.imagesGrid}>
+                    {images.map((image, index) => (
+                      <div key={image.public_id} className={styles.imagePreviewItem}>
+                        <img 
+                          src={image.secure_url} 
+                          alt={`Imagen adicional ${index + 1}`}
+                          className={styles.previewThumbnail}
+                        />
+                        <div className={styles.imagePreviewActions}>
+                          <button 
+                            type="button" 
+                            onClick={() => removeImage(image.public_id)}
+                            className={styles.removeImageButton}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sección de artículos */}
+          <div className={styles.formSection}>
+            <h3>📚 Artículos del Informe (Opcional)</h3>
+            <p style={{ color: '#6b7280', marginBottom: '1rem', fontSize: '0.9rem' }}>
+              Puedes dividir el informe en artículos más pequeños para mejor organización. 
+              Máximo 10 artículos permitidos.
+            </p>
+
+            {/* Formulario para agregar artículo */}
+            <div style={{
+              background: 'rgba(102, 126, 234, 0.05)',
+              border: '1px solid rgba(102, 126, 234, 0.2)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              marginBottom: '1.5rem'
+            }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#667eea' }}>➕ Agregar Nuevo Artículo</h4>
+              
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label>Título del Artículo *</label>
+                  <input
+                    type="text"
+                    value={newArticle.title}
+                    onChange={(e) => setNewArticle(prev => ({...prev, title: e.target.value}))}
+                    placeholder="Ej: Análisis Técnico del SPY500"
+                    maxLength={200}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Orden *</label>
+                  <input
+                    type="number"
+                    value={newArticle.order}
+                    onChange={(e) => setNewArticle(prev => ({...prev, order: parseInt(e.target.value)}))}
+                    min={1}
+                    max={10}
+                  />
                 </div>
               </div>
-            )}
-          </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="content">Contenido *</label>
-            <textarea
-              id="content"
-              value={formData.content}
-              onChange={(e) => handleInputChange('content', e.target.value)}
-              placeholder="Contenido completo del informe"
-              rows={8}
-              required
-              disabled={loading}
-            />
-          </div>
+              <div className={styles.formGroup}>
+                <label>Contenido del Artículo *</label>
+                <textarea
+                  value={newArticle.content}
+                  onChange={(e) => setNewArticle(prev => ({...prev, content: e.target.value}))}
+                  rows={4}
+                  placeholder="Contenido del artículo (puede incluir HTML)..."
+                />
+              </div>
 
-          {/* Imágenes adicionales */}
-          <div className={styles.formGroup}>
-            <label>Imágenes Adicionales</label>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-              Imágenes que se mostrarán dentro del contenido del informe
-            </p>
-            
-            <ImageUploader
-              onImageUploaded={handleImageUploaded}
-              onUploadStart={() => setUploadingImages(true)}
-              onUploadProgress={() => {}}
-              onError={(error) => {
-                console.error('Error subiendo imagen adicional:', error);
-                alert('Error subiendo imagen: ' + error);
-                setUploadingImages(false);
-              }}
-              maxFiles={5}
-              multiple={true}
-              buttonText="Subir Imágenes Adicionales"
-              className={styles.additionalImagesUploader}
-            />
+              <div className={styles.formGroup}>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={newArticle.isPublished}
+                    onChange={(e) => setNewArticle(prev => ({...prev, isPublished: e.target.checked}))}
+                  />
+                  Publicar inmediatamente
+                </label>
+              </div>
 
-            {/* Preview de imágenes adicionales */}
-            {images.length > 0 && (
-              <div className={styles.additionalImagesPreview}>
-                <h4>Imágenes Adicionales ({images.length}/5)</h4>
-                <div className={styles.imagesGrid}>
-                  {images.map((image, index) => (
-                    <div key={image.public_id} className={styles.imagePreviewItem}>
-                      <img 
-                        src={image.secure_url} 
-                        alt={`Imagen adicional ${index + 1}`}
-                        className={styles.previewThumbnail}
-                      />
-                      <div className={styles.imagePreviewActions}>
-                        <button 
-                          type="button" 
-                          onClick={() => removeImage(image.public_id)}
-                          className={styles.removeImageButton}
+              <button
+                type="button"
+                onClick={addArticle}
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '500'
+                }}
+              >
+                + Agregar Artículo al Informe
+              </button>
+            </div>
+
+            {/* Lista de artículos agregados */}
+            {articles.length > 0 && (
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '12px',
+                padding: '1.5rem'
+              }}>
+                <h4 style={{ margin: '0 0 1rem 0', color: '#ffffff' }}>
+                  📋 Artículos Agregados ({articles.length})
+                </h4>
+                
+                <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  {articles
+                    .sort((a, b) => a.order - b.order)
+                    .map((article, index) => (
+                      <div key={article._id} style={{
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '8px',
+                        padding: '1rem',
+                        marginBottom: '0.75rem',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#ffffff', marginBottom: '0.25rem' }}>
+                            Artículo {article.order}: {article.title}
+                          </div>
+                          <div style={{ fontSize: '0.8rem', color: '#a0a0a0' }}>
+                            {article.content.substring(0, 100)}...
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: '#667eea', marginTop: '0.25rem' }}>
+                            Tiempo de lectura: {article.readTime} min | 
+                            Estado: {article.isPublished ? 'Publicado' : 'Borrador'}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeArticle(index)}
+                          style={{
+                            background: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            padding: '0.5rem',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '0.8rem'
+                          }}
                         >
-                          ×
+                          Eliminar
                         </button>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}
