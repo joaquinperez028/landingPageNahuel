@@ -2750,16 +2750,18 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
 
             <div className={styles.formGroup}>
               <label htmlFor="type">Tipo</label>
-              <select
+              <input
                 id="type"
+                type="text"
                 value={formData.type}
                 onChange={(e) => {
-                  console.log('🎯 [SELECT] Cambio detectado en tipo:', e.target.value);
+                  console.log('🎯 [INPUT] Cambio detectado en tipo:', e.target.value);
                   handleInputChange('type', e.target.value);
                 }}
+                placeholder="Ej: Texto, Video, Mixto, Análisis, Reporte..."
                 disabled={loading}
                 style={{ 
-                  cursor: 'pointer',
+                  cursor: 'text',
                   backgroundColor: '#1e293b',
                   color: '#ffffff',
                   border: '2px solid rgba(139, 92, 246, 0.3)',
@@ -2768,11 +2770,7 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
                   fontSize: '1rem',
                   width: '100%'
                 }}
-              >
-                <option value="text">📄 Texto</option>
-                <option value="video">🎥 Video</option>
-                <option value="mixed">🔄 Mixto</option>
-              </select>
+              />
               {/* Debug: mostrar el valor actual */}
               <div style={{ 
                 fontSize: '0.8rem', 
