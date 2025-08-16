@@ -51,8 +51,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       content, 
       type, 
       category,
+      summary,
+      readTime,
+      tags,
+      isFeature,
       coverImage, 
-      images 
+      images,
+      articles // Agregar campo de artículos
     } = req.body;
 
     // Validar datos requeridos
@@ -62,12 +67,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
+    // Validar tiempo de lectura
+    if (!readTime || isNaN(parseInt(readTime))) {
+      return res.status(400).json({
+        message: 'Tiempo de lectura es requerido y debe ser un número válido'
+      });
+    }
+
+    // Validar artículos si se proporcionan
+    if (articles && Array.isArray(articles)) {
+      console.log('📚 [API CREATE] Validando artículos:', articles.length);
+      
+      if (articles.length > 10) {
+        return res.status(400).json({
+          message: 'Un informe no puede tener más de 10 artículos'
+        });
+      }
+
+      // Validar cada artículo
+      for (const article of articles) {
+        if (!article.title || !article.content || !article.order) {
+          console.log('❌ [API CREATE] Artículo inválido:', article);
+          return res.status(400).json({
+            message: 'Cada artículo debe tener título, contenido y orden'
+          });
+        }
+        if (article.order < 1 || article.order > 10) {
+          return res.status(400).json({
+            message: 'El orden de los artículos debe estar entre 1 y 10'
+          });
+        }
+      }
+    } else {
+      console.log('⚠️ [API CREATE] No se recibieron artículos o no es un array');
+    }
+
     console.log('📝 Creando nuevo informe:', {
       title,
       type,
       category,
+      summary,
+      readTime,
       hasCoverImage: !!coverImage,
       imagesCount: images?.length || 0,
+      articlesCount: articles?.length || 0,
       author: user.email
     });
 
@@ -111,18 +154,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const newReport = new Report({
       title,
       content,
+      summary: summary || '',
+      readTime: parseInt(readTime),
       author: user._id,
       type: type || 'text',
       category: category || 'general',
       coverImage: processedCoverImage,
       images: processedImages,
+      tags: Array.isArray(tags) ? tags : [],
+      isFeature: isFeature || false,
+      articles: articles || [], // Incluir artículos en el informe
       isPublished: true,
       publishedAt: new Date()
+    });
+
+    console.log('📄 [API CREATE] Informe a guardar:', {
+      title: newReport.title,
+      hasArticles: !!newReport.articles,
+      articlesCount: newReport.articles?.length || 0,
+      articles: newReport.articles
     });
 
     const savedReport = await newReport.save();
 
     console.log('✅ Informe creado exitosamente:', savedReport._id);
+    console.log('📚 [API CREATE] Artículos guardados:', savedReport.articles?.length || 0);
+    if (savedReport.articles && savedReport.articles.length > 0) {
+      console.log('📋 [API CREATE] Detalles de artículos guardados:', savedReport.articles.map((article: any) => ({
+        title: article.title,
+        order: article.order,
+        isPublished: article.isPublished
+      })));
+    }
 
     // 📰 NUEVA FUNCIONALIDAD: Crear notificación automática
     try {
