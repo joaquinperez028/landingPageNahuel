@@ -766,7 +766,14 @@ const SubscriberView: React.FC = () => {
   const handleCreateReport = async (formData: any) => {
     setCreatingReport(true);
     try {
-      console.log('📤 Enviando datos del informe:', formData);
+      console.log('📤 Enviando datos del informe:', {
+        title: formData.title,
+        type: formData.type,
+        category: formData.category,
+        readTime: formData.readTime,
+        hasArticles: !!formData.articles,
+        articlesCount: formData.articles?.length || 0
+      });
       
       const response = await fetch('/api/reports/create', {
         method: 'POST',
@@ -2623,6 +2630,8 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
     // Debug: mostrar qué datos se están enviando
     console.log('🔍 [FORM] Datos a enviar:', {
       title: submitData.title,
+      type: submitData.type,
+      category: submitData.category,
       content: submitData.content?.substring(0, 100) + '...',
       readTime: submitData.readTime,
       hasCoverImage: !!submitData.coverImage,
