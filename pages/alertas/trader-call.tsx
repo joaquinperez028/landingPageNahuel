@@ -2612,6 +2612,17 @@ const CreateReportModal = ({ onClose, onSubmit, loading }: {
       images: images,
       articles: articles // Incluir artículos en el envío
     };
+
+    // Debug: mostrar qué datos se están enviando
+    console.log('🔍 [FORM] Datos a enviar:', {
+      title: submitData.title,
+      content: submitData.content?.substring(0, 100) + '...',
+      readTime: submitData.readTime,
+      hasCoverImage: !!submitData.coverImage,
+      imagesCount: submitData.images?.length || 0,
+      articlesCount: submitData.articles?.length || 0,
+      articles: submitData.articles
+    });
     
     onSubmit(submitData);
   };

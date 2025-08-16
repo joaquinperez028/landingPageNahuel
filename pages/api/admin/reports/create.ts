@@ -51,6 +51,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       articles = [] // Nuevo campo para artículos
     } = req.body;
 
+    // Debug: mostrar qué datos estamos recibiendo
+    console.log('🔍 [API CREATE] Datos recibidos:', {
+      title,
+      type,
+      content: content?.substring(0, 100) + '...',
+      summary: summary?.substring(0, 100) + '...',
+      readTime,
+      hasCoverImage: !!coverImage,
+      imagesCount: images?.length || 0,
+      articlesCount: articles?.length || 0,
+      articles: articles
+    });
+
     // Validaciones
     if (!title || !type || !content || !summary) {
       return res.status(400).json({
@@ -69,6 +82,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Validar artículos si se proporcionan
     if (articles && Array.isArray(articles)) {
+      console.log('📚 [API CREATE] Validando artículos:', articles.length);
+      
       if (articles.length > 10) {
         return res.status(400).json({
           success: false,
@@ -79,6 +94,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Validar cada artículo
       for (const article of articles) {
         if (!article.title || !article.content || !article.order) {
+          console.log('❌ [API CREATE] Artículo inválido:', article);
           return res.status(400).json({
             success: false,
             message: 'Cada artículo debe tener título, contenido y orden'
@@ -91,6 +107,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           });
         }
       }
+    } else {
+      console.log('⚠️ [API CREATE] No se recibieron artículos o no es un array');
     }
 
     // Crear nuevo informe
@@ -113,6 +131,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       articles: articles || [] // Incluir artículos en el informe
     });
 
+    console.log('📄 [API CREATE] Informe a guardar:', {
+      title: newReport.title,
+      hasArticles: !!newReport.articles,
+      articlesCount: newReport.articles?.length || 0,
+      articles: newReport.articles
+    });
+
     // Calcular tiempo de lectura total usando el valor del usuario + artículos
     let totalReadTime = parseInt(readTime);
     if (articles && articles.length > 0) {
@@ -123,7 +148,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
+    console.log('⏱️ [API CREATE] Tiempo de lectura calculado:', totalReadTime);
+
     await newReport.save();
+
+    console.log('✅ [API CREATE] Informe guardado exitosamente. ID:', newReport._id);
+    console.log('📚 [API CREATE] Artículos guardados:', newReport.articles?.length || 0);
 
     return res.status(201).json({
       success: true,
