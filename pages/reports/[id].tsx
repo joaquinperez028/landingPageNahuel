@@ -561,6 +561,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       })) : []
     };
 
+    // DEBUG: Verificar qué valores están llegando
+    console.log('🔍 [DEBUG] Valores de readTime:', {
+      original: reportDoc.readTime,
+      processed: processedReport.readTime,
+      contentLength: reportDoc.content?.length,
+      calculated: Math.ceil((reportDoc.content?.length || 0) / 1000)
+    });
+
     return {
       props: {
         report: processedReport,
