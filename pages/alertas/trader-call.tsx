@@ -221,10 +221,23 @@ const NonSubscriberView: React.FC<{
                 Servicio de alertas de compra y venta con estrategia de corto plazo, informes detallados y seguimiento activo, para que puedas invertir en CEDEARs y acciones de forma simple y estratégica. Ideal para quienes buscan grandes rendimientos.
               </p>
               <div className={styles.heroFeatures}>
-                <div className={styles.heroFeature}>
-                  <CheckCircle size={20} />
-                  <span>Quiero Suscribirme</span>
-                </div>
+                <button 
+                  className={styles.heroFeature}
+                  onClick={handleSubscribe}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader size={20} />
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={20} />
+                      <span>Quiero Suscribirme</span>
+                    </>
+                  )}
+                </button>
                 <div className={styles.heroPricing}>
                   <span className={styles.price}>
                     {pricingLoading ? (
