@@ -32,7 +32,8 @@ import {
   Save,
   Target,
   RefreshCw,
-  Loader
+  Loader,
+  Percent
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -238,6 +239,18 @@ const useDashboardSections = () => {
         { label: 'Gestión de Suscripciones', href: '/admin/subscriptions', icon: <Users size={16} /> },
         { label: 'Ver Pagos', href: '/admin/subscriptions', icon: <DollarSign size={16} /> },
         { label: 'Expiraciones Próximas', href: '/admin/subscriptions', icon: <AlertTriangle size={16} /> }
+      ]
+    },
+    {
+      id: 'pricing',
+      title: 'Gestión de Precios',
+      description: 'Administra todos los precios del sitio web de forma centralizada. Configura precios de alertas, entrenamientos y asesorías, aplica descuentos y cambia divisas en tiempo real.',
+      icon: <TrendingUp size={32} />,
+      color: 'from-blue-500 to-indigo-500',
+      links: [
+        { label: 'Dashboard de Precios', href: '/admin/pricing', icon: <DollarSign size={16} /> },
+        { label: 'Configurar Descuentos', href: '/admin/pricing', icon: <Percent size={16} /> },
+        { label: 'Cambiar Moneda', href: '/admin/pricing', icon: <RefreshCw size={16} /> }
       ]
     }
   ], []);
