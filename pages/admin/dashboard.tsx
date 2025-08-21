@@ -114,6 +114,7 @@ const useDashboardSections = () => {
       icon: <Settings size={32} />,
       color: 'from-violet-500 to-purple-500',
       links: [
+        { label: 'Dashboard de Precios', href: '/admin/pricing', icon: <DollarSign size={16} /> },
         { label: 'Configuración de Videos', href: '/admin/video-config', icon: <Settings size={16} /> },
         { label: 'Configuración General', href: '/admin/site-config', icon: <FileText size={16} /> },
         { label: 'Ver Landing', href: '/', icon: <TrendingUp size={16} /> }

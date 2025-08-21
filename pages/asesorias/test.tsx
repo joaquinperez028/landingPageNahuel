@@ -8,6 +8,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import DateTimePicker from '@/components/DateTimePicker';
 import { useBookings } from '@/hooks/useBookings';
+import { usePricing } from '@/hooks/usePricing';
 import styles from '@/styles/AsesoriasTest.module.css';
 
 // Genera todos los slots posibles de asesoría (cada 30 minutos de 8:00 a 22:00)
@@ -49,6 +50,7 @@ const AsesoriasTestPage = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const { createBooking, getAvailableSlots, loading } = useBookings();
+  const { pricing, loading: pricingLoading } = usePricing();
   
   const [selectedDateTime, setSelectedDateTime] = useState<Date | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -111,7 +113,7 @@ const AsesoriasTestPage = () => {
         serviceType: 'ConsultorioFinanciero',
         startDate: selectedDateTime.toISOString(),
         duration: 60,
-        price: 199,
+        price: pricing?.asesorias.consultorioFinanciero.price || 199,
         notes: 'Asesoría de Trading - Consultorio Financiero'
       });
 
@@ -159,7 +161,9 @@ const AsesoriasTestPage = () => {
                 <li>Grabación de la sesión para tu referencia</li>
               </ul>
               <div className={styles.priceInfo}>
-                <span className={styles.price}>$199 USD</span>
+                <span className={styles.price}>
+                  {pricingLoading ? 'Cargando...' : pricing ? `$${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}` : '$199 USD'}
+                </span>
                 <span className={styles.duration}>60 minutos</span>
               </div>
             </div>
@@ -193,7 +197,7 @@ const AsesoriasTestPage = () => {
                 disabled={loading || loadingSlots || !selectedDateTime || availableTimes.length === 0}
                 className={styles.button}
               >
-                {loading ? 'Reservando...' : 'Reservar Asesoría - $199 USD'}
+                {loading ? 'Reservando...' : `Reservar Asesoría - ${pricingLoading ? 'Cargando...' : pricing ? `$${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}` : '$199 USD'}`}
               </button>
               
               <div className={styles.bookingNote}>

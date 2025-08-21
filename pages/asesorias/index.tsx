@@ -17,6 +17,7 @@ import {
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import VideoPlayerMux from '@/components/VideoPlayerMux';
+import { usePricing } from '@/hooks/usePricing';
 import styles from '@/styles/AsesoriasIndex.module.css';
 
 interface AsesoriasPageProps {
@@ -28,7 +29,7 @@ interface AsesoriasPageProps {
     description: string;
     duration: string;
     modality: string;
-    price: string;
+    price: string | number;
     features: string[];
     href: string;
     icon: string;
@@ -46,6 +47,7 @@ interface AsesoriasPageProps {
  */
 const AsesoriasPage: React.FC<AsesoriasPageProps> = ({ session, asesorias, faqs }) => {
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
+  const { pricing, loading: pricingLoading } = usePricing();
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -210,7 +212,15 @@ const AsesoriasPage: React.FC<AsesoriasPageProps> = ({ session, asesorias, faqs 
                     <div className={styles.asesoriaFooter}>
                       <div className={styles.asesoriaPrice}>
                         <span className={styles.priceLabel}>Desde</span>
-                        <span className={styles.price}>{asesoria.price}</span>
+                        <span className={styles.price}>
+                          {pricingLoading ? (
+                            'Cargando...'
+                          ) : pricing ? (
+                            `$${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}`
+                          ) : (
+                            `$${asesoria.price} USD`
+                          )}
+                        </span>
                       </div>
                       <Link href={asesoria.href} className={styles.asesoriaButton}>
                         Solicitar Asesoría
@@ -328,7 +338,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         description: 'Sesión one-on-one para analizar tu situación financiera actual y diseñar una estrategia de inversión personalizada según tu perfil de riesgo y objetivos.',
         duration: '60 minutos',
         modality: 'Videollamada',
-        price: '$199 USD',
+        price: '199.99',
         features: [
           'Análisis completo de tu portafolio actual',
           'Estrategia personalizada según tu perfil',
