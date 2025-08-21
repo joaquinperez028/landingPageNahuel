@@ -53,9 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Definir precios por servicio (en centavos para Stripe)
     const precios = {
-      TraderCall: { usd: 99, ars: 15000, description: 'Suscripción mensual a Trader Call' },
-      SmartMoney: { usd: 149, ars: 22000, description: 'Suscripción mensual a Smart Money' },
-      CashFlow: { usd: 79, ars: 12000, description: 'Suscripción mensual a CashFlow' },
+      TraderCall: { ars: 15000, description: 'Suscripción mensual a Trader Call' },
+      SmartMoney: { ars: 22000, description: 'Suscripción mensual a Smart Money' },
     };
 
     const precioInfo = precios[servicio as keyof typeof precios];
@@ -67,12 +66,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let checkoutUrl: string;
 
     if (metodoPago === 'stripe') {
-      // Crear sesión de pago con Stripe (USD)
+      // Crear sesión de pago con Stripe (ARS)
       console.log('💳 Creando sesión de pago Stripe para:', servicio);
       
       const paymentData = {
-        amount: precioInfo.usd,
-        currency: 'usd' as const,
+        amount: precioInfo.ars,
+        currency: 'ars' as const,
         description: precioInfo.description,
         userId: user._id.toString(),
         userEmail: user.email,
@@ -108,7 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           tipo: 'suscripcion',
           fecha: new Date(),
           estado: 'pendiente',
-          monto: metodoPago === 'stripe' ? precioInfo.usd : precioInfo.ars,
+          monto: precioInfo.ars,
         }
       }
     });
@@ -120,8 +119,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       checkoutUrl,
       servicio,
       metodoPago,
-      monto: metodoPago === 'stripe' ? precioInfo.usd : precioInfo.ars,
-      moneda: metodoPago === 'stripe' ? 'USD' : 'ARS',
+      monto: precioInfo.ars,
+      moneda: 'ARS',
       message: 'Sesión de pago creada exitosamente'
     });
 

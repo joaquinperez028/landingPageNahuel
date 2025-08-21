@@ -114,7 +114,7 @@ const PricingSchema = new Schema({
     }
   },
   
-  currency: { type: String, required: true, default: 'ARS' },
+  currency: { type: String, required: true, default: 'ARS', enum: ['ARS'] },
   showDiscounts: { type: Boolean, default: false },
   lastUpdated: { type: Date, default: Date.now },
   updatedBy: { type: String, required: true }

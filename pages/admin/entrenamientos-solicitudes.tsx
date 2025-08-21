@@ -307,7 +307,7 @@ export default function EntrenamientosSolicitudesPage() {
                         </div>
                         <div className={styles.detailItem}>
                           <DollarSign size={16} />
-                          <span>${solicitud.trainingPrecio} USD</span>
+                          <span>${solicitud.trainingPrecio} ARS</span>
                         </div>
                       </div>
 

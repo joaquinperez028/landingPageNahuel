@@ -81,7 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       description: 'SPDR S&P 500 ETF Trust',
       ticker: 'SPY',
       exchange: 'NYSE Arca',
-      currency: 'USD',
+              currency: 'ARS',
       dataProvider: 'Simulado', // Cambiar cuando integres API real
       refreshRate: '5 minutos'
     };

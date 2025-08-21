@@ -203,7 +203,7 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
           type: 'training',
           service: 'DowJones',
           amount: 897,
-          currency: 'USD'
+          currency: 'ARS'
         }),
       });
 
@@ -313,7 +313,7 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
                 </p>
                 <div className={styles.heroPricing}>
                   <div className={styles.priceCard}>
-                    <span className={styles.priceAmount}>${training.precio} USD</span>
+                    <span className={styles.priceAmount}>${training.precio} ARS</span>
                     <span className={styles.priceDescription}>Programa completo de {training.duracion} horas</span>
                     <span className={styles.priceIncludes}>
                       {training.contenido.lecciones} lecciones • {training.contenido.modulos} módulos
@@ -352,7 +352,7 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
                           ? 'Verificando...' 
                           : isEnrolled 
                             ? 'Ir a las Lecciones' 
-                            : 'Inscribirme Ahora - $897 USD'
+                            : 'Inscribirme Ahora - $100000 ARS'
                         }
                       </>
                     )}
@@ -742,7 +742,7 @@ const AdvancedTradingStrategiesPage: React.FC<AdvancedTradingPageProps> = ({
                 estas estrategias institucionales.
               </p>
               <div className={styles.ctaPrice}>
-                <span className={styles.ctaPriceAmount}>${training.precio} USD</span>
+                <span className={styles.ctaPriceAmount}>${training.precio} ARS</span>
                 <span className={styles.ctaPriceDescription}>
                   Programa completo • Acceso de por vida • Mentoring incluido
                 </span>

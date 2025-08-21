@@ -683,7 +683,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                       
                       {session ? (
                         <button 
-                          onClick={() => handleMercadoPagoCheckout('training', 'SwingTrading', 497, 'USD')}
+                          onClick={() => handleMercadoPagoCheckout('training', 'SwingTrading', 50000, 'ARS')}
                           className={styles.servicioButton}
                           disabled={isProcessingPayment}
                         >
@@ -693,7 +693,7 @@ export default function Home({ session, siteConfig, entrenamientos, courseCards 
                               Procesando...
                             </>
                           ) : (
-                            'Inscribirse - $497 USD'
+                            'Inscribirse - $50000 ARS'
                           )}
                         </button>
                       ) : (

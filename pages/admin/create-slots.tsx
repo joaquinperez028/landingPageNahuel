@@ -385,7 +385,7 @@ const CreateSlotsPage = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
                 <label htmlFor="price" style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
-                  Precio (USD)
+                  Precio (ARS)
                 </label>
                 <input
                   type="number"

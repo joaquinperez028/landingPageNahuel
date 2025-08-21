@@ -356,7 +356,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       lessons: 85,
       students: 850,
       rating: 4.8,
-      price: '$299 USD',
+                price: '$75000 ARS',
       features: [
         'Análisis técnico y fundamental',
         'Gestión de riesgo avanzada',
@@ -379,7 +379,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       lessons: 85,
       students: 500,
       rating: 4.9,
-      price: '$997 USD',
+                price: '$100000 ARS',
       features: [
         'Estrategias de scalping profesionales',
         'Análisis técnico avanzado',

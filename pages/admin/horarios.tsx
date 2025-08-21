@@ -333,7 +333,7 @@ const AdminEnviarLinksPage = ({ user }: AdminEnviarLinksProps) => {
                           >
                             {getStatusText(session.status)}
                           </div>
-                          <span className={styles.price}>${session.price} USD</span>
+                          <span className={styles.price}>${session.price} ARS</span>
                         </div>
 
                         {session.meetingLink && (

@@ -10,7 +10,7 @@ import { z } from 'zod';
 const bookingCheckoutSchema = z.object({
   serviceType: z.enum(['ConsultorioFinanciero', 'CuentaAsesorada', 'SwingTrading', 'AdvancedStrategies']),
   amount: z.number().positive('El monto debe ser positivo'),
-  currency: z.enum(['ARS', 'USD', 'UYU']).default('ARS'),
+  currency: z.enum(['ARS']).default('ARS'),
   reservationData: z.object({
     type: z.enum(['training', 'advisory']),
     serviceType: z.string(),

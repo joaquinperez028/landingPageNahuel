@@ -39,7 +39,12 @@ export default function AdminPricing({ session }: AdminPricingProps) {
   // Inicializar precios locales cuando se cargan los precios
   React.useEffect(() => {
     if (pricing && !localPricing) {
-      setLocalPricing(JSON.parse(JSON.stringify(pricing)));
+      const pricingCopy = JSON.parse(JSON.stringify(pricing));
+      
+      // Forzar moneda a ARS
+      pricingCopy.currency = 'ARS';
+      
+      setLocalPricing(pricingCopy);
     }
   }, [pricing, localPricing]);
 
@@ -517,8 +522,6 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                 className={styles.select}
               >
                 <option value="ARS">ARS - Peso Argentino</option>
-                <option value="USD">USD - Dólar Estadounidense</option>
-                <option value="EUR">EUR - Euro</option>
               </select>
             </div>
           </div>

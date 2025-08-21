@@ -333,7 +333,7 @@ const AdminAsesoriasHorariosPage = () => {
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label>Precio (USD)</label>
+                    <label>Precio (ARS)</label>
                     <input
                       type="number"
                       value={formData.price}
@@ -438,7 +438,7 @@ const AdminAsesoriasHorariosPage = () => {
 
                       <div className={styles.schedulePrice}>
                         <DollarSign size={16} />
-                        ${schedule.price} USD
+                        ${schedule.price} ARS
                       </div>
 
                       <div className={styles.scheduleCapacity}>

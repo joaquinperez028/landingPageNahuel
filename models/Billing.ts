@@ -7,7 +7,7 @@ export interface IBilling extends Document {
   email: string;
   cuitCuil?: string;
   monto: number;
-  moneda: 'USD' | 'UYU' | 'ARS';
+  moneda: 'ARS';
   metodoPago: 'stripe' | 'mobbex' | 'crypto';
   transactionId: string;
   servicio: string; // 'TraderCall', 'Entrenamiento Trading', etc.
@@ -46,8 +46,8 @@ const BillingSchema: Schema = new Schema({
   },
   moneda: {
     type: String,
-    enum: ['USD', 'UYU', 'ARS'],
-    default: 'USD'
+    enum: ['ARS'],
+    default: 'ARS'
   },
   metodoPago: {
     type: String,

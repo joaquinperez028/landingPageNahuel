@@ -288,7 +288,7 @@ export default function EntrenamientosHorariosPage() {
                           </div>
                           <div className={styles.infoItem}>
                             <DollarSign size={16} />
-                            <span>${schedule.price} USD</span>
+                            <span>${schedule.price} ARS</span>
                           </div>
                           <div className={styles.infoItem}>
                             <Users size={16} />
@@ -411,7 +411,7 @@ export default function EntrenamientosHorariosPage() {
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label>Precio (USD)</label>
+                    <label>Precio (ARS)</label>
                     <input
                       type="number"
                       min="0"
