@@ -26,7 +26,7 @@ const ChatMessageSchema = new mongoose.Schema({
   chatType: {
     type: String,
     required: true,
-    enum: ['trader-call', 'smart-money', 'cash-flow']
+    enum: ['trader-call', 'smart-money']
   },
   type: {
     type: String,

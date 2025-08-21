@@ -7,14 +7,14 @@ interface FAQ {
   id: string;
   question: string;
   answer: string;
-  category: 'trader-call' | 'smart-money' | 'cash-flow' | 'general';
+  category: 'trader-call' | 'smart-money' | 'general';
   order: number;
   visible: boolean;
 }
 
 interface FAQAccordionProps {
   faqs: FAQ[];
-  category?: 'trader-call' | 'smart-money' | 'cash-flow' | 'general';
+  category?: 'trader-call' | 'smart-money' | 'general';
   maxItems?: number;
 }
 

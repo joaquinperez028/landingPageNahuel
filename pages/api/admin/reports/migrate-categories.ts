@@ -63,11 +63,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                    titleLower.includes('trade') ||
                    contentLower.includes('trader call')) {
           category = 'trader-call';
-        } else if (titleLower.includes('cash flow') || 
-                   titleLower.includes('flujo de caja') ||
-                   titleLower.includes('cashflow') ||
-                   contentLower.includes('cash flow')) {
-          category = 'cash-flow';
         }
 
         // Actualizar el informe

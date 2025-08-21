@@ -103,7 +103,7 @@ interface SiteConfig {
     id: string;
     question: string;
     answer: string;
-    category: 'trader-call' | 'smart-money' | 'cash-flow' | 'general';
+    category: 'trader-call' | 'smart-money' | 'general';
     order: number;
     visible: boolean;
   }>;
@@ -1333,7 +1333,7 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
                         >
                           <option value="trader-call">Trader Call</option>
                           <option value="smart-money">Smart Money</option>
-                          <option value="cash-flow">Cash Flow</option>
+
                           <option value="general">General</option>
                         </select>
                       </div>

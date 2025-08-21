@@ -303,9 +303,7 @@ const AsesoriasPage: React.FC<AsesoriasPageProps> = ({ session, asesorias, faqs 
                     Agendar Consulta
                     <ArrowRight size={20} />
                   </Link>
-                  <Link href="/asesorias/cuenta-asesorada" className={styles.ctaButtonSecondary}>
-                    Gestión de Portafolio
-                  </Link>
+
                 </div>
               </div>
             </motion.div>
@@ -343,26 +341,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         icon: '🩺',
         badge: 'Más Solicitado'
       },
-      {
-        id: 'cuenta-asesorada',
-        title: 'Cuenta Asesorada',
-        subtitle: 'Gestión Profesional de Portafolio',
-        description: 'Servicio integral de gestión profesional donde manejamos tu portafolio con estrategias avanzadas y reportes mensuales detallados.',
-        duration: 'Servicio Mensual',
-        modality: 'Gestión Remota',
-        price: '$999 USD',
-        features: [
-          'Gestión profesional completa',
-          'Rebalanceo automático mensual',
-          'Reportes detallados de performance',
-          'Acceso a estrategias institucionales',
-          'Soporte prioritario 24/7',
-          'Reunión mensual de seguimiento'
-        ],
-        href: '/asesorias/cuenta-asesorada',
-        icon: '💼',
-        badge: 'Premium'
-      }
+
     ];
 
     const faqs = [

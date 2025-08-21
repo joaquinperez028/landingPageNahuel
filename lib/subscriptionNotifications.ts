@@ -106,7 +106,7 @@ function getRenewalUrl(service: string): string {
   const serviceUrls: { [key: string]: string } = {
     'TraderCall': 'https://lozanonahuel.vercel.app/alertas/trader-call',
     'SmartMoney': 'https://lozanonahuel.vercel.app/alertas/smart-money',
-    'CashFlow': 'https://lozanonahuel.vercel.app/alertas/cash-flow',
+
     'SwingTrading': 'https://lozanonahuel.vercel.app/entrenamientos/swing-trading',
     'DayTrading': 'https://lozanonahuel.vercel.app/entrenamientos/day-trading'
   };

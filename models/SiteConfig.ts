@@ -567,27 +567,13 @@ const siteConfigSchema = new Schema<SiteConfigDocument>({
       ticker: { type: String, required: true },
       order: { type: Number, default: 0 }
     }],
-    cashFlow: [{
-      id: { type: String, required: true },
-      title: { type: String, required: true },
-      description: { type: String, required: true },
-      chartImage: { type: String }, // URL de la imagen del gráfico
-      entryPrice: { type: String, required: true },
-      exitPrice: { type: String, required: true },
-      profit: { type: String, required: true },
-      profitPercentage: { type: String, required: true },
-      riskLevel: { type: String, enum: ['BAJO', 'MEDIO', 'ALTO'], required: true },
-      status: { type: String, enum: ['CERRADO TP1', 'CERRADO TP1 Y SL', 'CERRADO SL'], required: true },
-      country: { type: String, required: true },
-      ticker: { type: String, required: true },
-      order: { type: Number, default: 0 }
-    }]
+
   },
   faqs: [{
     id: { type: String, required: true },
     question: { type: String, required: true },
     answer: { type: String, required: true },
-    category: { type: String, enum: ['trader-call', 'smart-money', 'cash-flow', 'general'], required: true },
+    category: { type: String, enum: ['trader-call', 'smart-money', 'general'], required: true },
     order: { type: Number, default: 0 },
     visible: { type: Boolean, default: true }
   }]

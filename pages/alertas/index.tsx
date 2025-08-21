@@ -135,21 +135,7 @@ const AlertasPage: React.FC = () => {
       tag: 'Mediano y Largo Plazo',
       videoId: 'dQw4w9WgXcQ'
     },
-    {
-      title: 'CashFlow',
-      description: 'Servicio de alertas diseñado para generar flujos de dinero constantes a través de inversiones en instrumentos que pagan intereses y dividendos. Combinamos renta fija y variable para que tu cartera trabaje por vos todos los meses.',
-      features: [
-        'Estrategia orientada a generar ingresos pasivos mensuales',
-        'Combinación de bonos públicos y privados, Letras, CEDEARs con dividendos, ETFs y FCIs.',
-        'Informes y rebalanceo mensual de la cartera',
-        'Alertas basadas en la estabilidad de la cartera y la generación de flujo de efectivo constante'
-      ],
-      href: '/alertas/cash-flow',
-      backgroundColor: '#1e3a8a',
-      buttonTextColor: '#3b82f6',
-      tag: 'Ingresos Pasivos',
-      videoId: 'dQw4w9WgXcQ'
-    }
+
   ];
 
   return (
@@ -321,9 +307,7 @@ const AlertasPage: React.FC = () => {
               <Link href="/alertas/smart-money" className={styles.ctaButton}>
                 Smart Money &gt;
               </Link>
-              <Link href="/alertas/cash-flow" className={styles.ctaButton}>
-                CashFlow &gt;
-              </Link>
+
             </motion.div>
           </div>
         </section>

@@ -74,7 +74,7 @@ const ReportSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['smart-money', 'trader-call', 'cash-flow', 'general'],
+    enum: ['smart-money', 'trader-call', 'general'],
     default: 'general'
   },
   muxAssetId: String,

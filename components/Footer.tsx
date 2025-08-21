@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
             <ul className={styles.linkList}>
               <li><Link href="/alertas/trader-call" className={styles.footerLink}>Trader Call</Link></li>
               <li><Link href="/alertas/smart-money" className={styles.footerLink}>Smart Money</Link></li>
-              <li><Link href="/alertas/cash-flow" className={styles.footerLink}>CashFlow</Link></li>
+
             </ul>
           </div>
 
@@ -53,7 +53,7 @@ const Footer: React.FC = () => {
             <h4 className={styles.columnTitle}>Asesorías</h4>
             <ul className={styles.linkList}>
               <li><Link href="/asesorias/consultorio-financiero" className={styles.footerLink}>Consultorio Financiero</Link></li>
-              <li><Link href="/asesorias/cuenta-asesorada" className={styles.footerLink}>Cuenta Asesorada</Link></li>
+
             </ul>
           </div>
 

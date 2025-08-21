@@ -447,7 +447,7 @@ export function generateReportEmailTemplate(
   const serviceInfo: Record<string, { name: string; emoji: string; color: string }> = {
     'trader-call': { name: 'Trader Call', emoji: '🚨', color: '#8b5cf6' },
     'smart-money': { name: 'Smart Money', emoji: '🎯', color: '#10b981' },
-    'cash-flow': { name: 'Cash Flow', emoji: '💰', color: '#f59e0b' }
+
   };
 
   const category = notification.metadata?.reportCategory || 'trader-call';

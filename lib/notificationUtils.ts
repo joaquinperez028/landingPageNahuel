@@ -200,9 +200,6 @@ export async function createReportNotification(report: any): Promise<void> {
     } else if (report.category === 'smart-money') {
       targetUsers = 'alertas_smart';
       serviceType = 'SmartMoney';
-    } else if (report.category === 'cash-flow') {
-      targetUsers = 'alertas_cashflow';
-      serviceType = 'CashFlow';
     }
 
     console.log('📰 [REPORT NOTIFICATION] Grupo de usuarios objetivo:', targetUsers, 'para servicio:', serviceType);
@@ -722,8 +719,7 @@ function getAlertActionUrl(tipo: string): string {
       return '/alertas/trader-call';
     case 'SmartMoney':
       return '/alertas/smart-money';
-    case 'CashFlow':
-      return '/alertas/cash-flow';
+
     default:
       return '/alertas';
   }
@@ -770,7 +766,7 @@ export async function ensureUserSubscriptions(): Promise<void> {
       console.log('📊 [SUBSCRIPTION CHECK] Ejemplo:', sub.userEmail, {
         alertas_trader: sub.subscriptions.alertas_trader,
         alertas_smart: sub.subscriptions.alertas_smart,
-        alertas_cashflow: sub.subscriptions.alertas_cashflow,
+
         notificaciones_actualizaciones: sub.subscriptions.notificaciones_actualizaciones
       });
     }
@@ -791,7 +787,7 @@ export async function diagnoseNotificationSystem(): Promise<{
   alertSubscribers: {
     trader: number;
     smart: number;
-    cashflow: number;
+
   };
 }> {
   try {
@@ -804,7 +800,7 @@ export async function diagnoseNotificationSystem(): Promise<{
       recentNotifications,
       traderSubscribers,
       smartSubscribers,
-      cashflowSubscribers
+
     ] = await Promise.all([
       User.countDocuments(),
       UserSubscription.countDocuments(),
@@ -814,7 +810,7 @@ export async function diagnoseNotificationSystem(): Promise<{
       }),
       UserSubscription.countDocuments({ 'subscriptions.alertas_trader': true }),
       UserSubscription.countDocuments({ 'subscriptions.alertas_smart': true }),
-      UserSubscription.countDocuments({ 'subscriptions.alertas_cashflow': true })
+
     ]);
     
     return {
@@ -825,7 +821,7 @@ export async function diagnoseNotificationSystem(): Promise<{
       alertSubscribers: {
         trader: traderSubscribers,
         smart: smartSubscribers,
-        cashflow: cashflowSubscribers
+
       }
     };
     
@@ -836,7 +832,7 @@ export async function diagnoseNotificationSystem(): Promise<{
       subscriptions: 0,
       templates: 0,
       recentNotifications: 0,
-      alertSubscribers: { trader: 0, smart: 0, cashflow: 0 }
+      alertSubscribers: { trader: 0, smart: 0 }
     };
   }
 } 

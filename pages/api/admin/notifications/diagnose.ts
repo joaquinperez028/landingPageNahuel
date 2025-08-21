@@ -54,8 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const systemStatus = {
       isHealthy: finalDiagnosis.subscriptions > 0 && finalDiagnosis.templates > 0,
       hasSubscribers: finalDiagnosis.alertSubscribers.trader > 0 || 
-                     finalDiagnosis.alertSubscribers.smart > 0 || 
-                     finalDiagnosis.alertSubscribers.cashflow > 0,
+                     finalDiagnosis.alertSubscribers.smart > 0,
       improvements: {
         templatesCreated: finalDiagnosis.templates > initialDiagnosis.templates,
         subscriptionsCreated: finalDiagnosis.subscriptions > initialDiagnosis.subscriptions
