@@ -893,7 +893,7 @@ const SubscriberView: React.FC = () => {
   // Cargar alertas y informes al montar el componente
   React.useEffect(() => {
     loadAlerts();
-    loadInformes();
+    loadInformes(1); // Cargar primera página
   }, []);
 
   // Sistema de actualización automática de precios cada 30 segundos
@@ -1694,193 +1694,200 @@ const SubscriberView: React.FC = () => {
 
   const renderInformes = () => {
     return (
-    <div className={styles.informesContent}>
-      <div className={styles.informesHeader}>
-        <h2 className={styles.sectionTitle}>📊 Informes y Análisis</h2>
-        {userRole === 'admin' && (
-          <button 
-            className={styles.createButton}
-            onClick={() => setShowCreateReportModal(true)}
-            title="Crear nuevo informe"
-          >
-            <PlusCircle size={16} />
-            Crear Informe
-          </button>
-        )}
-      </div>
-      
-      {loadingInformes ? (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>⏳</div>
-          <h3>Cargando informes...</h3>
+      <div className={styles.informesContent}>
+        <div className={styles.informesHeader}>
+          <h2 className={styles.sectionTitle}>📊 Informes y Análisis</h2>
+          {userRole === 'admin' && (
+            <button 
+              className={styles.createButton}
+              onClick={() => setShowCreateReportModal(true)}
+              title="Crear nuevo informe"
+            >
+              <PlusCircle size={16} />
+              Crear Informe
+            </button>
+          )}
         </div>
-      ) : informes.length > 0 ? (
-        <div className={styles.informesList}>
-          {informes.map((informe: any) => {
-            const reportDate = new Date(informe.publishedAt || informe.createdAt);
-            const isRecent = (Date.now() - reportDate.getTime()) < 7 * 24 * 60 * 60 * 1000; // 7 días
-            // Usar el tiempo de lectura almacenado en la base de datos
-            const readTime = informe.readTime || 1;
-            
-            return (
-              <div key={informe.id || informe._id} className={styles.informeCard}>
-                <div className={styles.informeHeader}>
-                  <h3>{informe.title}</h3>
-                  <div className={styles.informeMeta}>
-                    <span className={styles.informeDate}>
-                      📅 {reportDate.toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                      {isRecent && (
-                        <span className={styles.recentBadge}>NUEVO</span>
+        
+        {loadingInformes ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>⏳</div>
+            <h3>Cargando informes...</h3>
+          </div>
+        ) : informes.length > 0 ? (
+          <>
+            <div className={styles.informesList}>
+              {informes.map((informe: any) => {
+                const reportDate = new Date(informe.publishedAt || informe.createdAt);
+                const isRecent = (Date.now() - reportDate.getTime()) < 7 * 24 * 60 * 60 * 1000; // 7 días
+                // Usar el tiempo de lectura almacenado en la base de datos
+                const readTime = informe.readTime || 1;
+                
+                return (
+                  <div key={informe.id || informe._id} className={styles.informeCard}>
+                    <div className={styles.informeHeader}>
+                      <h3>{informe.title}</h3>
+                      <div className={styles.informeMeta}>
+                        <span className={styles.informeDate}>
+                          📅 {reportDate.toLocaleDateString('es-ES', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                          {isRecent && (
+                            <span className={styles.recentBadge}>NUEVO</span>
+                          )}
+                        </span>
+                        <span className={styles.informeType}>
+                          {informe.type === 'video' ? '🎥 Video' : 
+                           informe.type === 'analisis' ? '📊 Análisis' : 
+                           informe.type === 'mixed' ? '📋 Mixto' : '📄 Informe'}
+                        </span>
+                        {informe.category && (
+                          <span className={styles.informeCategory}>
+                            📂 {informe.category.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Imagen de portada si existe */}
+                    {informe.coverImage && (
+                      <div className={styles.informeCover}>
+                        <img 
+                          src={informe.coverImage.secure_url || informe.coverImage.url} 
+                          alt={informe.title}
+                          loading="lazy"
+                          onContextMenu={(e) => e.preventDefault()}
+                          onDragStart={(e) => e.preventDefault()}
+                          style={{
+                            userSelect: 'none',
+                            WebkitUserSelect: 'none',
+                            MozUserSelect: 'none',
+                            msUserSelect: 'none',
+                            pointerEvents: 'none'
+                          }}
+                        />
+                      </div>
+                    )}
+                    
+                    <p className={styles.informeDescription}>
+                      {informe.content ? 
+                        (informe.content.length > 200 ? 
+                          informe.content.substring(0, 200) + '...' : 
+                          informe.content) : 
+                        'Sin descripción disponible'
+                      }
+                    </p>
+
+                    {/* Estadísticas del informe */}
+                    <div className={styles.informeStats}>
+                      <span className={styles.informeStat}>
+                        👁️ {informe.views || 0} vistas
+                      </span>
+                      <span className={styles.informeStat}>
+                        ⏱️ {readTime} min lectura
+                      </span>
+                      {informe.images && informe.images.length > 0 && (
+                        <span className={styles.informeStat}>
+                          📸 {informe.images.length} imágenes
+                        </span>
                       )}
-                    </span>
-                    <span className={styles.informeType}>
-                      {informe.type === 'video' ? '🎥 Video' : 
-                       informe.type === 'analisis' ? '📊 Análisis' : 
-                       informe.type === 'mixed' ? '📋 Mixto' : '📄 Informe'}
-                    </span>
-                    {informe.category && (
-                      <span className={styles.informeCategory}>
-                        📂 {informe.category.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                      </span>
+                    </div>
+
+                    {/* Tags del informe */}
+                    {informe.tags && informe.tags.length > 0 && (
+                      <div className={styles.informeTags}>
+                        {informe.tags.slice(0, 3).map((tag: string, index: number) => (
+                          <span key={index} className={styles.tag}>
+                            {tag}
+                          </span>
+                        ))}
+                        {informe.tags.length > 3 && (
+                          <span className={styles.tag}>+{informe.tags.length - 3}</span>
+                        )}
+                      </div>
                     )}
+
+                    <div className={styles.informeActions}>
+                      <button 
+                        className={styles.readButton}
+                        onClick={() => openReport(informe.id || informe._id)}
+                      >
+                        📖 Leer Informe Completo
+                      </button>
+                    </div>
                   </div>
+                );
+              })}
+            </div>
+
+            {/* Paginación */}
+            {totalPages > 1 && (
+              <div className={styles.pagination}>
+                <div className={styles.paginationInfo}>
+                  <span>Mostrando {((currentPage - 1) * informesPerPage) + 1} - {Math.min(currentPage * informesPerPage, totalInformes)} de {totalInformes} informes</span>
                 </div>
-                
-                {/* Imagen de portada si existe */}
-                {informe.coverImage && (
-                  <div className={styles.informeCover}>
-                    <img 
-                      src={informe.coverImage.secure_url || informe.coverImage.url} 
-                      alt={informe.title}
-                      loading="lazy"
-                      onContextMenu={(e) => e.preventDefault()}
-                      onDragStart={(e) => e.preventDefault()}
-                      style={{
-                        userSelect: 'none',
-                        WebkitUserSelect: 'none',
-                        MozUserSelect: 'none',
-                        msUserSelect: 'none',
-                        pointerEvents: 'none'
-                      }}
-                    />
-                  </div>
-                )}
-                
-                <p className={styles.informeDescription}>
-                  {informe.content ? 
-                    (informe.content.length > 200 ? 
-                      informe.content.substring(0, 200) + '...' : 
-                      informe.content) : 
-                    'Sin descripción disponible'
-                  }
-                </p>
-
-                {/* Estadísticas del informe */}
-                <div className={styles.informeStats}>
-                  <span className={styles.informeStat}>
-                    👁️ {informe.views || 0} vistas
-                  </span>
-                  <span className={styles.informeStat}>
-                    ⏱️ {readTime} min lectura
-                  </span>
-                  {informe.images && informe.images.length > 0 && (
-                    <span className={styles.informeStat}>
-                      📸 {informe.images.length} imágenes
-                    </span>
-                  )}
-                </div>
-
-                {/* Tags del informe */}
-                {informe.tags && informe.tags.length > 0 && (
-                  <div className={styles.informeTags}>
-                    {informe.tags.slice(0, 3).map((tag: string, index: number) => (
-                      <span key={index} className={styles.tag}>
-                        {tag}
-                      </span>
-                    ))}
-                    {informe.tags.length > 3 && (
-                      <span className={styles.tag}>+{informe.tags.length - 3}</span>
-                    )}
-                  </div>
-                )}
-
-                <div className={styles.informeActions}>
+                <div className={styles.paginationControls}>
                   <button 
-                    className={styles.readButton}
-                    onClick={() => openReport(informe.id || informe._id)}
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    className={`${styles.paginationButton} ${currentPage === 1 ? styles.disabled : ''}`}
                   >
-                    📖 Leer Informe Completo
+                    <ChevronLeft size={16} />
+                    Anterior
+                  </button>
+                  
+                  <div className={styles.pageNumbers}>
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      // Asegurar que pageNum esté dentro del rango válido
+                      if (pageNum < 1 || pageNum > totalPages) {
+                        return null;
+                      }
+                      
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`${styles.pageButton} ${currentPage === pageNum ? styles.active : ''}`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    }).filter(Boolean)}
+                  </div>
+                  
+                  <button 
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`${styles.paginationButton} ${currentPage === totalPages ? styles.disabled : ''}`}
+                  >
+                    Siguiente
+                    <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Paginación */}
-        {totalPages > 1 && (
-          <div className={styles.pagination}>
-            <div className={styles.paginationInfo}>
-              <span>Mostrando {((currentPage - 1) * informesPerPage) + 1} - {Math.min(currentPage * informesPerPage, totalInformes)} de {totalInformes} informes</span>
-            </div>
-            <div className={styles.paginationControls}>
-              <button 
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-                className={`${styles.paginationButton} ${currentPage === 1 ? styles.disabled : ''}`}
-              >
-                <ChevronLeft size={16} />
-                Anterior
-              </button>
-              
-              <div className={styles.pageNumbers}>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => handlePageChange(pageNum)}
-                      className={`${styles.pageButton} ${currentPage === pageNum ? styles.active : ''}`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-              </div>
-              
-              <button 
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-                className={`${styles.paginationButton} ${currentPage === totalPages ? styles.disabled : ''}`}
-              >
-                Siguiente
-                <ChevronRight size={16} />
-              </button>
-            </div>
+            )}
+          </>
+        ) : (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>📄</div>
+            <h3>No hay informes disponibles</h3>
+            <p>Los informes y análisis aparecerán aquí cuando estén disponibles.</p>
           </div>
         )}
-      ) : (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📄</div>
-          <h3>No hay informes disponibles</h3>
-          <p>Los informes y análisis aparecerán aquí cuando estén disponibles.</p>
-        </div>
-      )}
-    </div>
+      </div>
     );
   };
 
