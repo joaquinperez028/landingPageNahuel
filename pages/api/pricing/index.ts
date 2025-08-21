@@ -18,44 +18,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           updatedBy: 'sistema',
           alertas: {
             traderCall: {
-              monthly: 29.99,
-              yearly: 299.99,
-              currency: 'USD',
+              monthly: 15000,
+              yearly: 150000,
+              currency: 'ARS',
               description: 'Alertas de Trader Call'
             },
             smartMoney: {
-              monthly: 39.99,
-              yearly: 399.99,
-              currency: 'USD',
+              monthly: 20000,
+              yearly: 200000,
+              currency: 'ARS',
               description: 'Alertas de Smart Money'
             }
           },
           entrenamientos: {
             swingTrading: {
-              price: 199.99,
-              currency: 'USD',
+              price: 50000,
+              currency: 'ARS',
               description: 'Entrenamiento de Swing Trading'
             },
             dayTrading: {
-              price: 299.99,
-              currency: 'USD',
+              price: 75000,
+              currency: 'ARS',
               description: 'Entrenamiento de Day Trading'
             },
             advanced: {
-              price: 399.99,
-              currency: 'USD',
+              price: 100000,
+              currency: 'ARS',
               description: 'Entrenamiento Avanzado'
             }
           },
           asesorias: {
             consultorioFinanciero: {
-              price: 199.99,
-              currency: 'USD',
+              price: 50000,
+              currency: 'ARS',
               description: 'Consultorio Financiero Individual',
               duration: '60 minutos'
             }
           },
-          currency: 'USD',
+          currency: 'ARS',
           showDiscounts: false
         });
       }

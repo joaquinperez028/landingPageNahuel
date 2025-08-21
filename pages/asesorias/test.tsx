@@ -113,7 +113,7 @@ const AsesoriasTestPage = () => {
         serviceType: 'ConsultorioFinanciero',
         startDate: selectedDateTime.toISOString(),
         duration: 60,
-        price: pricing?.asesorias.consultorioFinanciero.price || 199,
+                  price: pricing?.asesorias.consultorioFinanciero.price || 50000,
         notes: 'Asesoría de Trading - Consultorio Financiero'
       });
 
@@ -161,9 +161,9 @@ const AsesoriasTestPage = () => {
                 <li>Grabación de la sesión para tu referencia</li>
               </ul>
               <div className={styles.priceInfo}>
-                <span className={styles.price}>
-                  {pricingLoading ? 'Cargando...' : pricing ? `$${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}` : '$199 USD'}
-                </span>
+                        <span className={styles.price}>
+          {pricingLoading ? 'Cargando...' : pricing ? `${pricing.currency === 'ARS' ? '$' : '$'}${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}` : '$50000 ARS'}
+        </span>
                 <span className={styles.duration}>60 minutos</span>
               </div>
             </div>
@@ -197,7 +197,7 @@ const AsesoriasTestPage = () => {
                 disabled={loading || loadingSlots || !selectedDateTime || availableTimes.length === 0}
                 className={styles.button}
               >
-                {loading ? 'Reservando...' : `Reservar Asesoría - ${pricingLoading ? 'Cargando...' : pricing ? `$${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}` : '$199 USD'}`}
+                {loading ? 'Reservando...' : `Reservar Asesoría - ${pricingLoading ? 'Cargando...' : pricing ? `${pricing.currency === 'ARS' ? '$' : '$'}${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}` : '$50000 ARS'}`}
               </button>
               
               <div className={styles.bookingNote}>

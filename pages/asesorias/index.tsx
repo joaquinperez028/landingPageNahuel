@@ -212,15 +212,15 @@ const AsesoriasPage: React.FC<AsesoriasPageProps> = ({ session, asesorias, faqs 
                     <div className={styles.asesoriaFooter}>
                       <div className={styles.asesoriaPrice}>
                         <span className={styles.priceLabel}>Desde</span>
-                        <span className={styles.price}>
-                          {pricingLoading ? (
-                            'Cargando...'
-                          ) : pricing ? (
-                            `$${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}`
-                          ) : (
-                            `$${asesoria.price} USD`
-                          )}
-                        </span>
+                                <span className={styles.price}>
+          {pricingLoading ? (
+            'Cargando...'
+          ) : pricing ? (
+            `${pricing.currency === 'ARS' ? '$' : '$'}${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}`
+          ) : (
+            `$${asesoria.price} ARS`
+          )}
+        </span>
                       </div>
                       <Link href={asesoria.href} className={styles.asesoriaButton}>
                         Solicitar Asesoría
@@ -338,7 +338,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         description: 'Sesión one-on-one para analizar tu situación financiera actual y diseñar una estrategia de inversión personalizada según tu perfil de riesgo y objetivos.',
         duration: '60 minutos',
         modality: 'Videollamada',
-        price: '199.99',
+                      price: '50000',
         features: [
           'Análisis completo de tu portafolio actual',
           'Estrategia personalizada según tu perfil',

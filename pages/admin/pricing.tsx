@@ -176,10 +176,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.alertas.traderCall.monthly}
-                      onChange={(e) => handleInputChange('alertas.traderCall.monthly', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('alertas.traderCall.monthly', localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value))}
                       className={styles.input}
                     />
                   </div>
@@ -191,10 +191,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.alertas.traderCall.yearly}
-                      onChange={(e) => handleInputChange('alertas.traderCall.yearly', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('alertas.traderCall.yearly', localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value))}
                       className={styles.input}
                     />
                   </div>
@@ -212,10 +212,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.alertas.smartMoney.monthly}
-                      onChange={(e) => handleInputChange('alertas.smartMoney.monthly', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('alertas.smartMoney.monthly', localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value))}
                       className={styles.input}
                     />
                   </div>
@@ -227,10 +227,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.alertas.smartMoney.yearly}
-                      onChange={(e) => handleInputChange('alertas.smartMoney.yearly', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('alertas.smartMoney.yearly', localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value))}
                       className={styles.input}
                     />
                   </div>
@@ -258,10 +258,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.entrenamientos.swingTrading.price}
-                      onChange={(e) => handleInputChange('entrenamientos.swingTrading.price', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('entrenamientos.swingTrading.price', localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value))}
                       className={styles.input}
                     />
                   </div>
@@ -273,10 +273,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.entrenamientos.swingTrading.originalPrice || ''}
-                      onChange={(e) => handleInputChange('entrenamientos.swingTrading.originalPrice', e.target.value ? parseFloat(e.target.value) : undefined)}
+                      onChange={(e) => handleInputChange('entrenamientos.swingTrading.originalPrice', e.target.value ? (localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value)) : undefined)}
                       className={styles.input}
                       placeholder="Sin descuento"
                     />
@@ -312,10 +312,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.entrenamientos.dayTrading.price}
-                      onChange={(e) => handleInputChange('entrenamientos.dayTrading.price', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('entrenamientos.dayTrading.price', localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value))}
                       className={styles.input}
                     />
                   </div>
@@ -327,10 +327,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.entrenamientos.dayTrading.originalPrice || ''}
-                      onChange={(e) => handleInputChange('entrenamientos.dayTrading.originalPrice', e.target.value ? parseFloat(e.target.value) : undefined)}
+                      onChange={(e) => handleInputChange('entrenamientos.dayTrading.originalPrice', e.target.value ? (localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value)) : undefined)}
                       className={styles.input}
                       placeholder="Sin descuento"
                     />
@@ -366,10 +366,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.entrenamientos.advanced.price}
-                      onChange={(e) => handleInputChange('entrenamientos.advanced.price', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('entrenamientos.advanced.price', localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value))}
                       className={styles.input}
                     />
                   </div>
@@ -381,10 +381,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.entrenamientos.advanced.originalPrice || ''}
-                      onChange={(e) => handleInputChange('entrenamientos.advanced.originalPrice', e.target.value ? parseFloat(e.target.value) : undefined)}
+                      onChange={(e) => handleInputChange('entrenamientos.advanced.originalPrice', e.target.value ? (localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value)) : undefined)}
                       className={styles.input}
                       placeholder="Sin descuento"
                     />
@@ -430,10 +430,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.asesorias.consultorioFinanciero.price}
-                      onChange={(e) => handleInputChange('asesorias.consultorioFinanciero.price', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('asesorias.consultorioFinanciero.price', localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value))}
                       className={styles.input}
                     />
                   </div>
@@ -456,10 +456,10 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                     <span className={styles.currency}>$</span>
                     <input
                       type="number"
-                      step="0.01"
+                      step={localPricing.currency === 'ARS' ? '1' : '0.01'}
                       min="0"
                       value={localPricing.asesorias.consultorioFinanciero.originalPrice || ''}
-                      onChange={(e) => handleInputChange('asesorias.consultorioFinanciero.originalPrice', e.target.value ? parseFloat(e.target.value) : undefined)}
+                      onChange={(e) => handleInputChange('asesorias.consultorioFinanciero.originalPrice', e.target.value ? (localPricing.currency === 'ARS' ? parseInt(e.target.value) : parseFloat(e.target.value)) : undefined)}
                       className={styles.input}
                       placeholder="Sin descuento"
                     />
@@ -516,9 +516,9 @@ export default function AdminPricing({ session }: AdminPricingProps) {
                 onChange={(e) => handleInputChange('currency', e.target.value)}
                 className={styles.select}
               >
+                <option value="ARS">ARS - Peso Argentino</option>
                 <option value="USD">USD - Dólar Estadounidense</option>
                 <option value="EUR">EUR - Euro</option>
-                <option value="ARS">ARS - Peso Argentino</option>
               </select>
             </div>
           </div>

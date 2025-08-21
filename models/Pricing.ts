@@ -66,37 +66,37 @@ export interface PricingDocument extends Document {
 const PricingSchema = new Schema({
   alertas: {
     traderCall: {
-      monthly: { type: Number, required: true, default: 29.99 },
-      yearly: { type: Number, required: true, default: 299.99 },
-      currency: { type: String, required: true, default: 'USD' },
+      monthly: { type: Number, required: true, default: 15000 },
+      yearly: { type: Number, required: true, default: 150000 },
+      currency: { type: String, required: true, default: 'ARS' },
       description: { type: String, default: 'Alertas de Trader Call' }
     },
     smartMoney: {
-      monthly: { type: Number, required: true, default: 39.99 },
-      yearly: { type: Number, required: true, default: 399.99 },
-      currency: { type: String, required: true, default: 'USD' },
+      monthly: { type: Number, required: true, default: 20000 },
+      yearly: { type: Number, required: true, default: 200000 },
+      currency: { type: String, required: true, default: 'ARS' },
       description: { type: String, default: 'Alertas de Smart Money' }
     }
   },
   
   entrenamientos: {
     swingTrading: {
-      price: { type: Number, required: true, default: 199.99 },
-      currency: { type: String, required: true, default: 'USD' },
+      price: { type: Number, required: true, default: 50000 },
+      currency: { type: String, required: true, default: 'ARS' },
       description: { type: String, default: 'Entrenamiento de Swing Trading' },
       originalPrice: { type: Number },
       discount: { type: Number, min: 0, max: 100 }
     },
     dayTrading: {
-      price: { type: Number, required: true, default: 299.99 },
-      currency: { type: String, required: true, default: 'USD' },
+      price: { type: Number, required: true, default: 75000 },
+      currency: { type: String, required: true, default: 'ARS' },
       description: { type: String, default: 'Entrenamiento de Day Trading' },
       originalPrice: { type: Number },
       discount: { type: Number, min: 0, max: 100 }
     },
     advanced: {
-      price: { type: Number, required: true, default: 399.99 },
-      currency: { type: String, required: true, default: 'USD' },
+      price: { type: Number, required: true, default: 100000 },
+      currency: { type: String, required: true, default: 'ARS' },
       description: { type: String, default: 'Entrenamiento Avanzado' },
       originalPrice: { type: Number },
       discount: { type: Number, min: 0, max: 100 }
@@ -105,8 +105,8 @@ const PricingSchema = new Schema({
   
   asesorias: {
     consultorioFinanciero: {
-      price: { type: Number, required: true, default: 199.99 },
-      currency: { type: String, required: true, default: 'USD' },
+      price: { type: Number, required: true, default: 50000 },
+      currency: { type: String, required: true, default: 'ARS' },
       description: { type: String, default: 'Consultorio Financiero Individual' },
       duration: { type: String, default: '60 minutos' },
       originalPrice: { type: Number },
@@ -114,7 +114,7 @@ const PricingSchema = new Schema({
     }
   },
   
-  currency: { type: String, required: true, default: 'USD' },
+  currency: { type: String, required: true, default: 'ARS' },
   showDiscounts: { type: Boolean, default: false },
   lastUpdated: { type: Date, default: Date.now },
   updatedBy: { type: String, required: true }
