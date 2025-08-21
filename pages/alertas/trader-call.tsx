@@ -48,6 +48,7 @@ import { useRouter } from 'next/router';
 import { calculateDaysRemaining, calculateDaysSinceSubscription } from '../../utils/dateUtils';
 import SPY500Indicator from '@/components/SPY500Indicator';
 import PortfolioTimeRange from '@/components/PortfolioTimeRange';
+import { usePricing } from '@/hooks/usePricing';
 
 interface AlertExample {
   id: string;
@@ -116,6 +117,7 @@ const NonSubscriberView: React.FC<{
   faqs
 }) => {
   const { data: session } = useSession();
+  const { pricing, loading: pricingLoading } = usePricing();
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -128,6 +130,9 @@ const NonSubscriberView: React.FC<{
     setIsProcessing(true);
     
     try {
+      // Obtener el precio dinámico del sistema
+      const subscriptionPrice = pricing?.alertas?.traderCall?.monthly || 15000;
+      
       const response = await fetch('/api/payments/mercadopago/create-checkout', {
         method: 'POST',
         headers: {
@@ -135,7 +140,7 @@ const NonSubscriberView: React.FC<{
         },
         body: JSON.stringify({
           service: 'TraderCall',
-          amount: 15000, // $15,000 ARS
+          amount: subscriptionPrice,
           currency: 'ARS',
           type: 'subscription'
         }),
@@ -219,6 +224,17 @@ const NonSubscriberView: React.FC<{
                 <div className={styles.heroFeature}>
                   <CheckCircle size={20} />
                   <span>Quiero Suscribirme</span>
+                </div>
+                <div className={styles.heroPricing}>
+                  <span className={styles.price}>
+                    {pricingLoading ? (
+                      'Cargando precio...'
+                    ) : pricing ? (
+                      `$${pricing.alertas.traderCall.monthly} ARS/mes`
+                    ) : (
+                      '$15000 ARS/mes'
+                    )}
+                  </span>
                 </div>
               </div>
             </div>
