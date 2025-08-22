@@ -656,7 +656,8 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                           id="nombre"
                           name="nombre"
                           className={styles.formInput}
-                          defaultValue="Nahuel"
+                          defaultValue={session?.user?.name?.split(' ')[0] || ''}
+                          placeholder="Tu nombre"
                           required
                         />
                       </div>
@@ -670,7 +671,8 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                           id="apellido"
                           name="apellido"
                           className={styles.formInput}
-                          defaultValue="Lozano"
+                          defaultValue={session?.user?.name?.split(' ').slice(1).join(' ') || ''}
+                          placeholder="Tu apellido"
                           required
                         />
                       </div>
@@ -684,7 +686,8 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                           id="email"
                           name="email"
                           className={styles.formInput}
-                          defaultValue="lozanonahuel@gmail.com"
+                          defaultValue={session?.user?.email || ''}
+                          placeholder="Tu email"
                           required
                         />
                       </div>
