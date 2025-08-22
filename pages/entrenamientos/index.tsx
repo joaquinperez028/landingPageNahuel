@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { GetServerSideProps } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import YouTubePlayer from '@/components/YouTubePlayer';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -36,9 +37,17 @@ interface EntrenamientosPageProps {
     image: string;
     badge?: string;
   }>;
+  videoConfig: {
+    youtubeId: string;
+    title: string;
+    description: string;
+    autoplay: boolean;
+    muted: boolean;
+    loop: boolean;
+  };
 }
 
-const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) => {
+const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings, videoConfig }) => {
   return (
     <>
       <Head>
@@ -50,79 +59,55 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
       <Navbar />
       
       <main className={styles.main}>
-        {/* Hero Section */}
+        {/* Hero Section - Nuevo diseño basado en la imagen */}
         <section className={styles.heroSection}>
           <div className={styles.container}>
-            <motion.div 
-              className={styles.heroContent}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className={styles.heroText}>
+            <div className={styles.heroContent}>
+              {/* Contenido izquierdo - Texto y botón */}
+              <motion.div 
+                className={styles.heroText}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8 }}
+              >
                 <h1 className={styles.heroTitle}>
                   Entrenamientos
-                  <span className={styles.heroSubtitle}>Formación Especializada en Trading</span>
                 </h1>
                 <p className={styles.heroDescription}>
-                  Programas de formación diseñados para transformarte en un trader profesional. 
-                  Desde los fundamentos hasta estrategias avanzadas, con contenido actualizado 
-                  y metodología probada en los mercados.
+                  Experiencia premium, intensiva y personalizada con acompañamiento en cada paso de tu camino como trader profesional.
                 </p>
-                <div className={styles.heroFeatures}>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Contenido 100% actualizado y práctico</span>
+                <Link href="https://lozanonahuel.vercel.app/entrenamientos/swing-trading" className={styles.heroCTA}>
+                  Empezá Ahora &gt;
+                </Link>
+              </motion.div>
+
+              {/* Contenido derecho - Video player */}
+              <motion.div 
+                className={styles.heroVideo}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                {videoConfig && videoConfig.youtubeId && videoConfig.youtubeId !== 'dQw4w9WgXcQ' ? (
+                  <YouTubePlayer
+                    videoId={videoConfig.youtubeId}
+                    title={videoConfig.title}
+                    autoplay={videoConfig.autoplay}
+                    muted={videoConfig.muted}
+                    loop={videoConfig.loop}
+                    controls={true}
+                    width="100%"
+                    height="100%"
+                    className={styles.videoPlayer}
+                  />
+                ) : (
+                  <div className={styles.videoPlaceholder}>
+                    <PlayCircle size={64} />
+                    <p>Video no configurado</p>
                   </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Metodología probada en mercados reales</span>
-                  </div>
-                  <div className={styles.heroFeature}>
-                    <CheckCircle size={20} />
-                    <span>Soporte personalizado durante el aprendizaje</span>
-                  </div>
-                </div>
-              </div>
-              <div className={styles.heroStats}>
-                <motion.div 
-                  className={styles.statCard}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <div className={styles.statIcon}>
-                    <Users size={32} />
-                  </div>
-                  <h3 className={styles.statNumber}>1,200+</h3>
-                  <p className={styles.statLabel}>Estudiantes Formados</p>
-                </motion.div>
-                <motion.div 
-                  className={styles.statCard}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <div className={styles.statIcon}>
-                    <Award size={32} />
-                  </div>
-                  <h3 className={styles.statNumber}>95%</h3>
-                  <p className={styles.statLabel}>Tasa de Satisfacción</p>
-                </motion.div>
-                <motion.div 
-                  className={styles.statCard}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <div className={styles.statIcon}>
-                    <Clock size={32} />
-                  </div>
-                  <h3 className={styles.statNumber}>100+</h3>
-                  <p className={styles.statLabel}>Horas de Contenido</p>
-                </motion.div>
-              </div>
-            </motion.div>
+                )}
+              </motion.div>
+            </div>
           </div>
         </section>
 
@@ -345,60 +330,151 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings }) =>
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const trainings = [
-    {
-      id: 'trading-fundamentals',
-      title: 'Trading Fundamentals',
-      subtitle: 'Fundamentos del Trading Profesional',
-      description: 'Programa completo desde cero hasta nivel intermedio. Aprende análisis técnico, fundamental, gestión de riesgo y psicología del trading con metodología step-by-step.',
-      level: 'Principiante - Intermedio',
-      duration: '40 horas',
-      lessons: 85,
-      students: 850,
-      rating: 4.8,
-                price: '$75000 ARS',
-      features: [
-        'Análisis técnico y fundamental',
-        'Gestión de riesgo avanzada',
-        'Psicología del trading',
-        'Estrategias para diferentes mercados',
-        'Acceso a comunidad privada',
-        'Certificado de completación'
-      ],
-              href: '/entrenamientos/swing-trading',
-        image: '/entrenamientos/swing-trading.jpg',
-      badge: 'Más Popular'
-    },
-    {
-      id: 'day-trading',
-      title: 'Day Trading',
-      subtitle: 'Estrategias Avanzadas de Trading Intradía',
-      description: 'Domina el arte del Day Trading con estrategias profesionales. Aprende técnicas avanzadas de trading intradía, scalping, gestión de riesgo y psicología del trader.',
-      level: 'Intermedio - Avanzado',
-      duration: '45 horas',
-      lessons: 85,
-      students: 500,
-      rating: 4.9,
-                price: '$100000 ARS',
-      features: [
-        'Estrategias de scalping profesionales',
-        'Análisis técnico avanzado',
-        'Gestión de riesgo especializada',
-        'Psicología del day trading',
-        'Clases en vivo semanales',
-        'Acceso de por vida'
-      ],
-      href: '/entrenamientos/day-trading',
-      image: '/entrenamientos/day-trading.jpg',
-      badge: 'Nuevo'
-    }
-  ];
+  try {
+    // Conectar a la base de datos
+    const dbConnect = (await import('@/lib/mongodb')).default;
+    await dbConnect();
+    
+    // Importar el modelo SiteConfig
+    const SiteConfig = (await import('@/models/SiteConfig')).default;
+    
+    // Obtener la configuración del sitio
+    const siteConfig = await SiteConfig.findOne({});
+    
+    // Obtener la configuración del video de entrenamientos
+    const videoConfig = siteConfig?.serviciosVideos?.entrenamientos || {
+      youtubeId: 'dQw4w9WgXcQ',
+      title: 'Video de Entrenamientos',
+      description: 'Conoce nuestros programas de formación especializados',
+      autoplay: false,
+      muted: true,
+      loop: false
+    };
 
-  return {
-    props: {
-      trainings
-    }
-  };
+    const trainings = [
+      {
+        id: 'trading-fundamentals',
+        title: 'Trading Fundamentals',
+        subtitle: 'Fundamentos del Trading Profesional',
+        description: 'Programa completo desde cero hasta nivel intermedio. Aprende análisis técnico, fundamental, gestión de riesgo y psicología del trading con metodología step-by-step.',
+        level: 'Principiante - Intermedio',
+        duration: '40 horas',
+        lessons: 85,
+        students: 850,
+        rating: 4.8,
+        price: '$75000 ARS',
+        features: [
+          'Análisis técnico y fundamental',
+          'Gestión de riesgo avanzada',
+          'Psicología del trading',
+          'Estrategias para diferentes mercados',
+          'Acceso a comunidad privada',
+          'Certificado de completación'
+        ],
+        href: '/entrenamientos/swing-trading',
+        image: '/entrenamientos/swing-trading.jpg',
+        badge: 'Más Popular'
+      },
+      {
+        id: 'day-trading',
+        title: 'Day Trading',
+        subtitle: 'Estrategias Avanzadas de Trading Intradía',
+        description: 'Domina el arte del Day Trading con estrategias profesionales. Aprende técnicas avanzadas de trading intradía, scalping, gestión de riesgo y psicología del trader.',
+        level: 'Intermedio - Avanzado',
+        duration: '45 horas',
+        lessons: 85,
+        students: 500,
+        rating: 4.9,
+        price: '$100000 ARS',
+        features: [
+          'Estrategias de scalping profesionales',
+          'Análisis técnico avanzado',
+          'Gestión de riesgo especializada',
+          'Psicología del day trading',
+          'Clases en vivo semanales',
+          'Acceso de por vida'
+        ],
+        href: '/entrenamientos/day-trading',
+        image: '/entrenamientos/day-trading.jpg',
+        badge: 'Nuevo'
+      }
+    ];
+
+    return {
+      props: {
+        trainings,
+        videoConfig: JSON.parse(JSON.stringify(videoConfig))
+      }
+    };
+  } catch (error) {
+    console.error('Error en getServerSideProps:', error);
+    
+    // Fallback en caso de error
+    const videoConfig = {
+      youtubeId: 'dQw4w9WgXcQ',
+      title: 'Video de Entrenamientos',
+      description: 'Conoce nuestros programas de formación especializados',
+      autoplay: false,
+      muted: true,
+      loop: false
+    };
+
+    const trainings = [
+      {
+        id: 'trading-fundamentals',
+        title: 'Trading Fundamentals',
+        subtitle: 'Fundamentos del Trading Profesional',
+        description: 'Programa completo desde cero hasta nivel intermedio. Aprende análisis técnico, fundamental, gestión de riesgo y psicología del trading con metodología step-by-step.',
+        level: 'Principiante - Intermedio',
+        duration: '40 horas',
+        lessons: 85,
+        students: 850,
+        rating: 4.8,
+        price: '$75000 ARS',
+        features: [
+          'Análisis técnico y fundamental',
+          'Gestión de riesgo avanzada',
+          'Psicología del trading',
+          'Estrategias para diferentes mercados',
+          'Acceso a comunidad privada',
+          'Certificado de completación'
+        ],
+        href: '/entrenamientos/swing-trading',
+        image: '/entrenamientos/swing-trading.jpg',
+        badge: 'Más Popular'
+      },
+      {
+        id: 'day-trading',
+        title: 'Day Trading',
+        subtitle: 'Estrategias Avanzadas de Trading Intradía',
+        description: 'Domina el arte del Day Trading con estrategias profesionales. Aprende técnicas avanzadas de trading intradía, scalping, gestión de riesgo y psicología del trader.',
+        level: 'Intermedio - Avanzado',
+        duration: '45 horas',
+        lessons: 85,
+        students: 500,
+        rating: 4.9,
+        price: '$100000 ARS',
+        features: [
+          'Estrategias de scalping profesionales',
+          'Análisis técnico avanzado',
+          'Gestión de riesgo especializada',
+          'Psicología del day trading',
+          'Clases en vivo semanales',
+          'Acceso de por vida'
+        ],
+        href: '/entrenamientos/day-trading',
+        image: '/entrenamientos/day-trading.jpg',
+        badge: 'Nuevo'
+      }
+    ];
+
+    return {
+      props: {
+        trainings,
+        videoConfig
+      }
+    };
+  }
 };
 
 export default EntrenamientosPage; 
