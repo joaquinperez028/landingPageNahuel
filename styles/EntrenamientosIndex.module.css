@@ -126,6 +126,135 @@
   opacity: 0.7;
 }
 
+/* Swing Trading Section */
+.swingTradingSection {
+  padding: 6rem 0;
+  background: #1e293b; /* Fondo gris */
+}
+
+.swingTradingCard {
+  background: #8B0000; /* Mismo granate que el hero */
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.swingTradingVideo {
+  width: 100%;
+  height: 400px;
+  background: #000;
+  position: relative;
+}
+
+.swingTradingContent {
+  padding: 3rem;
+  color: white;
+}
+
+.swingTradingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.swingTradingTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: white;
+}
+
+.swingTradingLevel {
+  background: #8b5cf6; /* Morado */
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.swingTradingDescription {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: white;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.courseInfoCard {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.courseInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.courseInfoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.courseInfoItem svg {
+  color: #1e293b;
+  flex-shrink: 0;
+}
+
+.featuresList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: white;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.featureItem svg {
+  color: #10b981; /* Verde */
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.swingTradingCTA {
+  display: inline-flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  width: fit-content;
+}
+
+.swingTradingCTA:hover {
+  background: white;
+  color: #8B0000;
+  transform: translateY(-2px);
+}
+
 /* Trainings Section */
 .trainingsSection {
   padding: 6rem 0;
@@ -554,6 +683,37 @@
     min-height: auto;
   }
   
+  .swingTradingSection {
+    padding: 4rem 0;
+  }
+  
+  .swingTradingCard {
+    margin: 0 1rem;
+  }
+  
+  .swingTradingContent {
+    padding: 2rem;
+  }
+  
+  .swingTradingHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .swingTradingTitle {
+    font-size: 2rem;
+  }
+  
+  .courseInfoGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .swingTradingVideo {
+    height: 300px;
+  }
+  
   .heroContent {
     grid-template-columns: 1fr;
     gap: 2rem;
@@ -635,6 +795,27 @@
 @media (max-width: 480px) {
   .heroSection {
     padding: 3rem 0 2rem;
+  }
+  
+  .swingTradingSection {
+    padding: 3rem 0;
+  }
+  
+  .swingTradingContent {
+    padding: 1.5rem;
+  }
+  
+  .swingTradingTitle {
+    font-size: 1.75rem;
+  }
+  
+  .swingTradingVideo {
+    height: 250px;
+  }
+  
+  .swingTradingCTA {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
   }
   
   .heroTitle {

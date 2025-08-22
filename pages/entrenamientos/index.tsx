@@ -45,9 +45,17 @@ interface EntrenamientosPageProps {
     muted: boolean;
     loop: boolean;
   };
+  swingTradingVideoConfig: {
+    youtubeId: string;
+    title: string;
+    description: string;
+    autoplay: boolean;
+    muted: boolean;
+    loop: boolean;
+  };
 }
 
-const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings, videoConfig }) => {
+const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings, videoConfig, swingTradingVideoConfig }) => {
   return (
     <>
       <Head>
@@ -108,6 +116,106 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings, vide
                 )}
               </motion.div>
             </div>
+          </div>
+        </section>
+
+        {/* Swing Trading Section - Nuevo diseño basado en la imagen */}
+        <section className={styles.swingTradingSection}>
+          <div className={styles.container}>
+            <motion.div 
+              className={styles.swingTradingCard}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              {/* Video Player */}
+              <div className={styles.swingTradingVideo}>
+                {swingTradingVideoConfig && swingTradingVideoConfig.youtubeId && swingTradingVideoConfig.youtubeId !== 'dQw4w9WgXcQ' ? (
+                  <YouTubePlayer
+                    videoId={swingTradingVideoConfig.youtubeId}
+                    title={swingTradingVideoConfig.title}
+                    autoplay={swingTradingVideoConfig.autoplay}
+                    muted={swingTradingVideoConfig.muted}
+                    loop={swingTradingVideoConfig.loop}
+                    controls={true}
+                    width="100%"
+                    height="100%"
+                    className={styles.videoPlayer}
+                  />
+                ) : (
+                  <div className={styles.videoPlaceholder}>
+                    <PlayCircle size={64} />
+                    <p>Video no configurado</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Contenido */}
+              <div className={styles.swingTradingContent}>
+                {/* Título y nivel */}
+                <div className={styles.swingTradingHeader}>
+                  <h2 className={styles.swingTradingTitle}>Swing Trading</h2>
+                  <span className={styles.swingTradingLevel}>Avanzado - Experto</span>
+                </div>
+
+                {/* Descripción */}
+                <p className={styles.swingTradingDescription}>
+                  Operá movimientos de varios días o semanas, identificando oportunidades con análisis técnico y estrategias que combinan precisión y paciencia. Para quienes prefieren menos operaciones, pero de mayor calidad.
+                </p>
+
+                {/* Información del curso */}
+                <div className={styles.courseInfoCard}>
+                  <div className={styles.courseInfoGrid}>
+                    <div className={styles.courseInfoItem}>
+                      <Clock size={20} />
+                      <span>3 meses de duración</span>
+                    </div>
+                    <div className={styles.courseInfoItem}>
+                      <Users size={20} />
+                      <span>Grupo Reducido</span>
+                    </div>
+                    <div className={styles.courseInfoItem}>
+                      <BookOpen size={20} />
+                      <span>Material didáctico y ejecutable</span>
+                    </div>
+                    <div className={styles.courseInfoItem}>
+                      <PlayCircle size={20} />
+                      <span>Clases semanales en vivo</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Lista de características */}
+                <div className={styles.featuresList}>
+                  <div className={styles.featureItem}>
+                    <CheckCircle size={16} />
+                    <span>Estrategias de análisis técnico de temporalidades medias (días y semanas)</span>
+                  </div>
+                  <div className={styles.featureItem}>
+                    <CheckCircle size={16} />
+                    <span>Análisis de riesgo del portafolio completo según contexto de los principales mercados</span>
+                  </div>
+                  <div className={styles.featureItem}>
+                    <CheckCircle size={16} />
+                    <span>Indicadores de momentum y lectura chartista</span>
+                  </div>
+                  <div className={styles.featureItem}>
+                    <CheckCircle size={16} />
+                    <span>Actualización de status diario y ejecución de operaciones durante toda la jornada</span>
+                  </div>
+                  <div className={styles.featureItem}>
+                    <CheckCircle size={16} />
+                    <span>Búsqueda de movimientos largos y altamente rentables</span>
+                  </div>
+                </div>
+
+                {/* Botón CTA */}
+                <Link href="/entrenamientos/swing-trading" className={styles.swingTradingCTA}>
+                  Quiero saber más &gt;
+                </Link>
+              </div>
+            </motion.div>
           </div>
         </section>
 
@@ -341,11 +449,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     // Obtener la configuración del sitio
     const siteConfig = await SiteConfig.findOne({});
     
-    // Obtener la configuración del video de entrenamientos
+    // Obtener la configuración del video de entrenamientos (hero)
     const videoConfig = siteConfig?.serviciosVideos?.entrenamientos || {
       youtubeId: 'dQw4w9WgXcQ',
       title: 'Video de Entrenamientos',
       description: 'Conoce nuestros programas de formación especializados',
+      autoplay: false,
+      muted: true,
+      loop: false
+    };
+
+    // Obtener la configuración del video de Swing Trading
+    const swingTradingVideoConfig = siteConfig?.trainingVideos?.swingTrading?.heroVideo || {
+      youtubeId: 'dQw4w9WgXcQ',
+      title: 'Swing Trading - Video Promocional',
+      description: 'Descubre el programa completo de Swing Trading',
       autoplay: false,
       muted: true,
       loop: false
@@ -403,7 +521,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         trainings,
-        videoConfig: JSON.parse(JSON.stringify(videoConfig))
+        videoConfig: JSON.parse(JSON.stringify(videoConfig)),
+        swingTradingVideoConfig: JSON.parse(JSON.stringify(swingTradingVideoConfig))
       }
     };
   } catch (error) {
@@ -419,6 +538,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       loop: false
     };
 
+    const swingTradingVideoConfig = {
+      youtubeId: 'dQw4w9WgXcQ',
+      title: 'Swing Trading - Video Promocional',
+      description: 'Descubre el programa completo de Swing Trading',
+      autoplay: false,
+      muted: true,
+      loop: false
+    };
+
     const trainings = [
       {
         id: 'trading-fundamentals',
@@ -471,7 +599,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         trainings,
-        videoConfig
+        videoConfig,
+        swingTradingVideoConfig
       }
     };
   }

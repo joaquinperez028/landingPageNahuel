@@ -180,13 +180,13 @@ export default function AdminSiteConfig({ session, initialConfig }: AdminSiteCon
 
       if (response.ok && data.success) {
         // Actualizar las métricas con los datos calculados
-        setConfig(prev => ({
-          ...prev,
+    setConfig(prev => ({
+      ...prev,
           statistics: {
             ...prev.statistics,
             stats: data.metrics
-          }
-        }));
+      }
+    }));
         
         toast.success('Métricas actualizadas con datos reales de la base de datos');
         console.log('📊 Resumen de métricas:', data.summary);
@@ -308,7 +308,7 @@ export default function AdminSiteConfig({ session, initialConfig }: AdminSiteCon
               <div className={styles.statsSection}>
                 <div className={styles.statsList}>
                   <div className={styles.statsHeader}>
-                    <h3>Métricas Configuradas</h3>
+                  <h3>Métricas Configuradas</h3>
                     <button
                       type="button"
                       onClick={handleAutoUpdateMetrics}
