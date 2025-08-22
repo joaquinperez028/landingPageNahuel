@@ -31,6 +31,8 @@ import {
 import styles from '@/styles/ConsultorioFinanciero.module.css';
 import { useBookings } from '@/hooks/useBookings';
 import YouTubePlayer from '@/components/YouTubePlayer';
+import ClassCalendar from '@/components/ClassCalendar';
+import { usePricing } from '@/hooks/usePricing';
 
 interface Testimonio {
   nombre: string;
@@ -62,6 +64,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
 }) => {
   const { data: session } = useSession();
   const { createBooking, loading } = useBookings();
+  const { pricing, loading: pricingLoading } = usePricing();
   const [proximosTurnos, setProximosTurnos] = useState<TurnoDisponible[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
@@ -75,6 +78,33 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   useEffect(() => {
     loadProximosTurnos();
   }, []);
+
+  // Convertir turnos al formato que espera ClassCalendar
+  const calendarEvents = proximosTurnos.flatMap(turno => 
+    turno.horarios.map(horario => ({
+      date: new Date(turno.fecha.split('/').reverse().join('-')), // Convertir DD/MM/YYYY a YYYY-MM-DD
+      time: horario,
+      title: `Consultorio Financiero - ${turno.disponibles} turnos disponibles`,
+      id: `${turno.fecha}-${horario}`
+    }))
+  );
+
+  // Función para manejar la selección de fecha en el calendario
+  const handleCalendarDateSelect = (date: Date, events: any[]) => {
+    if (events.length > 0) {
+      const formattedDate = date.toLocaleDateString('es-ES', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short'
+      });
+      setSelectedDate(formattedDate);
+      
+      // Seleccionar el primer horario disponible por defecto
+      if (events[0]) {
+        setSelectedTime(events[0].time);
+      }
+    }
+  };
 
   // **OPTIMIZACIÓN: Reducir verificación automática a 5 minutos y solo si es necesario**
   useEffect(() => {
@@ -332,7 +362,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     console.log(`📍 Hora UTC enviada: ${utcDate.getUTCHours()}:${String(utcDate.getUTCMinutes()).padStart(2, '0')}`);
 
     // Precio dinámico para Consultorio Financiero
-    const bookingPrice = 50000; // $50,000 ARS
+    const bookingPrice = pricing?.asesorias?.consultorioFinanciero?.price || 50000;
     const bookingCurrency = 'ARS';
 
     // Crear checkout de MercadoPago PRIMERO (sin crear reserva)
@@ -491,23 +521,13 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                     </div>
                   ) : (
                     <>
-                      {/* Selector de Fechas */}
-                      <div className={styles.fechasGrid}>
-                        {proximosTurnos.map((turno, index) => (
-                          <div 
-                            key={index}
-                            className={`${styles.fechaCard} ${selectedDate === turno.fecha ? styles.fechaSelected : ''}`}
-                            onClick={() => handleDateSelect(turno.fecha)}
-                          >
-                            <div className={styles.fechaHeader}>
-                              <Calendar size={20} />
-                              <span className={styles.fecha}>{turno.fecha}</span>
-                            </div>
-                            <span className={styles.disponibles}>
-                              {turno.disponibles} turnos disponibles
-                            </span>
-                          </div>
-                        ))}
+                      {/* Calendario Interactivo */}
+                      <div className={styles.calendarContainer}>
+                        <ClassCalendar
+                          events={calendarEvents}
+                          onDateSelect={handleCalendarDateSelect}
+                          isAdmin={false}
+                        />
                       </div>
 
                       {/* Selector de Horarios */}
@@ -613,10 +633,18 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                       </div>
                     </div>
                     
-                    <div className={styles.precioSection}>
-                      <span className={styles.precioLabel}>Valor de la consulta:</span>
-                      <span className={styles.precioValor}>$50.000 ARS</span>
-                    </div>
+                                    <div className={styles.precioSection}>
+                  <span className={styles.precioLabel}>Valor de la consulta:</span>
+                  <span className={styles.precioValor}>
+                    {pricingLoading ? (
+                      'Cargando precio...'
+                    ) : pricing ? (
+                      `$${pricing.asesorias.consultorioFinanciero.price.toLocaleString('es-AR')} ARS`
+                    ) : (
+                      '$50.000 ARS'
+                    )}
+                  </span>
+                </div>
                     
                     {session ? (
                       <button 
@@ -846,8 +874,16 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                   <span className={styles.detailValue}>Consultorio Financiero</span>
                 </div>
                 <div className={styles.detailItem}>
-                  <span className={styles.detailLabel}>💰 Precio:</span>
-                  <span className={styles.detailValue}>$50.000 ARS</span>
+                                          <span className={styles.detailLabel}>💰 Precio:</span>
+                        <span className={styles.detailValue}>
+                          {pricingLoading ? (
+                            'Cargando precio...'
+                          ) : pricing ? (
+                            `$${pricing.asesorias.consultorioFinanciero.price.toLocaleString('es-AR')} ARS`
+                          ) : (
+                            '$50.000 ARS'
+                          )}
+                        </span>
                 </div>
               </div>
               

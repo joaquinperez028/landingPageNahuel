@@ -1137,6 +1137,91 @@
   font-size: 0.9rem;
 }
 
+/* Nuevo Calendario Interactivo */
+.calendarContainer {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.calendarContainer :global(.calendar) {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.calendarContainer :global(.calendarHeader) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.calendarContainer :global(.calendarTitle) {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.calendarContainer :global(.calendarNavigation) {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.calendarContainer :global(.navButton) {
+  background: #8B5CF6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.calendarContainer :global(.navButton:hover) {
+  background: #7C3AED;
+  transform: scale(1.05);
+}
+
+.calendarContainer :global(.calendarGrid) {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.calendarContainer :global(.calendarDay) {
+  background: white;
+  padding: 1rem 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.calendarContainer :global(.calendarDay:hover) {
+  background: #f1f5f9;
+}
+
+.calendarContainer :global(.hasEvents) {
+  background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+  color: white;
+}
+
+.calendarContainer :global(.hasEvents:hover) {
+  background: linear-gradient(135deg, #7C3AED 0%, #9333EA 100%);
+  transform: scale(1.02);
+}
+
 .horariosSection {
   margin-top: 2rem;
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
