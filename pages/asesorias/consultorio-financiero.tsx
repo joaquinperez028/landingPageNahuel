@@ -91,23 +91,34 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
 
   // Función para manejar la selección de fecha en el calendario
   const handleCalendarDateSelect = (date: Date, events: any[]) => {
+    console.log('🎯 handleCalendarDateSelect llamado con:', { date, events });
+    
     if (events.length > 0) {
       // Convertir la fecha del calendario al formato que usan los turnos
       const day = date.getDate();
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
       
+      console.log('📅 Fecha convertida:', { day, month, year });
+      console.log('📋 Turnos disponibles:', proximosTurnos);
+      
       // Buscar el turno que coincida con esta fecha
       const turnoEncontrado = proximosTurnos.find(turno => {
         const [turnoDay, turnoMonth, turnoYear] = turno.fecha.split('/').map(Number);
-        return turnoDay === day && turnoMonth === month && turnoYear === year;
+        const matches = turnoDay === day && turnoMonth === month && turnoYear === year;
+        console.log('🔍 Comparando turno:', { turno, turnoDay, turnoMonth, turnoYear, matches });
+        return matches;
       });
       
       if (turnoEncontrado) {
+        console.log('✅ Turno encontrado:', turnoEncontrado);
         setSelectedDate(turnoEncontrado.fecha);
-        // No seleccionar horario por defecto, dejar que el usuario elija
         setSelectedTime('');
+      } else {
+        console.log('❌ No se encontró turno para esta fecha');
       }
+    } else {
+      console.log('❌ No hay eventos para esta fecha');
     }
   };
 
@@ -531,7 +542,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                         <ClassCalendar
                           events={calendarEvents}
                           onDateSelect={handleCalendarDateSelect}
-                          isAdmin={false}
+                          isAdmin={true}
                         />
                       </div>
 
