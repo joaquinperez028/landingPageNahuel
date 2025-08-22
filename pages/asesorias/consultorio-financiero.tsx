@@ -80,14 +80,24 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   }, []);
 
   // Convertir turnos al formato que espera ClassCalendar
-  const calendarEvents = proximosTurnos.flatMap(turno => 
-    turno.horarios.map(horario => ({
-      date: new Date(turno.fecha.split('/').reverse().join('-')), // Convertir DD/MM/YYYY a YYYY-MM-DD
+  const calendarEvents = proximosTurnos.flatMap(turno => {
+    const dateObj = new Date(turno.fecha.split('/').reverse().join('-'));
+    console.log('📅 Generando evento para turno:', { 
+      turnoFecha: turno.fecha, 
+      dateObj: dateObj,
+      dateString: dateObj.toISOString(),
+      day: dateObj.getDate(),
+      month: dateObj.getMonth() + 1,
+      year: dateObj.getFullYear()
+    });
+    
+    return turno.horarios.map(horario => ({
+      date: dateObj,
       time: horario,
       title: `Consultorio Financiero - ${turno.disponibles} turnos disponibles`,
       id: `${turno.fecha}-${horario}`
-    }))
-  );
+    }));
+  });
 
   // Función para manejar la selección de fecha en el calendario
   const handleCalendarDateSelect = (date: Date, events: any[]) => {
