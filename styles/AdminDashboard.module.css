@@ -372,11 +372,25 @@
 
 .filterSelect {
   padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.6);
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   color: var(--text-primary);
   font-size: 0.9rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.15);
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.filterSelect:hover {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(187, 134, 252, 0.3);
 }
 
 .createButton {
