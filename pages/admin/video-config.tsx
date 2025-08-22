@@ -138,6 +138,16 @@ interface VideoConfig {
     };
   };
   advisoryVideos: {
+    index: {
+      heroVideo: {
+        youtubeId: string;
+        title: string;
+        description: string;
+        autoplay: boolean;
+        muted: boolean;
+        loop: boolean;
+      };
+    };
     consultorioFinanciero: {
       heroVideo: {
         youtubeId: string;
@@ -366,6 +376,15 @@ const VideoConfig: React.FC<VideoConfigProps> = ({ user }) => {
       path: 'trainingVideos.advanced.promoVideo'
     },
     // Videos de asesorías
+    {
+      id: 'advisoryVideos.index.heroVideo',
+      name: 'Asesorías - Video Hero',
+      description: 'Video principal de la página de Asesorías generales',
+      icon: <Briefcase size={20} />,
+      color: '#8b5cf6',
+      category: 'advisory',
+      path: 'advisoryVideos.index.heroVideo'
+    },
     {
       id: 'advisoryVideos.consultorioFinanciero.heroVideo',
       name: 'Consultorio Financiero - Video Hero',

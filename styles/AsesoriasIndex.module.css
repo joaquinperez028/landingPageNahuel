@@ -53,27 +53,27 @@
 }
 
 .heroTitle {
-  font-size: 3.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 4rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
   line-height: 1.1;
   margin-bottom: 1rem;
 }
 
 .heroSubtitle {
   display: block;
-  font-size: 1.8rem;
-  color: #e2e8f0;
+  font-size: 2rem;
+  color: #FFFFFF;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
   margin-top: 0.5rem;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .heroDescription {
-  font-size: 1.2rem;
-  color: #cbd5e1;
+  font-size: 1.4rem;
+  color: #FFFFFF;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
   line-height: 1.6;
   margin-bottom: 2rem;
 }
@@ -88,7 +88,8 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: #e2e8f0;
+  color: #FFFFFF;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
 }
 
 .heroFeature svg {
@@ -108,6 +109,12 @@
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.videoPlayer {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
 }
 
 .videoPlaceholder {
@@ -502,11 +509,15 @@
   }
 
   .heroTitle {
-    font-size: 2.5rem;
+    font-size: 3rem;
   }
 
   .heroSubtitle {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
+  }
+  
+  .heroDescription {
+    font-size: 1.2rem;
   }
 
   .asesoriasGrid {
@@ -554,14 +565,14 @@
   }
   
   .heroTitle {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
   
   .heroSubtitle {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
   }
   
   .heroDescription {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 } 

@@ -19,6 +19,7 @@ import Footer from '@/components/Footer';
 import VideoPlayerMux from '@/components/VideoPlayerMux';
 import { usePricing } from '@/hooks/usePricing';
 import BackgroundVideo from '@/components/BackgroundVideo';
+import YouTubePlayer from '@/components/YouTubePlayer';
 import styles from '@/styles/AsesoriasIndex.module.css';
 
 interface AsesoriasPageProps {
@@ -131,19 +132,14 @@ const AsesoriasPage: React.FC<AsesoriasPageProps> = ({ session, asesorias, faqs 
               </div>
               <div className={styles.heroVideo}>
                 <div className={styles.videoContainer}>
-                  {/* Placeholder de video explicativo */}
-                  <div className={styles.videoPlaceholder}>
-                    <div className={styles.placeholderIcon}>💼</div>
-                    <h3 className={styles.placeholderTitle}>Video: Explicación de las Asesorías</h3>
-                    <p className={styles.placeholderText}>
-                      Descubre cómo nuestras asesorías pueden transformar tu estrategia de inversión
-                    </p>
-                    <div className={styles.placeholderFeatures}>
-                      <span>📊 Consultorio Financiero</span>
-                      <span>💰 Cuenta Asesorada</span>
-                      <span>🎯 Estrategias Personalizadas</span>
-                    </div>
-                  </div>
+                  <YouTubePlayer
+                    videoId="dQw4w9WgXcQ"
+                    title="Asesorías - Consultoría Financiera Personalizada"
+                    autoplay={false}
+                    muted={true}
+                    loop={false}
+                    className={styles.videoPlayer}
+                  />
                 </div>
               </div>
             </motion.div>
