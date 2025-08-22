@@ -88,8 +88,8 @@
 
 /* User Info */
 .userInfo {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid #475569;
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 24px;
@@ -116,13 +116,13 @@
 
 .userName {
   font-weight: 600;
-  color: #111827;
+  color: #ffffff;
   margin: 0;
   font-size: 14px;
 }
 
 .userEmail {
-  color: #6b7280;
+  color: #cbd5e1;
   margin: 0;
   font-size: 13px;
 }

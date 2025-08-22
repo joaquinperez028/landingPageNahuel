@@ -12,13 +12,17 @@ interface ContactFormProps {
 }
 
 interface FormData {
-  subject: string;
-  message: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  mensaje: string;
 }
 
 interface FormErrors {
-  subject?: string;
-  message?: string;
+  nombre?: string;
+  apellido?: string;
+  email?: string;
+  mensaje?: string;
   general?: string;
 }
 
@@ -29,8 +33,10 @@ interface FormErrors {
 const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
   const { data: session } = useSession();
   const [formData, setFormData] = useState<FormData>({
-    subject: '',
-    message: ''
+    nombre: '',
+    apellido: '',
+    email: '',
+    mensaje: ''
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,7 +45,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
   // Resetear formulario al cerrar
   React.useEffect(() => {
     if (!isOpen) {
-      setFormData({ subject: '', message: '' });
+      setFormData({ nombre: '', apellido: '', email: '', mensaje: '' });
       setErrors({});
       setIsSubmitting(false);
     }
@@ -49,22 +55,38 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Validar asunto
-    if (!formData.subject.trim()) {
-      newErrors.subject = 'El asunto es obligatorio';
-    } else if (formData.subject.length < 5) {
-      newErrors.subject = 'El asunto debe tener al menos 5 caracteres';
-    } else if (formData.subject.length > 100) {
-      newErrors.subject = 'El asunto no puede exceder 100 caracteres';
+    // Validar nombre
+    if (!formData.nombre.trim()) {
+      newErrors.nombre = 'El nombre es obligatorio';
+    } else if (formData.nombre.length < 2) {
+      newErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
+    } else if (formData.nombre.length > 50) {
+      newErrors.nombre = 'El nombre no puede exceder 50 caracteres';
+    }
+
+    // Validar apellido
+    if (!formData.apellido.trim()) {
+      newErrors.apellido = 'El apellido es obligatorio';
+    } else if (formData.apellido.length < 2) {
+      newErrors.apellido = 'El apellido debe tener al menos 2 caracteres';
+    } else if (formData.apellido.length > 50) {
+      newErrors.apellido = 'El apellido no puede exceder 50 caracteres';
+    }
+
+    // Validar email
+    if (!formData.email.trim()) {
+      newErrors.email = 'El email es obligatorio';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'El formato del email no es válido';
     }
 
     // Validar mensaje
-    if (!formData.message.trim()) {
-      newErrors.message = 'El mensaje es obligatorio';
-    } else if (formData.message.length < 10) {
-      newErrors.message = 'El mensaje debe tener al menos 10 caracteres';
-    } else if (formData.message.length > 2000) {
-      newErrors.message = 'El mensaje no puede exceder 2000 caracteres';
+    if (!formData.mensaje.trim()) {
+      newErrors.mensaje = 'El mensaje es obligatorio';
+    } else if (formData.mensaje.length < 10) {
+      newErrors.mensaje = 'El mensaje debe tener al menos 10 caracteres';
+    } else if (formData.mensaje.length > 2000) {
+      newErrors.mensaje = 'El mensaje no puede exceder 2000 caracteres';
     }
 
     // Validar patrones sospechosos (básico)
@@ -78,7 +100,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
       /window\./i
     ];
 
-    const combinedText = `${formData.subject} ${formData.message}`.toLowerCase();
+    const combinedText = `${formData.nombre} ${formData.apellido} ${formData.email} ${formData.mensaje}`.toLowerCase();
     for (const pattern of suspiciousPatterns) {
       if (pattern.test(combinedText)) {
         newErrors.general = 'El contenido contiene caracteres no permitidos';
@@ -144,8 +166,10 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          subject: formData.subject.trim(),
-          message: formData.message.trim(),
+          nombre: formData.nombre.trim(),
+          apellido: formData.apellido.trim(),
+          email: formData.email.trim(),
+          mensaje: formData.mensaje.trim(),
           timestamp: Date.now() // Para validación adicional en servidor
         }),
       });
@@ -228,49 +252,92 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {/* Asunto */}
+          {/* Nombre */}
           <div className={styles.inputGroup}>
-            <label htmlFor="subject" className={styles.label}>
-              Asunto *
+            <label htmlFor="nombre" className={styles.label}>
+              Nombre *
             </label>
             <input
               type="text"
-              id="subject"
-              value={formData.subject}
-              onChange={(e) => handleInputChange('subject', e.target.value)}
-              className={`${styles.input} ${errors.subject ? styles.inputError : ''}`}
-              placeholder="Describe brevemente tu consulta..."
+              id="nombre"
+              value={formData.nombre}
+              onChange={(e) => handleInputChange('nombre', e.target.value)}
+              className={`${styles.input} ${errors.nombre ? styles.inputError : ''}`}
+              placeholder="Tu nombre completo..."
+              maxLength={50}
+              disabled={isSubmitting}
+            />
+            {errors.nombre && (
+              <span className={styles.errorText}>{errors.nombre}</span>
+            )}
+            <div className={styles.charCount}>
+              {formData.nombre.length}/50
+            </div>
+          </div>
+
+          {/* Apellido */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="apellido" className={styles.label}>
+              Apellido *
+            </label>
+            <input
+              type="text"
+              id="apellido"
+              value={formData.apellido}
+              onChange={(e) => handleInputChange('apellido', e.target.value)}
+              className={`${styles.input} ${errors.apellido ? styles.inputError : ''}`}
+              placeholder="Tu apellido completo..."
+              maxLength={50}
+              disabled={isSubmitting}
+            />
+            {errors.apellido && (
+              <span className={styles.errorText}>{errors.apellido}</span>
+            )}
+            <div className={styles.charCount}>
+              {formData.apellido.length}/50
+            </div>
+          </div>
+
+          {/* Email */}
+          <div className={styles.inputGroup}>
+            <label htmlFor="email" className={styles.label}>
+              Email *
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
+              placeholder="tu@email.com"
               maxLength={100}
               disabled={isSubmitting}
             />
-            {errors.subject && (
-              <span className={styles.errorText}>{errors.subject}</span>
+            {errors.email && (
+              <span className={styles.errorText}>{errors.email}</span>
             )}
-            <div className={styles.charCount}>
-              {formData.subject.length}/100
-            </div>
           </div>
 
           {/* Mensaje */}
           <div className={styles.inputGroup}>
-            <label htmlFor="message" className={styles.label}>
+            <label htmlFor="mensaje" className={styles.label}>
               Mensaje *
             </label>
             <textarea
-              id="message"
-              value={formData.message}
-              onChange={(e) => handleInputChange('message', e.target.value)}
-              className={`${styles.textarea} ${errors.message ? styles.inputError : ''}`}
+              id="mensaje"
+              value={formData.mensaje}
+              onChange={(e) => handleInputChange('mensaje', e.target.value)}
+              className={`${styles.textarea} ${errors.mensaje ? styles.inputError : ''}`}
               placeholder="Escribe tu mensaje detallado aquí..."
               rows={6}
               maxLength={2000}
               disabled={isSubmitting}
             />
-            {errors.message && (
-              <span className={styles.errorText}>{errors.message}</span>
+            {errors.mensaje && (
+              <span className={styles.errorText}>{errors.mensaje}</span>
             )}
             <div className={styles.charCount}>
-              {formData.message.length}/2000
+              {formData.mensaje.length}/2000
             </div>
           </div>
 
@@ -296,7 +363,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={isSubmitting || !formData.subject.trim() || !formData.message.trim()}
+              disabled={isSubmitting || !formData.nombre.trim() || !formData.apellido.trim() || !formData.email.trim() || !formData.mensaje.trim()}
             >
               {isSubmitting ? (
                 <>
