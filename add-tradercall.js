@@ -57,7 +57,7 @@ async function addTraderCallMembership() {
       return;
     }
 
-    console.log(`✅ Usuario encontrado: ${user.name}`);
+    console.log(`✅ Usuario encontrado: ${user.name}`); 
 
     // Calcular fechas
     const startDate = new Date();
