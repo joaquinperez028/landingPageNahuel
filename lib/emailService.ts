@@ -867,6 +867,79 @@ export function createAdminNotificationTemplate(
 }
 
 /**
+ * Plantilla para notificaciones de contacto al admin
+ */
+export function createAdminContactNotificationTemplate(
+  contactDetails: {
+    userEmail: string;
+    userName: string;
+    userLastName: string;
+    message: string;
+    timestamp: number;
+  }
+): string {
+  const fullName = `${contactDetails.userName} ${contactDetails.userLastName}`;
+  const messageDate = new Date(contactDetails.timestamp).toLocaleString('es-AR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  
+  return createEmailTemplate({
+    title: '📧 Nuevo Mensaje de Contacto',
+    content: `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <div style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; margin-bottom: 20px;">
+          📧 Nuevo Mensaje
+        </div>
+      </div>
+      
+      <p>Se ha recibido un nuevo mensaje de contacto en la plataforma.</p>
+      
+      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin: 0 0 15px 0; color: #1a1a1a;">📋 Información del Contacto:</h3>
+        <p style="margin: 8px 0;"><strong>👤 Usuario:</strong> ${fullName}</p>
+        <p style="margin: 8px 0;"><strong>📧 Email:</strong> ${contactDetails.userEmail}</p>
+        <p style="margin: 8px 0;"><strong>📅 Fecha:</strong> ${messageDate}</p>
+      </div>
+      
+      <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; border-left: 4px solid #00ff88; margin: 20px 0;">
+        <h3 style="color: #1a1a1a; margin-top: 0;">💬 Mensaje:</h3>
+        <p style="color: #333; line-height: 1.6; margin: 0; font-style: italic; white-space: pre-wrap;">
+          "${contactDetails.message}"
+        </p>
+      </div>
+      
+      <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+        <h3 style="color: #92400e; margin-top: 0;">📋 Acciones Requeridas:</h3>
+        <ul style="color: #92400e; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Revisar el mensaje y evaluar el tipo de consulta</li>
+          <li>Responder al email del usuario en un plazo de 24 horas</li>
+          <li>Si es necesario, programar una llamada o reunión</li>
+          <li>Registrar el seguimiento en el CRM</li>
+        </ul>
+      </div>
+      
+      <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 20px 0;">
+        <h3 style="color: #1e3a8a; margin-top: 0;">🔗 Respuesta Rápida:</h3>
+        <p style="color: #1e3a8a; margin: 0 0 15px 0;">Puedes responder directamente haciendo clic en el botón:</p>
+        <a href="mailto:${contactDetails.userEmail}?subject=Re: Consulta desde LozanoNahuel.com&body=Hola ${contactDetails.userName},%0A%0AGracias por tu mensaje.%0A%0A" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+          📧 Responder al Usuario
+        </a>
+      </div>
+      
+      <p style="color: #666; font-size: 14px; text-align: center; margin-top: 30px;">
+        Puedes gestionar todos los mensajes desde el panel de administración.
+      </p>
+    `,
+    buttonText: 'Ir al Panel Admin',
+    buttonUrl: `${process.env.NEXTAUTH_URL || 'https://lozanonahuel.com'}/admin`
+  });
+}
+
+/**
  * Plantilla para emails de bienvenida
  */
 export function createWelcomeEmailTemplate({
