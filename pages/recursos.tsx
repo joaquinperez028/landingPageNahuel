@@ -453,6 +453,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const linksImportantes = [
     {
+      nombre: 'TradingView - Análisis Técnico',
+      descripcion: 'Plataforma líder para análisis técnico, gráficos en tiempo real y herramientas de trading profesionales',
+      url: 'https://es.tradingview.com/pricing/?share_your_love=XTrader95',
+      icon: '📊'
+    },
+    {
       nombre: 'Calendario Dato Inflacional USA',
       descripcion: 'Calendario oficial de datos de inflación (CPI) de Estados Unidos con fechas y expectativas del mercado',
       url: 'https://es.investing.com/economic-calendar/cpi-733',
