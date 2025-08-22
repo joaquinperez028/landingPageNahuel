@@ -57,7 +57,7 @@ const AsesoriasPage: React.FC<AsesoriasPageProps> = ({ session, asesorias, faqs 
     {
       nombre: 'Ana Martínez',
       resultado: '+127% en 8 meses',
-      comentario: 'La asesoría personalizada transformó completamente mi estrategia de inversión.',
+      comentario: 'La asesoría personalizada transformó completamente mi estrategia de inversión',
       servicio: 'Consultorio Financiero'
     },
     {
