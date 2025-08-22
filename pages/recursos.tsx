@@ -149,7 +149,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
                   <div className={styles.tradingViewCTA}>
                     <h3 className={styles.discountTitle}>¡Comienza a utilizar TradingView con 15 U$D de descuento!</h3>
                     <a 
-                      href="https://tradingview.com" 
+                      href="https://es.tradingview.com/pricing/?share_your_love=XTrader95" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className={styles.discountButton}
