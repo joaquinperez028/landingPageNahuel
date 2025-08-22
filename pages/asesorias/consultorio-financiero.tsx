@@ -99,6 +99,14 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     }));
   });
 
+  // Encontrar la fecha más temprana con turnos para posicionar el calendario
+  const earliestDate = calendarEvents.length > 0 
+    ? new Date(Math.min(...calendarEvents.map(event => event.date.getTime())))
+    : new Date();
+  
+  console.log('🎯 Fecha más temprana con turnos:', earliestDate);
+  console.log('📅 Fecha actual del calendario:', new Date());
+
   // Función para manejar la selección de fecha en el calendario
   const handleCalendarDateSelect = (date: Date, events: any[]) => {
     console.log('🎯 handleCalendarDateSelect llamado con:', { date, events });
@@ -112,11 +120,32 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       console.log('📅 Fecha convertida:', { day, month, year });
       console.log('📋 Turnos disponibles:', proximosTurnos);
       
-      // Buscar el turno que coincida con esta fecha
+      // Buscar el turno que coincida con esta fecha (más flexible)
       const turnoEncontrado = proximosTurnos.find(turno => {
         const [turnoDay, turnoMonth, turnoYear] = turno.fecha.split('/').map(Number);
-        const matches = turnoDay === day && turnoMonth === month && turnoYear === year;
-        console.log('🔍 Comparando turno:', { turno, turnoDay, turnoMonth, turnoYear, matches });
+        
+        // Coincidencia exacta
+        const exactMatch = turnoDay === day && turnoMonth === month && turnoYear === year;
+        
+        // Coincidencia por proximidad (mismo mes y año, día cercano)
+        const sameMonthYear = turnoMonth === month && turnoYear === year;
+        const dayDifference = Math.abs(turnoDay - day);
+        const nearbyMatch = sameMonthYear && dayDifference <= 2; // 2 días de diferencia
+        
+        const matches = exactMatch || nearbyMatch;
+        
+        console.log('🔍 Comparando turno:', { 
+          turno, 
+          turnoDay, 
+          turnoMonth, 
+          turnoYear, 
+          exactMatch,
+          sameMonthYear,
+          dayDifference,
+          nearbyMatch,
+          matches 
+        });
+        
         return matches;
       });
       
@@ -126,6 +155,17 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
         setSelectedTime('');
       } else {
         console.log('❌ No se encontró turno para esta fecha');
+        
+        // Mostrar información de debug adicional
+        console.log('🔍 Búsqueda de turnos cercanos:');
+        proximosTurnos.forEach(turno => {
+          const [turnoDay, turnoMonth, turnoYear] = turno.fecha.split('/').map(Number);
+          const dayDiff = Math.abs(turnoDay - day);
+          const monthDiff = Math.abs(turnoMonth - month);
+          const yearDiff = Math.abs(turnoYear - year);
+          
+          console.log(`  📅 ${turno.fecha}: día=${dayDiff}, mes=${monthDiff}, año=${yearDiff}`);
+        });
       }
     } else {
       console.log('❌ No hay eventos para esta fecha');
@@ -553,6 +593,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                           events={calendarEvents}
                           onDateSelect={handleCalendarDateSelect}
                           isAdmin={true}
+                          initialDate={earliestDate}
                         />
                       </div>
 

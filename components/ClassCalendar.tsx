@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './ClassCalendar.module.css';
 
@@ -13,14 +13,31 @@ interface ClassCalendarProps {
   events?: ClassEvent[];
   onDateSelect?: (date: Date, events: ClassEvent[]) => void;
   isAdmin?: boolean;
+  initialDate?: Date; // Nueva prop para fecha inicial
 }
 
 const ClassCalendar: React.FC<ClassCalendarProps> = ({ 
   events = [], 
   onDateSelect,
-  isAdmin = false 
+  isAdmin = false,
+  initialDate
 }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(initialDate || new Date());
+
+  // Efecto para posicionar automáticamente el calendario en la fecha más temprana con eventos
+  useEffect(() => {
+    if (events.length > 0 && !initialDate) {
+      const earliestEvent = events.reduce((earliest, current) => 
+        current.date < earliest.date ? current : earliest
+      );
+      
+      if (earliestEvent.date) {
+        const earliestDate = new Date(earliestEvent.date);
+        console.log('🎯 Posicionando calendario en fecha más temprana:', earliestDate);
+        setCurrentDate(earliestDate);
+      }
+    }
+  }, [events, initialDate]);
 
   const monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
