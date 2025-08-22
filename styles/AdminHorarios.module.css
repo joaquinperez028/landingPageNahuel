@@ -10,8 +10,15 @@
 }
 
 .header {
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 3rem;
+  gap: 2rem;
+}
+
+.headerContent {
+  flex: 1;
 }
 
 .title {
@@ -19,12 +26,15 @@
   color: #fff;
   margin-bottom: 0.5rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .subtitle {
   font-size: 1.1rem;
   color: #b0b0b0;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 .addButton {
@@ -341,8 +351,20 @@
 }
 
 @media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  
   .title {
     font-size: 2rem;
+    justify-content: center;
+  }
+  
+  .addButton {
+    align-self: center;
   }
   
   .formGrid {

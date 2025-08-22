@@ -246,12 +246,13 @@ const AdminAsesoriasHorariosPage = () => {
 
           {/* Formulario */}
           {showForm && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className={styles.formContainer}
-            >
+            <div className={styles.formOverlay}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className={styles.formContainer}
+              >
               <div className={styles.formHeader}>
                 <h3>{editingSchedule ? 'Editar Horario' : 'Nuevo Horario'}</h3>
                 <button onClick={resetForm} className={styles.closeButton}>
@@ -381,7 +382,8 @@ const AdminAsesoriasHorariosPage = () => {
                   </button>
                 </div>
               </form>
-            </motion.div>
+              </motion.div>
+            </div>
           )}
 
           {/* Lista de horarios */}
