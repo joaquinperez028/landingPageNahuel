@@ -235,6 +235,44 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
     }));
   };
 
+  const handleAutoUpdateMetrics = async () => {
+    setIsLoading(true);
+    
+    try {
+      console.log('🔄 Calculando métricas automáticas...');
+      
+      const response = await fetch('/api/admin/calculate-metrics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Actualizar las métricas con los datos calculados
+        setConfig(prev => ({
+          ...prev,
+          statistics: {
+            ...prev.statistics,
+            stats: data.metrics
+          }
+        }));
+        
+        toast.success('Métricas actualizadas con datos reales de la base de datos');
+        console.log('📊 Resumen de métricas:', data.summary);
+      } else {
+        toast.error(data.error || 'Error al calcular métricas automáticas');
+      }
+    } catch (error) {
+      console.error('Error al calcular métricas:', error);
+      toast.error('Error al calcular métricas automáticas');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const toggleEntrenamientoDestacado = (entrenamientoId: string) => {
     setConfig(prev => ({
       ...prev,
@@ -434,7 +472,18 @@ export default function AdminSiteConfig({ session, initialConfig, entrenamientos
 
               <div className={styles.statsSection}>
                 <div className={styles.statsList}>
-                  <h3>Métricas Configuradas</h3>
+                  <div className={styles.statsHeader}>
+                    <h3>Métricas Configuradas</h3>
+                    <button
+                      type="button"
+                      onClick={handleAutoUpdateMetrics}
+                      disabled={isLoading}
+                      className={styles.autoUpdateButton}
+                    >
+                      <BarChart3 size={16} />
+                      {isLoading ? 'Calculando...' : 'Actualizar con Datos Reales'}
+                    </button>
+                  </div>
                   {config.statistics.stats.sort((a, b) => a.order - b.order).map((stat, index) => (
                     <div key={stat.id} className={styles.statItem}>
                       <div className={styles.statHeader}>
