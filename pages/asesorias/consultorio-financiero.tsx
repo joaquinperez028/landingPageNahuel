@@ -33,6 +33,7 @@ import { useBookings } from '@/hooks/useBookings';
 import YouTubePlayer from '@/components/YouTubePlayer';
 import ClassCalendar from '@/components/ClassCalendar';
 import { usePricing } from '@/hooks/usePricing';
+import BackgroundVideo from '@/components/BackgroundVideo';
 
 interface Testimonio {
   nombre: string;
@@ -524,6 +525,15 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       <main className={styles.main}>
         {/* Hero Section */}
         <section className={styles.heroSection}>
+          <BackgroundVideo 
+            videoSrc="/videos/Diseño Web-LozanoNahuel-Asesorías-ConsultorioFinanciero.mp4"
+            posterSrc="/images/trading-office.jpg"
+            autoPlay={true}
+            muted={true}
+            loop={true}
+            showControls={false}
+            className={styles.backgroundVideo}
+          />
           <div className={styles.heroOverlay}></div>
           <div className={styles.heroContent}>
             <div className={styles.heroText}>

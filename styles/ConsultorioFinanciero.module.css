@@ -12,12 +12,21 @@
 /* Hero Section */
 .heroSection {
   min-height: 100vh;
-  background: url('/images/trading-office.jpg') center center/cover no-repeat;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem 0;
+  overflow: hidden;
+}
+
+.backgroundVideo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
 .heroOverlay {
@@ -32,7 +41,7 @@
 
 .heroContent {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -1859,5 +1868,51 @@
   
   .videoPlayer {
     max-width: 100%;
+  }
+}
+
+/* Responsive para Video de Fondo */
+@media (max-width: 768px) {
+  .heroSection {
+    min-height: 80vh;
+    padding: 1rem 0;
+  }
+  
+  .backgroundVideo {
+    object-fit: cover;
+  }
+  
+  .heroContent {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0 1rem;
+    text-align: center;
+  }
+  
+  .heroTitle {
+    font-size: 2.5rem;
+  }
+  
+  .heroDescription {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroSection {
+    min-height: 70vh;
+  }
+  
+  .heroTitle {
+    font-size: 2rem;
+  }
+  
+  .heroDescription {
+    font-size: 1rem;
+  }
+  
+  .heroButtonGold {
+    padding: 1rem 2rem;
+    font-size: 1rem;
   }
 } 
