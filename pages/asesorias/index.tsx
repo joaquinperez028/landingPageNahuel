@@ -12,7 +12,10 @@ import {
   TrendingUp,
   Shield,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Users,
+  Globe,
+  FileText
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -36,6 +39,9 @@ interface AsesoriasPageProps {
     href: string;
     icon: string;
     badge?: string;
+    videoId?: string;
+    videoTitle?: string;
+    infoPoints?: string[];
   }>;
   faqs: Array<{
     question: string;
@@ -176,63 +182,87 @@ const AsesoriasPage: React.FC<AsesoriasPageProps> = ({ session, asesorias, faqs 
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.2 }}
                 >
-                  {asesoria.badge && (
-                    <div className={styles.asesoriaBadge}>
-                      {asesoria.badge}
-                    </div>
-                  )}
-                  
-                  <div className={styles.asesoriaIcon}>
-                    <span>{asesoria.icon}</span>
+                  {/* Video Promocional */}
+                  <div className={styles.asesoriaVideo}>
+                    <YouTubePlayer
+                      videoId={asesoria.videoId || "dQw4w9WgXcQ"}
+                      title={asesoria.videoTitle || `${asesoria.title} - Video Promocional`}
+                      autoplay={false}
+                      muted={true}
+                      loop={false}
+                      className={styles.videoPlayer}
+                    />
                   </div>
-                  
-                  <div className={styles.asesoriaContent}>
-                    <div className={styles.asesoriaHeader}>
-                      <h3 className={styles.asesoriaTitle}>{asesoria.title}</h3>
-                      <span className={styles.asesoriaSubtitle}>{asesoria.subtitle}</span>
-                    </div>
-                    
+
+                  {/* Información de la Asesoría */}
+                  <div className={styles.asesoriaInfo}>
+                    <h3 className={styles.asesoriaTitle}>{asesoria.title}</h3>
                     <p className={styles.asesoriaDescription}>{asesoria.description}</p>
-                    
-                    <div className={styles.asesoriaMeta}>
-                      <div className={styles.metaItem}>
-                        <Clock size={16} />
+                  </div>
+
+                  {/* Contenedor con Información de la Imagen */}
+                  <div className={styles.asesoriaInfoContainer}>
+                    <div className={styles.infoGrid}>
+                      <div className={styles.infoItem}>
+                        <Clock size={20} />
                         <span>{asesoria.duration}</span>
                       </div>
-                      <div className={styles.metaItem}>
-                        <Calendar size={16} />
-                        <span>{asesoria.modality}</span>
+                      <div className={styles.infoItem}>
+                        <Users size={20} />
+                        <span>Reunión individual</span>
+                      </div>
+                      <div className={styles.infoItem}>
+                        <Globe size={20} />
+                        <span>Modalidad virtual y en vivo</span>
+                      </div>
+                      <div className={styles.infoItem}>
+                        <FileText size={20} />
+                        <span>Entregable personalizado</span>
                       </div>
                     </div>
-                    
-                    <div className={styles.asesoriaFeatures}>
-                      <h4>Incluye:</h4>
-                      {asesoria.features.map((feature, idx) => (
-                        <div key={idx} className={styles.feature}>
-                          <CheckCircle size={16} />
-                          <span>{feature}</span>
-                        </div>
-                      ))}
+                  </div>
+
+                  {/* 5 Puntos de Información */}
+                  <div className={styles.asesoriaPoints}>
+                    <h4>Características Destacadas:</h4>
+                    <div className={styles.pointsList}>
+                      {asesoria.infoPoints && asesoria.infoPoints.length > 0 ? (
+                        asesoria.infoPoints.map((point, idx) => (
+                          <div key={idx} className={styles.point}>
+                            <CheckCircle size={16} />
+                            <span>{point}</span>
+                          </div>
+                        ))
+                      ) : (
+                        // Puntos por defecto si no hay configuración
+                        asesoria.features.slice(0, 5).map((feature, idx) => (
+                          <div key={idx} className={styles.point}>
+                            <CheckCircle size={16} />
+                            <span>{feature}</span>
+                          </div>
+                        ))
+                      )}
                     </div>
-                    
-                    <div className={styles.asesoriaFooter}>
-                      <div className={styles.asesoriaPrice}>
-                        <span className={styles.priceLabel}>Desde</span>
-                                <span className={styles.price}>
-          {pricingLoading ? (
-            'Cargando...'
-          ) : pricing ? (
-            `${pricing.currency === 'ARS' ? '$' : '$'}${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}`
-          ) : (
-            `$${asesoria.price} ARS`
-          )}
-        </span>
-                      </div>
-                      <Link href={asesoria.href} className={styles.asesoriaButton}>
-                        Solicitar Asesoría
-                        <ArrowRight size={18} />
-                      </Link>
+                  </div>
+
+                  {/* Footer con Precio y Botón */}
+                  <div className={styles.asesoriaFooter}>
+                    <div className={styles.asesoriaPrice}>
+                      <span className={styles.priceLabel}>Desde</span>
+                      <span className={styles.price}>
+                        {pricingLoading ? (
+                          'Cargando...'
+                        ) : pricing ? (
+                          `${pricing.currency === 'ARS' ? '$' : '$'}${pricing.asesorias.consultorioFinanciero.price} ${pricing.currency}`
+                        ) : (
+                          `$${asesoria.price} ARS`
+                        )}
+                      </span>
                     </div>
+                    <Link href={asesoria.href} className={styles.asesoriaButton}>
+                      Solicitar Asesoría
+                      <ArrowRight size={18} />
+                    </Link>
                   </div>
                 </motion.div>
               ))}
@@ -344,7 +374,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         description: 'Sesión one-on-one para analizar tu situación financiera actual y diseñar una estrategia de inversión personalizada según tu perfil de riesgo y objetivos.',
         duration: '60 minutos',
         modality: 'Videollamada',
-                      price: '50000',
+        price: '50000',
         features: [
           'Análisis completo de tu portafolio actual',
           'Estrategia personalizada según tu perfil',
@@ -355,9 +385,46 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         ],
         href: '/asesorias/consultorio-financiero',
         icon: '🩺',
-        badge: 'Más Solicitado'
+        badge: 'Más Solicitado',
+        videoId: 'dQw4w9WgXcQ',
+        videoTitle: 'Consultorio Financiero - Video Promocional',
+        infoPoints: [
+          'Análisis completo de tu portafolio actual',
+          'Estrategia personalizada según tu perfil',
+          'Recomendaciones de activos específicos',
+          'Plan de acción con objetivos claros',
+          'Material educativo personalizado'
+        ]
       },
-
+      {
+        id: 'cuenta-asesorada',
+        title: 'Cuenta Asesorada',
+        subtitle: 'Gestión Profesional de Portafolio',
+        description: 'Servicio completo de gestión de inversiones donde nuestros expertos administran tu portafolio de forma profesional, con seguimiento continuo y ajustes estratégicos.',
+        duration: 'Servicio continuo',
+        modality: 'Gestión activa',
+        price: '200000',
+        features: [
+          'Gestión profesional completa del portafolio',
+          'Análisis continuo de mercados y oportunidades',
+          'Ajustes estratégicos automáticos',
+          'Reportes mensuales detallados',
+          'Acceso 24/7 a plataforma de seguimiento',
+          'Consultoría personalizada ilimitada'
+        ],
+        href: '/asesorias/cuenta-asesorada',
+        icon: '💼',
+        badge: 'Premium',
+        videoId: 'dQw4w9WgXcQ',
+        videoTitle: 'Cuenta Asesorada - Video Promocional',
+        infoPoints: [
+          'Gestión profesional completa del portafolio',
+          'Análisis continuo de mercados y oportunidades',
+          'Ajustes estratégicos automáticos',
+          'Reportes mensuales detallados',
+          'Acceso 24/7 a plataforma de seguimiento'
+        ]
+      }
     ];
 
     const faqs = [
