@@ -76,7 +76,7 @@
   border-radius: 1rem;
   padding: 2rem;
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -109,88 +109,91 @@
   color: #fff;
 }
 
-.form {
-  color: #fff;
-}
-
-.formGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+.formContent {
   margin-bottom: 2rem;
 }
 
-.formGroup {
-  display: flex;
-  flex-direction: column;
+.section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0.75rem;
 }
 
-.formGroup label {
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #e0e0e0;
-}
-
-.formGroup select,
-.formGroup input {
-  padding: 0.75rem;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 0.5rem;
+.section h4 {
   color: #fff;
-  font-size: 1rem;
-}
-
-.formGroup select:focus,
-.formGroup input:focus {
-  outline: none;
-  border-color: #00ff88;
-  box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
-  background: rgba(0, 0, 0, 0.6);
-}
-
-.formGroup select {
-  background: rgba(0, 0, 0, 0.6);
-  cursor: pointer;
-}
-
-.formGroup select option {
-  background: #1a1a1a;
-  color: #fff;
-  padding: 0.5rem;
-}
-
-.checkboxLabel {
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  cursor: pointer;
 }
 
-.checkboxLabel input[type="checkbox"] {
-  width: auto;
-  margin: 0;
+.sectionDescription {
+  color: #b0b0b0;
+  font-size: 0.875rem;
+  margin: 0 0 1rem 0;
+}
+
+.summary {
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.summary h4 {
+  color: #00ff88;
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+}
+
+.summaryContent {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+}
+
+.summaryItem span:first-child {
+  color: #b0b0b0;
+  font-size: 0.875rem;
+}
+
+.summaryItem span:last-child {
+  color: #fff;
+  font-weight: 600;
 }
 
 .formActions {
   display: flex;
-  gap: 1rem;
   justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cancelButton {
   padding: 0.75rem 1.5rem;
-  background: transparent;
-  color: #b0b0b0;
+  background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .cancelButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .saveButton {
@@ -207,114 +210,149 @@
   transition: all 0.3s ease;
 }
 
-.saveButton:hover {
+.saveButton:hover:not(:disabled) {
   background: #00cc6a;
+  transform: translateY(-1px);
 }
 
-/* Lista de horarios */
+.saveButton:disabled {
+  background: #666;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Lista de Horarios */
 .schedulesContainer {
-  margin-top: 2rem;
+  margin-top: 3rem;
+}
+
+.schedulesHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.schedulesHeader h3 {
+  color: #fff;
+  font-size: 1.75rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.schedulesHeader p {
+  color: #b0b0b0;
+  font-size: 1rem;
+  margin: 0;
 }
 
 .loading {
   text-align: center;
-  color: #00ff88;
+  color: #b0b0b0;
   font-size: 1.1rem;
-  padding: 2rem;
+  padding: 3rem;
 }
 
 .empty {
   text-align: center;
   color: #b0b0b0;
-  padding: 3rem 1rem;
+  padding: 3rem;
 }
 
 .empty svg {
-  color: #666;
   margin-bottom: 1rem;
+  opacity: 0.5;
 }
 
 .empty h3 {
   color: #fff;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty p {
+  margin: 0;
+  opacity: 0.7;
 }
 
 .schedulesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.5rem;
 }
 
 .scheduleCard {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 0.8rem;
+  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+  border-radius: 1rem;
   padding: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .scheduleCard:hover {
-  background: rgba(255, 255, 255, 0.08);
   transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
-.scheduleCard.inactive {
+.scheduleCard.unavailable {
   opacity: 0.6;
-  border-color: rgba(255, 107, 107, 0.3);
+  background: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
+}
+
+.scheduleCard.booked {
+  background: linear-gradient(135deg, #2d4a2d 0%, #1a2d1a 100%);
+  border-color: rgba(0, 255, 136, 0.3);
 }
 
 .scheduleHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 1rem;
 }
 
-.scheduleDay {
+.scheduleDate {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #00ff88;
+  color: #fff;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
-.scheduleActions {
+.scheduleStatus {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.editButton,
-.deleteButton {
-  padding: 0.5rem;
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.editButton {
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
-}
-
-.editButton:hover {
-  background: rgba(59, 130, 246, 0.3);
-}
-
-.deleteButton {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-}
-
-.deleteButton:hover {
-  background: rgba(239, 68, 68, 0.3);
-}
-
-.scheduleInfo {
+.statusAvailable {
+  color: #00ff88;
+  font-size: 0.875rem;
+  font-weight: 500;
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.statusBooked {
+  color: #00ff88;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.statusUnavailable {
+  color: #ff6b6b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.scheduleDetails {
+  margin-bottom: 1.5rem;
 }
 
 .scheduleTime {
@@ -322,34 +360,47 @@
   align-items: center;
   gap: 0.5rem;
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
-.scheduleDuration,
-.scheduleType {
-  color: #e0e0e0;
-  font-size: 0.9rem;
+.scheduleDuration {
+  color: #b0b0b0;
+  font-size: 0.875rem;
 }
 
-.scheduleStatus {
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  width: fit-content;
+.scheduleActions {
+  display: flex;
+  justify-content: flex-end;
 }
 
-.scheduleStatus.active {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+.deleteButton {
+  background: rgba(255, 107, 107, 0.2);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.scheduleStatus.inactive {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+.deleteButton:hover:not(:disabled) {
+  background: rgba(255, 107, 107, 0.3);
+  border-color: rgba(255, 107, 107, 0.5);
+  transform: scale(1.05);
 }
 
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -367,21 +418,40 @@
     align-self: center;
   }
   
-  .formGrid {
+  .formContainer {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .section {
+    padding: 1rem;
+  }
+  
+  .summaryContent {
     grid-template-columns: 1fr;
+  }
+  
+  .schedulesGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .scheduleCard {
+    padding: 1rem;
+  }
+  
+  .scheduleHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
   
   .formActions {
     flex-direction: column;
   }
   
-  .schedulesGrid {
-    grid-template-columns: 1fr;
-  }
-  
-  .scheduleHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+  .saveButton,
+  .cancelButton {
+    justify-content: center;
   }
 } 

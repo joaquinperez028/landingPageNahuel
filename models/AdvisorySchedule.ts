@@ -1,70 +1,49 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IAdvisorySchedule extends Document {
-  dayOfWeek: number; // 0=Domingo, 1=Lunes, ..., 6=Sábado
-  hour: number; // 0-23
-  minute: number; // 0-59
-  duration: number; // en minutos (típicamente 60 para asesorías)
-  type: 'ConsultorioFinanciero' | 'CuentaAsesorada'; // Tipo de asesoría
-  price: number; // Precio de la asesoría
-  maxBookingsPerDay?: number; // Máximo de reservas por día
-  activo: boolean;
+  date: Date; // Fecha específica (YYYY-MM-DD)
+  time: string; // Hora en formato "HH:MM" (ej: "14:00")
+  duration: number; // Duración en minutos (por defecto 60)
+  isAvailable: boolean; // Si el horario está disponible para reservar
+  isBooked: boolean; // Si ya fue reservado por un usuario
   createdAt: Date;
   updatedAt: Date;
 }
 
 const AdvisoryScheduleSchema: Schema = new Schema({
-  dayOfWeek: {
-    type: Number,
+  date: {
+    type: Date,
     required: true,
-    min: 0,
-    max: 6
+    index: true
   },
-  hour: {
-    type: Number,
+  time: {
+    type: String,
     required: true,
-    min: 0,
-    max: 23
-  },
-  minute: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 59,
-    default: 0
+    match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ // Formato HH:MM
   },
   duration: {
     type: Number,
     required: true,
+    default: 60, // 1 hora por defecto
     min: 30,
-    max: 180,
-    default: 60 // 1 hora por defecto para asesorías
+    max: 180
   },
-  type: {
-    type: String,
-    enum: ['ConsultorioFinanciero', 'CuentaAsesorada'],
-    required: true
-  },
-  price: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  maxBookingsPerDay: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 3 // Máximo 3 asesorías por día por defecto
-  },
-  activo: {
+  isAvailable: {
     type: Boolean,
     default: true
+  },
+  isBooked: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
 });
 
-// Índice compuesto para evitar duplicados
-AdvisoryScheduleSchema.index({ dayOfWeek: 1, hour: 1, minute: 1, type: 1 }, { unique: true });
+// Índice compuesto para asegurar que cada fecha+hora sea única
+AdvisoryScheduleSchema.index({ date: 1, time: 1 }, { unique: true });
+
+// Índice para consultas por disponibilidad
+AdvisoryScheduleSchema.index({ date: 1, isAvailable: 1, isBooked: 1 });
 
 export default mongoose.models.AdvisorySchedule || mongoose.model<IAdvisorySchedule>('AdvisorySchedule', AdvisoryScheduleSchema); 

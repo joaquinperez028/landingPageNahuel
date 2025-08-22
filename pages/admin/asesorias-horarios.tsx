@@ -6,75 +6,46 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { 
   Plus, 
-  Edit, 
   Trash2, 
   Clock, 
   Calendar,
   Save,
   X,
   AlertCircle,
-  DollarSign,
-  Users
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import DateRangePicker from '@/components/DateRangePicker';
+import TimeSlotManager from '@/components/TimeSlotManager';
 import styles from '@/styles/AdminHorarios.module.css';
 
 interface AdvisorySchedule {
   _id: string;
-  dayOfWeek: number;
-  hour: number;
-  minute: number;
+  date: string;
+  time: string;
   duration: number;
-  type: 'ConsultorioFinanciero' | 'CuentaAsesorada';
-  price: number;
-  maxBookingsPerDay: number;
-  activo: boolean;
+  isAvailable: boolean;
+  isBooked: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-interface NewAdvisorySchedule {
-  dayOfWeek: number;
-  hour: number;
-  minute: number;
+interface TimeSlot {
+  id: string;
+  time: string;
   duration: number;
-  type: 'ConsultorioFinanciero' | 'CuentaAsesorada';
-  price: number;
-  maxBookingsPerDay: number;
-  activo: boolean;
 }
 
 const AdminAsesoriasHorariosPage = () => {
   const [schedules, setSchedules] = useState<AdvisorySchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editingSchedule, setEditingSchedule] = useState<AdvisorySchedule | null>(null);
-  const [formData, setFormData] = useState<NewAdvisorySchedule>({
-    dayOfWeek: 1,
-    hour: 14,
-    minute: 0,
-    duration: 60,
-    type: 'ConsultorioFinanciero',
-    price: 199,
-    maxBookingsPerDay: 3,
-    activo: true
-  });
-
-  const daysOfWeek = [
-    { value: 0, label: 'Domingo' },
-    { value: 1, label: 'Lunes' },
-    { value: 2, label: 'Martes' },
-    { value: 3, label: 'Miércoles' },
-    { value: 4, label: 'Jueves' },
-    { value: 5, label: 'Viernes' },
-    { value: 6, label: 'Sábado' }
-  ];
-
-  const advisoryTypes = [
-    { value: 'ConsultorioFinanciero', label: 'Consultorio Financiero', defaultPrice: 199 },
-    { value: 'CuentaAsesorada', label: 'Cuenta Asesorada', defaultPrice: 999 }
-  ];
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     loadSchedules();
@@ -99,52 +70,88 @@ const AdminAsesoriasHorariosPage = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleCreateSchedules = async () => {
+    if (!startDate || !endDate || timeSlots.length === 0) {
+      toast.error('Por favor selecciona un rango de fechas y al menos un horario');
+      return;
+    }
+
+    setIsCreating(true);
+    let createdCount = 0;
+    let errorCount = 0;
+
     try {
-      const url = editingSchedule 
-        ? `/api/asesorias/schedule/${editingSchedule._id}`
-        : '/api/asesorias/schedule';
-      
-      const method = editingSchedule ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      // Generar todas las fechas en el rango
+      const dates = [];
+      const currentDate = new Date(startDate);
+      const lastDate = new Date(endDate);
 
-      const data = await response.json();
+      while (currentDate <= lastDate) {
+        // Solo incluir días de lunes a viernes (1-5)
+        if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
+          dates.push(new Date(currentDate));
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
 
-      if (response.ok) {
-        toast.success(editingSchedule ? 'Horario actualizado' : 'Horario creado');
+      // Crear horarios para cada fecha y cada slot de tiempo
+      for (const date of dates) {
+        for (const timeSlot of timeSlots) {
+          try {
+            const scheduleData = {
+              date: date.toISOString().split('T')[0], // Formato YYYY-MM-DD
+              time: timeSlot.time,
+              duration: timeSlot.duration,
+              isAvailable: true,
+              isBooked: false
+            };
+
+            const response = await fetch('/api/asesorias/schedule', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(scheduleData),
+            });
+
+            if (response.ok) {
+              createdCount++;
+            } else {
+              const data = await response.json();
+              if (response.status === 409) {
+                // Horario ya existe, no es un error
+                console.log(`Horario ya existe para ${date.toDateString()} a las ${timeSlot.time}`);
+              } else {
+                errorCount++;
+                console.error('Error al crear horario:', data.error);
+              }
+            }
+          } catch (error) {
+            errorCount++;
+            console.error('Error al crear horario:', error);
+          }
+        }
+      }
+
+      if (createdCount > 0) {
+        toast.success(`Se crearon ${createdCount} horarios exitosamente`);
+        if (errorCount > 0) {
+          toast.error(`${errorCount} horarios no se pudieron crear`);
+        }
         await loadSchedules();
         resetForm();
+      } else if (errorCount > 0) {
+        toast.error('No se pudo crear ningún horario');
       } else {
-        toast.error(data.error || 'Error al guardar horario');
+        toast.success('Los horarios ya existían para las fechas seleccionadas');
       }
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al guardar horario.');
-    }
-  };
 
-  const handleEdit = (schedule: AdvisorySchedule) => {
-    setEditingSchedule(schedule);
-    setFormData({
-      dayOfWeek: schedule.dayOfWeek,
-      hour: schedule.hour,
-      minute: schedule.minute,
-      duration: schedule.duration,
-      type: schedule.type,
-      price: schedule.price,
-      maxBookingsPerDay: schedule.maxBookingsPerDay,
-      activo: schedule.activo
-    });
-    setShowForm(true);
+    } catch (error) {
+      console.error('Error general:', error);
+      toast.error('Error al crear los horarios');
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -171,31 +178,28 @@ const AdminAsesoriasHorariosPage = () => {
   };
 
   const resetForm = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setTimeSlots([]);
     setShowForm(false);
-    setEditingSchedule(null);
-    setFormData({
-      dayOfWeek: 1,
-      hour: 14,
-      minute: 0,
-      duration: 60,
-      type: 'ConsultorioFinanciero',
-      price: 199,
-      maxBookingsPerDay: 3,
-      activo: true
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
-  const handleTypeChange = (type: 'ConsultorioFinanciero' | 'CuentaAsesorada') => {
-    const selectedType = advisoryTypes.find(t => t.value === type);
-    setFormData({
-      ...formData,
-      type,
-      price: selectedType?.defaultPrice || 199
-    });
-  };
-
-  const formatTime = (hour: number, minute: number) => {
-    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
   };
 
   const formatDuration = (minutes: number) => {
@@ -232,7 +236,7 @@ const AdminAsesoriasHorariosPage = () => {
                 Gestión de Horarios de Asesorías
               </h1>
               <p className={styles.subtitle}>
-                Configura los horarios disponibles para asesorías financieras
+                Configura horarios disponibles para consultoría financiera
               </p>
             </div>
             <button
@@ -240,11 +244,11 @@ const AdminAsesoriasHorariosPage = () => {
               className={styles.addButton}
             >
               <Plus size={20} />
-              Nuevo Horario
+              Crear Horarios
             </button>
           </motion.div>
 
-          {/* Formulario */}
+          {/* Formulario de Creación */}
           {showForm && (
             <div className={styles.formOverlay}>
               <motion.div
@@ -253,148 +257,95 @@ const AdminAsesoriasHorariosPage = () => {
                 exit={{ opacity: 0, scale: 0.9 }}
                 className={styles.formContainer}
               >
-              <div className={styles.formHeader}>
-                <h3>{editingSchedule ? 'Editar Horario' : 'Nuevo Horario'}</h3>
-                <button onClick={resetForm} className={styles.closeButton}>
-                  <X size={20} />
-                </button>
-              </div>
+                <div className={styles.formHeader}>
+                  <h3>Crear Horarios de Asesoría</h3>
+                  <button onClick={resetForm} className={styles.closeButton}>
+                    <X size={20} />
+                  </button>
+                </div>
 
-              <form onSubmit={handleSubmit} className={styles.form}>
-                <div className={styles.formGrid}>
-                  <div className={styles.formGroup}>
-                    <label>Tipo de Asesoría</label>
-                    <select
-                      value={formData.type}
-                      onChange={(e) => handleTypeChange(e.target.value as 'ConsultorioFinanciero' | 'CuentaAsesorada')}
-                      required
-                    >
-                      {advisoryTypes.map(type => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label>Día de la semana</label>
-                    <select
-                      value={formData.dayOfWeek}
-                      onChange={(e) => setFormData({...formData, dayOfWeek: parseInt(e.target.value)})}
-                      required
-                    >
-                      {daysOfWeek.map(day => (
-                        <option key={day.value} value={day.value}>
-                          {day.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label>Hora</label>
-                    <select
-                      value={formData.hour}
-                      onChange={(e) => setFormData({...formData, hour: parseInt(e.target.value)})}
-                      required
-                    >
-                      {Array.from({length: 24}, (_, i) => (
-                        <option key={i} value={i}>
-                          {i.toString().padStart(2, '0')}:00
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label>Minutos</label>
-                    <select
-                      value={formData.minute}
-                      onChange={(e) => setFormData({...formData, minute: parseInt(e.target.value)})}
-                      required
-                    >
-                      <option value={0}>00</option>
-                      <option value={30}>30</option>
-                    </select>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label>Duración (minutos)</label>
-                    <select
-                      value={formData.duration}
-                      onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value)})}
-                      required
-                    >
-                      <option value={30}>30 minutos</option>
-                      <option value={60}>1 hora</option>
-                      <option value={90}>1.5 horas</option>
-                      <option value={120}>2 horas</option>
-                    </select>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label>Precio (ARS)</label>
-                    <input
-                      type="number"
-                      value={formData.price}
-                      onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value)})}
-                      min="0"
-                      step="0.01"
-                      required
+                <div className={styles.formContent}>
+                  {/* Selección de Rango de Fechas */}
+                  <div className={styles.section}>
+                    <h4>1. Selecciona el Rango de Fechas</h4>
+                    <p className={styles.sectionDescription}>
+                      Solo se crearán horarios para días laborables (lunes a viernes)
+                    </p>
+                    <DateRangePicker
+                      startDate={startDate}
+                      endDate={endDate}
+                      onStartDateChange={setStartDate}
+                      onEndDateChange={setEndDate}
+                      minDate={new Date()}
+                      maxDate={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)}
                     />
                   </div>
 
-                  <div className={styles.formGroup}>
-                    <label>Máximo por día</label>
-                    <select
-                      value={formData.maxBookingsPerDay}
-                      onChange={(e) => setFormData({...formData, maxBookingsPerDay: parseInt(e.target.value)})}
-                      required
-                    >
-                      {Array.from({length: 10}, (_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {i + 1} asesoría{i > 0 ? 's' : ''}
-                        </option>
-                      ))}
-                    </select>
+                  {/* Gestión de Horarios */}
+                  <div className={styles.section}>
+                    <h4>2. Configura los Horarios</h4>
+                    <p className={styles.sectionDescription}>
+                      Agrega los horarios específicos que estarán disponibles cada día
+                    </p>
+                    <TimeSlotManager
+                      timeSlots={timeSlots}
+                      onTimeSlotsChange={setTimeSlots}
+                    />
                   </div>
 
-                  <div className={styles.formGroup}>
-                    <label className={styles.checkboxLabel}>
-                      <input
-                        type="checkbox"
-                        checked={formData.activo}
-                        onChange={(e) => setFormData({...formData, activo: e.target.checked})}
-                      />
-                      Horario activo
-                    </label>
-                  </div>
+                  {/* Resumen */}
+                  {startDate && endDate && timeSlots.length > 0 && (
+                    <div className={styles.summary}>
+                      <h4>Resumen de la Configuración</h4>
+                      <div className={styles.summaryContent}>
+                        <div className={styles.summaryItem}>
+                          <span>Rango de fechas:</span>
+                          <span>{startDate.toLocaleDateString('es-ES')} - {endDate.toLocaleDateString('es-ES')}</span>
+                        </div>
+                        <div className={styles.summaryItem}>
+                          <span>Días laborables:</span>
+                          <span>{timeSlots.length * Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) / 7 * 5)} horarios</span>
+                        </div>
+                        <div className={styles.summaryItem}>
+                          <span>Horarios por día:</span>
+                          <span>{timeSlots.length} slots</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className={styles.formActions}>
                   <button type="button" onClick={resetForm} className={styles.cancelButton}>
                     Cancelar
                   </button>
-                  <button type="submit" className={styles.saveButton}>
+                  <button
+                    onClick={handleCreateSchedules}
+                    disabled={!startDate || !endDate || timeSlots.length === 0 || isCreating}
+                    className={styles.saveButton}
+                  >
                     <Save size={16} />
-                    {editingSchedule ? 'Actualizar' : 'Crear'} Horario
+                    {isCreating ? 'Creando...' : 'Crear Horarios'}
                   </button>
                 </div>
-              </form>
               </motion.div>
             </div>
           )}
 
-          {/* Lista de horarios */}
+          {/* Lista de Horarios Existentes */}
           <div className={styles.schedulesContainer}>
+            <div className={styles.schedulesHeader}>
+              <h3>Horarios Configurados</h3>
+              <p>Horarios existentes en el sistema</p>
+            </div>
+
             {loading ? (
               <div className={styles.loading}>Cargando horarios...</div>
             ) : schedules.length === 0 ? (
               <div className={styles.empty}>
                 <AlertCircle size={48} />
                 <h3>No hay horarios configurados</h3>
-                <p>Agrega el primer horario de asesoría para comenzar</p>
+                <p>Usa el botón "Crear Horarios" para agregar el primer conjunto de horarios</p>
               </div>
             ) : (
               <div className={styles.schedulesGrid}>
@@ -403,57 +354,53 @@ const AdminAsesoriasHorariosPage = () => {
                     key={schedule._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`${styles.scheduleCard} ${!schedule.activo ? styles.inactive : ''}`}
+                    className={`${styles.scheduleCard} ${!schedule.isAvailable ? styles.unavailable : ''} ${schedule.isBooked ? styles.booked : ''}`}
                   >
                     <div className={styles.scheduleHeader}>
-                      <div className={styles.scheduleDay}>
+                      <div className={styles.scheduleDate}>
                         <Calendar size={20} />
-                        {daysOfWeek.find(d => d.value === schedule.dayOfWeek)?.label}
+                        {formatDate(schedule.date)}
                       </div>
-                      <div className={styles.scheduleActions}>
-                        <button
-                          onClick={() => handleEdit(schedule)}
-                          className={styles.editButton}
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(schedule._id)}
-                          className={styles.deleteButton}
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                      <div className={styles.scheduleStatus}>
+                        {schedule.isBooked ? (
+                          <span className={styles.statusBooked}>
+                            <CheckCircle size={16} />
+                            Reservado
+                          </span>
+                        ) : schedule.isAvailable ? (
+                          <span className={styles.statusAvailable}>
+                            <Clock size={16} />
+                            Disponible
+                          </span>
+                        ) : (
+                          <span className={styles.statusUnavailable}>
+                            <XCircle size={16} />
+                            No disponible
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    <div className={styles.scheduleInfo}>
+                    <div className={styles.scheduleDetails}>
                       <div className={styles.scheduleTime}>
                         <Clock size={16} />
-                        {formatTime(schedule.hour, schedule.minute)} ({formatDuration(schedule.duration)})
+                        {formatTime(schedule.time)}
                       </div>
-                      
-                      <div className={styles.scheduleType}>
-                        <span className={`${styles.typeTag} ${styles[schedule.type]}`}>
-                          {advisoryTypes.find(t => t.value === schedule.type)?.label}
-                        </span>
-                      </div>
-
-                      <div className={styles.schedulePrice}>
-                        <DollarSign size={16} />
-                        ${schedule.price} ARS
-                      </div>
-
-                      <div className={styles.scheduleCapacity}>
-                        <Users size={16} />
-                        Máx. {schedule.maxBookingsPerDay} por día
+                      <div className={styles.scheduleDuration}>
+                        Duración: {formatDuration(schedule.duration)}
                       </div>
                     </div>
 
-                    {!schedule.activo && (
-                      <div className={styles.inactiveLabel}>
-                        Inactivo
-                      </div>
-                    )}
+                    <div className={styles.scheduleActions}>
+                      <button
+                        onClick={() => handleDelete(schedule._id)}
+                        className={styles.deleteButton}
+                        disabled={schedule.isBooked}
+                        title={schedule.isBooked ? 'No se puede eliminar un horario reservado' : 'Eliminar horario'}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -473,7 +420,7 @@ export const getServerSideProps: GetServerSideProps = async (context: GetServerS
   if (!adminCheck.isAdmin) {
     return {
       redirect: {
-        destination: adminCheck.redirectTo || '/',
+        destination: '/admin',
         permanent: false,
       },
     };

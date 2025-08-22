@@ -4,22 +4,19 @@ import dbConnect from '@/lib/mongodb';
 import AdvisorySchedule from '@/models/AdvisorySchedule';
 import { z } from 'zod';
 
-// Schema de validación para actualizar horarios de asesoría
+// Schema de validación para actualizar horarios
 const updateAdvisoryScheduleSchema = z.object({
-  dayOfWeek: z.number().min(0).max(6),
-  hour: z.number().min(0).max(23),
-  minute: z.number().min(0).max(59),
-  duration: z.number().min(30).max(180),
-  type: z.enum(['ConsultorioFinanciero', 'CuentaAsesorada']),
-  price: z.number().min(0),
-  maxBookingsPerDay: z.number().min(1).max(10),
-  activo: z.boolean()
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+  duration: z.number().min(30).max(180).optional(),
+  isAvailable: z.boolean().optional(),
+  isBooked: z.boolean().optional()
 });
 
 /**
- * API para operaciones individuales de horarios de asesorías
- * PUT: Actualizar horario específico
- * DELETE: Eliminar horario específico
+ * API para gestionar horarios específicos de asesorías
+ * PUT: Actualizar horario (solo admin)
+ * DELETE: Eliminar horario (solo admin)
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   await dbConnect();
@@ -30,14 +27,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'ID de horario requerido' });
   }
 
-  // Verificar permisos de admin para todas las operaciones
-  const adminCheck = await verifyAdminAccess({ req, res } as any);
-  if (!adminCheck.isAdmin) {
-    return res.status(403).json({ error: 'Acceso denegado' });
-  }
-
   if (req.method === 'PUT') {
     try {
+      // Verificar permisos de admin
+      const adminCheck = await verifyAdminAccess({ req, res } as any);
+      if (!adminCheck.isAdmin) {
+        return res.status(403).json({ error: 'Acceso denegado' });
+      }
+
       console.log('📝 Actualizando horario de asesoría:', id);
 
       // Validar datos de entrada
@@ -50,21 +47,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const updateData = validationResult.data;
+      
+      // Si se está actualizando la fecha o hora, verificar conflictos
+      if (updateData.date || updateData.time) {
+        const currentSchedule = await AdvisorySchedule.findById(id);
+        if (!currentSchedule) {
+          return res.status(404).json({ error: 'Horario no encontrado' });
+        }
 
-      // Verificar que no haya conflictos con otros horarios
-      const conflictingSchedule = await AdvisorySchedule.findOne({
-        _id: { $ne: id },
-        dayOfWeek: updateData.dayOfWeek,
-        hour: updateData.hour,
-        minute: updateData.minute,
-        type: updateData.type,
-        activo: true
-      });
+        const newDate = updateData.date ? new Date(updateData.date) : currentSchedule.date;
+        const newTime = updateData.time || currentSchedule.time;
+        
+        newDate.setHours(0, 0, 0, 0);
 
-      if (conflictingSchedule) {
-        return res.status(409).json({ 
-          error: `Ya existe un horario activo para ${updateData.type} en ese día y hora` 
+        // Verificar que no haya conflictos con otros horarios
+        const conflictingSchedule = await AdvisorySchedule.findOne({
+          _id: { $ne: id }, // Excluir el horario actual
+          date: newDate,
+          time: newTime
         });
+
+        if (conflictingSchedule) {
+          return res.status(409).json({ 
+            error: `Ya existe otro horario para ${updateData.date || currentSchedule.date} a las ${newTime}` 
+          });
+        }
+
+        // Actualizar la fecha si se proporcionó
+        if (updateData.date) {
+          updateData.date = newDate;
+        }
       }
 
       // Actualizar el horario
@@ -75,10 +87,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       );
 
       if (!updatedSchedule) {
-        return res.status(404).json({ error: 'Horario de asesoría no encontrado' });
+        return res.status(404).json({ error: 'Horario no encontrado' });
       }
 
-      console.log('✅ Horario de asesoría actualizado exitosamente:', updatedSchedule._id);
+      console.log('✅ Horario de asesoría actualizado exitosamente');
       return res.status(200).json({ schedule: updatedSchedule });
 
     } catch (error) {
@@ -89,19 +101,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'DELETE') {
     try {
+      // Verificar permisos de admin
+      const adminCheck = await verifyAdminAccess({ req, res } as any);
+      if (!adminCheck.isAdmin) {
+        return res.status(403).json({ error: 'Acceso denegado' });
+      }
+
       console.log('🗑️ Eliminando horario de asesoría:', id);
 
       const deletedSchedule = await AdvisorySchedule.findByIdAndDelete(id);
 
       if (!deletedSchedule) {
-        return res.status(404).json({ error: 'Horario de asesoría no encontrado' });
+        return res.status(404).json({ error: 'Horario no encontrado' });
       }
 
-      console.log('✅ Horario de asesoría eliminado exitosamente:', id);
-      return res.status(200).json({ 
-        message: 'Horario de asesoría eliminado exitosamente',
-        schedule: deletedSchedule 
-      });
+      console.log('✅ Horario de asesoría eliminado exitosamente');
+      return res.status(200).json({ message: 'Horario eliminado exitosamente' });
 
     } catch (error) {
       console.error('❌ Error al eliminar horario de asesoría:', error);

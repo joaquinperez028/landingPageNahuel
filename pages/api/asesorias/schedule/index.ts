@@ -6,19 +6,16 @@ import { z } from 'zod';
 
 // Schema de validación para crear horarios de asesoría
 const createAdvisoryScheduleSchema = z.object({
-  dayOfWeek: z.number().min(0).max(6),
-  hour: z.number().min(0).max(23),
-  minute: z.number().min(0).max(59).default(0),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Formato YYYY-MM-DD
+  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/), // Formato HH:MM
   duration: z.number().min(30).max(180).default(60),
-  type: z.enum(['ConsultorioFinanciero', 'CuentaAsesorada']),
-  price: z.number().min(0),
-  maxBookingsPerDay: z.number().min(1).max(10).default(3),
-  activo: z.boolean().default(true)
+  isAvailable: z.boolean().default(true),
+  isBooked: z.boolean().default(false)
 });
 
 /**
  * API para gestionar horarios de asesorías
- * GET: Obtener todos los horarios (público)
+ * GET: Obtener todos los horarios disponibles (público)
  * POST: Crear nuevo horario (solo admin)
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -28,17 +25,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       console.log('📅 Obteniendo horarios de asesorías');
       
-      const { type } = req.query;
+      const { date, available } = req.query;
       const filter: any = {};
       
-      if (type && ['ConsultorioFinanciero', 'CuentaAsesorada'].includes(type as string)) {
-        filter.type = type;
+      // Filtrar por fecha específica si se proporciona
+      if (date && typeof date === 'string') {
+        const startDate = new Date(date);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(date);
+        endDate.setHours(23, 59, 59, 999);
+        
+        filter.date = {
+          $gte: startDate,
+          $lte: endDate
+        };
+      }
+      
+      // Filtrar solo horarios disponibles si se solicita
+      if (available === 'true') {
+        filter.isAvailable = true;
+        filter.isBooked = false;
       }
 
       const schedules = await AdvisorySchedule.find(filter)
-        .sort({ dayOfWeek: 1, hour: 1, minute: 1 });
+        .sort({ date: 1, time: 1 });
 
-      console.log(`✅ Encontrados ${schedules.length} horarios de asesoría configurados`);
+      console.log(`✅ Encontrados ${schedules.length} horarios de asesoría`);
       return res.status(200).json({ schedules });
 
     } catch (error) {
@@ -67,24 +79,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const scheduleData = validationResult.data;
+      
+      // Convertir la fecha string a Date
+      const scheduleDate = new Date(scheduleData.date);
+      scheduleDate.setHours(0, 0, 0, 0);
 
       // Verificar que no haya conflictos con horarios existentes
       const conflictingSchedule = await AdvisorySchedule.findOne({
-        dayOfWeek: scheduleData.dayOfWeek,
-        hour: scheduleData.hour,
-        minute: scheduleData.minute,
-        type: scheduleData.type,
-        activo: true
+        date: scheduleDate,
+        time: scheduleData.time
       });
 
       if (conflictingSchedule) {
         return res.status(409).json({ 
-          error: `Ya existe un horario activo para ${scheduleData.type} en ese día y hora` 
+          error: `Ya existe un horario para ${scheduleData.date} a las ${scheduleData.time}` 
         });
       }
 
       // Crear el nuevo horario
-      const newSchedule = await AdvisorySchedule.create(scheduleData);
+      const newSchedule = await AdvisorySchedule.create({
+        ...scheduleData,
+        date: scheduleDate
+      });
 
       console.log('✅ Horario de asesoría creado exitosamente:', newSchedule._id);
       return res.status(201).json({ schedule: newSchedule });
