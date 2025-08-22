@@ -38,7 +38,7 @@ const TimeSlotManager: React.FC<TimeSlotManagerProps> = ({
     };
 
     onTimeSlotsChange([...timeSlots, newSlot]);
-    setNewTime('14:00'); // Reset a un horario común
+    // No resetear el horario para permitir agregar múltiples horarios seguidos
   };
 
   const removeTimeSlot = (id: string) => {

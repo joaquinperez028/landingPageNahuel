@@ -45,6 +45,15 @@ const AdminAsesoriasHorariosPage = () => {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [isCreating, setIsCreating] = useState(false);
 
+  // Logs para debug
+  useEffect(() => {
+    console.log('🔄 Estado actualizado:');
+    console.log('📅 startDate:', startDate);
+    console.log('📅 endDate:', endDate);
+    console.log('⏰ timeSlots:', timeSlots);
+    console.log('🚫 isCreating:', isCreating);
+  }, [startDate, endDate, timeSlots, isCreating]);
+
   useEffect(() => {
     loadSchedules();
   }, []);
@@ -318,7 +327,15 @@ const AdminAsesoriasHorariosPage = () => {
                     Cancelar
                   </button>
                   <button
-                    onClick={handleCreateSchedules}
+                    onClick={() => {
+                      console.log('🔥 Botón clickeado directamente');
+                      console.log('📅 startDate:', startDate);
+                      console.log('📅 endDate:', endDate);
+                      console.log('⏰ timeSlots:', timeSlots);
+                      console.log('🚫 isCreating:', isCreating);
+                      console.log('🔒 Botón deshabilitado:', !startDate || !endDate || timeSlots.length === 0 || isCreating);
+                      handleCreateSchedules();
+                    }}
                     disabled={!startDate || !endDate || timeSlots.length === 0 || isCreating}
                     className={styles.saveButton}
                   >
