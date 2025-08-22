@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 /**
  * Hook personalizado para aplicar protecciones de seguridad
@@ -6,9 +7,21 @@ import { useEffect } from 'react';
  * - Previene combinaciones de teclas no deseadas
  * - Protege imágenes contra descarga
  * - Previene arrastrar elementos
+ * - Desactiva protecciones en páginas administrativas
  */
 export const useSecurityProtection = () => {
+  const router = useRouter();
+
   useEffect(() => {
+    // Verificar si estamos en una página administrativa
+    const isAdminPage = router.pathname.startsWith('/admin');
+    
+    // Si es página administrativa, no aplicar protecciones
+    if (isAdminPage) {
+      console.log('🔓 Página administrativa detectada - Protecciones de seguridad desactivadas');
+      return;
+    }
+
     const preventContextMenu = (e: MouseEvent) => {
       e.preventDefault();
       return false;
@@ -63,7 +76,7 @@ export const useSecurityProtection = () => {
       return false;
     };
 
-    // Aplicar protecciones globales
+    // Aplicar protecciones globales solo si no es página administrativa
     document.addEventListener('contextmenu', preventContextMenu);
     document.addEventListener('keydown', preventKeyCombinations);
     document.addEventListener('dragstart', preventDrag);
@@ -116,14 +129,16 @@ export const useSecurityProtection = () => {
       subtree: true
     });
 
-    // Limpiar event listeners al desmontar
+    // Limpiar event listeners al desmontar solo si se aplicaron
     return () => {
-      document.removeEventListener('contextmenu', preventContextMenu);
-      document.removeEventListener('keydown', preventKeyCombinations);
-      document.removeEventListener('dragstart', preventDrag);
-      document.removeEventListener('selectstart', preventSelect);
-      document.removeEventListener('mousedown', preventSelect);
-      observer.disconnect();
+      if (!isAdminPage) {
+        document.removeEventListener('contextmenu', preventContextMenu);
+        document.removeEventListener('keydown', preventKeyCombinations);
+        document.removeEventListener('dragstart', preventDrag);
+        document.removeEventListener('selectstart', preventSelect);
+        document.removeEventListener('mousedown', preventSelect);
+        observer.disconnect();
+      }
     };
   }, []);
 };
