@@ -317,7 +317,7 @@ const RecursosPage: React.FC<RecursosPageProps> = ({
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Calendario datos de Inflación USA</div>
              </a>
-             <a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
+             <a href="https://es.investing.com/central-banks/fed-rate-monitor" target="_blank" rel="noopener noreferrer" className={styles.infoTradersCard} style={{textDecoration: 'none'}}>
                <img src="/logos/bdtf.png" alt="Barómetro datos de tasa de interés FED" className={styles.infoTradersImg} />
                <div className={styles.infoTradersOverlay}></div>
                <div className={styles.infoTradersText}>Barómetro datos de tasa de interés FED</div>
