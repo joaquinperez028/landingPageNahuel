@@ -395,35 +395,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           'Plan de acción con objetivos claros',
           'Material educativo personalizado'
         ]
-      },
-      {
-        id: 'cuenta-asesorada',
-        title: 'Cuenta Asesorada',
-        subtitle: 'Gestión Profesional de Portafolio',
-        description: 'Servicio completo de gestión de inversiones donde nuestros expertos administran tu portafolio de forma profesional, con seguimiento continuo y ajustes estratégicos.',
-        duration: 'Servicio continuo',
-        modality: 'Gestión activa',
-        price: '200000',
-        features: [
-          'Gestión profesional completa del portafolio',
-          'Análisis continuo de mercados y oportunidades',
-          'Ajustes estratégicos automáticos',
-          'Reportes mensuales detallados',
-          'Acceso 24/7 a plataforma de seguimiento',
-          'Consultoría personalizada ilimitada'
-        ],
-        href: '/asesorias/cuenta-asesorada',
-        icon: '💼',
-        badge: 'Premium',
-        videoId: 'dQw4w9WgXcQ',
-        videoTitle: 'Cuenta Asesorada - Video Promocional',
-        infoPoints: [
-          'Gestión profesional completa del portafolio',
-          'Análisis continuo de mercados y oportunidades',
-          'Ajustes estratégicos automáticos',
-          'Reportes mensuales detallados',
-          'Acceso 24/7 a plataforma de seguimiento'
-        ]
       }
     ];
 
