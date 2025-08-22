@@ -134,30 +134,6 @@ const useDashboardSections = () => {
       ]
     },
     {
-      id: 'control',
-      title: 'Sala de Control',
-      description: 'Datos de seguimiento, cantidad de usuarios, actividad, control de pagos, gestión de comunidad, creación de contenido',
-      icon: <BarChart3 size={32} />,
-      color: 'from-blue-500 to-cyan-500',
-      links: [
-        { label: 'Ver Estadísticas', href: '#estadisticas', icon: <TrendingUp size={16} /> },
-        { label: 'Actividad Reciente', href: '#actividad', icon: <Activity size={16} /> },
-        { label: 'Control de Pagos', href: '/admin/billing', icon: <DollarSign size={16} /> }
-      ]
-    },
-    {
-      id: 'reservas',
-      title: 'Limpieza de Reservas',
-      description: 'Gestiona y limpia reservas problemáticas que bloquean el sistema. Elimina reservas fantasma y soluciona conflictos de horarios.',
-      icon: <Trash2 size={32} />,
-      color: 'from-red-500 to-pink-500',
-      links: [
-        { label: 'Gestión Visual', href: '/admin/limpiar-reservas', icon: <Trash2 size={16} /> },
-        { label: 'Limpieza Rápida', href: '/api/admin/limpiar-reservas-rapido', icon: <AlertTriangle size={16} /> },
-        { label: 'Ver Reservas', href: '/api/debug/reservas', icon: <Search size={16} /> }
-      ]
-    },
-    {
       id: 'users',
       title: 'Gestión de Usuarios',
       description: 'Carga y modificación de información de usuario',
@@ -179,30 +155,6 @@ const useDashboardSections = () => {
         { label: 'Horarios Asesorías', href: '/admin/asesorias-horarios', icon: <Clock size={16} /> },
         { label: 'Horarios Entrenamientos', href: '/admin/entrenamientos-fechas', icon: <Calendar size={16} /> },
         { label: 'Enviar Link de Reunión', href: '/admin/horarios', icon: <Settings size={16} /> }
-      ]
-    },
-    {
-      id: 'slots',
-      title: 'Horarios Disponibles',
-      description: 'Crea y gestiona los horarios disponibles para reservas. Sistema optimizado que evita conflictos y mantiene sincronización automática con las reservas.',
-      icon: <Clock size={32} />,
-      color: 'from-teal-500 to-cyan-500',
-      links: [
-        { label: 'Crear Horarios', href: '/admin/create-slots', icon: <Plus size={16} /> },
-        { label: 'Ver Disponibles', href: '/api/turnos/available-slots?serviceType=ConsultorioFinanciero', icon: <Calendar size={16} /> },
-        { label: 'Limpiar Reservas', href: '/admin/limpiar-reservas', icon: <Trash2 size={16} /> }
-      ]
-    },
-    {
-      id: 'courses',
-      title: 'Tarjetas de Cursos',
-      description: 'Gestiona las tarjetas de cursos personalizadas que aparecen en la sección "Cursos Destacados" del landing page. Crea, edita y administra enlaces a cursos específicos.',
-      icon: <FileText size={32} />,
-      color: 'from-emerald-500 to-teal-500',
-      links: [
-        { label: 'Gestionar Tarjetas', href: '/admin/course-cards', icon: <FileText size={16} /> },
-        { label: 'Nueva Tarjeta', href: '/admin/course-cards', icon: <Plus size={16} /> },
-        { label: 'Ver Landing', href: '/', icon: <TrendingUp size={16} /> }
       ]
     },
     {
