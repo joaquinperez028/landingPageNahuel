@@ -471,6 +471,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       icon: '🏦'
     },
     {
+      nombre: 'Barómetro FED - Monitoreo de Tasas',
+      descripcion: 'Monitoreo en tiempo real de las expectativas del mercado sobre las decisiones de tasas de interés de la Reserva Federal',
+      url: 'https://es.investing.com/central-banks/fed-rate-monitor',
+      icon: '📊'
+    },
+    {
       nombre: 'Balances Próximos',
       descripcion: 'Fechas de presentación de resultados trimestrales de empresas argentinas e internacionales',
       url: 'https://es.investing.com/earnings-calendar/',
