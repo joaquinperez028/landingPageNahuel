@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { GetServerSideProps } from 'next';
@@ -16,9 +16,97 @@ import {
   BookOpen,
   Target,
   Award,
-  PlayCircle
+  PlayCircle,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import styles from '@/styles/EntrenamientosIndex.module.css';
+
+/**
+ * Componente de carousel automático para videos de YouTube
+ */
+const YouTubeAutoCarousel: React.FC = () => {
+  const [currentVideo, setCurrentVideo] = useState(0);
+  
+  const videos = [
+    {
+      id: '0NpdClGWaY8',
+      title: 'Video 1'
+    },
+    {
+      id: 'jl3lUCIluAs',
+      title: 'Video 2'
+    },
+    {
+      id: '_AMDVmj9_jw',
+      title: 'Video 3'
+    },
+    {
+      id: 'sUktp76givU',
+      title: 'Video 4'
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentVideo((prev) => (prev + 1) % videos.length);
+    }, 5000); // Cambia cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, [videos.length]);
+
+  const goToPrevious = () => {
+    setCurrentVideo((prev) => (prev - 1 + videos.length) % videos.length);
+  };
+
+  const goToNext = () => {
+    setCurrentVideo((prev) => (prev + 1) % videos.length);
+  };
+
+  return (
+    <div className={styles.youtubeAutoCarousel}>
+      <button 
+        onClick={goToPrevious}
+        className={styles.youtubeArrowLeft}
+        aria-label="Video anterior"
+      >
+        <ChevronLeft size={24} />
+      </button>
+      
+      <div className={styles.youtubeVideoFrame}>
+        <iframe
+          src={`https://www.youtube.com/embed/${videos[currentVideo].id}`}
+          title={videos[currentVideo].title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className={styles.youtubeVideoPlayer}
+        />
+      </div>
+      
+      <button 
+        onClick={goToNext}
+        className={styles.youtubeArrowRight}
+        aria-label="Siguiente video"
+      >
+        <ChevronRight size={24} />
+      </button>
+
+      <div className={styles.youtubeIndicators}>
+        {videos.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentVideo(index)}
+            className={`${styles.youtubeIndicator} ${
+              index === currentVideo ? styles.youtubeIndicatorActive : ''
+            }`}
+            aria-label={`Ver video ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 interface EntrenamientosPageProps {
   trainings: Array<{
@@ -219,217 +307,55 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings, vide
           </div>
         </section>
 
-        {/* Entrenamientos Section */}
-        <section className={styles.trainingsSection}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Nuestros Entrenamientos
-            </motion.h2>
-            <motion.p 
-              className={styles.sectionDescription}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              Programas estructurados para llevarte desde principiante hasta trader profesional
-            </motion.p>
-            
-            <div className={styles.trainingsGrid}>
-              {trainings.map((training, index) => (
-                <motion.div 
-                  key={training.id}
-                  className={styles.trainingCard}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                >
-                  {training.badge && (
-                    <div className={styles.trainingBadge}>
-                      {training.badge}
-                    </div>
-                  )}
-                  
-                  <div className={styles.trainingImageContainer}>
-                    <img 
-                      src={training.image} 
-                      alt={training.title}
-                      className={styles.trainingImage}
-                    />
-                    <div className={styles.trainingOverlay}>
-                      <PlayCircle size={48} className={styles.playIcon} />
-                    </div>
-                  </div>
-                  
-                  <div className={styles.trainingContent}>
-                    <div className={styles.trainingHeader}>
-                      <h3 className={styles.trainingTitle}>{training.title}</h3>
-                      <span className={styles.trainingLevel}>{training.level}</span>
-                    </div>
-                    
-                    <p className={styles.trainingSubtitle}>{training.subtitle}</p>
-                    <p className={styles.trainingDescription}>{training.description}</p>
-                    
-                    <div className={styles.trainingMeta}>
-                      <div className={styles.metaItem}>
-                        <Clock size={16} />
-                        <span>{training.duration}</span>
-                      </div>
-                      <div className={styles.metaItem}>
-                        <BookOpen size={16} />
-                        <span>{training.lessons} lecciones</span>
-                      </div>
-                      <div className={styles.metaItem}>
-                        <Users size={16} />
-                        <span>{training.students} estudiantes</span>
-                      </div>
-                      <div className={styles.metaItem}>
-                        <Star size={16} />
-                        <span>{training.rating}/5</span>
-                      </div>
-                    </div>
-                    
-                    <div className={styles.trainingFeatures}>
-                      {training.features.map((feature, idx) => (
-                        <div key={idx} className={styles.feature}>
-                          <CheckCircle size={14} />
-                          <span>{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <div className={styles.trainingFooter}>
-                      <div className={styles.trainingPrice}>
-                        <span className={styles.priceLabel}>Precio:</span>
-                        <span className={styles.priceValue}>{training.price}</span>
-                      </div>
-                      <Link href={training.href} className={styles.trainingCTA}>
-                        Comenzar Ahora
-                        <ArrowRight size={16} />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Benefits Section */}
-        <section className={styles.benefitsSection}>
-          <div className={styles.container}>
-            <motion.h2 
-              className={styles.sectionTitle}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              ¿Por Qué Elegir Nuestros Entrenamientos?
-            </motion.h2>
-            
-            <div className={styles.benefitsGrid}>
-              <motion.div 
-                className={styles.benefitCard}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-              >
-                <div className={styles.benefitIcon}>
-                  <Target size={40} />
-                </div>
-                <h3 className={styles.benefitTitle}>Metodología Probada</h3>
-                <p className={styles.benefitDescription}>
-                  Estrategias testadas en mercados reales con resultados medibles y documentados.
-                </p>
-              </motion.div>
-
-              <motion.div 
-                className={styles.benefitCard}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-              >
-                <div className={styles.benefitIcon}>
-                  <Users size={40} />
-                </div>
-                <h3 className={styles.benefitTitle}>Soporte Personalizado</h3>
-                <p className={styles.benefitDescription}>
-                  Acompañamiento directo del instructor y comunidad activa de estudiantes.
-                </p>
-              </motion.div>
-
-              <motion.div 
-                className={styles.benefitCard}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
-              >
-                <div className={styles.benefitIcon}>
-                  <TrendingUp size={40} />
-                </div>
-                <h3 className={styles.benefitTitle}>Contenido Actualizado</h3>
-                <p className={styles.benefitDescription}>
-                  Material constantemente actualizado según las tendencias del mercado.
-                </p>
-              </motion.div>
-
-              <motion.div 
-                className={styles.benefitCard}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 }}
-              >
-                <div className={styles.benefitIcon}>
-                  <Award size={40} />
-                </div>
-                <h3 className={styles.benefitTitle}>Certificación Incluida</h3>
-                <p className={styles.benefitDescription}>
-                  Obtén tu certificado de finalización para validar tus conocimientos adquiridos.
-                </p>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
+        {/* Sección CTA - Fondo Oscuro */}
         <section className={styles.ctaSection}>
           <div className={styles.container}>
             <motion.div 
               className={styles.ctaContent}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
             >
               <h2 className={styles.ctaTitle}>
-                ¿Listo para Comenzar tu Transformación?
+                ¿Listo para llevar tus inversiones al siguiente nivel?
               </h2>
               <p className={styles.ctaDescription}>
-                Únete a más de 1,200 estudiantes que ya están aplicando estas estrategias exitosamente.
+                Únete a nuestra comunidad y comienza a construir tu libertad financiera
               </p>
-              <div className={styles.ctaButtons}>
-                <Link href="/entrenamientos/swing-trading" className={styles.ctaButton}>
-                  <BookOpen size={20} />
-                                      Swing Trading
-                  <ArrowRight size={20} />
-                </Link>
-                <Link href="/entrenamientos/day-trading" className={styles.ctaButton}>
-                  <TrendingUp size={20} />
-                  Day Trading Avanzado
-                  <ArrowRight size={20} />
-                </Link>
+              <Link href="/entrenamientos/swing-trading" className={styles.ctaButton}>
+                Swing Trading <ArrowRight size={20} />
+              </Link>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Sección YouTube Community - Fondo Morado */}
+        <section className={styles.youtubeSection}>
+          <div className={styles.container}>
+            <motion.div 
+              className={styles.youtubeContent}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className={styles.youtubeText}>
+                <h2 className={styles.youtubeTitle}>
+                  ¡Sumate a nuestra comunidad en YouTube!
+                </h2>
+                <p className={styles.youtubeDescription}>
+                  No te pierdas nuestros últimos videos
+                </p>
+              </div>
+              
+              <div className={styles.youtubeCarousel}>
+                <YouTubeAutoCarousel />
               </div>
             </motion.div>
           </div>
         </section>
+
       </main>
 
       <Footer />
