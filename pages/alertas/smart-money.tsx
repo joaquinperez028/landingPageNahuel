@@ -47,6 +47,7 @@ import { useRouter } from 'next/router';
 import { calculateDaysRemaining, calculateDaysSinceSubscription } from '../../utils/dateUtils';
 import SPY500Indicator from '@/components/SPY500Indicator';
 import PortfolioTimeRange from '@/components/PortfolioTimeRange';
+import { usePricing } from '@/hooks/usePricing';
 
 interface AlertExample {
   id: string;
@@ -115,6 +116,7 @@ const NonSubscriberView: React.FC<{
   faqs
 }) => {
   const { data: session } = useSession();
+  const { pricing, loading: pricingLoading } = usePricing();
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -127,6 +129,9 @@ const NonSubscriberView: React.FC<{
     setIsProcessing(true);
     
     try {
+      // Obtener el precio dinámico del sistema
+      const subscriptionPrice = pricing?.alertas?.smartMoney?.monthly || 20000;
+      
       const response = await fetch('/api/payments/mercadopago/create-checkout', {
         method: 'POST',
         headers: {
@@ -134,7 +139,7 @@ const NonSubscriberView: React.FC<{
         },
         body: JSON.stringify({
           service: 'SmartMoney',
-          amount: 25000, // $25,000 ARS
+          amount: subscriptionPrice,
           currency: 'ARS',
           type: 'subscription'
         }),
@@ -215,9 +220,33 @@ const NonSubscriberView: React.FC<{
                 Servicio de alertas de compra y venta con estrategia de corto plazo, informes detallados y seguimiento activo, para que puedas invertir en CEDEARs y acciones de forma simple y estratégica. Ideal para quienes buscan grandes rendimientos.
               </p>
               <div className={styles.heroFeatures}>
-                <div className={styles.heroFeature}>
-                  <CheckCircle size={20} />
-                  <span>Quiero Suscribirme</span>
+                <button 
+                  className={styles.heroFeature}
+                  onClick={handleSubscribe}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader size={20} />
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={20} />
+                      <span>Quiero Suscribirme</span>
+                    </>
+                  )}
+                </button>
+                <div className={styles.heroPricing}>
+                  <span className={styles.price}>
+                    {pricingLoading ? (
+                      'Cargando precio...'
+                    ) : pricing ? (
+                      `$${pricing.alertas.smartMoney.monthly} ARS/mes`
+                    ) : (
+                      '$20000 ARS/mes'
+                    )}
+                  </span>
                 </div>
               </div>
             </div>
