@@ -61,7 +61,7 @@ const ClassCalendar: React.FC<ClassCalendarProps> = ({
   };
 
   const handleDateClick = (day: number) => {
-    if (isAdmin && onDateSelect) {
+    if (onDateSelect) {
       const selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
       const dayEvents = getEventsForDate(day);
       onDateSelect(selectedDate, dayEvents);
@@ -93,13 +93,10 @@ const ClassCalendar: React.FC<ClassCalendarProps> = ({
         >
           <div className={styles.dayNumber}>{day}</div>
           {hasEvents && (
-            <div className={styles.eventsContainer}>
-              {dayEvents.map((event, index) => (
-                <div key={event.id || index} className={styles.eventItem}>
-                  <div className={styles.eventTime}>{event.time}</div>
-                  <div className={styles.eventTitle}>{event.title}</div>
-                </div>
-              ))}
+            <div className={styles.availabilityIndicator}>
+              <span className={styles.availabilityText}>
+                {dayEvents.length} horario{dayEvents.length > 1 ? 's' : ''} disponible{dayEvents.length > 1 ? 's' : ''}
+              </span>
             </div>
           )}
         </div>

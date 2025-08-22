@@ -1251,6 +1251,48 @@
   border-radius: 1px;
 }
 
+.horariosHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.closeHorariosButton {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.closeHorariosButton:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.horarioConfirmado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-top: 1.5rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
 .horariosGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

@@ -148,34 +148,36 @@
 /* Events */
 .hasEvents {
   background: rgba(139, 0, 0, 0.2);
+  cursor: pointer;
 }
 
-.eventsContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+.hasEvents:hover {
+  background: rgba(139, 0, 0, 0.3);
+  transform: scale(1.02);
 }
 
-.eventItem {
+.availabilityIndicator {
   background: linear-gradient(135deg, #8B0000 0%, #A52A2A 100%);
-  border-radius: 4px;
-  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  margin-top: 0.5rem;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.availabilityIndicator:hover {
+  background: linear-gradient(135deg, #A52A2A 0%, #DC143C 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.availabilityText {
+  color: #FFFFFF;
+  font-weight: 600;
   font-size: 0.7rem;
   line-height: 1.2;
-  color: #FFFFFF;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.eventTime {
-  font-weight: 600;
-  font-size: 0.65rem;
-}
-
-.eventTitle {
-  font-weight: 400;
-  font-size: 0.65rem;
-  margin-top: 0.1rem;
+  display: block;
 }
 
 /* Responsive */

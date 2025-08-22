@@ -92,16 +92,21 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   // Función para manejar la selección de fecha en el calendario
   const handleCalendarDateSelect = (date: Date, events: any[]) => {
     if (events.length > 0) {
-      const formattedDate = date.toLocaleDateString('es-ES', {
-        weekday: 'short',
-        day: '2-digit',
-        month: 'short'
-      });
-      setSelectedDate(formattedDate);
+      // Convertir la fecha del calendario al formato que usan los turnos
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
       
-      // Seleccionar el primer horario disponible por defecto
-      if (events[0]) {
-        setSelectedTime(events[0].time);
+      // Buscar el turno que coincida con esta fecha
+      const turnoEncontrado = proximosTurnos.find(turno => {
+        const [turnoDay, turnoMonth, turnoYear] = turno.fecha.split('/').map(Number);
+        return turnoDay === day && turnoMonth === month && turnoYear === year;
+      });
+      
+      if (turnoEncontrado) {
+        setSelectedDate(turnoEncontrado.fecha);
+        // No seleccionar horario por defecto, dejar que el usuario elija
+        setSelectedTime('');
       }
     }
   };
@@ -533,9 +538,20 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                       {/* Selector de Horarios */}
                       {selectedDate && (
                         <div className={styles.horariosSection}>
-                          <h4 className={styles.horariosTitle}>
-                            Horarios disponibles para {selectedDate}
-                          </h4>
+                          <div className={styles.horariosHeader}>
+                            <h4 className={styles.horariosTitle}>
+                              Horarios disponibles para {selectedDate}
+                            </h4>
+                            <button 
+                              className={styles.closeHorariosButton}
+                              onClick={() => {
+                                setSelectedDate('');
+                                setSelectedTime('');
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
                           <div className={styles.horariosGrid}>
                             {proximosTurnos
                               .find(turno => turno.fecha === selectedDate)
@@ -551,6 +567,12 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                               ))
                             }
                           </div>
+                          {selectedTime && (
+                            <div className={styles.horarioConfirmado}>
+                              <CheckCircle size={20} />
+                              <span>Horario seleccionado: {selectedTime}</span>
+                            </div>
+                          )}
                         </div>
                       )}
                     </>
