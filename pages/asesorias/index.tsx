@@ -18,6 +18,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import VideoPlayerMux from '@/components/VideoPlayerMux';
 import { usePricing } from '@/hooks/usePricing';
+import BackgroundVideo from '@/components/BackgroundVideo';
 import styles from '@/styles/AsesoriasIndex.module.css';
 
 interface AsesoriasPageProps {
@@ -87,6 +88,15 @@ const AsesoriasPage: React.FC<AsesoriasPageProps> = ({ session, asesorias, faqs 
       <main className={styles.main}>
         {/* Hero Section con Video Explicativo */}
         <section className={styles.heroSection}>
+          <BackgroundVideo 
+            videoSrc="/videos/Diseño Web-LozanoNahuel-Asesorías-ConsultorioFinanciero.mp4"
+            posterSrc="/images/trading-office.jpg"
+            autoPlay={true}
+            muted={true}
+            loop={true}
+            showControls={false}
+            className={styles.backgroundVideo}
+          />
           <div className={styles.container}>
             <motion.div 
               className={styles.heroContent}

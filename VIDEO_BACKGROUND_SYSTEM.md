@@ -53,6 +53,23 @@ interface BackgroundVideoProps {
 />
 ```
 
+### 3. Integración en Asesorías Generales
+
+**Ubicación:** `pages/asesorias/index.tsx`
+
+**Implementación:**
+```tsx
+<BackgroundVideo 
+  videoSrc="/videos/Diseño Web-LozanoNahuel-Asesorías-ConsultorioFinanciero.mp4"
+  posterSrc="/images/trading-office.jpg"
+  autoPlay={true}
+  muted={true}
+  loop={true}
+  showControls={false}
+  className={styles.backgroundVideo}
+/>
+```
+
 ## Estructura de Archivos
 
 ```
@@ -63,8 +80,7 @@ public/
 ├── images/
 │   └── trading-office.jpg                  # Imagen de respaldo
 └── components/
-    ├── BackgroundVideo.tsx                 # Componente principal
-    └── BackgroundVideo.example.tsx         # Ejemplos de uso
+    └── BackgroundVideo.tsx                 # Componente principal
 ```
 
 ## Cómo Agregar el Video
@@ -167,6 +183,27 @@ export const MiPagina: React.FC = () => {
 };
 ```
 
+### Ejemplo Implementado en Asesorías Generales
+```tsx
+// pages/asesorias/index.tsx
+<section className={styles.heroSection}>
+  <BackgroundVideo 
+    videoSrc="/videos/Diseño Web-LozanoNahuel-Asesorías-ConsultorioFinanciero.mp4"
+    posterSrc="/images/trading-office.jpg"
+    autoPlay={true}
+    muted={true}
+    loop={true}
+    showControls={false}
+    className={styles.backgroundVideo}
+  />
+  <div className={styles.container}>
+    <motion.div className={styles.heroContent}>
+      {/* Contenido del hero */}
+    </motion.div>
+  </div>
+</section>
+```
+
 ### Ejemplo con Controles
 ```tsx
 <BackgroundVideo 
@@ -240,6 +277,11 @@ export const MiPagina: React.FC = () => {
 
 ## Conclusión
 
-El sistema de video de fondo está completamente implementado y listo para usar. Proporciona una experiencia visual atractiva mientras mantiene el rendimiento y la accesibilidad. El componente es reutilizable y puede implementarse fácilmente en otras páginas del sitio.
+El sistema de video de fondo está completamente implementado y funcionando en dos páginas principales:
+
+1. **Consultorio Financiero** (`/asesorias/consultorio-financiero`) - Video de fondo en la sección hero
+2. **Asesorías Generales** (`/asesorias`) - Video de fondo en la sección hero
+
+El sistema proporciona una experiencia visual atractiva y consistente mientras mantiene el rendimiento y la accesibilidad. El componente es completamente reutilizable y puede implementarse fácilmente en otras páginas del sitio.
 
 Para cualquier pregunta o problema, revisar la documentación del componente y los ejemplos proporcionados. 
