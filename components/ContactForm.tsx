@@ -42,45 +42,30 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastSubmissionTime, setLastSubmissionTime] = useState<number>(0);
 
-  // Resetear formulario al cerrar
+  // Llenar formulario con datos del usuario al abrir
   React.useEffect(() => {
-    if (!isOpen) {
-      setFormData({ nombre: '', apellido: '', email: '', mensaje: '' });
+    if (isOpen && session?.user) {
+      const userName = session.user.name || '';
+      const nameParts = userName.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
+      setFormData({
+        nombre: firstName,
+        apellido: lastName,
+        email: session.user.email || '',
+        mensaje: ''
+      });
       setErrors({});
       setIsSubmitting(false);
     }
-  }, [isOpen]);
+  }, [isOpen, session]);
 
   // Validación de campos
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Validar nombre
-    if (!formData.nombre.trim()) {
-      newErrors.nombre = 'El nombre es obligatorio';
-    } else if (formData.nombre.length < 2) {
-      newErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
-    } else if (formData.nombre.length > 50) {
-      newErrors.nombre = 'El nombre no puede exceder 50 caracteres';
-    }
-
-    // Validar apellido
-    if (!formData.apellido.trim()) {
-      newErrors.apellido = 'El apellido es obligatorio';
-    } else if (formData.apellido.length < 2) {
-      newErrors.apellido = 'El apellido debe tener al menos 2 caracteres';
-    } else if (formData.apellido.length > 50) {
-      newErrors.apellido = 'El apellido no puede exceder 50 caracteres';
-    }
-
-    // Validar email
-    if (!formData.email.trim()) {
-      newErrors.email = 'El email es obligatorio';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'El formato del email no es válido';
-    }
-
-    // Validar mensaje
+    // Validar mensaje (los otros campos vienen del sistema)
     if (!formData.mensaje.trim()) {
       newErrors.mensaje = 'El mensaje es obligatorio';
     } else if (formData.mensaje.length < 10) {
@@ -100,7 +85,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
       /window\./i
     ];
 
-    const combinedText = `${formData.nombre} ${formData.apellido} ${formData.email} ${formData.mensaje}`.toLowerCase();
+    const combinedText = `${formData.mensaje}`.toLowerCase();
     for (const pattern of suspiciousPatterns) {
       if (pattern.test(combinedText)) {
         newErrors.general = 'El contenido contiene caracteres no permitidos';
@@ -252,70 +237,26 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {/* Nombre */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="nombre" className={styles.label}>
-              Nombre *
-            </label>
-            <input
-              type="text"
-              id="nombre"
-              value={formData.nombre}
-              onChange={(e) => handleInputChange('nombre', e.target.value)}
-              className={`${styles.input} ${errors.nombre ? styles.inputError : ''}`}
-              placeholder="Tu nombre completo..."
-              maxLength={50}
-              disabled={isSubmitting}
-            />
-            {errors.nombre && (
-              <span className={styles.errorText}>{errors.nombre}</span>
-            )}
-            <div className={styles.charCount}>
-              {formData.nombre.length}/50
+          {/* Información del Usuario (Solo Lectura) */}
+          <div className={styles.userInfoSection}>
+            <h4 className={styles.userInfoTitle}>Información del Usuario</h4>
+            
+            <div className={styles.userInfoGrid}>
+              <div className={styles.userInfoField}>
+                <label className={styles.userInfoLabel}>Nombre</label>
+                <div className={styles.userInfoValue}>{formData.nombre}</div>
+              </div>
+              
+              <div className={styles.userInfoField}>
+                <label className={styles.userInfoLabel}>Apellido</label>
+                <div className={styles.userInfoValue}>{formData.apellido}</div>
+              </div>
+              
+              <div className={styles.userInfoField}>
+                <label className={styles.userInfoLabel}>Email</label>
+                <div className={styles.userInfoValue}>{formData.email}</div>
+              </div>
             </div>
-          </div>
-
-          {/* Apellido */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="apellido" className={styles.label}>
-              Apellido *
-            </label>
-            <input
-              type="text"
-              id="apellido"
-              value={formData.apellido}
-              onChange={(e) => handleInputChange('apellido', e.target.value)}
-              className={`${styles.input} ${errors.apellido ? styles.inputError : ''}`}
-              placeholder="Tu apellido completo..."
-              maxLength={50}
-              disabled={isSubmitting}
-            />
-            {errors.apellido && (
-              <span className={styles.errorText}>{errors.apellido}</span>
-            )}
-            <div className={styles.charCount}>
-              {formData.apellido.length}/50
-            </div>
-          </div>
-
-          {/* Email */}
-          <div className={styles.inputGroup}>
-            <label htmlFor="email" className={styles.label}>
-              Email *
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
-              placeholder="tu@email.com"
-              maxLength={100}
-              disabled={isSubmitting}
-            />
-            {errors.email && (
-              <span className={styles.errorText}>{errors.email}</span>
-            )}
           </div>
 
           {/* Mensaje */}
@@ -363,7 +304,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ isOpen, onClose }) => {
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={isSubmitting || !formData.nombre.trim() || !formData.apellido.trim() || !formData.email.trim() || !formData.mensaje.trim()}
+              disabled={isSubmitting || !formData.mensaje.trim()}
             >
               {isSubmitting ? (
                 <>

@@ -100,6 +100,54 @@
   gap: 12px;
 }
 
+/* User Info Section (Read-only) */
+.userInfoSection {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.userInfoTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.userInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.userInfoField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.userInfoLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.userInfoValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  min-height: 20px;
+}
+
 .userDetails {
   display: flex;
   align-items: center;
