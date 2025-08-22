@@ -5,7 +5,6 @@ import styles from '@/styles/TimeSlotManager.module.css';
 interface TimeSlot {
   id: string;
   time: string;
-  duration: number;
 }
 
 interface TimeSlotManagerProps {
@@ -18,21 +17,11 @@ const TimeSlotManager: React.FC<TimeSlotManagerProps> = ({
   onTimeSlotsChange
 }) => {
   const [newTime, setNewTime] = useState('14:00');
-  const [newDuration, setNewDuration] = useState(60);
 
   const availableTimes = [
-    '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
-    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-    '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
-    '20:00', '20:30', '21:00', '21:30'
-  ];
-
-  const durationOptions = [
-    { value: 30, label: '30 minutos' },
-    { value: 60, label: '1 hora' },
-    { value: 90, label: '1.5 horas' },
-    { value: 120, label: '2 horas' }
+    '08:00', '09:00', '10:00', '11:00', '12:00', '13:00',
+    '14:00', '15:00', '16:00', '17:00', '18:00', '19:00',
+    '20:00', '21:00'
   ];
 
   const addTimeSlot = () => {
@@ -45,8 +34,7 @@ const TimeSlotManager: React.FC<TimeSlotManagerProps> = ({
 
     const newSlot: TimeSlot = {
       id: Date.now().toString(),
-      time: newTime,
-      duration: newDuration
+      time: newTime
     };
 
     onTimeSlotsChange([...timeSlots, newSlot]);
@@ -58,23 +46,11 @@ const TimeSlotManager: React.FC<TimeSlotManagerProps> = ({
   };
 
   const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
+    const [hours] = time.split(':');
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-    return `${displayHour}:${minutes} ${ampm}`;
-  };
-
-  const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0 && mins > 0) {
-      return `${hours}h ${mins}m`;
-    } else if (hours > 0) {
-      return `${hours}h`;
-    } else {
-      return `${mins}m`;
-    }
+    return `${displayHour}:00 ${ampm}`;
   };
 
   return (
@@ -85,7 +61,7 @@ const TimeSlotManager: React.FC<TimeSlotManagerProps> = ({
           Horarios Disponibles
         </h4>
         <p className={styles.subtitle}>
-          Agrega los horarios específicos para cada día
+          Agrega los horarios específicos para cada día (duración: 1 hora)
         </p>
       </div>
 
@@ -100,21 +76,6 @@ const TimeSlotManager: React.FC<TimeSlotManagerProps> = ({
             {availableTimes.map(time => (
               <option key={time} value={time}>
                 {formatTime(time)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={styles.inputGroup}>
-          <label>Duración:</label>
-          <select
-            value={newDuration}
-            onChange={(e) => setNewDuration(parseInt(e.target.value))}
-            className={styles.durationSelect}
-          >
-            {durationOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
               </option>
             ))}
           </select>
@@ -138,7 +99,7 @@ const TimeSlotManager: React.FC<TimeSlotManagerProps> = ({
               <div key={slot.id} className={styles.slotItem}>
                 <div className={styles.slotInfo}>
                   <span className={styles.slotTime}>{formatTime(slot.time)}</span>
-                  <span className={styles.slotDuration}>{formatDuration(slot.duration)}</span>
+                  <span className={styles.slotDuration}>1 hora</span>
                 </div>
                 <button
                   onClick={() => removeTimeSlot(slot.id)}

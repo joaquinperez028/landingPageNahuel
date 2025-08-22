@@ -25,7 +25,6 @@ interface AdvisorySchedule {
   _id: string;
   date: string;
   time: string;
-  duration: number;
   isAvailable: boolean;
   isBooked: boolean;
   createdAt: string;
@@ -35,7 +34,6 @@ interface AdvisorySchedule {
 interface TimeSlot {
   id: string;
   time: string;
-  duration: number;
 }
 
 const AdminAsesoriasHorariosPage = () => {
@@ -101,7 +99,6 @@ const AdminAsesoriasHorariosPage = () => {
             const scheduleData = {
               date: date.toISOString().split('T')[0], // Formato YYYY-MM-DD
               time: timeSlot.time,
-              duration: timeSlot.duration,
               isAvailable: true,
               isBooked: false
             };
@@ -202,16 +199,8 @@ const AdminAsesoriasHorariosPage = () => {
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0 && mins > 0) {
-      return `${hours}h ${mins}m`;
-    } else if (hours > 0) {
-      return `${hours}h`;
-    } else {
-      return `${mins}m`;
-    }
+  const formatDuration = () => {
+    return '1 hora';
   };
 
   return (
@@ -387,7 +376,7 @@ const AdminAsesoriasHorariosPage = () => {
                         {formatTime(schedule.time)}
                       </div>
                       <div className={styles.scheduleDuration}>
-                        Duración: {formatDuration(schedule.duration)}
+                        Duración: {formatDuration()}
                       </div>
                     </div>
 

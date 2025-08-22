@@ -2,8 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IAdvisorySchedule extends Document {
   date: Date; // Fecha específica (YYYY-MM-DD)
-  time: string; // Hora en formato "HH:MM" (ej: "14:00")
-  duration: number; // Duración en minutos (por defecto 60)
+  time: string; // Hora en formato "HH:00" (ej: "14:00")
   isAvailable: boolean; // Si el horario está disponible para reservar
   isBooked: boolean; // Si ya fue reservado por un usuario
   createdAt: Date;
@@ -19,14 +18,7 @@ const AdvisoryScheduleSchema: Schema = new Schema({
   time: {
     type: String,
     required: true,
-    match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ // Formato HH:MM
-  },
-  duration: {
-    type: Number,
-    required: true,
-    default: 60, // 1 hora por defecto
-    min: 30,
-    max: 180
+    match: /^([0-1]?[0-9]|2[0-3]):00$/ // Solo formato HH:00
   },
   isAvailable: {
     type: Boolean,

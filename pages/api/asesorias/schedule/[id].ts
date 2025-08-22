@@ -7,8 +7,7 @@ import { z } from 'zod';
 // Schema de validación para actualizar horarios
 const updateAdvisoryScheduleSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
-  duration: z.number().min(30).max(180).optional(),
+  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):00$/).optional(),
   isAvailable: z.boolean().optional(),
   isBooked: z.boolean().optional()
 });

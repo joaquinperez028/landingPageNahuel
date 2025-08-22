@@ -7,8 +7,7 @@ import { z } from 'zod';
 // Schema de validación para crear horarios de asesoría
 const createAdvisoryScheduleSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Formato YYYY-MM-DD
-  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/), // Formato HH:MM
-  duration: z.number().min(30).max(180).default(60),
+  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):00$/), // Solo formato HH:00
   isAvailable: z.boolean().default(true),
   isBooked: z.boolean().default(false)
 });

@@ -29,7 +29,7 @@
 
 .addSection {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr auto;
   gap: 1rem;
   align-items: end;
   margin-bottom: 2rem;
