@@ -69,7 +69,13 @@ const AdminAsesoriasHorariosPage = () => {
   };
 
   const handleCreateSchedules = async () => {
+    console.log('🔥 Botón clickeado - handleCreateSchedules');
+    console.log('📅 startDate:', startDate);
+    console.log('📅 endDate:', endDate);
+    console.log('⏰ timeSlots:', timeSlots);
+    
     if (!startDate || !endDate || timeSlots.length === 0) {
+      console.log('❌ Validación fallida');
       toast.error('Por favor selecciona un rango de fechas y al menos un horario');
       return;
     }
@@ -229,7 +235,10 @@ const AdminAsesoriasHorariosPage = () => {
               </p>
             </div>
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                console.log('🔥 Abriendo formulario');
+                setShowForm(true);
+              }}
               className={styles.addButton}
             >
               <Plus size={20} />
