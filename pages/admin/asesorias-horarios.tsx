@@ -105,16 +105,14 @@ const AdminAsesoriasHorariosPage = () => {
       console.log('📅 Generando fechas entre:', currentDate.toISOString(), 'y', lastDate.toISOString());
 
       while (currentDate <= lastDate) {
-        // Solo incluir días de lunes a sábado (1-6)
+        // Incluir días de domingo a sábado (0-6) - todos los días de la semana
         const dayOfWeek = currentDate.getDay();
         console.log(`📅 Procesando fecha: ${currentDate.toISOString().split('T')[0]}, día de la semana: ${dayOfWeek}`);
         
-        if (dayOfWeek >= 1 && dayOfWeek <= 6) {
-          dates.push(new Date(currentDate));
-          console.log(`✅ Fecha laborable agregada: ${currentDate.toISOString().split('T')[0]}`);
-        } else {
-          console.log(`⏭️ Fecha no laborable omitida: ${currentDate.toISOString().split('T')[0]} (día ${dayOfWeek})`);
-        }
+        // Incluir todos los días (0=domingo, 1=lunes, ..., 6=sábado)
+        dates.push(new Date(currentDate));
+        console.log(`✅ Fecha agregada: ${currentDate.toISOString().split('T')[0]} (día ${dayOfWeek})`);
+        
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
@@ -357,7 +355,7 @@ const AdminAsesoriasHorariosPage = () => {
                   <div className={styles.section}>
                     <h4>1. Selecciona el Rango de Fechas</h4>
                     <p className={styles.sectionDescription}>
-                      Solo se crearán horarios para días laborables (lunes a sábado)
+                      Se crearán horarios para todos los días del rango seleccionado
                     </p>
                     <DateRangePicker
                       startDate={startDate}
