@@ -46,6 +46,7 @@ const AdminAsesoriasHorariosPage = () => {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isFixingIndexes, setIsFixingIndexes] = useState(false);
 
   // Logs para debug
   useEffect(() => {
@@ -257,6 +258,39 @@ const AdminAsesoriasHorariosPage = () => {
     }
   };
 
+  const handleFixIndexes = async () => {
+    if (!confirm('¿Estás seguro de que quieres limpiar los índices problemáticos de MongoDB? Esto solucionará errores de duplicados.')) {
+      return;
+    }
+
+    try {
+      setIsFixingIndexes(true);
+      console.log('🔧 Iniciando limpieza de índices...');
+
+      const response = await fetch('/api/admin/fix-advisory-indexes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('✅ Limpieza de índices exitosa:', data);
+        toast.success(`Índices limpiados: ${data.details.droppedIndexes.length} eliminados, ${data.details.createdIndexes.length} creados`);
+      } else {
+        console.error('❌ Error en limpieza de índices:', data);
+        toast.error(data.error || 'Error al limpiar índices');
+      }
+    } catch (error) {
+      console.error('❌ Error de red en limpieza de índices:', error);
+      toast.error('Error de conexión durante la limpieza');
+    } finally {
+      setIsFixingIndexes(false);
+    }
+  };
+
   const resetForm = () => {
     setStartDate(null);
     setEndDate(null);
@@ -312,6 +346,15 @@ const AdminAsesoriasHorariosPage = () => {
               </p>
             </div>
             <div className={styles.headerActions}>
+              <button
+                onClick={handleFixIndexes}
+                disabled={isFixingIndexes}
+                className={styles.fixButton}
+                title="Limpiar índices problemáticos de MongoDB (soluciona errores de duplicados)"
+              >
+                <RefreshCw size={20} className={isFixingIndexes ? styles.spinning : ''} />
+                {isFixingIndexes ? 'Limpiando...' : 'Limpiar Índices'}
+              </button>
               <button
                 onClick={handleSyncSchedules}
                 disabled={isSyncing}
