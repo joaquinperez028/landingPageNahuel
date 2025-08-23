@@ -2,9 +2,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { verifyAdminAPI } from '@/lib/adminAuth';
 import dbConnect from '@/lib/mongodb';
 import AdvisorySchedule from '@/models/AdvisorySchedule';
+import AvailableSlot from '@/models/AvailableSlot';
 import { z } from 'zod';
 
-// Schema de validación para crear horarios de asesoría
+// Schema de validación para crear horario de asesoría
 const createAdvisoryScheduleSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // Formato YYYY-MM-DD
   time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):00$/), // Solo formato HH:00
@@ -15,7 +16,7 @@ const createAdvisoryScheduleSchema = z.object({
 /**
  * API para gestionar horarios de asesorías
  * GET: Obtener todos los horarios disponibles (público)
- * POST: Crear nuevo horario (solo admin)
+ * POST: Crear nuevo horario (solo admin) - Sincroniza con AvailableSlot
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   await dbConnect();
@@ -112,13 +113,60 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       console.log('✅ [API] No hay conflictos, procediendo a crear...');
 
-      // Crear el nuevo horario
+      // Crear el nuevo horario en AdvisorySchedule
       const newSchedule = await AdvisorySchedule.create({
         ...scheduleData,
         date: scheduleDate
       });
 
       console.log('✅ [API] Horario de asesoría creado exitosamente:', newSchedule._id);
+
+      // 🔄 SINCRONIZAR CON AVAILABLESLOT
+      try {
+        console.log('🔄 [API] Sincronizando con AvailableSlot...');
+        
+        // Convertir fecha de YYYY-MM-DD a DD/MM/YYYY para AvailableSlot
+        const day = scheduleDate.getDate().toString().padStart(2, '0');
+        const month = (scheduleDate.getMonth() + 1).toString().padStart(2, '0');
+        const year = scheduleDate.getFullYear();
+        const dateForAvailableSlot = `${day}/${month}/${year}`;
+        
+        console.log('📅 [API] Fecha convertida para AvailableSlot:', dateForAvailableSlot);
+
+        // Verificar si ya existe en AvailableSlot
+        const existingAvailableSlot = await AvailableSlot.findOne({
+          date: dateForAvailableSlot,
+          time: scheduleData.time,
+          serviceType: 'ConsultorioFinanciero'
+        });
+
+        if (existingAvailableSlot) {
+          console.log('ℹ️ [API] Slot ya existe en AvailableSlot, actualizando disponibilidad...');
+          existingAvailableSlot.available = scheduleData.isAvailable && !scheduleData.isBooked;
+          await existingAvailableSlot.save();
+        } else {
+          console.log('🆕 [API] Creando nuevo slot en AvailableSlot...');
+          
+          // Crear nuevo slot en AvailableSlot
+          await AvailableSlot.create({
+            date: dateForAvailableSlot,
+            time: scheduleData.time,
+            serviceType: 'ConsultorioFinanciero',
+            available: scheduleData.isAvailable && !scheduleData.isBooked,
+            price: 50000, // Precio por defecto en ARS
+            duration: 60, // Duración por defecto en minutos
+            reservedBy: undefined,
+            reservedAt: undefined,
+            bookingId: undefined
+          });
+        }
+        
+        console.log('✅ [API] Sincronización con AvailableSlot completada');
+      } catch (syncError) {
+        console.error('⚠️ [API] Error en sincronización con AvailableSlot:', syncError);
+        // No fallar la operación principal por errores de sincronización
+      }
+
       return res.status(201).json({ schedule: newSchedule });
 
     } catch (error) {

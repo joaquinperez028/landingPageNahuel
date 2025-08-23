@@ -13,7 +13,8 @@ import {
   X,
   AlertCircle,
   CheckCircle,
-  XCircle
+  XCircle,
+  RefreshCw
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -44,6 +45,7 @@ const AdminAsesoriasHorariosPage = () => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Logs para debug
   useEffect(() => {
@@ -224,6 +226,39 @@ const AdminAsesoriasHorariosPage = () => {
     }
   };
 
+  const handleSyncSchedules = async () => {
+    if (!confirm('¿Estás seguro de que quieres sincronizar todos los horarios existentes con el sistema de visualización?')) {
+      return;
+    }
+
+    try {
+      setIsSyncing(true);
+      console.log('🔄 Iniciando sincronización...');
+
+      const response = await fetch('/api/admin/sync-advisory-schedules', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('✅ Sincronización exitosa:', data);
+        toast.success(`Sincronización completada: ${data.stats.created} creados, ${data.stats.updated} actualizados`);
+      } else {
+        console.error('❌ Error en sincronización:', data);
+        toast.error(data.error || 'Error en la sincronización');
+      }
+    } catch (error) {
+      console.error('❌ Error de red en sincronización:', error);
+      toast.error('Error de conexión durante la sincronización');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const resetForm = () => {
     setStartDate(null);
     setEndDate(null);
@@ -278,16 +313,27 @@ const AdminAsesoriasHorariosPage = () => {
                 Configura horarios disponibles para consultoría financiera
               </p>
             </div>
-            <button
-              onClick={() => {
-                console.log('🔥 Abriendo formulario');
-                setShowForm(true);
-              }}
-              className={styles.addButton}
-            >
-              <Plus size={20} />
-              Crear Horarios
-            </button>
+            <div className={styles.headerActions}>
+              <button
+                onClick={handleSyncSchedules}
+                disabled={isSyncing}
+                className={styles.syncButton}
+                title="Sincronizar horarios existentes con el sistema de visualización"
+              >
+                <RefreshCw size={20} className={isSyncing ? styles.spinning : ''} />
+                {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+              </button>
+              <button
+                onClick={() => {
+                  console.log('🔥 Abriendo formulario');
+                  setShowForm(true);
+                }}
+                className={styles.addButton}
+              >
+                <Plus size={20} />
+                Crear Horarios
+              </button>
+            </div>
           </motion.div>
 
           {/* Formulario de Creación */}
