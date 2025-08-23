@@ -124,6 +124,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // 🔄 SINCRONIZAR CON AVAILABLESLOT
       try {
         console.log('🔄 [API] Sincronizando con AvailableSlot...');
+        console.log('🔄 [API] scheduleData:', scheduleData);
+        console.log('🔄 [API] scheduleDate:', scheduleDate);
         
         // Convertir fecha de YYYY-MM-DD a DD/MM/YYYY para AvailableSlot
         const day = scheduleDate.getDate().toString().padStart(2, '0');
@@ -134,6 +136,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('📅 [API] Fecha convertida para AvailableSlot:', dateForAvailableSlot);
 
         // Verificar si ya existe en AvailableSlot
+        console.log('🔍 [API] Buscando slot existente en AvailableSlot...');
         const existingAvailableSlot = await AvailableSlot.findOne({
           date: dateForAvailableSlot,
           time: scheduleData.time,
@@ -144,11 +147,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           console.log('ℹ️ [API] Slot ya existe en AvailableSlot, actualizando disponibilidad...');
           existingAvailableSlot.available = scheduleData.isAvailable && !scheduleData.isBooked;
           await existingAvailableSlot.save();
+          console.log('✅ [API] Slot actualizado en AvailableSlot');
         } else {
           console.log('🆕 [API] Creando nuevo slot en AvailableSlot...');
+          console.log('🆕 [API] Datos para AvailableSlot:', {
+            date: dateForAvailableSlot,
+            time: scheduleData.time,
+            serviceType: 'ConsultorioFinanciero',
+            available: scheduleData.isAvailable && !scheduleData.isBooked,
+            price: 50000,
+            duration: 60
+          });
           
           // Crear nuevo slot en AvailableSlot
-          await AvailableSlot.create({
+          const newAvailableSlot = await AvailableSlot.create({
             date: dateForAvailableSlot,
             time: scheduleData.time,
             serviceType: 'ConsultorioFinanciero',
@@ -159,11 +171,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             reservedAt: undefined,
             bookingId: undefined
           });
+          
+          console.log('✅ [API] Nuevo slot creado en AvailableSlot:', newAvailableSlot._id);
         }
         
         console.log('✅ [API] Sincronización con AvailableSlot completada');
       } catch (syncError) {
         console.error('⚠️ [API] Error en sincronización con AvailableSlot:', syncError);
+        console.error('⚠️ [API] Stack trace:', (syncError as Error).stack);
         // No fallar la operación principal por errores de sincronización
       }
 
