@@ -40,6 +40,7 @@ interface TimeSlot {
 }
 
 const AdminAsesoriasHorariosPage = () => {
+  // Estados del componente
   const [schedules, setSchedules] = useState<AdvisorySchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -49,6 +50,10 @@ const AdminAsesoriasHorariosPage = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isFixingIndexes, setIsFixingIndexes] = useState(false);
+  
+  // Estado para modal de confirmación de eliminación
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [scheduleToDelete, setScheduleToDelete] = useState<string | null>(null);
 
   // Logs para debug
   useEffect(() => {
@@ -219,15 +224,21 @@ const AdminAsesoriasHorariosPage = () => {
   const handleDelete = async (id: string) => {
     console.log('🗑️ [DELETE] Iniciando eliminación de horario:', id);
     
-    if (!confirm('¿Estás seguro de que quieres eliminar este horario?')) {
-      console.log('❌ [DELETE] Usuario canceló la eliminación');
-      return;
-    }
+    // En lugar de usar confirm(), abrir modal personalizado
+    setScheduleToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  // Nueva función para confirmar la eliminación
+  const confirmDelete = async () => {
+    if (!scheduleToDelete) return;
+    
+    console.log('✅ [DELETE] Usuario confirmó la eliminación de:', scheduleToDelete);
 
     try {
-      console.log('📡 [DELETE] Enviando request DELETE a:', `/api/asesorias/schedule/${id}`);
+      console.log('📡 [DELETE] Enviando request DELETE a:', `/api/asesorias/schedule/${scheduleToDelete}`);
       
-      const response = await fetch(`/api/asesorias/schedule/${id}`, {
+      const response = await fetch(`/api/asesorias/schedule/${scheduleToDelete}`, {
         method: 'DELETE',
       });
 
@@ -249,7 +260,18 @@ const AdminAsesoriasHorariosPage = () => {
     } catch (error) {
       console.error('💥 [DELETE] Error de red:', error);
       toast.error('Error de conexión al eliminar horario');
+    } finally {
+      // Cerrar modal
+      setShowDeleteModal(false);
+      setScheduleToDelete(null);
     }
+  };
+
+  // Función para cancelar la eliminación
+  const cancelDelete = () => {
+    console.log('❌ [DELETE] Usuario canceló la eliminación');
+    setShowDeleteModal(false);
+    setScheduleToDelete(null);
   };
 
   const handleSyncSchedules = async () => {
@@ -607,6 +629,35 @@ const AdminAsesoriasHorariosPage = () => {
           </div>
         </div>
       </main>
+
+      {/* Modal de Confirmación de Eliminación */}
+      {showDeleteModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContainer}>
+            <div className={styles.modalHeader}>
+              <h3>Confirmar Eliminación</h3>
+            </div>
+            <div className={styles.modalContent}>
+              <p>¿Estás seguro de que quieres eliminar este horario?</p>
+              <p className={styles.modalWarning}>Esta acción no se puede deshacer.</p>
+            </div>
+            <div className={styles.modalActions}>
+              <button 
+                onClick={cancelDelete}
+                className={styles.modalCancelButton}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className={styles.modalConfirmButton}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </>
