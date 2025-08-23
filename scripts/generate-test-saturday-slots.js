@@ -1,9 +1,29 @@
 const { MongoClient } = require('mongodb');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
-// Configuración de la base de datos
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/test';
-const DB_NAME = process.env.MONGODB_URI ? process.env.MONGODB_URI.split('/').pop().split('?')[0] : 'test';
+// Configuración de la base de datos - CORREGIDA para usar la configuración del proyecto
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  console.error('❌ Error: MONGODB_URI no está definida en las variables de entorno');
+  console.log('💡 Asegúrate de tener un archivo .env.local con la variable MONGODB_URI');
+  process.exit(1);
+}
+
+// Extraer el nombre de la base de datos de la URI
+let DB_NAME;
+try {
+  const uri = new URL(MONGODB_URI);
+  DB_NAME = uri.pathname.substring(1).split('?')[0] || 'test';
+} catch (error) {
+  console.error('❌ Error al parsear MONGODB_URI:', error.message);
+  process.exit(1);
+}
+
+console.log('🔍 Configuración de base de datos:');
+console.log(`   - URI: ${MONGODB_URI.substring(0, 20)}...`);
+console.log(`   - Base de datos: ${DB_NAME}`);
 
 // Configuración de horarios - PERÍODO DE PRUEBA
 const START_YEAR = 2025;

@@ -3,11 +3,10 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
-// Configuración de la base de datos - CORREGIDA para usar la configuración del proyecto
+// Configuración de la base de datos
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
   console.error('❌ Error: MONGODB_URI no está definida en las variables de entorno');
-  console.log('💡 Asegúrate de tener un archivo .env.local con la variable MONGODB_URI');
   process.exit(1);
 }
 
@@ -25,17 +24,17 @@ console.log('🔍 Configuración de base de datos:');
 console.log(`   - URI: ${MONGODB_URI.substring(0, 20)}...`);
 console.log(`   - Base de datos: ${DB_NAME}`);
 
-// Configuración de horarios
+// Configuración de horarios - PERÍODO DE PRUEBA
 const START_YEAR = 2025;
 const START_MONTH = 8; // Septiembre (0-indexed)
-const END_YEAR = 2027;
+const END_MONTH = 9; // Octubre (0-indexed)
 const SATURDAY = 6; // 0 = domingo, 6 = sábado
 const START_HOUR = 10; // 10:00
 const END_HOUR = 15; // 15:00 (exclusivo, o sea hasta 14:00)
 
-async function generateSaturdaySlots() {
-  console.log('🚀 Iniciando generación de turnos de sábados...');
-  console.log(`📅 Período: Septiembre ${START_YEAR} - Diciembre ${END_YEAR}`);
+async function generateFinalSaturdaySlots() {
+  console.log('🧪 Iniciando generación FINAL de turnos de sábados...');
+  console.log(`📅 Período de PRUEBA: Septiembre ${START_YEAR} - Octubre ${START_YEAR}`);
   console.log(`⏰ Horarios: ${START_HOUR}:00 - ${END_HOUR}:00 (sábados)`);
   
   const client = new MongoClient(MONGODB_URI);
@@ -48,12 +47,12 @@ async function generateSaturdaySlots() {
     const advisoryCollection = db.collection('advisoryschedules');
     const availableCollection = db.collection('availableslots');
     
-    // Generar todas las fechas de sábados en el rango
+    // Generar fechas de sábados solo para el período de prueba
     const saturdayDates = [];
     const currentDate = new Date(START_YEAR, START_MONTH, 1);
-    const endDate = new Date(END_YEAR, 11, 31); // 31 de diciembre 2027
+    const endDate = new Date(START_YEAR, END_MONTH, 31);
     
-    console.log('📅 Generando fechas de sábados...');
+    console.log('📅 Generando fechas de sábados para PRUEBA...');
     
     while (currentDate <= endDate) {
       // Avanzar al próximo sábado
@@ -67,7 +66,7 @@ async function generateSaturdaySlots() {
       }
     }
     
-    console.log(`📅 Encontrados ${saturdayDates.length} sábados en el rango`);
+    console.log(`📅 Encontrados ${saturdayDates.length} sábados en el período de PRUEBA`);
     
     // Generar horarios para cada sábado
     const timeSlots = [];
@@ -83,12 +82,26 @@ async function generateSaturdaySlots() {
     // Crear turnos para cada sábado
     for (const saturdayDate of saturdayDates) {
       console.log(`\n📅 Procesando sábado: ${saturdayDate.toLocaleDateString('es-ES')}`);
+      console.log(`📅 Fecha original: ${saturdayDate.toISOString()}`);
       
       for (const timeSlot of timeSlots) {
         try {
+          // CORRECCIÓN FINAL: Usar Date.UTC para crear la fecha exacta
+          // Esto evita el offset de timezone que causa el problema del día anterior
+          const year = saturdayDate.getFullYear();
+          const month = saturdayDate.getMonth();
+          const day = saturdayDate.getDate();
+          
+          // Crear fecha usando Date.UTC para evitar offset de timezone
+          const utcScheduleDate = new Date(Date.UTC(year, month, day));
+          
+          console.log(`  📅 Fecha UTC construida: ${utcScheduleDate.toISOString()}`);
+          console.log(`  📅 Componentes: año=${year}, mes=${month + 1}, día=${day}`);
+          console.log(`  📅 Fecha local equivalente: ${utcScheduleDate.toLocaleDateString('es-ES')}`);
+          
           // Verificar si ya existe
           const existingSchedule = await advisoryCollection.findOne({
-            date: saturdayDate,
+            date: utcScheduleDate,
             time: timeSlot
           });
           
@@ -97,9 +110,9 @@ async function generateSaturdaySlots() {
             continue;
           }
           
-          // Crear en AdvisorySchedule
+          // Crear en AdvisorySchedule con fecha UTC
           const scheduleData = {
-            date: saturdayDate,
+            date: utcScheduleDate,
             time: timeSlot,
             isAvailable: true,
             isBooked: false,
@@ -110,11 +123,14 @@ async function generateSaturdaySlots() {
           const newSchedule = await advisoryCollection.insertOne(scheduleData);
           console.log(`  ✅ ${timeSlot} - Creado en AdvisorySchedule (ID: ${newSchedule.insertedId})`);
           
-          // Crear en AvailableSlot
-          const day = saturdayDate.getDate().toString().padStart(2, '0');
-          const month = (saturdayDate.getMonth() + 1).toString().padStart(2, '0');
-          const year = saturdayDate.getFullYear();
-          const dateForAvailableSlot = `${day}/${month}/${year}`;
+          // Crear en AvailableSlot con fecha en formato DD/MM/YYYY
+          // Usar los componentes originales para evitar offset
+          const dayStr = day.toString().padStart(2, '0');
+          const monthStr = (month + 1).toString().padStart(2, '0');
+          const yearStr = year.toString();
+          const dateForAvailableSlot = `${dayStr}/${monthStr}/${yearStr}`;
+          
+          console.log(`  📅 Fecha para AvailableSlot: ${dateForAvailableSlot}`);
           
           const availableSlotData = {
             date: dateForAvailableSlot,
@@ -142,7 +158,7 @@ async function generateSaturdaySlots() {
       }
     }
     
-    console.log('\n🎉 Generación completada!');
+    console.log('\n🎉 Generación FINAL completada!');
     console.log(`📊 Resumen:`);
     console.log(`   - Total de sábados: ${saturdayDates.length}`);
     console.log(`   - Horarios por sábado: ${timeSlots.length}`);
@@ -150,9 +166,9 @@ async function generateSaturdaySlots() {
     console.log(`   - Total de errores: ${totalErrors}`);
     console.log(`   - Turnos por sábado: ${timeSlots.join(', ')}`);
     
-    // Mostrar algunas fechas de ejemplo
-    console.log('\n📅 Ejemplos de fechas generadas:');
-    saturdayDates.slice(0, 5).forEach(date => {
+    // Mostrar todas las fechas generadas
+    console.log('\n📅 Fechas generadas en la PRUEBA:');
+    saturdayDates.forEach(date => {
       console.log(`   - ${date.toLocaleDateString('es-ES', { 
         weekday: 'long', 
         year: 'numeric', 
@@ -161,8 +177,9 @@ async function generateSaturdaySlots() {
       })}`);
     });
     
-    if (saturdayDates.length > 5) {
-      console.log(`   ... y ${saturdayDates.length - 5} sábados más`);
+    if (totalCreated > 0) {
+      console.log('\n💡 Para generar TODOS los sábados hasta 2027, ejecuta:');
+      console.log('   node scripts/generate-saturday-slots.js');
     }
     
   } catch (error) {
@@ -175,15 +192,15 @@ async function generateSaturdaySlots() {
 
 // Ejecutar el script
 if (require.main === module) {
-  generateSaturdaySlots()
+  generateFinalSaturdaySlots()
     .then(() => {
-      console.log('✅ Script completado exitosamente');
+      console.log('✅ Script FINAL completado exitosamente');
       process.exit(0);
     })
     .catch((error) => {
-      console.error('💥 Script falló:', error);
+      console.error('💥 Script FINAL falló:', error);
       process.exit(1);
     });
 }
 
-module.exports = { generateSaturdaySlots }; 
+module.exports = { generateFinalSaturdaySlots }; 
