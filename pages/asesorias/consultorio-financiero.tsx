@@ -250,6 +250,31 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     }
   };
 
+  // Función para formatear fechas correctamente (evitar problemas de zona horaria)
+  const formatDateForDisplay = (dateString: string) => {
+    console.log('🔍 formatDateForDisplay - entrada:', dateString);
+    
+    // Si la fecha viene en formato DD/MM/YYYY, convertirla correctamente
+    if (dateString.includes('/')) {
+      const [day, month, year] = dateString.split('/');
+      const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)));
+      console.log('🔍 formatDateForDisplay - fecha UTC creada:', date.toISOString());
+      
+      const formatted = date.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      console.log('🔍 formatDateForDisplay - fecha formateada:', formatted);
+      return formatted;
+    }
+    
+    // Si viene en otro formato, usar el método original
+    return dateString;
+  };
+
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
@@ -612,7 +637,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                         <div className={styles.horariosSection}>
                           <div className={styles.horariosHeader}>
                             <h4 className={styles.horariosTitle}>
-                              Horarios disponibles para {selectedDate}
+                              Horarios disponibles para {formatDateForDisplay(selectedDate)}
                             </h4>
                             <button 
                               className={styles.closeHorariosButton}

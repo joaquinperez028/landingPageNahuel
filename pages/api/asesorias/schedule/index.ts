@@ -143,13 +143,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('🔄 [API] scheduleData:', scheduleData);
         console.log('🔄 [API] scheduleDate:', scheduleDate);
         
-        // Convertir fecha de YYYY-MM-DD a DD/MM/YYYY para AvailableSlot
-        const day = scheduleDate.getDate().toString().padStart(2, '0');
-        const month = (scheduleDate.getMonth() + 1).toString().padStart(2, '0');
-        const year = scheduleDate.getFullYear();
+        // Convertir fecha de YYYY-MM-DD a DD/MM/YYYY para AvailableSlot - CORREGIDO con UTC
+        const day = scheduleDate.getUTCDate().toString().padStart(2, '0');
+        const month = (scheduleDate.getUTCMonth() + 1).toString().padStart(2, '0');
+        const year = scheduleDate.getUTCFullYear();
         const dateForAvailableSlot = `${day}/${month}/${year}`;
         
-        console.log('📅 [API] Fecha convertida para AvailableSlot:', dateForAvailableSlot);
+        console.log('📅 [API] Conversión UTC para AvailableSlot:');
+        console.log('📅 [API] - scheduleDate UTC:', scheduleDate.toISOString());
+        console.log('📅 [API] - día UTC:', day);
+        console.log('📅 [API] - mes UTC:', month);
+        console.log('📅 [API] - año UTC:', year);
+        console.log('📅 [API] - Fecha final para AvailableSlot:', dateForAvailableSlot);
 
         // Verificar si ya existe en AvailableSlot
         console.log('🔍 [API] Buscando slot existente en AvailableSlot...');

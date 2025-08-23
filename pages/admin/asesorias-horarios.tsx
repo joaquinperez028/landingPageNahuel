@@ -299,8 +299,33 @@ const AdminAsesoriasHorariosPage = () => {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
+    // CORREGIDO: Manejar fechas UTC correctamente
+    console.log('🔍 formatDate - dateString recibido:', dateString);
+    
+    // Si la fecha viene como string ISO, parsearla correctamente
+    let date: Date;
+    if (dateString.includes('T')) {
+      // Es un string ISO, parsearlo directamente
+      date = new Date(dateString);
+    } else {
+      // Es solo la fecha, crear como UTC
+      date = new Date(dateString + 'T00:00:00.000Z');
+    }
+    
+    console.log('🔍 formatDate - fecha parseada:', date);
+    console.log('🔍 formatDate - fecha ISO:', date.toISOString());
+    console.log('🔍 formatDate - fecha local:', date.toLocaleDateString('es-ES'));
+    
+    // Usar UTC para evitar problemas de zona horaria
+    const utcDate = new Date(Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate()
+    ));
+    
+    console.log('🔍 formatDate - fecha UTC final:', utcDate);
+    
+    return utcDate.toLocaleDateString('es-ES', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
