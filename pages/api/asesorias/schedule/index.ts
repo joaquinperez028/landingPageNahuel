@@ -92,10 +92,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const scheduleData = validationResult.data;
       console.log('📝 [API] Datos validados:', scheduleData);
       
-      // Convertir la fecha string a Date
-      const scheduleDate = new Date(scheduleData.date);
-      scheduleDate.setHours(0, 0, 0, 0);
-      console.log('📅 [API] Fecha convertida:', scheduleDate);
+      // Convertir la fecha string a Date - CORREGIDO para evitar problemas de zona horaria
+      console.log('📅 [API] Fecha recibida:', scheduleData.date);
+      
+      // Crear fecha en UTC para evitar problemas de zona horaria
+      const [year, month, day] = scheduleData.date.split('-').map(Number);
+      const scheduleDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+      
+      console.log('📅 [API] Fecha convertida (UTC):', scheduleDate);
+      console.log('📅 [API] Fecha ISO string:', scheduleDate.toISOString());
+      console.log('📅 [API] Fecha local:', scheduleDate.toLocaleDateString('es-ES'));
 
       // Verificar que no haya conflictos con horarios existentes
       console.log('🔍 [API] Verificando conflictos...');
