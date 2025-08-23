@@ -89,6 +89,7 @@ const AdminAsesoriasHorariosPage = () => {
       return;
     }
 
+    console.log('✅ Validación pasada, comenzando creación...');
     setIsCreating(true);
     let createdCount = 0;
     let errorCount = 0;
@@ -99,17 +100,42 @@ const AdminAsesoriasHorariosPage = () => {
       const currentDate = new Date(startDate);
       const lastDate = new Date(endDate);
 
+      console.log('📅 Generando fechas entre:', currentDate.toISOString(), 'y', lastDate.toISOString());
+
       while (currentDate <= lastDate) {
         // Solo incluir días de lunes a viernes (1-5)
-        if (currentDate.getDay() >= 1 && currentDate.getDay() <= 5) {
+        const dayOfWeek = currentDate.getDay();
+        console.log(`📅 Procesando fecha: ${currentDate.toISOString().split('T')[0]}, día de la semana: ${dayOfWeek}`);
+        
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) {
           dates.push(new Date(currentDate));
+          console.log(`✅ Fecha laborable agregada: ${currentDate.toISOString().split('T')[0]}`);
+        } else {
+          console.log(`⏭️ Fecha no laborable omitida: ${currentDate.toISOString().split('T')[0]} (día ${dayOfWeek})`);
         }
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
+      console.log('📅 Fechas laborables generadas:', dates.length, 'fechas');
+      console.log('📅 Fechas:', dates.map(d => d.toISOString().split('T')[0]));
+
+      if (dates.length === 0) {
+        console.log('❌ No hay fechas laborables en el rango seleccionado');
+        toast.error('No hay fechas laborables en el rango seleccionado');
+        setIsCreating(false);
+        return;
+      }
+
       // Crear horarios para cada fecha y cada slot de tiempo
-      for (const date of dates) {
-        for (const timeSlot of timeSlots) {
+      console.log('🚀 Comenzando creación de horarios...');
+      for (let i = 0; i < dates.length; i++) {
+        const date = dates[i];
+        console.log(`📅 Procesando fecha ${i + 1}/${dates.length}: ${date.toISOString().split('T')[0]}`);
+        
+        for (let j = 0; j < timeSlots.length; j++) {
+          const timeSlot = timeSlots[j];
+          console.log(`⏰ Procesando horario ${j + 1}/${timeSlots.length}: ${timeSlot.time}`);
+          
           try {
             const scheduleData = {
               date: date.toISOString().split('T')[0], // Formato YYYY-MM-DD
@@ -117,6 +143,8 @@ const AdminAsesoriasHorariosPage = () => {
               isAvailable: true,
               isBooked: false
             };
+
+            console.log('📝 Intentando crear horario:', scheduleData);
 
             const response = await fetch('/api/asesorias/schedule', {
               method: 'POST',
@@ -126,24 +154,31 @@ const AdminAsesoriasHorariosPage = () => {
               body: JSON.stringify(scheduleData),
             });
 
+            console.log('📡 Respuesta de la API:', response.status, response.statusText);
+
             if (response.ok) {
+              const responseData = await response.json();
+              console.log('✅ Horario creado exitosamente:', responseData);
               createdCount++;
             } else {
               const data = await response.json();
+              console.log('❌ Error en la respuesta:', data);
               if (response.status === 409) {
                 // Horario ya existe, no es un error
-                console.log(`Horario ya existe para ${date.toDateString()} a las ${timeSlot.time}`);
+                console.log(`ℹ️ Horario ya existe para ${date.toDateString()} a las ${timeSlot.time}`);
               } else {
                 errorCount++;
-                console.error('Error al crear horario:', data.error);
+                console.error('❌ Error al crear horario:', data.error);
               }
             }
           } catch (error) {
             errorCount++;
-            console.error('Error al crear horario:', error);
+            console.error('❌ Error de red al crear horario:', error);
           }
         }
       }
+
+      console.log('📊 Resumen final - Creados:', createdCount, 'Errores:', errorCount);
 
       if (createdCount > 0) {
         toast.success(`Se crearon ${createdCount} horarios exitosamente`);
@@ -159,7 +194,7 @@ const AdminAsesoriasHorariosPage = () => {
       }
 
     } catch (error) {
-      console.error('Error general:', error);
+      console.error('❌ Error general:', error);
       toast.error('Error al crear los horarios');
     } finally {
       setIsCreating(false);

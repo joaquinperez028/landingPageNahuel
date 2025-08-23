@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { verifyAdminAccess } from '@/lib/adminAuth';
+import { verifyAdminAPI } from '@/lib/adminAuth';
 import dbConnect from '@/lib/mongodb';
 import AdvisorySchedule from '@/models/AdvisorySchedule';
 import { z } from 'zod';
@@ -60,40 +60,57 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
+      console.log('📝 [API] Iniciando POST para crear horario de asesoría');
+      console.log('📝 [API] Body recibido:', req.body);
+      
       // Verificar permisos de admin
-      const adminCheck = await verifyAdminAccess({ req, res } as any);
+      console.log('🔍 [API] Verificando permisos de admin...');
+      const adminCheck = await verifyAdminAPI(req, res);
+      console.log('🔍 [API] Resultado de verificación:', adminCheck);
+      
       if (!adminCheck.isAdmin) {
+        console.log('❌ [API] Acceso denegado - Usuario no es admin');
         return res.status(403).json({ error: 'Acceso denegado' });
       }
 
-      console.log('📝 Creando nuevo horario de asesoría');
+      console.log('✅ [API] Permisos de admin confirmados');
+      console.log('📝 [API] Creando nuevo horario de asesoría');
 
       // Validar datos de entrada
+      console.log('🔍 [API] Validando datos de entrada...');
       const validationResult = createAdvisoryScheduleSchema.safeParse(req.body);
       if (!validationResult.success) {
+        console.log('❌ [API] Validación fallida:', validationResult.error.errors);
         return res.status(400).json({ 
           error: 'Datos inválidos',
           details: validationResult.error.errors 
         });
       }
 
+      console.log('✅ [API] Validación exitosa');
       const scheduleData = validationResult.data;
+      console.log('📝 [API] Datos validados:', scheduleData);
       
       // Convertir la fecha string a Date
       const scheduleDate = new Date(scheduleData.date);
       scheduleDate.setHours(0, 0, 0, 0);
+      console.log('📅 [API] Fecha convertida:', scheduleDate);
 
       // Verificar que no haya conflictos con horarios existentes
+      console.log('🔍 [API] Verificando conflictos...');
       const conflictingSchedule = await AdvisorySchedule.findOne({
         date: scheduleDate,
         time: scheduleData.time
       });
 
       if (conflictingSchedule) {
+        console.log('⚠️ [API] Horario ya existe:', conflictingSchedule._id);
         return res.status(409).json({ 
           error: `Ya existe un horario para ${scheduleData.date} a las ${scheduleData.time}` 
         });
       }
+
+      console.log('✅ [API] No hay conflictos, procediendo a crear...');
 
       // Crear el nuevo horario
       const newSchedule = await AdvisorySchedule.create({
@@ -101,11 +118,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         date: scheduleDate
       });
 
-      console.log('✅ Horario de asesoría creado exitosamente:', newSchedule._id);
+      console.log('✅ [API] Horario de asesoría creado exitosamente:', newSchedule._id);
       return res.status(201).json({ schedule: newSchedule });
 
     } catch (error) {
-      console.error('❌ Error al crear horario de asesoría:', error);
+      console.error('❌ [API] Error al crear horario de asesoría:', error);
       return res.status(500).json({ error: 'Error al crear el horario de asesoría' });
     }
   }
