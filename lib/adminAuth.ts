@@ -28,9 +28,57 @@ export async function verifyAdminAccess(context: GetServerSidePropsContext): Pro
       };
     }
 
-    console.log('👤 [ADMIN AUTH] Usuario:', session.user.email, 'Rol en sesión:', session.user.role);
+    console.log('👤 [ADMIN AUTH] Usuario:', session.user.email);
+    console.log('🔧 [ADMIN AUTH] Rol en sesión:', session.user.role);
+    console.log('🆔 [ADMIN AUTH] ID de usuario:', session.user.id);
 
-    // Usar el rol de la sesión ya que JWT siempre consulta la BD
+    // Verificación adicional: consultar la base de datos para confirmar el rol
+    try {
+      await connectDB();
+      const dbUser = await User.findOne({ email: session.user.email }).lean();
+      
+      if (!dbUser || Array.isArray(dbUser)) {
+        console.log('❌ [ADMIN AUTH] Usuario no encontrado en base de datos o resultado inválido');
+        return {
+          isAdmin: false,
+          redirectTo: '/api/auth/signin',
+          user: session.user,
+          session: session
+        };
+      }
+      
+      console.log('🗄️ [ADMIN AUTH] Rol en base de datos:', dbUser.role);
+      
+      // Verificar que el rol en la base de datos sea admin
+      if (dbUser.role !== 'admin') {
+        console.log('❌ [ADMIN AUTH] Usuario no es admin en BD. Rol actual:', dbUser.role);
+        return {
+          isAdmin: false,
+          redirectTo: '/',
+          user: { ...session.user, role: dbUser.role },
+          session: session
+        };
+      }
+      
+      // Verificar que el rol en la sesión también sea admin
+      if (session.user.role !== 'admin') {
+        console.log('⚠️ [ADMIN AUTH] Rol en sesión no coincide con BD. Sesión:', session.user.role, 'BD:', dbUser.role);
+        // Aunque el rol en BD sea admin, si la sesión no lo refleja, redirigir a login para refrescar
+        return {
+          isAdmin: false,
+          redirectTo: '/api/auth/signin',
+          user: { ...session.user, role: dbUser.role },
+          session: session
+        };
+      }
+      
+    } catch (dbError) {
+      console.error('💥 [ADMIN AUTH] Error consultando base de datos:', dbError);
+      // Si no se puede consultar la BD, confiar en la sesión pero con advertencia
+      console.log('⚠️ [ADMIN AUTH] Confiando en rol de sesión por error de BD');
+    }
+
+    // Verificación final del rol en la sesión
     if (session.user.role !== 'admin') {
       console.log('❌ [ADMIN AUTH] Usuario no es admin. Rol actual:', session.user.role);
       return {

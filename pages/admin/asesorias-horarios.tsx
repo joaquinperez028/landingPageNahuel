@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { verifyAdminAccess } from '@/lib/adminAuth';
 import Head from 'next/head';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { 
   Plus, 
@@ -14,12 +14,14 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
-  RefreshCw
+  RefreshCw,
+  Wrench
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import DateRangePicker from '@/components/DateRangePicker';
 import TimeSlotManager from '@/components/TimeSlotManager';
+import AdminRouteGuard from '@/components/AdminRouteGuard';
 import styles from '@/styles/AdminHorarios.module.css';
 
 interface AdvisorySchedule {
@@ -316,7 +318,7 @@ const AdminAsesoriasHorariosPage = () => {
     }
     
     console.log('🔍 formatDate - fecha parseada:', date);
-    console.log('🔍 formatDate - fecha ISO:', date.toISOString());
+    console.log('�� formatDate - fecha ISO:', date.toISOString());
     console.log('🔍 formatDate - fecha local:', date.toLocaleDateString('es-ES'));
     
     // Usar UTC para evitar problemas de zona horaria
@@ -349,233 +351,235 @@ const AdminAsesoriasHorariosPage = () => {
   };
 
   return (
-    <>
-      <Head>
-        <title>Gestión de Horarios de Asesorías - Panel Admin</title>
-        <meta name="description" content="Panel de administración para gestionar horarios de asesorías" />
-      </Head>
+    <AdminRouteGuard>
+      <>
+        <Head>
+          <title>Gestión de Horarios de Asesorías - Panel Admin</title>
+          <meta name="description" content="Panel de administración para gestionar horarios de asesorías" />
+        </Head>
 
-      <Navbar />
+        <Navbar />
 
-      <main className={styles.main}>
-        <div className={styles.container}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={styles.header}
-          >
-            <div className={styles.headerContent}>
-              <h1 className={styles.title}>
-                <Calendar size={32} />
-                Gestión de Horarios de Asesorías
-              </h1>
-              <p className={styles.subtitle}>
-                Configura horarios disponibles para consultoría financiera
-              </p>
-            </div>
-            <div className={styles.headerActions}>
-              <button
-                onClick={handleFixIndexes}
-                disabled={isFixingIndexes}
-                className={styles.fixButton}
-                title="Limpiar índices problemáticos de MongoDB (soluciona errores de duplicados)"
-              >
-                <RefreshCw size={20} className={isFixingIndexes ? styles.spinning : ''} />
-                {isFixingIndexes ? 'Limpiando...' : 'Limpiar Índices'}
-              </button>
-              <button
-                onClick={handleSyncSchedules}
-                disabled={isSyncing}
-                className={styles.syncButton}
-                title="Sincronizar horarios existentes con el sistema de visualización"
-              >
-                <RefreshCw size={20} className={isSyncing ? styles.spinning : ''} />
-                {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
-              </button>
-              <button
-                onClick={() => {
-                  console.log('🔥 Abriendo formulario');
-                  setShowForm(true);
-                }}
-                className={styles.addButton}
-              >
-                <Plus size={20} />
-                Crear Horarios
-              </button>
-            </div>
-          </motion.div>
-
-          {/* Formulario de Creación */}
-          {showForm && (
-            <div className={styles.formOverlay}>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className={styles.formContainer}
-              >
-                <div className={styles.formHeader}>
-                  <h3>Crear Horarios de Asesoría</h3>
-                  <button onClick={resetForm} className={styles.closeButton}>
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className={styles.formContent}>
-                  {/* Selección de Rango de Fechas */}
-                  <div className={styles.section}>
-                    <h4>1. Selecciona el Rango de Fechas</h4>
-                    <p className={styles.sectionDescription}>
-                      Se crearán horarios para todos los días del rango seleccionado
-                    </p>
-                    <DateRangePicker
-                      startDate={startDate}
-                      endDate={endDate}
-                      onStartDateChange={setStartDate}
-                      onEndDateChange={setEndDate}
-                      minDate={new Date()}
-                      maxDate={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)}
-                    />
-                  </div>
-
-                  {/* Gestión de Horarios */}
-                  <div className={styles.section}>
-                    <h4>2. Configura los Horarios</h4>
-                    <p className={styles.sectionDescription}>
-                      Agrega los horarios específicos que estarán disponibles cada día
-                    </p>
-                    <TimeSlotManager
-                      timeSlots={timeSlots}
-                      onTimeSlotsChange={setTimeSlots}
-                    />
-                  </div>
-
-                  {/* Resumen */}
-                  {startDate && endDate && timeSlots.length > 0 && (
-                    <div className={styles.summary}>
-                      <h4>Resumen de la Configuración</h4>
-                      <div className={styles.summaryContent}>
-                        <div className={styles.summaryItem}>
-                          <span>Rango de fechas:</span>
-                          <span>{startDate.toLocaleDateString('es-ES')} - {endDate.toLocaleDateString('es-ES')}</span>
-                        </div>
-                        <div className={styles.summaryItem}>
-                          <span>Días laborables:</span>
-                          <span>{timeSlots.length * Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) / 7 * 5)} horarios</span>
-                        </div>
-                        <div className={styles.summaryItem}>
-                          <span>Horarios por día:</span>
-                          <span>{timeSlots.length} slots</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className={styles.formActions}>
-                  <button type="button" onClick={resetForm} className={styles.cancelButton}>
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={() => {
-                      console.log('🔥 Botón clickeado directamente');
-                      console.log('📅 startDate:', startDate);
-                      console.log('📅 endDate:', endDate);
-                      console.log('⏰ timeSlots:', timeSlots);
-                      console.log('🚫 isCreating:', isCreating);
-                      console.log('🔒 Botón deshabilitado:', !startDate || !endDate || timeSlots.length === 0 || isCreating);
-                      handleCreateSchedules();
-                    }}
-                    disabled={!startDate || !endDate || timeSlots.length === 0 || isCreating}
-                    className={styles.saveButton}
-                  >
-                    <Save size={16} />
-                    {isCreating ? 'Creando...' : 'Crear Horarios'}
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-
-          {/* Lista de Horarios Existentes */}
-          <div className={styles.schedulesContainer}>
-            <div className={styles.schedulesHeader}>
-              <h3>Horarios Configurados</h3>
-              <p>Horarios existentes en el sistema</p>
-            </div>
-
-            {loading ? (
-              <div className={styles.loading}>Cargando horarios...</div>
-            ) : schedules.length === 0 ? (
-              <div className={styles.empty}>
-                <AlertCircle size={48} />
-                <h3>No hay horarios configurados</h3>
-                <p>Usa el botón "Crear Horarios" para agregar el primer conjunto de horarios</p>
+        <main className={styles.main}>
+          <div className={styles.container}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={styles.header}
+            >
+              <div className={styles.headerContent}>
+                <h1 className={styles.title}>
+                  <Calendar size={32} />
+                  Gestión de Horarios de Asesorías
+                </h1>
+                <p className={styles.subtitle}>
+                  Configura horarios disponibles para consultoría financiera
+                </p>
               </div>
-            ) : (
-              <div className={styles.schedulesGrid}>
-                {schedules.map((schedule) => (
-                  <motion.div
-                    key={schedule._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`${styles.scheduleCard} ${!schedule.isAvailable ? styles.unavailable : ''} ${schedule.isBooked ? styles.booked : ''}`}
-                  >
-                    <div className={styles.scheduleHeader}>
-                      <div className={styles.scheduleDate}>
-                        <Calendar size={20} />
-                        {formatDate(schedule.date)}
-                      </div>
-                      <div className={styles.scheduleStatus}>
-                        {schedule.isBooked ? (
-                          <span className={styles.statusBooked}>
-                            <CheckCircle size={16} />
-                            Reservado
-                          </span>
-                        ) : schedule.isAvailable ? (
-                          <span className={styles.statusAvailable}>
-                            <Clock size={16} />
-                            Disponible
-                          </span>
-                        ) : (
-                          <span className={styles.statusUnavailable}>
-                            <XCircle size={16} />
-                            No disponible
-                          </span>
-                        )}
-                      </div>
+              <div className={styles.headerActions}>
+                <button
+                  onClick={handleFixIndexes}
+                  disabled={isFixingIndexes}
+                  className={styles.fixButton}
+                  title="Limpiar índices problemáticos de MongoDB (soluciona errores de duplicados)"
+                >
+                  <RefreshCw size={20} className={isFixingIndexes ? styles.spinning : ''} />
+                  {isFixingIndexes ? 'Limpiando...' : 'Limpiar Índices'}
+                </button>
+                <button
+                  onClick={handleSyncSchedules}
+                  disabled={isSyncing}
+                  className={styles.syncButton}
+                  title="Sincronizar horarios existentes con el sistema de visualización"
+                >
+                  <RefreshCw size={20} className={isSyncing ? styles.spinning : ''} />
+                  {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+                </button>
+                <button
+                  onClick={() => {
+                    console.log('🔥 Abriendo formulario');
+                    setShowForm(true);
+                  }}
+                  className={styles.addButton}
+                >
+                  <Plus size={20} />
+                  Crear Horarios
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Formulario de Creación */}
+            {showForm && (
+              <div className={styles.formOverlay}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className={styles.formContainer}
+                >
+                  <div className={styles.formHeader}>
+                    <h3>Crear Horarios de Asesoría</h3>
+                    <button onClick={resetForm} className={styles.closeButton}>
+                      <X size={20} />
+                    </button>
+                  </div>
+
+                  <div className={styles.formContent}>
+                    {/* Selección de Rango de Fechas */}
+                    <div className={styles.section}>
+                      <h4>1. Selecciona el Rango de Fechas</h4>
+                      <p className={styles.sectionDescription}>
+                        Se crearán horarios para todos los días del rango seleccionado
+                      </p>
+                      <DateRangePicker
+                        startDate={startDate}
+                        endDate={endDate}
+                        onStartDateChange={setStartDate}
+                        onEndDateChange={setEndDate}
+                        minDate={new Date()}
+                        maxDate={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)}
+                      />
                     </div>
 
-                    <div className={styles.scheduleDetails}>
-                      <div className={styles.scheduleTime}>
-                        <Clock size={16} />
-                        {formatTime(schedule.time)}
-                      </div>
-                      <div className={styles.scheduleDuration}>
-                        Duración: {formatDuration()}
-                      </div>
+                    {/* Gestión de Horarios */}
+                    <div className={styles.section}>
+                      <h4>2. Configura los Horarios</h4>
+                      <p className={styles.sectionDescription}>
+                        Agrega los horarios específicos que estarán disponibles cada día
+                      </p>
+                      <TimeSlotManager
+                        timeSlots={timeSlots}
+                        onTimeSlotsChange={setTimeSlots}
+                      />
                     </div>
 
-                    <div className={styles.scheduleActions}>
-                      <button
-                        onClick={() => handleDelete(schedule._id)}
-                        className={styles.deleteButton}
-                        disabled={schedule.isBooked}
-                        title={schedule.isBooked ? 'No se puede eliminar un horario reservado' : 'Eliminar horario'}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
+                    {/* Resumen */}
+                    {startDate && endDate && timeSlots.length > 0 && (
+                      <div className={styles.summary}>
+                        <h4>Resumen de la Configuración</h4>
+                        <div className={styles.summaryContent}>
+                          <div className={styles.summaryItem}>
+                            <span>Rango de fechas:</span>
+                            <span>{startDate.toLocaleDateString('es-ES')} - {endDate.toLocaleDateString('es-ES')}</span>
+                          </div>
+                          <div className={styles.summaryItem}>
+                            <span>Días laborables:</span>
+                            <span>{timeSlots.length * Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24) / 7 * 5)} horarios</span>
+                          </div>
+                          <div className={styles.summaryItem}>
+                            <span>Horarios por día:</span>
+                            <span>{timeSlots.length} slots</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={styles.formActions}>
+                    <button type="button" onClick={resetForm} className={styles.cancelButton}>
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={() => {
+                        console.log('🔥 Botón clickeado directamente');
+                        console.log('📅 startDate:', startDate);
+                        console.log('📅 endDate:', endDate);
+                        console.log('⏰ timeSlots:', timeSlots);
+                        console.log('🚫 isCreating:', isCreating);
+                        console.log('🔒 Botón deshabilitado:', !startDate || !endDate || timeSlots.length === 0 || isCreating);
+                        handleCreateSchedules();
+                      }}
+                      disabled={!startDate || !endDate || timeSlots.length === 0 || isCreating}
+                      className={styles.saveButton}
+                    >
+                      <Save size={16} />
+                      {isCreating ? 'Creando...' : 'Crear Horarios'}
+                    </button>
+                  </div>
+                </motion.div>
               </div>
             )}
-          </div>
-        </div>
-      </main>
 
-      <Footer />
-    </>
+            {/* Lista de Horarios Existentes */}
+            <div className={styles.schedulesContainer}>
+              <div className={styles.schedulesHeader}>
+                <h3>Horarios Configurados</h3>
+                <p>Horarios existentes en el sistema</p>
+              </div>
+
+              {loading ? (
+                <div className={styles.loading}>Cargando horarios...</div>
+              ) : schedules.length === 0 ? (
+                <div className={styles.empty}>
+                  <AlertCircle size={48} />
+                  <h3>No hay horarios configurados</h3>
+                  <p>Usa el botón "Crear Horarios" para agregar el primer conjunto de horarios</p>
+                </div>
+              ) : (
+                <div className={styles.schedulesGrid}>
+                  {schedules.map((schedule) => (
+                    <motion.div
+                      key={schedule._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`${styles.scheduleCard} ${!schedule.isAvailable ? styles.unavailable : ''} ${schedule.isBooked ? styles.booked : ''}`}
+                    >
+                      <div className={styles.scheduleHeader}>
+                        <div className={styles.scheduleDate}>
+                          <Calendar size={20} />
+                          {formatDate(schedule.date)}
+                        </div>
+                        <div className={styles.scheduleStatus}>
+                          {schedule.isBooked ? (
+                            <span className={styles.statusBooked}>
+                              <CheckCircle size={16} />
+                              Reservado
+                            </span>
+                          ) : schedule.isAvailable ? (
+                            <span className={styles.statusAvailable}>
+                              <Clock size={16} />
+                              Disponible
+                            </span>
+                          ) : (
+                            <span className={styles.statusUnavailable}>
+                              <XCircle size={16} />
+                              No disponible
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={styles.scheduleDetails}>
+                        <div className={styles.scheduleTime}>
+                          <Clock size={16} />
+                          {formatTime(schedule.time)}
+                        </div>
+                        <div className={styles.scheduleDuration}>
+                          Duración: {formatDuration()}
+                        </div>
+                      </div>
+
+                      <div className={styles.scheduleActions}>
+                        <button
+                          onClick={() => handleDelete(schedule._id)}
+                          className={styles.deleteButton}
+                          disabled={schedule.isBooked}
+                          title={schedule.isBooked ? 'No se puede eliminar un horario reservado' : 'Eliminar horario'}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+
+        <Footer />
+      </>
+    </AdminRouteGuard>
   );
 };
 
