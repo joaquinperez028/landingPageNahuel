@@ -92,15 +92,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const scheduleData = validationResult.data;
       console.log('📝 [API] Datos validados:', scheduleData);
       
-      // Convertir la fecha string a Date - MÉTODO SIMPLIFICADO para evitar problemas
+      // Convertir la fecha string a Date - CORREGIDO para evitar offset de un día
       console.log('📅 [API] Fecha recibida:', scheduleData.date);
       
-      // Método más directo: crear fecha como si fuera UTC pero tratarla como local
-      const dateString = scheduleData.date + 'T00:00:00.000Z';
-      const scheduleDate = new Date(dateString);
+      // CORREGIDO: Crear fecha como local, no como UTC
+      // En lugar de agregar T00:00:00.000Z (que lo hace UTC), 
+      // construimos la fecha usando los componentes locales
+      const [year, month, day] = scheduleData.date.split('-').map(Number);
+      const scheduleDate = new Date(year, month - 1, day); // month - 1 porque getMonth() devuelve 0-11
       
-      console.log('📅 [API] String de fecha construido:', dateString);
-      console.log('📅 [API] Fecha convertida:', scheduleDate);
+      console.log('📅 [API] Componentes de fecha:', { year, month, day });
+      console.log('📅 [API] Fecha construida como local:', scheduleDate);
       console.log('📅 [API] Fecha ISO string:', scheduleDate.toISOString());
       console.log('📅 [API] Fecha local:', scheduleDate.toLocaleDateString('es-ES'));
 
@@ -143,17 +145,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('🔄 [API] scheduleData:', scheduleData);
         console.log('🔄 [API] scheduleDate:', scheduleDate);
         
-        // Convertir fecha de YYYY-MM-DD a DD/MM/YYYY para AvailableSlot - CORREGIDO con UTC
-        const day = scheduleDate.getUTCDate().toString().padStart(2, '0');
-        const month = (scheduleDate.getUTCMonth() + 1).toString().padStart(2, '0');
-        const year = scheduleDate.getUTCFullYear();
+        // Convertir fecha de YYYY-MM-DD a DD/MM/YYYY para AvailableSlot - CORREGIDO para fecha local
+        const day = scheduleDate.getDate().toString().padStart(2, '0'); // getDate() en lugar de getUTCDate()
+        const month = (scheduleDate.getMonth() + 1).toString().padStart(2, '0'); // getMonth() en lugar de getUTCMonth()
+        const year = scheduleDate.getFullYear(); // getFullYear() en lugar de getUTCFullYear()
         const dateForAvailableSlot = `${day}/${month}/${year}`;
         
-        console.log('📅 [API] Conversión UTC para AvailableSlot:');
-        console.log('📅 [API] - scheduleDate UTC:', scheduleDate.toISOString());
-        console.log('📅 [API] - día UTC:', day);
-        console.log('📅 [API] - mes UTC:', month);
-        console.log('📅 [API] - año UTC:', year);
+        console.log('📅 [API] Conversión local para AvailableSlot:');
+        console.log('📅 [API] - scheduleDate local:', scheduleDate.toLocaleDateString('es-ES'));
+        console.log('📅 [API] - día local:', day);
+        console.log('📅 [API] - mes local:', month);
+        console.log('📅 [API] - año local:', year);
         console.log('📅 [API] - Fecha final para AvailableSlot:', dateForAvailableSlot);
 
         // Verificar si ya existe en AvailableSlot
