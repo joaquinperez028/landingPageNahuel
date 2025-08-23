@@ -54,6 +54,10 @@ const AdminAsesoriasHorariosPage = () => {
   // Estado para modal de confirmación de eliminación
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [scheduleToDelete, setScheduleToDelete] = useState<string | null>(null);
+  
+  // Estados para modales de confirmación de limpiar índices y sincronizar
+  const [showFixIndexesModal, setShowFixIndexesModal] = useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
 
   // Logs para debug
   useEffect(() => {
@@ -275,10 +279,12 @@ const AdminAsesoriasHorariosPage = () => {
   };
 
   const handleSyncSchedules = async () => {
-    if (!confirm('¿Estás seguro de que quieres sincronizar todos los horarios existentes con el sistema de visualización?')) {
-      return;
-    }
+    // En lugar de usar confirm(), abrir modal personalizado
+    setShowSyncModal(true);
+  };
 
+  // Nueva función para confirmar la sincronización
+  const confirmSync = async () => {
     try {
       setIsSyncing(true);
       console.log('🔄 Iniciando sincronización...');
@@ -304,14 +310,24 @@ const AdminAsesoriasHorariosPage = () => {
       toast.error('Error de conexión durante la sincronización');
     } finally {
       setIsSyncing(false);
+      // Cerrar modal
+      setShowSyncModal(false);
     }
   };
 
-  const handleFixIndexes = async () => {
-    if (!confirm('¿Estás seguro de que quieres limpiar los índices problemáticos de MongoDB? Esto solucionará errores de duplicados.')) {
-      return;
-    }
+  // Función para cancelar la sincronización
+  const cancelSync = () => {
+    console.log('❌ [SYNC] Usuario canceló la sincronización');
+    setShowSyncModal(false);
+  };
 
+  const handleFixIndexes = async () => {
+    // En lugar de usar confirm(), abrir modal personalizado
+    setShowFixIndexesModal(true);
+  };
+
+  // Nueva función para confirmar la limpieza de índices
+  const confirmFixIndexes = async () => {
     try {
       setIsFixingIndexes(true);
       console.log('🔧 Iniciando limpieza de índices...');
@@ -337,7 +353,15 @@ const AdminAsesoriasHorariosPage = () => {
       toast.error('Error de conexión durante la limpieza');
     } finally {
       setIsFixingIndexes(false);
+      // Cerrar modal
+      setShowFixIndexesModal(false);
     }
+  };
+
+  // Función para cancelar la limpieza de índices
+  const cancelFixIndexes = () => {
+    console.log('❌ [FIX INDEXES] Usuario canceló la limpieza de índices');
+    setShowFixIndexesModal(false);
   };
 
   const resetForm = () => {
@@ -653,6 +677,64 @@ const AdminAsesoriasHorariosPage = () => {
                 className={styles.modalConfirmButton}
               >
                 Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación de Sincronización */}
+      {showSyncModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContainer}>
+            <div className={styles.modalHeader}>
+              <h3>Confirmar Sincronización</h3>
+            </div>
+            <div className={styles.modalContent}>
+              <p>¿Estás seguro de que quieres sincronizar todos los horarios existentes con el sistema de visualización?</p>
+              <p className={styles.modalWarning}>Esta acción no se puede deshacer.</p>
+            </div>
+            <div className={styles.modalActions}>
+              <button 
+                onClick={cancelSync}
+                className={styles.modalCancelButton}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmSync}
+                className={styles.modalConfirmButton}
+              >
+                Sincronizar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación de Limpieza de Índices */}
+      {showFixIndexesModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContainer}>
+            <div className={styles.modalHeader}>
+              <h3>Confirmar Limpieza de Índices</h3>
+            </div>
+            <div className={styles.modalContent}>
+              <p>¿Estás seguro de que quieres limpiar los índices problemáticos de MongoDB? Esto solucionará errores de duplicados.</p>
+              <p className={styles.modalWarning}>Esta acción no se puede deshacer.</p>
+            </div>
+            <div className={styles.modalActions}>
+              <button 
+                onClick={cancelFixIndexes}
+                className={styles.modalCancelButton}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmFixIndexes}
+                className={styles.modalConfirmButton}
+              >
+                Limpiar Índices
               </button>
             </div>
           </div>
