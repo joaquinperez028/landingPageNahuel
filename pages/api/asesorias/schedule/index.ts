@@ -92,14 +92,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const scheduleData = validationResult.data;
       console.log('📝 [API] Datos validados:', scheduleData);
       
-      // Convertir la fecha string a Date - CORREGIDO para evitar problemas de zona horaria
+      // Convertir la fecha string a Date - MÉTODO SIMPLIFICADO para evitar problemas
       console.log('📅 [API] Fecha recibida:', scheduleData.date);
       
-      // Crear fecha en UTC para evitar problemas de zona horaria
-      const [year, month, day] = scheduleData.date.split('-').map(Number);
-      const scheduleDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+      // Método más directo: crear fecha como si fuera UTC pero tratarla como local
+      const dateString = scheduleData.date + 'T00:00:00.000Z';
+      const scheduleDate = new Date(dateString);
       
-      console.log('📅 [API] Fecha convertida (UTC):', scheduleDate);
+      console.log('📅 [API] String de fecha construido:', dateString);
+      console.log('📅 [API] Fecha convertida:', scheduleDate);
       console.log('📅 [API] Fecha ISO string:', scheduleDate.toISOString());
       console.log('📅 [API] Fecha local:', scheduleDate.toLocaleDateString('es-ES'));
 
@@ -120,12 +121,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log('✅ [API] No hay conflictos, procediendo a crear...');
 
       // Crear el nuevo horario en AdvisorySchedule
+      console.log('📝 [API] Creando horario en AdvisorySchedule con fecha:', scheduleDate);
+      console.log('📝 [API] Datos completos para AdvisorySchedule:', {
+        ...scheduleData,
+        date: scheduleDate
+      });
+      
       const newSchedule = await AdvisorySchedule.create({
         ...scheduleData,
         date: scheduleDate
       });
 
       console.log('✅ [API] Horario de asesoría creado exitosamente:', newSchedule._id);
+      console.log('✅ [API] Fecha guardada en DB:', newSchedule.date);
+      console.log('✅ [API] Fecha guardada ISO:', new Date(newSchedule.date).toISOString());
+      console.log('✅ [API] Fecha guardada local:', new Date(newSchedule.date).toLocaleDateString('es-ES'));
 
       // 🔄 SINCRONIZAR CON AVAILABLESLOT
       try {
