@@ -139,13 +139,16 @@ const AdminAsesoriasHorariosPage = () => {
           
           try {
             const scheduleData = {
-              date: date.toISOString().split('T')[0], // Formato YYYY-MM-DD
+              // CORREGIDO: Usar fecha local en lugar de UTC para evitar el desfase de un día
+              date: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
               time: timeSlot.time,
               isAvailable: true,
               isBooked: false
             };
 
             console.log('📝 Intentando crear horario:', scheduleData);
+            console.log('📅 Fecha original del calendario:', date.toLocaleDateString('es-ES'));
+            console.log('📅 Fecha enviada a la API:', scheduleData.date);
 
             const response = await fetch('/api/asesorias/schedule', {
               method: 'POST',
