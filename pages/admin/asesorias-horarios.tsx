@@ -65,20 +65,29 @@ const AdminAsesoriasHorariosPage = () => {
 
   const loadSchedules = async () => {
     try {
+      console.log('🔄 [LOAD] Iniciando carga de horarios...');
       setLoading(true);
+      
       const response = await fetch('/api/asesorias/schedule');
+      console.log('📡 [LOAD] Respuesta recibida:', response.status, response.statusText);
+      
       const data = await response.json();
+      console.log('📋 [LOAD] Datos recibidos:', data);
       
       if (response.ok) {
-        setSchedules(data.schedules || []);
+        const schedulesList = data.schedules || [];
+        console.log('✅ [LOAD] Horarios cargados exitosamente:', schedulesList.length, 'horarios');
+        setSchedules(schedulesList);
       } else {
+        console.error('❌ [LOAD] Error en respuesta:', data);
         toast.error('Error al cargar horarios de asesorías');
       }
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al cargar horarios de asesorías');
+      console.error('💥 [LOAD] Error de red:', error);
+      toast.error('Error de conexión al cargar horarios');
     } finally {
       setLoading(false);
+      console.log('🔄 [LOAD] Carga completada');
     }
   };
 
@@ -208,25 +217,38 @@ const AdminAsesoriasHorariosPage = () => {
   };
 
   const handleDelete = async (id: string) => {
+    console.log('🗑️ [DELETE] Iniciando eliminación de horario:', id);
+    
     if (!confirm('¿Estás seguro de que quieres eliminar este horario?')) {
+      console.log('❌ [DELETE] Usuario canceló la eliminación');
       return;
     }
 
     try {
+      console.log('📡 [DELETE] Enviando request DELETE a:', `/api/asesorias/schedule/${id}`);
+      
       const response = await fetch(`/api/asesorias/schedule/${id}`, {
         method: 'DELETE',
       });
 
+      console.log('📡 [DELETE] Respuesta recibida:', response.status, response.statusText);
+
       if (response.ok) {
-        toast.success('Horario eliminado');
+        const responseData = await response.json();
+        console.log('✅ [DELETE] Horario eliminado exitosamente:', responseData);
+        toast.success('Horario eliminado exitosamente');
+        
+        console.log('🔄 [DELETE] Recargando lista de horarios...');
         await loadSchedules();
+        console.log('✅ [DELETE] Lista de horarios recargada');
       } else {
-        const data = await response.json();
-        toast.error(data.error || 'Error al eliminar horario');
+        const errorData = await response.json();
+        console.error('❌ [DELETE] Error en respuesta:', errorData);
+        toast.error(errorData.error || `Error al eliminar horario: ${response.status}`);
       }
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al eliminar horario');
+      console.error('💥 [DELETE] Error de red:', error);
+      toast.error('Error de conexión al eliminar horario');
     }
   };
 
