@@ -96,17 +96,31 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
 
   // Convertir fechas de asesoría al formato que espera ClassCalendar
   const calendarEvents = advisoryDates.map(advisoryDate => {
-    // La fecha ya viene como string ISO desde la BD, crear Date object correctamente
-    const date = new Date(advisoryDate.date);
+    // La fecha viene como string ISO desde la BD en UTC
+    // Necesitamos ajustar la zona horaria para que se muestre correctamente
+    const utcDate = new Date(advisoryDate.date);
+    
+    // Crear fecha en zona horaria local para evitar el desfase
+    const localDate = new Date(
+      utcDate.getUTCFullYear(),
+      utcDate.getUTCMonth(),
+      utcDate.getUTCDate(),
+      12, // Hora del mediodía para evitar problemas de zona horaria
+      0,
+      0,
+      0
+    );
+    
     console.log('📅 Creando evento para calendario:', {
       originalDate: advisoryDate.date,
-      parsedDate: date.toISOString(),
+      utcDate: utcDate.toISOString(),
+      localDate: localDate.toISOString(),
       title: advisoryDate.title,
       time: advisoryDate.time
     });
     
     return {
-      date: date,
+      date: localDate,
       time: `${advisoryDate.time}hs`,
       title: advisoryDate.title,
       id: advisoryDate._id
@@ -129,7 +143,11 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       // Buscar la fecha de asesoría que coincida con la fecha seleccionada
       const advisoryDate = advisoryDates.find(advisory => {
         const advisoryDateObj = new Date(advisory.date);
-        return advisoryDateObj.toDateString() === date.toDateString();
+        // Comparar solo la fecha (sin hora) para evitar problemas de zona horaria
+        const advisoryDateOnly = new Date(advisoryDateObj.getUTCFullYear(), advisoryDateObj.getUTCMonth(), advisoryDateObj.getUTCDate());
+        const selectedDateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        
+        return advisoryDateOnly.getTime() === selectedDateOnly.getTime();
       });
       
       if (advisoryDate) {
