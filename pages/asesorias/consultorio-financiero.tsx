@@ -151,7 +151,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       const shouldRefresh = selectedDate && selectedTime;
       if (shouldRefresh && !loading && !loadingTurnos) {
         console.log('🔄 Verificación automática de disponibilidad (5min)...');
-        loadProximosTurnos(false); // No forzar en verificaciones automáticas
+        loadAdvisoryDates(); // Recargar fechas de asesoría
       }
     }, 300000); // **CAMBIO: 5 minutos en lugar de 30 segundos**
 
@@ -161,23 +161,29 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   // **OPTIMIZACIÓN: Verificación de disponibilidad solo cuando es realmente necesario**
   useEffect(() => {
     // Solo verificar disponibilidad cuando se ha seleccionado completamente una cita
-    if (selectedTime && selectedDate && proximosTurnos.length > 0) {
+    if (selectedTime && selectedDate && advisoryDates.length > 0) {
       // Debounce para evitar verificaciones excesivas
       const timeoutId = setTimeout(() => {
-        checkRealTimeAvailability(selectedDate, selectedTime);
+        // Verificar si la fecha seleccionada sigue disponible
+        const advisorySelected = advisoryDates.find(a => a._id === selectedDate);
+        if (advisorySelected && advisorySelected.isBooked) {
+          console.log('⚠️ La fecha seleccionada ya no está disponible');
+          setSelectedDate('');
+          setSelectedTime('');
+        }
       }, 500);
       
       return () => clearTimeout(timeoutId);
     }
-  }, [selectedTime, selectedDate]);
+  }, [selectedTime, selectedDate, advisoryDates]);
 
-  // **OPTIMIZACIÓN: Limpiar estado solo cuando cambian los turnos significativamente**
+  // **OPTIMIZACIÓN: Limpiar estado solo cuando cambian las fechas significativamente**
   useEffect(() => {
     // Solo limpiar si realmente hay cambios
-    if (proximosTurnos.length > 0) {
+    if (advisoryDates.length > 0) {
       setAvailabilityStatus({});
     }
-  }, [proximosTurnos.length]); // Cambiar dependencia a length para evitar re-renders innecesarios
+  }, [advisoryDates.length]); // Cambiar dependencia a length para evitar re-renders innecesarios
 
   const loadProximosTurnos = async (forceRefresh = false) => {
     try {
@@ -224,6 +230,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   // Función para cargar fechas específicas de asesoría
   const loadAdvisoryDates = async () => {
     try {
+      setLoadingTurnos(true);
       console.log('📅 Cargando fechas específicas de asesoría...');
       
       const response = await fetch('/api/advisory-dates/ConsultorioFinanciero');
@@ -252,6 +259,8 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     } catch (error) {
       console.error('❌ Error cargando fechas de asesoría:', error);
       setAdvisoryDates([]);
+    } finally {
+      setLoadingTurnos(false);
     }
   };
 
