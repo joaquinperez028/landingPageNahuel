@@ -56,7 +56,8 @@ const PaymentSchema: Schema = new Schema({
   mercadopagoPaymentId: {
     type: String,
     required: false,
-    unique: false
+    unique: false,
+    sparse: true
   },
   mercadopagoPreferenceId: {
     type: String
