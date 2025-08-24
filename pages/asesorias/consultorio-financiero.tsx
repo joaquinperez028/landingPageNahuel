@@ -49,6 +49,19 @@ interface TurnoDisponible {
   disponibles: number;
 }
 
+interface AdvisoryDate {
+  _id: string;
+  advisoryType: 'ConsultorioFinanciero';
+  date: string;
+  time: string;
+  title: string;
+  description?: string;
+  isActive: boolean;
+  isBooked: boolean;
+  createdBy: string;
+  createdAt: string;
+}
+
 interface FAQ {
   question: string;
   answer: string;
@@ -67,6 +80,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   const { createBooking, loading } = useBookings();
   const { pricing, loading: pricingLoading } = usePricing();
   const [proximosTurnos, setProximosTurnos] = useState<TurnoDisponible[]>([]);
+  const [advisoryDates, setAdvisoryDates] = useState<AdvisoryDate[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -75,30 +89,18 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [reservedSlot, setReservedSlot] = useState<{date: string, time: string} | null>(null);
 
-  // Cargar turnos dinámicos al montar el componente
+  // Cargar fechas específicas de asesoría al montar el componente
   useEffect(() => {
-    loadProximosTurnos();
+    loadAdvisoryDates();
   }, []);
 
-  // Convertir turnos al formato que espera ClassCalendar
-  const calendarEvents = proximosTurnos.flatMap(turno => {
-    const dateObj = new Date(turno.fecha.split('/').reverse().join('-'));
-    console.log('📅 Generando evento para turno:', { 
-      turnoFecha: turno.fecha, 
-      dateObj: dateObj,
-      dateString: dateObj.toISOString(),
-      day: dateObj.getDate(),
-      month: dateObj.getMonth() + 1,
-      year: dateObj.getFullYear()
-    });
-    
-    return turno.horarios.map(horario => ({
-      date: dateObj,
-      time: horario,
-      title: `Consultorio Financiero - ${turno.disponibles} turnos disponibles`,
-      id: `${turno.fecha}-${horario}`
-    }));
-  });
+  // Convertir fechas de asesoría al formato que espera ClassCalendar
+  const calendarEvents = advisoryDates.map(advisoryDate => ({
+    date: new Date(advisoryDate.date),
+    time: `${advisoryDate.time}hs`,
+    title: advisoryDate.title,
+    id: advisoryDate._id
+  }));
 
   // Encontrar la fecha más temprana con turnos para posicionar el calendario
   const earliestDate = calendarEvents.length > 0 
@@ -113,60 +115,18 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     console.log('🎯 handleCalendarDateSelect llamado con:', { date, events });
     
     if (events.length > 0) {
-      // Convertir la fecha del calendario al formato que usan los turnos
-      const day = date.getDate();
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      
-      console.log('📅 Fecha convertida:', { day, month, year });
-      console.log('📋 Turnos disponibles:', proximosTurnos);
-      
-      // Buscar el turno que coincida con esta fecha (más flexible)
-      const turnoEncontrado = proximosTurnos.find(turno => {
-        const [turnoDay, turnoMonth, turnoYear] = turno.fecha.split('/').map(Number);
-        
-        // Coincidencia exacta
-        const exactMatch = turnoDay === day && turnoMonth === month && turnoYear === year;
-        
-        // Coincidencia por proximidad (mismo mes y año, día cercano)
-        const sameMonthYear = turnoMonth === month && turnoYear === year;
-        const dayDifference = Math.abs(turnoDay - day);
-        const nearbyMatch = sameMonthYear && dayDifference <= 2; // 2 días de diferencia
-        
-        const matches = exactMatch || nearbyMatch;
-        
-        console.log('🔍 Comparando turno:', { 
-          turno, 
-          turnoDay, 
-          turnoMonth, 
-          turnoYear, 
-          exactMatch,
-          sameMonthYear,
-          dayDifference,
-          nearbyMatch,
-          matches 
-        });
-        
-        return matches;
+      // Buscar la fecha de asesoría que coincida con la fecha seleccionada
+      const advisoryDate = advisoryDates.find(advisory => {
+        const advisoryDateObj = new Date(advisory.date);
+        return advisoryDateObj.toDateString() === date.toDateString();
       });
       
-      if (turnoEncontrado) {
-        console.log('✅ Turno encontrado:', turnoEncontrado);
-        setSelectedDate(turnoEncontrado.fecha);
-        setSelectedTime('');
+      if (advisoryDate) {
+        console.log('✅ Fecha de asesoría encontrada:', advisoryDate);
+        setSelectedDate(advisoryDate._id);
+        setSelectedTime(advisoryDate.time);
       } else {
-        console.log('❌ No se encontró turno para esta fecha');
-        
-        // Mostrar información de debug adicional
-        console.log('🔍 Búsqueda de turnos cercanos:');
-        proximosTurnos.forEach(turno => {
-          const [turnoDay, turnoMonth, turnoYear] = turno.fecha.split('/').map(Number);
-          const dayDiff = Math.abs(turnoDay - day);
-          const monthDiff = Math.abs(turnoMonth - month);
-          const yearDiff = Math.abs(turnoYear - year);
-          
-          console.log(`  📅 ${turno.fecha}: día=${dayDiff}, mes=${monthDiff}, año=${yearDiff}`);
-        });
+        console.log('❌ No se encontró fecha de asesoría para esta fecha');
       }
     } else {
       console.log('❌ No hay eventos para esta fecha');
@@ -250,6 +210,33 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     }
   };
 
+  // Función para cargar fechas específicas de asesoría
+  const loadAdvisoryDates = async () => {
+    try {
+      console.log('📅 Cargando fechas específicas de asesoría...');
+      
+      const response = await fetch('/api/advisory-dates/ConsultorioFinanciero');
+      const data = await response.json();
+      
+      if (data.success && data.dates) {
+        const dates = data.dates.map((date: AdvisoryDate) => ({
+          ...date,
+          date: new Date(date.date).toISOString()
+        }));
+        
+        console.log('✅ Fechas de asesoría cargadas:', dates.length);
+        setAdvisoryDates(dates);
+      } else {
+        console.log('📭 No hay fechas específicas configuradas');
+        setAdvisoryDates([]);
+      }
+      
+    } catch (error) {
+      console.error('❌ Error cargando fechas de asesoría:', error);
+      setAdvisoryDates([]);
+    }
+  };
+
   // Función para formatear fechas correctamente (evitar problemas de zona horaria)
   const formatDateForDisplay = (dateString: string) => {
     console.log('🔍 formatDateForDisplay - entrada:', dateString);
@@ -292,20 +279,13 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [availabilityStatus, setAvailabilityStatus] = useState<{[key: string]: boolean}>({});
 
-  // Verificar si el horario seleccionado sigue disponible
+  // Verificar si la fecha seleccionada sigue disponible
   const isSelectedTimeStillAvailable = () => {
-    if (!selectedDate || !selectedTime) return true; // Si no hay selección, no mostrar error
+    if (!selectedDate) return true; // Si no hay selección, no mostrar error
     
-    const key = `${selectedDate}-${selectedTime}`;
-    
-    // Si tenemos un estado de disponibilidad específico, usarlo
-    if (availabilityStatus.hasOwnProperty(key)) {
-      return availabilityStatus[key];
-    }
-    
-    // Fallback: verificar en la lista de turnos
-    const turnoSeleccionado = proximosTurnos.find(t => t.fecha === selectedDate);
-    return turnoSeleccionado?.horarios.includes(selectedTime) || false;
+    // Verificar en la lista de fechas de asesoría
+    const advisorySelected = advisoryDates.find(a => a._id === selectedDate);
+    return advisorySelected ? !advisorySelected.isBooked : false;
   };
 
   // Función para verificar disponibilidad en tiempo real
@@ -366,79 +346,24 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       return;
     }
 
-    if (!selectedTime) {
-      alert('Por favor selecciona un horario para tu consulta');
+    // Buscar la fecha de asesoría seleccionada
+    const advisorySelected = advisoryDates.find(a => a._id === selectedDate);
+    if (!advisorySelected) {
+      alert('Error: No se encontró la fecha seleccionada');
       return;
     }
 
-    // Convertir fecha y hora seleccionada a Date
-    const turnoSeleccionado = proximosTurnos.find(t => t.fecha === selectedDate);
-    if (!turnoSeleccionado) return;
-
-    // **CORREGIDO: Parsear fecha en formato DD/MM/YYYY que viene de la API**
-    let targetDate: Date;
-    
-    try {
-      // Verificar si es formato DD/MM/YYYY (formato actual de la API)
-      if (/^\d{2}\/\d{2}\/\d{4}$/.test(selectedDate)) {
-        const [day, month, year] = selectedDate.split('/').map(Number);
-        targetDate = new Date(year, month - 1, day); // month es 0-indexed en JavaScript
-        
-        console.log(`📅 Fecha parseada desde DD/MM/YYYY: ${selectedDate} → ${targetDate.toISOString()}`);
-      } 
-      // Fallback: Formato español "Lun 23 Jun" (para compatibilidad)
-      else if (/^\w{3} \d{1,2} \w{3}$/.test(selectedDate)) {
-        const today = new Date();
-        const currentYear = today.getFullYear();
-        
-        // Mapear nombres de meses
-        const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        
-        // Parsear la fecha seleccionada (formato: "Lun 23 Jun")
-        const dateParts = selectedDate.split(' ');
-        const day = parseInt(dateParts[1]);
-        const monthName = dateParts[2];
-        const monthIndex = monthNames.indexOf(monthName);
-        
-        if (monthIndex === -1) {
-          alert('Error: Formato de fecha inválido');
-          return;
-        }
-        
-        targetDate = new Date(currentYear, monthIndex, day);
-        
-        // Si la fecha es anterior a hoy, asumir que es del próximo año
-        if (targetDate < today) {
-          targetDate.setFullYear(currentYear + 1);
-        }
-        
-        console.log(`📅 Fecha parseada desde formato español: ${selectedDate} → ${targetDate.toISOString()}`);
-      }
-      // Formato no reconocido
-      else {
-        console.error('❌ Formato de fecha no reconocido:', selectedDate);
-        alert('Error: Formato de fecha inválido');
-        return;
-      }
-      
-      // Verificar que la fecha sea válida
-      if (isNaN(targetDate.getTime())) {
-        console.error('❌ Fecha inválida después del parseo:', selectedDate);
-        alert('Error: Fecha inválida');
-        return;
-      }
-      
-    } catch (error) {
-      console.error('❌ Error al parsear fecha:', error);
-      alert('Error: No se pudo procesar la fecha seleccionada');
+    // Verificar que la fecha no esté reservada
+    if (advisorySelected.isBooked) {
+      alert('Esta fecha ya está reservada. Por favor selecciona otra fecha.');
       return;
     }
+
+    // Crear fecha UTC para la reserva
+    const targetDate = new Date(advisorySelected.date);
+    const [hour, minute] = advisorySelected.time.split(':').map(Number);
     
-    // Agregar la hora seleccionada - CORREGIDO: Agregar 3 horas para UTC
-    const [hour, minute] = selectedTime.split(':').map(Number);
-    
-    // SOLUCIÓN: Crear fecha UTC agregando 3 horas (Uruguay es UTC-3)
-    // 16:00 local → 19:00 UTC para que Google Calendar muestre 16:00 local
+    // Crear fecha UTC agregando 3 horas (Uruguay es UTC-3)
     const utcDate = new Date(Date.UTC(
       targetDate.getFullYear(),
       targetDate.getMonth(),
@@ -450,7 +375,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
     ));
 
     console.log(`🎯 Fecha y hora final para reserva: ${utcDate.toISOString()}`);
-    console.log(`📍 Hora local esperada: ${selectedTime}`);
+    console.log(`📍 Hora local esperada: ${advisorySelected.time}`);
     console.log(`📍 Hora UTC enviada: ${utcDate.getUTCHours()}:${String(utcDate.getUTCMinutes()).padStart(2, '0')}`);
 
     // Precio dinámico para Consultorio Financiero
@@ -487,22 +412,31 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
       const data = await response.json();
 
       if (data.success && data.checkoutUrl) {
-        console.log('✅ Checkout de MercadoPago creado, redirigiendo...');
+        console.log('✅ Checkout de MercadoPago creado, marcando fecha como reservada...');
         
-        // Actualizar inmediatamente la UI removiendo el turno reservado
-        setProximosTurnos(prevTurnos => 
-          prevTurnos.map(turno => {
-            if (turno.fecha === selectedDate) {
-              const horariosActualizados = turno.horarios.filter(h => h !== selectedTime);
-              return {
-                ...turno,
-                horarios: horariosActualizados,
-                disponibles: horariosActualizados.length
-              };
-            }
-            return turno;
-          }).filter(turno => turno.disponibles > 0) // Remover días sin turnos disponibles
-        );
+        // Marcar la fecha de asesoría como reservada
+        try {
+          const bookResponse = await fetch('/api/advisory-dates/ConsultorioFinanciero/book', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              advisoryDateId: selectedDate
+            })
+          });
+
+          if (bookResponse.ok) {
+            console.log('✅ Fecha marcada como reservada exitosamente');
+            
+            // Actualizar la lista de fechas de asesoría
+            await loadAdvisoryDates();
+          } else {
+            console.error('❌ Error marcando fecha como reservada:', await bookResponse.json());
+          }
+        } catch (error) {
+          console.error('❌ Error marcando fecha como reservada:', error);
+        }
         
         // Limpiar selección inmediatamente
         setSelectedDate('');
@@ -614,11 +548,11 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                   
                   {loadingTurnos ? (
                     <div className={styles.loadingTurnos}>
-                      <p>Cargando turnos disponibles...</p>
+                      <p>Cargando fechas disponibles...</p>
                     </div>
-                  ) : proximosTurnos.length === 0 ? (
+                  ) : advisoryDates.length === 0 ? (
                     <div className={styles.noTurnos}>
-                      <p>No hay turnos disponibles en este momento. Intenta más tarde.</p>
+                      <p>No hay fechas de asesoría disponibles en este momento. Intenta más tarde.</p>
                     </div>
                   ) : (
                     <>
@@ -637,7 +571,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                         <div className={styles.horariosSection}>
                           <div className={styles.horariosHeader}>
                             <h4 className={styles.horariosTitle}>
-                              Horarios disponibles para {formatDateForDisplay(selectedDate)}
+                              Fecha de Asesoría Seleccionada
                             </h4>
                             <button 
                               className={styles.closeHorariosButton}
@@ -650,24 +584,38 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                             </button>
                           </div>
                           <div className={styles.horariosGrid}>
-                            {proximosTurnos
-                              .find(turno => turno.fecha === selectedDate)
-                              ?.horarios.map((horario, index) => (
-                                <button
-                                  key={index}
-                                  className={`${styles.horarioButton} ${selectedTime === horario ? styles.horarioSelected : ''}`}
-                                  onClick={() => handleTimeSelect(horario)}
-                                >
-                                  <Clock size={16} />
-                                  {horario}
-                                </button>
+                            {advisoryDates
+                              .filter(advisory => advisory._id === selectedDate)
+                              .map((advisory, index) => (
+                                <div key={index} className={styles.advisoryInfo}>
+                                  <div className={styles.advisoryTitle}>
+                                    <h5>{advisory.title}</h5>
+                                    {advisory.description && (
+                                      <p className={styles.advisoryDescription}>{advisory.description}</p>
+                                    )}
+                                  </div>
+                                  <div className={styles.advisoryTime}>
+                                    <Clock size={16} />
+                                    <span>{advisory.time}hs</span>
+                                  </div>
+                                  <div className={styles.advisoryDate}>
+                                    <Calendar size={16} />
+                                    <span>{formatDateForDisplay(advisory.date)}</span>
+                                  </div>
+                                  {advisory.isBooked && (
+                                    <div className={styles.advisoryBooked}>
+                                      <CheckCircle size={16} />
+                                      <span>Reservado</span>
+                                    </div>
+                                  )}
+                                </div>
                               ))
                             }
                           </div>
                           {selectedTime && (
                             <div className={styles.horarioConfirmado}>
                               <CheckCircle size={20} />
-                              <span>Horario seleccionado: {selectedTime}</span>
+                              <span>Fecha seleccionada: {selectedTime}hs</span>
                             </div>
                           )}
                         </div>
@@ -773,7 +721,7 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
                         type="button"
                         className={styles.confirmarButton}
                         onClick={handleSacarTurno}
-                        disabled={!selectedDate || !selectedTime || loading}
+                        disabled={!selectedDate || loading}
                       >
                         {loading ? 'Procesando...' : 'Confirmar Turno >'}
                       </button>
