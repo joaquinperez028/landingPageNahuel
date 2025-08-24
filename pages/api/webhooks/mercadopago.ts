@@ -283,7 +283,16 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
         
         // Crear evento en Google Calendar
         try {
+          console.log('📅 Intentando crear evento en Google Calendar...');
+          console.log('📅 Datos del evento:', {
+            userEmail: bookingUser.email,
+            serviceType: serviceType,
+            startDate: startDate.toISOString(),
+            duration: Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60))
+          });
+          
           const { createAdvisoryEvent } = await import('@/lib/googleCalendar');
+          console.log('✅ Función createAdvisoryEvent importada correctamente');
           
           const eventResult = await createAdvisoryEvent(
             bookingUser.email,
@@ -292,22 +301,37 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
             Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60))
           );
           
+          console.log('📅 Resultado de createAdvisoryEvent:', eventResult);
+          
           if (eventResult.success) {
             console.log('✅ Evento creado en Google Calendar:', eventResult.eventId);
             
             // Actualizar la reserva con el ID del evento
             newBooking.googleCalendarEventId = eventResult.eventId;
             await newBooking.save();
+            console.log('✅ Reserva actualizada con ID del evento de Google Calendar');
           } else {
             console.error('❌ Error creando evento en Google Calendar:', eventResult.error);
           }
-        } catch (calendarError) {
+        } catch (calendarError: any) {
           console.error('❌ Error creando evento en Google Calendar:', calendarError);
+          console.error('🔍 Stack trace del error:', calendarError.stack);
         }
         
         // Enviar email de confirmación
         try {
+          console.log('📧 Intentando enviar email de confirmación...');
+          console.log('📧 Datos del email:', {
+            userEmail: bookingUser.email,
+            userName: bookingUser.name || bookingUser.email,
+            serviceType: serviceType,
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            amount: amount
+          });
+          
           const { sendBookingConfirmationEmail } = await import('@/lib/emailNotifications');
+          console.log('✅ Función sendBookingConfirmationEmail importada correctamente');
           
           await sendBookingConfirmationEmail(
             bookingUser.email,
@@ -318,9 +342,10 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
             amount
           );
           
-          console.log('✅ Email de confirmación enviado a:', bookingUser.email);
-        } catch (emailError) {
+          console.log('✅ Email de confirmación enviado exitosamente a:', bookingUser.email);
+        } catch (emailError: any) {
           console.error('❌ Error enviando email de confirmación:', emailError);
+          console.error('🔍 Stack trace del error de email:', emailError.stack);
         }
         
       } catch (bookingError) {
