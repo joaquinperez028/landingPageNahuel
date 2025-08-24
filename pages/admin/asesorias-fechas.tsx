@@ -172,9 +172,14 @@ export default function AsesoriasFechasPage() {
 
   const handleEdit = (advisoryDate: AdvisoryDate) => {
     setEditingDate(advisoryDate);
+    
+    // Manejar la fecha correctamente para evitar problemas de zona horaria
+    const date = new Date(advisoryDate.date);
+    const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    
     setFormData({
       advisoryType: advisoryDate.advisoryType,
-      date: new Date(advisoryDate.date).toISOString().split('T')[0],
+      date: localDate.toISOString().split('T')[0],
       time: advisoryDate.time,
       title: advisoryDate.title,
       description: advisoryDate.description || ''
@@ -195,11 +200,16 @@ export default function AsesoriasFechasPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    // La fecha viene de la BD en UTC, necesitamos mostrarla correctamente
+    const date = new Date(dateString);
+    
+    // Usar toLocaleDateString con timeZone: 'UTC' para evitar conversión de zona horaria
+    return date.toLocaleDateString('es-ES', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'UTC'
     });
   };
 
