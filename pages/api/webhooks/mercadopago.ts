@@ -271,8 +271,11 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
             
             if (advisoryDate) {
               advisoryDate.isBooked = true;
+              advisoryDate.confirmedBooking = true; // Marcar como confirmada por pago
+              advisoryDate.tempReservationTimestamp = undefined; // Limpiar datos temporales
+              advisoryDate.tempReservationExpiresAt = undefined;
               await advisoryDate.save();
-              console.log('✅ Fecha de asesoría marcada como reservada:', advisoryDate._id);
+              console.log('✅ Fecha de asesoría marcada como reservada confirmada:', advisoryDate._id);
             } else {
               console.log('⚠️ No se encontró fecha de asesoría para marcar como reservada');
             }

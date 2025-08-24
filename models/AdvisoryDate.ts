@@ -8,6 +8,9 @@ export interface IAdvisoryDate extends Document {
   description?: string; // Descripción opcional
   isActive: boolean; // Si la fecha está activa
   isBooked: boolean; // Si ya fue reservado por un usuario
+  tempReservationTimestamp?: Date; // Timestamp de cuando se hizo la reserva temporal
+  tempReservationExpiresAt?: Date; // Cuándo expira la reserva temporal
+  confirmedBooking?: boolean; // Si la reserva fue confirmada por pago
   createdBy: string; // Email del admin que creó la fecha
   createdAt: Date;
   updatedAt: Date;
@@ -42,6 +45,16 @@ const AdvisoryDateSchema: Schema = new Schema({
     default: true
   },
   isBooked: {
+    type: Boolean,
+    default: false
+  },
+  tempReservationTimestamp: {
+    type: Date
+  },
+  tempReservationExpiresAt: {
+    type: Date
+  },
+  confirmedBooking: {
     type: Boolean,
     default: false
   },

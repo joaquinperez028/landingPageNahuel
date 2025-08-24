@@ -224,7 +224,9 @@ export const createBookingPreference = async (
       expires: true,
       expiration_date_to: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutos
       payment_methods: {
-        installments: 1 // Sin cuotas para reservas
+        installments: 1, // Sin cuotas para reservas
+        excluded_payment_types: [], // Permitir todos los tipos de pago
+        excluded_payment_methods: [] // Permitir todos los métodos de pago
       }
     };
 

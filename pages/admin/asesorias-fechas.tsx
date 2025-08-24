@@ -15,7 +15,8 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
+  RefreshCw
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -199,6 +200,32 @@ export default function AsesoriasFechasPage() {
     setShowForm(false);
   };
 
+  const handleCleanExpiredReservations = async () => {
+    try {
+      console.log('🧹 Limpiando reservas temporales expiradas...');
+      
+      const response = await fetch('/api/admin/clean-expired-reservations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(`Limpieza completada: ${data.cleanedCount} reservas liberadas`);
+        await fetchAdvisoryDates(); // Recargar la lista
+      } else {
+        console.error('❌ Error en limpieza:', data);
+        toast.error(data.error || 'Error al limpiar reservas');
+      }
+    } catch (error) {
+      console.error('💥 Error:', error);
+      toast.error('Error de conexión');
+    }
+  };
+
   const formatDate = (dateString: string) => {
     // La fecha viene de la BD en UTC, necesitamos mostrarla correctamente
     const date = new Date(dateString);
@@ -242,15 +269,26 @@ export default function AsesoriasFechasPage() {
                 Administra fechas específicas para consultoría financiera
               </p>
             </div>
-            <motion.button
-              className={styles.addButton}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowForm(true)}
-            >
-              <Plus size={20} />
-              Nueva Fecha
-            </motion.button>
+            <div className={styles.buttonGroup}>
+              <motion.button
+                className={styles.addButton}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowForm(true)}
+              >
+                <Plus size={20} />
+                Nueva Fecha
+              </motion.button>
+              <motion.button
+                className={styles.cleanButton}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleCleanExpiredReservations}
+              >
+                <RefreshCw size={20} />
+                Limpiar Reservas
+              </motion.button>
+            </div>
           </div>
         </div>
 
