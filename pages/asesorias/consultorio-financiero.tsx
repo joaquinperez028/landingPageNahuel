@@ -95,12 +95,23 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
   }, []);
 
   // Convertir fechas de asesoría al formato que espera ClassCalendar
-  const calendarEvents = advisoryDates.map(advisoryDate => ({
-    date: new Date(advisoryDate.date),
-    time: `${advisoryDate.time}hs`,
-    title: advisoryDate.title,
-    id: advisoryDate._id
-  }));
+  const calendarEvents = advisoryDates.map(advisoryDate => {
+    // La fecha ya viene como string ISO desde la BD, crear Date object correctamente
+    const date = new Date(advisoryDate.date);
+    console.log('📅 Creando evento para calendario:', {
+      originalDate: advisoryDate.date,
+      parsedDate: date.toISOString(),
+      title: advisoryDate.title,
+      time: advisoryDate.time
+    });
+    
+    return {
+      date: date,
+      time: `${advisoryDate.time}hs`,
+      title: advisoryDate.title,
+      id: advisoryDate._id
+    };
+  });
 
   // Encontrar la fecha más temprana con turnos para posicionar el calendario
   const earliestDate = calendarEvents.length > 0 
@@ -225,6 +236,13 @@ const ConsultorioFinancieroPage: React.FC<ConsultorioPageProps> = ({
         }));
         
         console.log('✅ Fechas de asesoría cargadas:', dates.length);
+        console.log('📅 Detalles de fechas:', dates.map((d: AdvisoryDate) => ({
+          id: d._id,
+          date: d.date,
+          title: d.title,
+          time: d.time,
+          isBooked: d.isBooked
+        })));
         setAdvisoryDates(dates);
       } else {
         console.log('📭 No hay fechas específicas configuradas');
