@@ -318,7 +318,7 @@ const EntrenamientosPage: React.FC<EntrenamientosPageProps> = ({ trainings, vide
               transition={{ duration: 0.8 }}
             >
               <h2 className={styles.ctaTitle}>
-                ¿Listo para llevar tus inversiones al siguiente nivel?
+                ¿Listo para llevar tus inversiones al siguiente nivel? 
               </h2>
               <p className={styles.ctaDescription}>
                 Únete a nuestra comunidad y comienza a construir tu libertad financiera
