@@ -68,6 +68,52 @@ export async function sendAdvisoryConfirmationEmail(
 }
 
 /**
+ * Envía email de confirmación para reserva (booking)
+ */
+export async function sendBookingConfirmationEmail(
+  userEmail: string,
+  userName: string,
+  serviceType: string,
+  startDate: Date,
+  endDate: Date,
+  amount: number
+) {
+  try {
+    console.log('📧 Enviando email de confirmación de reserva a:', userEmail);
+
+    const advisoryDetails = {
+      type: serviceType,
+      date: startDate.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+      time: startDate.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      duration: Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60)),
+      price: amount
+    };
+
+    const html = createAdvisoryConfirmationTemplate(userEmail, userName, advisoryDetails);
+    
+    await sendEmail({
+      to: userEmail,
+      subject: '✅ Confirmación de Reserva - Consultorio Financiero',
+      html
+    });
+
+    console.log('✅ Email de confirmación de reserva enviado exitosamente');
+
+  } catch (error) {
+    console.error('❌ Error al enviar email de confirmación de reserva:', error);
+    throw error;
+  }
+}
+
+/**
  * Envía notificación al admin sobre nueva reserva
  */
 export async function sendAdminNotificationEmail(

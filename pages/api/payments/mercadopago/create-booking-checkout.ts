@@ -71,6 +71,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const failureUrl = `${baseUrl}/payment/failure?reference=${externalReference}&type=booking`;
     const pendingUrl = `${baseUrl}/payment/pending?reference=${externalReference}&type=booking`;
 
+    // Guardar los datos de reserva en la base de datos para que el webhook los pueda recuperar
+    const { default: Payment } = await import('@/models/Payment');
+    
+    const tempPayment = new Payment({
+      userId: user._id,
+      userEmail: user.email,
+      service: serviceType,
+      amount: amount,
+      currency: currency,
+      status: 'pending',
+      mercadopagoPaymentId: null,
+      externalReference: externalReference,
+      paymentMethodId: '',
+      paymentTypeId: '',
+      installments: 1,
+      transactionDate: new Date(),
+      expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      metadata: {
+        reservationData: reservationData,
+        createdFromCheckout: true
+      }
+    });
+    
+    await tempPayment.save();
+    
+    console.log('✅ Datos de reserva guardados temporalmente:', {
+      paymentId: tempPayment._id,
+      externalReference: externalReference,
+      reservationData: reservationData
+    });
+
     // Crear preferencia de reserva
     console.log('🔧 Creando preferencia de reserva:', {
       serviceType,
@@ -90,8 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       externalReference,
       successUrl,
       failureUrl,
-      pendingUrl,
-      reservationData
+      pendingUrl
     );
 
     console.log('📊 Resultado de preferencia de reserva:', preferenceResult);

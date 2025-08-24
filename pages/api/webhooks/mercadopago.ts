@@ -212,20 +212,30 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
           return;
         }
         
-        // Crear la reserva con los datos del pago
+        // Obtener los datos de reserva del metadata del pago
+        const reservationData = payment.metadata?.reservationData;
+        let startDate = new Date();
+        let endDate = new Date(Date.now() + 60 * 60 * 1000);
+        
+        if (reservationData && reservationData.startDate) {
+          startDate = new Date(reservationData.startDate);
+          endDate = new Date(startDate.getTime() + (reservationData.duration || 60) * 60 * 1000);
+        }
+        
+        // Crear la reserva con los datos correctos
         const newBooking = new Booking({
           userId: userId,
           userEmail: bookingUser.email,
           userName: bookingUser.name || bookingUser.email,
-          type: 'advisory',
+          type: reservationData?.type || 'advisory',
           serviceType: serviceType,
-          startDate: new Date(), // Esto debería venir de los datos de reserva
-          endDate: new Date(Date.now() + 60 * 60 * 1000), // 1 hora después
-          duration: 60,
+          startDate: startDate,
+          endDate: endDate,
+          duration: reservationData?.duration || 60,
           status: 'confirmed',
           price: amount,
           paymentStatus: 'paid',
-          notes: `Reserva creada automáticamente después del pago exitoso - Transaction ID: ${paymentInfo.id}`,
+          notes: reservationData?.notes || `Reserva creada automáticamente después del pago exitoso - Transaction ID: ${paymentInfo.id}`,
           createdAt: new Date(),
           updatedAt: new Date()
         });
@@ -236,12 +246,82 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
           bookingId: newBooking._id,
           user: bookingUser.email,
           serviceType: serviceType,
+          startDate: startDate,
+          endDate: endDate,
           amount: amount,
           transactionId: paymentInfo.id
         });
         
-        // Aquí podrías enviar emails de confirmación
-        // await sendBookingConfirmationEmail(bookingUser.email, newBooking);
+        // Si es una reserva de asesoría, marcar la fecha como reservada
+        if (serviceType === 'ConsultorioFinanciero') {
+          try {
+            // Importar el modelo AdvisoryDate
+            const { default: AdvisoryDate } = await import('@/models/AdvisoryDate');
+            
+            // Buscar la fecha de asesoría que coincida con la fecha de inicio
+            const advisoryDate = await AdvisoryDate.findOne({
+              advisoryType: 'ConsultorioFinanciero',
+              date: {
+                $gte: new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()),
+                $lt: new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + 1)
+              },
+              time: `${startDate.getHours()}:${String(startDate.getMinutes()).padStart(2, '0')}`,
+              isBooked: false
+            });
+            
+            if (advisoryDate) {
+              advisoryDate.isBooked = true;
+              await advisoryDate.save();
+              console.log('✅ Fecha de asesoría marcada como reservada:', advisoryDate._id);
+            } else {
+              console.log('⚠️ No se encontró fecha de asesoría para marcar como reservada');
+            }
+          } catch (advisoryError) {
+            console.error('❌ Error marcando fecha de asesoría como reservada:', advisoryError);
+          }
+        }
+        
+        // Crear evento en Google Calendar
+        try {
+          const { createAdvisoryEvent } = await import('@/lib/googleCalendar');
+          
+          const eventResult = await createAdvisoryEvent(
+            bookingUser.email,
+            serviceType,
+            startDate,
+            Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60))
+          );
+          
+          if (eventResult.success) {
+            console.log('✅ Evento creado en Google Calendar:', eventResult.eventId);
+            
+            // Actualizar la reserva con el ID del evento
+            newBooking.googleCalendarEventId = eventResult.eventId;
+            await newBooking.save();
+          } else {
+            console.error('❌ Error creando evento en Google Calendar:', eventResult.error);
+          }
+        } catch (calendarError) {
+          console.error('❌ Error creando evento en Google Calendar:', calendarError);
+        }
+        
+        // Enviar email de confirmación
+        try {
+          const { sendBookingConfirmationEmail } = await import('@/lib/emailNotifications');
+          
+          await sendBookingConfirmationEmail(
+            bookingUser.email,
+            bookingUser.name || bookingUser.email,
+            serviceType,
+            startDate,
+            endDate,
+            amount
+          );
+          
+          console.log('✅ Email de confirmación enviado a:', bookingUser.email);
+        } catch (emailError) {
+          console.error('❌ Error enviando email de confirmación:', emailError);
+        }
         
       } catch (bookingError) {
         console.error('❌ Error creando reserva después del pago:', bookingError);
