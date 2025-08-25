@@ -39,6 +39,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('🔍 Consultando slots disponibles para:', date, 'tipo:', type);
 
+    // Obtener reservas existentes para esta fecha (mover antes del if)
+    const startOfDay = new Date(targetDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(targetDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const existingBookings = await Booking.find({
+      status: { $in: ['pending', 'confirmed'] },
+      startDate: { $gte: startOfDay, $lte: endOfDay }
+    });
+
     // Para asesorías, consultar slots configurados en AvailableSlot
     if (type === 'advisory') {
       console.log('🔍 Consultando slots de asesoría desde AvailableSlot...');
@@ -106,17 +117,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const trainingSchedules = await TrainingSchedule.find({ 
       dayOfWeek,
       activo: true 
-    });
-
-    // Obtener reservas existentes para esta fecha
-    const startOfDay = new Date(targetDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(targetDate);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    const existingBookings = await Booking.find({
-      status: { $in: ['pending', 'confirmed'] },
-      startDate: { $gte: startOfDay, $lte: endOfDay }
     });
 
     // Filtrar slots disponibles
