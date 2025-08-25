@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/mongodb';
 import Booking from '@/models/Booking';
 import TrainingSchedule from '@/models/TrainingSchedule';
+import AvailableSlot from '@/models/AvailableSlot';
 import { z } from 'zod';
 
 // Schema de validación para consultar slots disponibles
@@ -38,7 +39,58 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('🔍 Consultando slots disponibles para:', date, 'tipo:', type);
 
-    // Generar todos los slots posibles del día (cada 30 minutos de 8:00 a 22:00)
+    // Para asesorías, consultar slots configurados en AvailableSlot
+    if (type === 'advisory') {
+      console.log('🔍 Consultando slots de asesoría desde AvailableSlot...');
+      
+      const availableSlots = await AvailableSlot.find({
+        date: date,
+        serviceType: 'ConsultorioFinanciero',
+        available: true
+      }).sort({ time: 1 });
+
+      console.log(`📊 Encontrados ${availableSlots.length} slots de asesoría disponibles`);
+
+      // Convertir a formato de tiempo
+      const slotTimes = availableSlots.map(slot => slot.time);
+      
+      // Verificar conflictos con reservas existentes
+      const availableSlotsWithoutConflicts = slotTimes.filter(slotTime => {
+        const [slotHour, slotMinute] = slotTime.split(':').map(Number);
+        const slotStartMinutes = slotHour * 60 + slotMinute;
+        const slotEndMinutes = slotStartMinutes + duration;
+
+        // Verificar conflicto con reservas existentes
+        const conflictsWithBooking = existingBookings.some(booking => {
+          const bookingStart = booking.startDate.getTime();
+          const bookingEnd = booking.endDate.getTime();
+          
+          const slotStart = new Date(targetDate);
+          slotStart.setHours(slotHour, slotMinute, 0, 0);
+          const slotEnd = new Date(slotStart.getTime() + duration * 60000);
+
+          return (
+            (slotStart.getTime() >= bookingStart && slotStart.getTime() < bookingEnd) ||
+            (slotEnd.getTime() > bookingStart && slotEnd.getTime() <= bookingEnd) ||
+            (slotStart.getTime() <= bookingStart && slotEnd.getTime() >= bookingEnd)
+          );
+        });
+
+        return !conflictsWithBooking;
+      });
+
+      console.log(`✅ ${availableSlotsWithoutConflicts.length} slots disponibles después de verificar conflictos`);
+
+      return res.status(200).json({ 
+        date,
+        availableSlots: availableSlotsWithoutConflicts,
+        totalSlots: availableSlotsWithoutConflicts.length,
+        source: 'AvailableSlot',
+        existingBookings: existingBookings.length
+      });
+    }
+
+    // Para entrenamientos, generar slots automáticamente
     const allSlots: string[] = [];
     for (let hour = 8; hour <= 21; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
