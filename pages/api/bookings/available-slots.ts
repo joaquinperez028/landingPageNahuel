@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import Booking from '@/models/Booking';
 import TrainingSchedule from '@/models/TrainingSchedule';
 import AvailableSlot from '@/models/AvailableSlot';
+import AdvisoryDate from '@/models/AdvisoryDate';
 import { z } from 'zod';
 
 // Schema de validación para consultar slots disponibles
@@ -50,54 +51,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       startDate: { $gte: startOfDay, $lte: endOfDay }
     });
 
-    // Para asesorías, consultar slots configurados en AvailableSlot
+    // Para asesorías, consultar fechas configuradas en AdvisoryDate
     if (type === 'advisory') {
-      console.log('🔍 Consultando slots de asesoría desde AvailableSlot...');
+      console.log('🔍 Consultando fechas de asesoría desde AdvisoryDate...');
       
-      const availableSlots = await AvailableSlot.find({
-        date: date,
-        serviceType: 'ConsultorioFinanciero',
-        available: true
+      const advisoryDates = await AdvisoryDate.find({
+        date: targetDate,
+        advisoryType: 'ConsultorioFinanciero',
+        isActive: true,
+        isBooked: false
       }).sort({ time: 1 });
 
-      console.log(`📊 Encontrados ${availableSlots.length} slots de asesoría disponibles`);
+      console.log(`📊 Encontradas ${advisoryDates.length} fechas de asesoría disponibles`);
 
       // Convertir a formato de tiempo
-      const slotTimes = availableSlots.map(slot => slot.time);
+      const slotTimes = advisoryDates.map(date => date.time);
       
-      // Verificar conflictos con reservas existentes
-      const availableSlotsWithoutConflicts = slotTimes.filter(slotTime => {
-        const [slotHour, slotMinute] = slotTime.split(':').map(Number);
-        const slotStartMinutes = slotHour * 60 + slotMinute;
-        const slotEndMinutes = slotStartMinutes + duration;
-
-        // Verificar conflicto con reservas existentes
-        const conflictsWithBooking = existingBookings.some(booking => {
-          const bookingStart = booking.startDate.getTime();
-          const bookingEnd = booking.endDate.getTime();
-          
-          const slotStart = new Date(targetDate);
-          slotStart.setHours(slotHour, slotMinute, 0, 0);
-          const slotEnd = new Date(slotStart.getTime() + duration * 60000);
-
-          return (
-            (slotStart.getTime() >= bookingStart && slotStart.getTime() < bookingEnd) ||
-            (slotEnd.getTime() > bookingStart && slotEnd.getTime() <= bookingEnd) ||
-            (slotStart.getTime() <= bookingStart && slotEnd.getTime() >= bookingEnd)
-          );
-        });
-
-        return !conflictsWithBooking;
-      });
-
-      console.log(`✅ ${availableSlotsWithoutConflicts.length} slots disponibles después de verificar conflictos`);
+      console.log(`✅ ${slotTimes.length} slots disponibles para asesoría`);
 
       return res.status(200).json({ 
         date,
-        availableSlots: availableSlotsWithoutConflicts,
-        totalSlots: availableSlotsWithoutConflicts.length,
-        source: 'AvailableSlot',
-        existingBookings: existingBookings.length
+        availableSlots: slotTimes,
+        totalSlots: slotTimes.length,
+        source: 'AdvisoryDate',
+        existingBookings: existingBookings.length,
+        advisoryDates: advisoryDates.map(date => ({
+          id: date._id,
+          title: date.title,
+          time: date.time,
+          description: date.description
+        }))
       });
     }
 
