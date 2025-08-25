@@ -90,90 +90,91 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       });
 
-      // ✅ NUEVO: Verificar disponibilidad según el tipo de reserva
-      const timezone = 'America/Montevideo';
-      
-      if (type === 'advisory') {
-        // Para asesorías, verificar en AdvisoryDate
-        console.log('🔍 Verificando disponibilidad en AdvisoryDate para asesoría...');
-        
-        const advisoryDate = await AdvisoryDate.findOne({
-          date: startDateTime,
-          advisoryType: 'ConsultorioFinanciero',
-          isActive: true,
-          isBooked: false
-        });
+             // ✅ NUEVO: Verificar disponibilidad según el tipo de reserva
+       const timezone = 'America/Montevideo';
+       let availableSlot = null;
+       let advisoryDate = null;
+       
+       if (type === 'advisory') {
+         // Para asesorías, verificar en AdvisoryDate
+         console.log('🔍 Verificando disponibilidad en AdvisoryDate para asesoría...');
+         
+         advisoryDate = await AdvisoryDate.findOne({
+           date: startDateTime,
+           advisoryType: 'ConsultorioFinanciero',
+           isActive: true,
+           isBooked: false
+         });
 
-        if (!advisoryDate) {
-          console.log('❌ Fecha de asesoría no disponible en AdvisoryDate');
-          return res.status(409).json({ 
-            error: 'Fecha de asesoría no disponible. Esta fecha ya fue reservada o no existe.',
-            details: {
-              date: startDateTime.toISOString(),
-              type: 'advisory',
-              found: false
-            }
-          });
-        }
+         if (!advisoryDate) {
+           console.log('❌ Fecha de asesoría no disponible en AdvisoryDate');
+           return res.status(409).json({ 
+             error: 'Fecha de asesoría no disponible. Esta fecha ya fue reservada o no existe.',
+             details: {
+               date: startDateTime.toISOString(),
+               type: 'advisory',
+               found: false
+             }
+           });
+         }
 
-        console.log('✅ Fecha de asesoría disponible en AdvisoryDate:', advisoryDate._id);
-        
-        // Marcar como reservada
-        advisoryDate.isBooked = true;
-        await advisoryDate.save();
-        
-      } else {
-        // Para entrenamientos, verificar en AvailableSlot
-        const dateStr = startDateTime.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          timeZone: timezone
-        });
-        const timeStr = startDateTime.toLocaleTimeString('es-ES', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-          timeZone: timezone
-        });
+         console.log('✅ Fecha de asesoría disponible en AdvisoryDate:', advisoryDate._id);
+         
+         // Marcar como reservada
+         advisoryDate.isBooked = true;
+         await advisoryDate.save();
+         
+       } else {
+         // Para entrenamientos, verificar en AvailableSlot
+         const dateStr = startDateTime.toLocaleDateString('es-ES', {
+           day: '2-digit',
+           month: '2-digit',
+           year: 'numeric',
+           timeZone: timezone
+         });
+         const timeStr = startDateTime.toLocaleTimeString('es-ES', {
+           hour: '2-digit',
+           minute: '2-digit',
+           hour12: false,
+           timeZone: timezone
+         });
 
-        console.log('🔍 Verificando disponibilidad en AvailableSlot para entrenamiento:', {
-          date: dateStr,
-          time: timeStr,
-          serviceType,
-          startDateUTC: startDateTime.toISOString(),
-          startDateLocal: startDateTime.toLocaleString('es-ES', { timeZone: timezone })
-        });
+         console.log('🔍 Verificando disponibilidad en AvailableSlot para entrenamiento:', {
+           date: dateStr,
+           time: timeStr,
+           serviceType,
+           startDateUTC: startDateTime.toISOString(),
+           startDateLocal: startDateTime.toLocaleString('es-ES', { timeZone: timezone })
+         });
 
-        const availableSlot = await AvailableSlot.findOne({
-          date: dateStr,
-          time: timeStr,
-          serviceType,
-          available: true
-        });
+         availableSlot = await AvailableSlot.findOne({
+           date: dateStr,
+           time: timeStr,
+           serviceType,
+           available: true
+         });
 
-        if (!availableSlot) {
-          console.log('❌ Horario no disponible en AvailableSlot');
-          return res.status(409).json({ 
-            error: 'Horario no disponible. Este horario ya fue reservado o no existe.',
-            details: {
-              date: dateStr,
-              time: timeStr,
-              serviceType,
-              found: false
-            }
-          });
-        }
+         if (!availableSlot) {
+           console.log('❌ Horario no disponible en AvailableSlot');
+           return res.status(409).json({ 
+             error: 'Horario no disponible. Este horario ya fue reservado o no existe.',
+             details: {
+               date: dateStr,
+               time: timeStr,
+               serviceType,
+               found: false
+             }
+           });
+         }
 
-        console.log('✅ Horario disponible en AvailableSlot:', availableSlot._id);
-        
-        // Marcar como no disponible
-        availableSlot.available = false;
-        availableSlot.reservedBy = userEmail;
-        availableSlot.reservedAt = new Date();
-        availableSlot.bookingId = newBooking._id?.toString();
-        await availableSlot.save();
-      }
+         console.log('✅ Horario disponible en AvailableSlot:', availableSlot._id);
+         
+         // Marcar como no disponible (se actualizará después de crear la reserva)
+         availableSlot.available = false;
+         availableSlot.reservedBy = userEmail;
+         availableSlot.reservedAt = new Date();
+         await availableSlot.save();
+       }
 
       // Verificar que no haya conflictos de horario en Booking (como respaldo)
       const conflictingBookings = await Booking.find({
@@ -248,6 +249,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       console.log('✅ Reserva creada en Booking:', newBooking._id);
+
+      // Actualizar el bookingId en AvailableSlot si es un entrenamiento
+      if (type === 'training' && availableSlot) {
+        availableSlot.bookingId = newBooking._id.toString();
+        await availableSlot.save();
+        console.log('✅ BookingId actualizado en AvailableSlot');
+      }
 
       // Definir nombre del evento
       const eventName = serviceType || (type === 'training' ? 'Entrenamiento de Trading' : 'Asesoría Financiera');
