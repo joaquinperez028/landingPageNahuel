@@ -37,6 +37,11 @@ interface GoogleMeetData {
   meetLink?: string;
   eventId?: string;
   error?: string;
+  details?: {
+    status?: number;
+    code?: string;
+    errors?: any;
+  };
 }
 
 /**
@@ -112,6 +117,13 @@ async function createGoogleMeetForEvent(
 ): Promise<GoogleMeetData> {
   try {
     console.log('🔗 Creando Google Meet automáticamente...');
+    console.log('📅 Calendar ID:', calendarId);
+    console.log('📋 Datos del evento a crear:', {
+      summary: eventData.summary,
+      start: eventData.start,
+      end: eventData.end,
+      attendees: eventData.attendees
+    });
     
     // Agregar configuración de conferencia al evento
     const eventWithMeet = {
@@ -127,11 +139,19 @@ async function createGoogleMeetForEvent(
     };
 
     console.log('📤 Enviando evento con Google Meet a Calendar API...');
+    console.log('🔧 Configuración de conferencia:', eventWithMeet.conferenceData);
     
     const response = await calendar.events.insert({
       calendarId: calendarId,
       requestBody: eventWithMeet,
       conferenceDataVersion: 1 // Habilitar conferencias
+    });
+
+    console.log('✅ Respuesta de Calendar API recibida:', {
+      eventId: response.data.id,
+      status: response.data.status,
+      hasConferenceData: !!response.data.conferenceData,
+      conferenceData: response.data.conferenceData
     });
 
     const meetLink = response.data.conferenceData?.entryPoints?.[0]?.uri;
@@ -145,6 +165,7 @@ async function createGoogleMeetForEvent(
       };
     } else {
       console.log('⚠️ Evento creado pero sin link de Meet');
+      console.log('🔍 Datos de conferencia disponibles:', response.data.conferenceData);
       return {
         success: true,
         eventId: response.data.id
@@ -152,10 +173,22 @@ async function createGoogleMeetForEvent(
     }
 
   } catch (error: any) {
-    console.error('❌ Error al crear Google Meet:', error);
+    console.error('❌ Error al crear Google Meet:', {
+      message: error.message,
+      status: error.status,
+      code: error.code,
+      errors: error.errors,
+      response: error.response?.data
+    });
+    
     return {
       success: false,
-      error: error.message || 'Error desconocido al crear Google Meet'
+      error: error.message || 'Error desconocido al crear Google Meet',
+      details: {
+        status: error.status,
+        code: error.code,
+        errors: error.errors
+      }
     };
   }
 }
@@ -324,12 +357,18 @@ export async function createAdvisoryEvent(
     console.log('📋 Resumen del evento:', event.summary);
 
     // Crear evento con Google Meet automáticamente
+    console.log('🔗 Iniciando creación de evento con Google Meet...');
     const meetData = await createGoogleMeetForEvent(calendar, event, calendarId);
     
     if (meetData.success && meetData.meetLink) {
       console.log('✅ Evento de asesoría creado con Google Meet:', meetData.meetLink);
-    } else {
+      console.log('📅 ID del evento creado:', meetData.eventId);
+    } else if (meetData.success && meetData.eventId) {
       console.log('⚠️ Evento creado pero sin Google Meet:', meetData.error);
+      console.log('📅 ID del evento creado:', meetData.eventId);
+    } else {
+      console.error('❌ Error creando evento:', meetData.error);
+      throw new Error(`Error creando evento: ${meetData.error}`);
     }
 
     return meetData;
@@ -340,9 +379,20 @@ export async function createAdvisoryEvent(
       status: error?.status,
       code: error?.code,
       errors: error?.errors,
-      response: error?.response?.data
+      response: error?.response?.data,
+      stack: error?.stack
     });
-    throw error;
+    
+    // Retornar error estructurado en lugar de lanzar excepción
+    return {
+      success: false,
+      error: error?.message || 'Error desconocido al crear evento de asesoría',
+      details: {
+        status: error?.status,
+        code: error?.code,
+        errors: error?.errors
+      }
+    };
   }
 }
 

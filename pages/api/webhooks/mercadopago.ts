@@ -285,6 +285,7 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
         }
         
         // Crear evento en Google Calendar
+        let googleEventId = null;
         try {
           console.log('📅 Intentando crear evento en Google Calendar...');
           console.log('📅 Datos del evento:', {
@@ -308,9 +309,10 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
           
           if (eventResult.success) {
             console.log('✅ Evento creado en Google Calendar:', eventResult.eventId);
+            googleEventId = eventResult.eventId;
             
             // Actualizar la reserva con el ID del evento
-            newBooking.googleCalendarEventId = eventResult.eventId;
+            newBooking.googleEventId = eventResult.eventId;
             await newBooking.save();
             console.log('✅ Reserva actualizada con ID del evento de Google Calendar');
           } else {
@@ -321,9 +323,9 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
           console.error('🔍 Stack trace del error:', calendarError.stack);
         }
         
-        // Enviar email de confirmación
+        // Enviar email de confirmación al usuario
         try {
-          console.log('📧 Intentando enviar email de confirmación...');
+          console.log('📧 Intentando enviar email de confirmación al usuario...');
           console.log('📧 Datos del email:', {
             userEmail: bookingUser.email,
             userName: bookingUser.name || bookingUser.email,
@@ -347,8 +349,43 @@ async function processSuccessfulPayment(payment: any, paymentInfo: any) {
           
           console.log('✅ Email de confirmación enviado exitosamente a:', bookingUser.email);
         } catch (emailError: any) {
-          console.error('❌ Error enviando email de confirmación:', emailError);
+          console.error('❌ Error enviando email de confirmación al usuario:', emailError);
           console.error('🔍 Stack trace del error de email:', emailError.stack);
+        }
+
+        // ✅ NUEVO: Enviar notificación al administrador
+        try {
+          console.log('📧 Enviando notificación al administrador...');
+          
+          const { sendAdminNotificationEmail } = await import('@/lib/emailNotifications');
+          console.log('✅ Función sendAdminNotificationEmail importada correctamente');
+          
+          const adminNotificationData = {
+            userEmail: bookingUser.email,
+            userName: bookingUser.name || bookingUser.email,
+            type: 'advisory' as const,
+            serviceType: serviceType,
+            date: startDate.toLocaleDateString('es-ES', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }),
+            time: startDate.toLocaleTimeString('es-ES', {
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
+            duration: Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60)),
+            price: amount,
+            meetLink: googleEventId ? `https://calendar.google.com/event?eid=${googleEventId}` : undefined
+          };
+          
+          await sendAdminNotificationEmail(adminNotificationData);
+          
+          console.log('✅ Notificación al administrador enviada exitosamente');
+        } catch (adminEmailError: any) {
+          console.error('❌ Error enviando notificación al administrador:', adminEmailError);
+          console.error('🔍 Stack trace del error de notificación admin:', adminEmailError.stack);
         }
         
       } catch (bookingError) {
