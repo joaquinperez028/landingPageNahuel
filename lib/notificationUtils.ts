@@ -18,7 +18,7 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
       symbol: alert.symbol,
       action: alert.action,
       tipo: alert.tipo,
-      entryPrice: alert.entryPrice
+      entryPriceRange: alert.entryPriceRange
     });
 
     // Determinar el grupo de usuarios basado en el tipo de alerta
@@ -80,7 +80,7 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
         alertType: alert.tipo,
         symbol: alert.symbol,
         action: alert.action,
-        price: alert.entryPrice?.toString() || 'N/A',
+        price: `${alert.entryPriceRange?.min || 'N/A'} - ${alert.entryPriceRange?.max || 'N/A'}`,
         takeProfit: alert.takeProfit?.toString() || 'N/A',
         stopLoss: alert.stopLoss?.toString() || 'N/A'
       };
@@ -102,7 +102,7 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
         metadata: {
           alertSymbol: alert.symbol,
           alertAction: alert.action,
-          alertPrice: alert.entryPrice,
+          alertPrice: `${alert.entryPriceRange?.min || 'N/A'} - ${alert.entryPriceRange?.max || 'N/A'}`,
           alertService: alert.tipo,
           automatic: true
         }
@@ -112,7 +112,7 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
       // Crear notificación manual si no hay plantilla
       notification = {
         title: `🚨 Nueva Alerta ${alert.tipo}`,
-        message: `${alert.action} ${alert.symbol} en $${alert.entryPrice}. TP: $${alert.takeProfit}, SL: $${alert.stopLoss}`,
+        message: `${alert.action} ${alert.symbol} en $${alert.entryPriceRange?.min || 'N/A'} - $${alert.entryPriceRange?.max || 'N/A'}. TP: $${alert.takeProfit}, SL: $${alert.stopLoss}`,
         type: 'alerta',
         priority: 'alta', // Usar valor válido en español
         targetUsers: targetUsers,
@@ -126,7 +126,7 @@ export async function createAlertNotification(alert: IAlert): Promise<void> {
         metadata: {
           alertSymbol: alert.symbol,
           alertAction: alert.action,
-          alertPrice: alert.entryPrice,
+          alertPrice: `${alert.entryPriceRange?.min || 'N/A'} - ${alert.entryPriceRange?.max || 'N/A'}`,
           alertService: alert.tipo,
           automatic: true
         }

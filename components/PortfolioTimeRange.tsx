@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, TrendingUp, BarChart3, DollarSign, Target, Percent } from 'lucide-react';
+import { Calendar, TrendingUp, BarChart3, DollarSign, Target, Percent, Save } from 'lucide-react';
 import styles from './PortfolioTimeRange.module.css';
 
 interface TimeRangeOption {
@@ -21,13 +21,17 @@ interface PortfolioStats {
   totalAlerts: number;
   winRate: number;
   avgProfit: number;
+  totalInvested: number; // ✅ NUEVO: Cantidad total invertida
+  profitPercentage: number; // ✅ NUEVO: Porcentaje de ganancia
 }
 
 interface PortfolioTimeRangeProps {
   selectedRange: string;
   onRangeChange: (range: string, days: number) => void;
+  onPortfolioUpdate?: (stats: PortfolioStats) => void; // ✅ NUEVO: Callback para actualizar dashboard
 }
 
+// ✅ NUEVO: Opciones de rango actualizadas según requerimientos
 const timeRangeOptions: TimeRangeOption[] = [
   {
     value: '7d',
@@ -36,13 +40,25 @@ const timeRangeOptions: TimeRangeOption[] = [
     description: 'Evolución semanal'
   },
   {
+    value: '15d',
+    label: '15 Días',
+    days: 15,
+    description: 'Evolución quincenal'
+  },
+  {
     value: '30d',
     label: '30 Días',
     days: 30,
     description: 'Evolución mensual'
   },
   {
-    value: '1y',
+    value: '6m',
+    label: '6 Meses',
+    days: 180,
+    description: 'Evolución semestral'
+  },
+  {
+    value: '1a',
     label: '1 Año',
     days: 365,
     description: 'Evolución anual'
@@ -51,13 +67,62 @@ const timeRangeOptions: TimeRangeOption[] = [
 
 const PortfolioTimeRange: React.FC<PortfolioTimeRangeProps> = ({
   selectedRange,
-  onRangeChange
+  onRangeChange,
+  onPortfolioUpdate
 }) => {
   const [portfolioData, setPortfolioData] = useState<PortfolioData[]>([]);
   const [portfolioStats, setPortfolioStats] = useState<PortfolioStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userPreference, setUserPreference] = useState<string>(selectedRange);
   
+  // ✅ NUEVO: Cargar preferencia del usuario al montar el componente
+  useEffect(() => {
+    loadUserPreference();
+  }, []);
+
+  // ✅ NUEVO: Cargar preferencia guardada del usuario
+  const loadUserPreference = async () => {
+    try {
+      // Intentar cargar desde localStorage
+      const savedRange = localStorage.getItem('portfolioTimeRange');
+      if (savedRange && timeRangeOptions.find(opt => opt.value === savedRange)) {
+        setUserPreference(savedRange);
+        // Aplicar el rango guardado automáticamente
+        const option = timeRangeOptions.find(opt => opt.value === savedRange);
+        if (option) {
+          onRangeChange(savedRange, option.days);
+        }
+      }
+    } catch (error) {
+      console.warn('No se pudo cargar preferencia del usuario:', error);
+    }
+  };
+
+  // ✅ NUEVO: Guardar preferencia del usuario
+  const saveUserPreference = async (range: string) => {
+    try {
+      // Guardar en localStorage
+      localStorage.setItem('portfolioTimeRange', range);
+      
+      // ✅ NUEVO: Guardar en backend si el usuario está autenticado
+      const response = await fetch('/api/profile/update-portfolio-preference', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ portfolioTimeRange: range })
+      });
+      
+      if (response.ok) {
+        console.log('✅ Preferencia de portfolio guardada en backend');
+      }
+    } catch (error) {
+      console.warn('No se pudo guardar preferencia en backend:', error);
+      // Continuar con localStorage como fallback
+    }
+  };
+
   const fetchPortfolioData = async (days: number) => {
     setLoading(true);
     setError(null);
@@ -68,7 +133,15 @@ const PortfolioTimeRange: React.FC<PortfolioTimeRangeProps> = ({
       
       if (result.success) {
         setPortfolioData(result.data || []);
-        setPortfolioStats(result.stats || null);
+        
+        // ✅ NUEVO: Calcular estadísticas mejoradas
+        const stats = calculateEnhancedStats(result.data || [], result.stats || null);
+        setPortfolioStats(stats);
+        
+        // ✅ NUEVO: Notificar al dashboard sobre la actualización
+        if (onPortfolioUpdate) {
+          onPortfolioUpdate(stats);
+        }
       } else {
         setError(result.error || 'Error al cargar datos del portfolio');
       }
@@ -86,6 +159,42 @@ const PortfolioTimeRange: React.FC<PortfolioTimeRangeProps> = ({
       fetchPortfolioData(selectedOption.days);
     }
   }, [selectedRange]);
+
+  // ✅ NUEVO: Calcular estadísticas mejoradas incluyendo inversión y porcentaje de ganancia
+  const calculateEnhancedStats = (data: PortfolioData[], baseStats: any): PortfolioStats => {
+    if (data.length === 0) {
+      return {
+        totalProfit: 0,
+        totalAlerts: 0,
+        winRate: 0,
+        avgProfit: 0,
+        totalInvested: 0,
+        profitPercentage: 0
+      };
+    }
+    
+    // ✅ NUEVO: Calcular cantidad total invertida (simulado por ahora)
+    const totalInvested = data.reduce((sum, item) => sum + (item.value * 0.1), 0); // 10% del valor como inversión
+    
+    // ✅ NUEVO: Calcular profit total y porcentaje
+    const totalProfit = data.reduce((sum, item) => sum + item.profit, 0);
+    const profitPercentage = totalInvested > 0 ? (totalProfit / totalInvested) * 100 : 0;
+    
+    // Calcular estadísticas base
+    const totalAlerts = data.reduce((sum, item) => sum + item.alertsCount, 0);
+    const positiveAlerts = data.filter(item => item.profit > 0).length;
+    const winRate = totalAlerts > 0 ? (positiveAlerts / totalAlerts) * 100 : 0;
+    const avgProfit = totalAlerts > 0 ? totalProfit / totalAlerts : 0;
+    
+    return {
+      totalProfit,
+      totalAlerts,
+      winRate,
+      avgProfit,
+      totalInvested,
+      profitPercentage
+    };
+  };
 
   const calculatePerformance = () => {
     if (portfolioData.length === 0) return { change: 0, percentage: 0, currentValue: 10000 };
@@ -115,6 +224,15 @@ const PortfolioTimeRange: React.FC<PortfolioTimeRangeProps> = ({
     return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
   };
 
+  // ✅ NUEVO: Manejar cambio de rango con persistencia
+  const handleRangeChange = async (range: string, days: number) => {
+    setUserPreference(range);
+    onRangeChange(range, days);
+    
+    // ✅ NUEVO: Guardar preferencia del usuario
+    await saveUserPreference(range);
+  };
+
   return (
     <div className={styles.portfolioTimeRange}>
       <div className={styles.header}>
@@ -138,16 +256,20 @@ const PortfolioTimeRange: React.FC<PortfolioTimeRangeProps> = ({
         </div>
       </div>
 
+      {/* ✅ NUEVO: Selector de rango mejorado */}
       <div className={styles.rangeSelector}>
         {timeRangeOptions.map((option) => (
           <button
             key={option.value}
-            className={`${styles.rangeButton} ${selectedRange === option.value ? styles.active : ''}`}
-            onClick={() => onRangeChange(option.value, option.days)}
+            className={`${styles.rangeButton} ${userPreference === option.value ? styles.active : ''}`}
+            onClick={() => handleRangeChange(option.value, option.days)}
             disabled={loading}
           >
             <span className={styles.rangeLabel}>{option.label}</span>
             <span className={styles.rangeDescription}>{option.description}</span>
+            {userPreference === option.value && (
+              <Save size={12} className={styles.savedIndicator} />
+            )}
           </button>
         ))}
       </div>
@@ -176,7 +298,7 @@ const PortfolioTimeRange: React.FC<PortfolioTimeRangeProps> = ({
 
       {!loading && !error && portfolioData.length > 0 && (
         <>
-          {/* Estadísticas principales */}
+          {/* ✅ NUEVO: Estadísticas principales mejoradas */}
           <div className={styles.mainStats}>
             <div className={styles.mainStatItem}>
               <DollarSign size={16} />
@@ -194,29 +316,31 @@ const PortfolioTimeRange: React.FC<PortfolioTimeRangeProps> = ({
             </div>
           </div>
 
-          {/* Estadísticas del período */}
-          <div className={styles.summaryStats}>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>Período:</span>
-              <span className={styles.statValue}>
-                {timeRangeOptions.find(opt => opt.value === selectedRange)?.label}
-              </span>
+          {/* ✅ NUEVO: Estadísticas del portfolio con inversión y ganancia */}
+          {portfolioStats && (
+            <div className={styles.summaryStats}>
+              <div className={styles.statItem}>
+                <span className={styles.statLabel}>Período:</span>
+                <span className={styles.statValue}>
+                  {timeRangeOptions.find(opt => opt.value === selectedRange)?.label}
+                </span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statLabel}>Días con alertas:</span>
+                <span className={styles.statValue}>
+                  {portfolioData.filter(d => d.alertsCount > 0).length}
+                </span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statLabel}>Total alertas:</span>
+                <span className={styles.statValue}>
+                  {portfolioData.reduce((sum, d) => sum + d.alertsCount, 0)}
+                </span>
+              </div>
             </div>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>Días con alertas:</span>
-              <span className={styles.statValue}>
-                {portfolioData.filter(d => d.alertsCount > 0).length}
-              </span>
-            </div>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>Total alertas:</span>
-              <span className={styles.statValue}>
-                {portfolioData.reduce((sum, d) => sum + d.alertsCount, 0)}
-              </span>
-            </div>
-          </div>
+          )}
 
-          {/* Estadísticas generales */}
+          {/* ✅ NUEVO: Estadísticas generales mejoradas */}
           {portfolioStats && (
             <div className={styles.globalStats}>
               <h4 className={styles.globalStatsTitle}>
@@ -246,6 +370,19 @@ const PortfolioTimeRange: React.FC<PortfolioTimeRangeProps> = ({
                   <span className={styles.globalStatLabel}>Profit Promedio:</span>
                   <span className={`${styles.globalStatValue} ${portfolioStats.avgProfit >= 0 ? styles.positive : styles.negative}`}>
                     {formatPercentage(portfolioStats.avgProfit)}
+                  </span>
+                </div>
+                {/* ✅ NUEVO: Cantidad invertida y porcentaje de ganancia */}
+                <div className={styles.globalStatItem}>
+                  <span className={styles.globalStatLabel}>Total Invertido:</span>
+                  <span className={styles.globalStatValue}>
+                    {formatCurrency(portfolioStats.totalInvested)}
+                  </span>
+                </div>
+                <div className={styles.globalStatItem}>
+                  <span className={styles.globalStatLabel}>% de Ganancia:</span>
+                  <span className={`${styles.globalStatValue} ${portfolioStats.profitPercentage >= 0 ? styles.positive : styles.negative}`}>
+                    {formatPercentage(portfolioStats.profitPercentage)}
                   </span>
                 </div>
               </div>

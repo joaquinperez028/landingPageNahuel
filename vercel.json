@@ -1,8 +1,20 @@
 {
+  "functions": {
+    "pages/api/cron/update-stock-prices.ts": {
+      "maxDuration": 300
+    },
+    "pages/api/cron/market-close.ts": {
+      "maxDuration": 300
+    }
+  },
   "crons": [
     {
-      "path": "/api/cron/subscription-notifications",
-      "schedule": "0 9 * * *"
+      "path": "/api/cron/update-stock-prices",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/market-close",
+      "schedule": "30 17 * * 1-5"
     }
   ]
 }

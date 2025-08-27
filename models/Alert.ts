@@ -13,11 +13,30 @@ export interface CloudinaryImage {
   order?: number;
 }
 
+// Esquema para auditoría de cambios de precio
+export interface PriceChangeAudit {
+  changedBy: mongoose.Types.ObjectId;
+  changedAt: Date;
+  oldPrice: number;
+  newPrice: number;
+  reason?: string;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
 export interface IAlert extends Document {
   _id: string;
   symbol: string;
   action: 'BUY' | 'SELL';
-  entryPrice: number;
+  // ✅ CAMBIO: Precio de entrada ahora es un rango (mín-máx)
+  entryPriceRange: {
+    min: number;
+    max: number;
+  };
+  // ✅ NUEVO: Valor final fijado al cierre del mercado
+  finalPrice?: number;
+  finalPriceSetAt?: Date;
+  isFinalPriceFromLastAvailable?: boolean; // Si no hay cierre, usar último disponible
   currentPrice: number;
   stopLoss: number;
   takeProfit: number;
@@ -32,9 +51,25 @@ export interface IAlert extends Document {
   exitPrice?: number;
   exitDate?: Date;
   exitReason?: 'TAKE_PROFIT' | 'STOP_LOSS' | 'MANUAL';
+  // ✅ NUEVO: Campos para emails automáticos
+  emailsSent: {
+    creation: boolean;
+    marketClose: boolean;
+  };
+  // ✅ NUEVO: Auditoría de cambios de precio (solo admin)
+  priceChangeHistory: PriceChangeAudit[];
+  // ✅ NUEVO: Campos para el sistema de recomendaciones
+  isRecommended: boolean; // Si es recomendada por Nahuel
+  recommendedBy?: mongoose.Types.ObjectId;
+  recommendedAt?: Date;
   // Nuevos campos para imágenes
   chartImage?: CloudinaryImage; // Imagen principal del gráfico
   images?: CloudinaryImage[]; // Imágenes adicionales
+  
+  // ✅ NUEVO: Métodos del esquema
+  calculateProfit(): number;
+  setFinalPrice(price: number, isFromLastAvailable?: boolean): number;
+  recordPriceChange(adminId: mongoose.Types.ObjectId, newPrice: number, reason?: string, ipAddress?: string, userAgent?: string): IAlert;
 }
 
 // Esquema para imágenes de Cloudinary
@@ -62,6 +97,30 @@ const CloudinaryImageSchema = new mongoose.Schema({
   }
 });
 
+// Esquema para auditoría de cambios de precio
+const PriceChangeAuditSchema = new mongoose.Schema({
+  changedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  changedAt: {
+    type: Date,
+    default: Date.now
+  },
+  oldPrice: {
+    type: Number,
+    required: true
+  },
+  newPrice: {
+    type: Number,
+    required: true
+  },
+  reason: String,
+  ipAddress: String,
+  userAgent: String
+});
+
 const AlertSchema: Schema = new Schema({
   symbol: {
     type: String,
@@ -74,10 +133,28 @@ const AlertSchema: Schema = new Schema({
     required: true,
     enum: ['BUY', 'SELL']
   },
-  entryPrice: {
+  // ✅ CAMBIO: Precio de entrada ahora es un rango
+  entryPriceRange: {
+    min: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    max: {
+      type: Number,
+      required: true,
+      min: 0
+    }
+  },
+  // ✅ NUEVO: Valor final fijado al cierre
+  finalPrice: {
     type: Number,
-    required: true,
     min: 0
+  },
+  finalPriceSetAt: Date,
+  isFinalPriceFromLastAvailable: {
+    type: Boolean,
+    default: false
   },
   currentPrice: {
     type: Number,
@@ -127,13 +204,34 @@ const AlertSchema: Schema = new Schema({
     type: Number,
     min: 0
   },
-  exitDate: {
-    type: Date
-  },
+  exitDate: Date,
   exitReason: {
     type: String,
     enum: ['TAKE_PROFIT', 'STOP_LOSS', 'MANUAL']
   },
+  // ✅ NUEVO: Control de emails automáticos
+  emailsSent: {
+    creation: {
+      type: Boolean,
+      default: false
+    },
+    marketClose: {
+      type: Boolean,
+      default: false
+    }
+  },
+  // ✅ NUEVO: Auditoría de cambios de precio
+  priceChangeHistory: [PriceChangeAuditSchema],
+  // ✅ NUEVO: Sistema de recomendaciones
+  isRecommended: {
+    type: Boolean,
+    default: false
+  },
+  recommendedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  recommendedAt: Date,
   // Nuevos campos para imágenes
   chartImage: CloudinaryImageSchema, // Imagen principal del gráfico
   images: [CloudinaryImageSchema] // Imágenes adicionales
@@ -146,11 +244,14 @@ AlertSchema.index({ createdBy: 1, status: 1 });
 AlertSchema.index({ symbol: 1, status: 1 });
 AlertSchema.index({ tipo: 1, status: 1 });
 AlertSchema.index({ date: -1 });
+AlertSchema.index({ isRecommended: 1, status: 1 }); // ✅ NUEVO: Para alertas recomendadas
+AlertSchema.index({ finalPriceSetAt: 1 }); // ✅ NUEVO: Para búsquedas por fecha de cierre
 
-// Método para calcular el profit automáticamente
+// ✅ NUEVO: Método para calcular el profit usando el rango de entrada
 AlertSchema.methods.calculateProfit = function(this: IAlert) {
   const currentPrice = this.currentPrice;
-  const entryPrice = this.entryPrice;
+  // Usar el precio máximo del rango para cálculos conservadores
+  const entryPrice = this.entryPriceRange.max;
   
   if (this.action === 'BUY') {
     this.profit = ((currentPrice - entryPrice) / entryPrice) * 100;
@@ -161,9 +262,48 @@ AlertSchema.methods.calculateProfit = function(this: IAlert) {
   return this.profit;
 };
 
+// ✅ NUEVO: Método para fijar precio final al cierre
+AlertSchema.methods.setFinalPrice = function(this: IAlert, price: number, isFromLastAvailable: boolean = false) {
+  this.finalPrice = price;
+  this.finalPriceSetAt = new Date();
+  this.isFinalPriceFromLastAvailable = isFromLastAvailable;
+  
+  // Recalcular profit con el precio final
+  if (this.entryPriceRange) {
+    const entryPrice = this.entryPriceRange.max;
+    if (this.action === 'BUY') {
+      this.profit = ((price - entryPrice) / entryPrice) * 100;
+    } else { // SELL
+      this.profit = ((entryPrice - price) / entryPrice) * 100;
+    }
+  }
+  
+  return this.profit;
+};
+
+// ✅ NUEVO: Método para registrar cambio de precio (solo admin)
+AlertSchema.methods.recordPriceChange = function(this: IAlert, adminId: mongoose.Types.ObjectId, newPrice: number, reason?: string, ipAddress?: string, userAgent?: string) {
+  const oldPrice = this.currentPrice;
+  
+  this.priceChangeHistory.push({
+    changedBy: adminId,
+    changedAt: new Date(),
+    oldPrice,
+    newPrice,
+    reason,
+    ipAddress,
+    userAgent
+  });
+  
+  this.currentPrice = newPrice;
+  this.calculateProfit();
+  
+  return this;
+};
+
 // Middleware para calcular profit antes de guardar
 AlertSchema.pre('save', function(this: IAlert, next) {
-  if (this.isModified('currentPrice') || this.isModified('entryPrice')) {
+  if (this.isModified('currentPrice') || this.isModified('entryPriceRange')) {
     (this as any).calculateProfit();
   }
   next();
