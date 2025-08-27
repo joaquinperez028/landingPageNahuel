@@ -42,6 +42,7 @@ import User from '@/models/User';
 import styles from '@/styles/AdminDashboard.module.css';
 import dbConnect from '@/lib/mongodb';
 import toast from 'react-hot-toast';
+import AdminDropdownTest from '@/components/AdminDropdownTest';
 
 interface DashboardStats {
   totalUsers: number;
@@ -741,15 +742,14 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
   return (
     <>
       <Head>
-        <title>Dashboard Administrador - Nahuel Lozano</title>
-        <meta name="description" content="Panel de administración principal" />
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="preload" href="/api/admin/dashboard/stats" as="fetch" crossOrigin="anonymous" />
+        <title>Dashboard de Administrador - Lozano Nahuel</title>
+        <meta name="description" content="Panel de administración para gestionar usuarios, notificaciones y contenido" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-
+      
       <Navbar />
-
-      <main className={styles.main}>
+      
+      <main className={`${styles.main} admin-dashboard`}>
         <div className={styles.container}>
           <motion.div
             className={styles.content}
@@ -757,26 +757,28 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            {/* Header */}
+            {/* Header del Dashboard */}
             <div className={styles.header}>
               <div className={styles.headerLeft}>
                 <div className={styles.headerIcon}>
-                  <BarChart3 size={40} />
+                  <BarChart3 size={30} />
                 </div>
                 <div>
-                  <h1 className={styles.title}>Dashboard Administrador</h1>
+                  <h1 className={styles.title}>Dashboard de Administrador</h1>
                   <p className={styles.subtitle}>
-                    Panel de control y gestión completa del sistema
+                    Gestiona usuarios, notificaciones, contenido y monitorea la actividad del sistema
                   </p>
                 </div>
               </div>
+              
               <div className={styles.headerActions}>
-                <Link 
-                  href="/admin/notifications"
-                  className={`${styles.actionButton} ${styles.primary}`}
-                >
+                <Link href="/admin/users" className={styles.actionButton}>
+                  <Users size={20} />
+                  Gestionar Usuarios
+                </Link>
+                <Link href="/admin/notifications" className={styles.actionButton}>
                   <Bell size={20} />
-                  Gestionar Notificaciones
+                  Notificaciones
                 </Link>
               </div>
             </div>
@@ -1436,6 +1438,9 @@ export default function AdminDashboardPage({ user }: AdminDashboardProps) {
           </div>
         </div>
       )}
+
+      {/* ✅ NUEVO: Componente de prueba temporal para verificar menús */}
+      <AdminDropdownTest />
 
       <Footer />
     </>

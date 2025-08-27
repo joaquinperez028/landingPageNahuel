@@ -1580,3 +1580,137 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
 } 
+
+/* ✅ NUEVO: Estilos específicos para arreglar menús desplegables */
+.admin-dashboard select,
+.admin-dashboard option,
+.admin-dashboard optgroup {
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.admin-dashboard select:focus,
+.admin-dashboard select:hover {
+  outline: none !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.15) !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+.admin-dashboard option {
+  background: rgba(0, 0, 0, 0.9) !important;
+  color: var(--text-primary) !important;
+  padding: 8px 12px !important;
+}
+
+.admin-dashboard option:hover,
+.admin-dashboard option:focus {
+  background: rgba(187, 134, 252, 0.2) !important;
+  color: var(--primary-color) !important;
+}
+
+.admin-dashboard option:checked {
+  background: rgba(187, 134, 252, 0.3) !important;
+  color: var(--primary-color) !important;
+}
+
+/* ✅ NUEVO: Asegurar que los filtros funcionen */
+.admin-dashboard .filterSelect {
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 1000 !important;
+}
+
+.admin-dashboard .filterSelect:focus {
+  z-index: 1001 !important;
+}
+
+/* ✅ NUEVO: Asegurar que los formularios funcionen */
+.admin-dashboard .formGroup select {
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: 1000 !important;
+}
+
+.admin-dashboard .formGroup select:focus {
+  z-index: 1001 !important;
+}
+
+/* ✅ NUEVO: Asegurar que los botones funcionen */
+.admin-dashboard button,
+.admin-dashboard [role="button"] {
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* ✅ NUEVO: Asegurar que los inputs funcionen */
+.admin-dashboard input,
+.admin-dashboard textarea {
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+  pointer-events: auto !important;
+  cursor: text !important;
+}
+
+/* ✅ NUEVO: Asegurar que las tablas funcionen */
+.admin-dashboard table,
+.admin-dashboard th,
+.admin-dashboard td {
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+  pointer-events: auto !important;
+}
+
+/* ✅ NUEVO: Asegurar que los modales funcionen */
+.admin-dashboard .modal,
+.admin-dashboard .modalContent {
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+  pointer-events: auto !important;
+  z-index: 9999 !important;
+}
+
+/* ✅ NUEVO: Asegurar que los dropdowns funcionen */
+.admin-dashboard .dropdown,
+.admin-dashboard .dropdownMenu,
+.admin-dashboard .dropdownContent {
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+}
+
+/* ✅ NUEVO: Asegurar que los tooltips funcionen */
+.admin-dashboard .tooltip,
+.admin-dashboard .tooltipContent {
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  user-select: auto !important;
+  pointer-events: auto !important;
+  z-index: 10000 !important;
+} 

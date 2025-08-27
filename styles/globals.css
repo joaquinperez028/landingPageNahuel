@@ -105,6 +105,208 @@ img {
   pointer-events: none;
 }
 
+/* ✅ NUEVO: Permitir interacción en elementos de formulario y menús */
+select,
+option,
+optgroup,
+input,
+textarea,
+button,
+[role="button"],
+[role="menuitem"],
+[role="option"],
+[role="listbox"],
+[role="combobox"],
+[role="list"],
+[role="tree"],
+[role="treeitem"],
+[role="grid"],
+[role="gridcell"],
+[role="row"],
+[role="columnheader"],
+[role="rowheader"],
+[role="tab"],
+[role="tabpanel"],
+[role="toolbar"],
+[role="tooltip"],
+[role="dialog"],
+[role="alertdialog"],
+[role="menu"],
+[role="menubar"],
+[role="menuitemcheckbox"],
+[role="menuitemradio"],
+[role="navigation"],
+[role="search"],
+[role="searchbox"],
+[role="slider"],
+[role="spinbutton"],
+[role="switch"],
+[role="tablist"],
+[role="textbox"],
+[role="timer"],
+[role="toolbar"],
+[role="treegrid"],
+[role="article"],
+[role="banner"],
+[role="complementary"],
+[role="contentinfo"],
+[role="form"],
+[role="main"],
+[role="region"],
+[role="section"] {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  pointer-events: auto;
+}
+
+/* ✅ NUEVO: Permitir interacción en elementos específicos del admin */
+.admin-dashboard select,
+.admin-dashboard option,
+.admin-dashboard input,
+.admin-dashboard textarea,
+.admin-dashboard button,
+.admin-dashboard [role="button"],
+.admin-dashboard [role="menuitem"],
+.admin-dashboard [role="option"],
+.admin-dashboard [role="listbox"],
+.admin-dashboard [role="combobox"],
+.admin-dashboard [role="list"],
+.admin-dashboard [role="tree"],
+.admin-dashboard [role="treeitem"],
+.admin-dashboard [role="grid"],
+.admin-dashboard [role="gridcell"],
+.admin-dashboard [role="row"],
+.admin-dashboard [role="columnheader"],
+.admin-dashboard [role="rowheader"],
+.admin-dashboard [role="tab"],
+.admin-dashboard [role="tabpanel"],
+.admin-dashboard [role="toolbar"],
+.admin-dashboard [role="tooltip"],
+.admin-dashboard [role="dialog"],
+.admin-dashboard [role="alertdialog"],
+.admin-dashboard [role="menu"],
+.admin-dashboard [role="menubar"],
+.admin-dashboard [role="menuitemcheckbox"],
+.admin-dashboard [role="menuitemradio"],
+.admin-dashboard [role="navigation"],
+.admin-dashboard [role="search"],
+.admin-dashboard [role="searchbox"],
+.admin-dashboard [role="slider"],
+.admin-dashboard [role="spinbutton"],
+.admin-dashboard [role="switch"],
+.admin-dashboard [role="tablist"],
+.admin-dashboard [role="textbox"],
+.admin-dashboard [role="timer"],
+.admin-dashboard [role="toolbar"],
+.admin-dashboard [role="treegrid"],
+.admin-dashboard [role="article"],
+.admin-dashboard [role="banner"],
+.admin-dashboard [role="complementary"],
+.admin-dashboard [role="contentinfo"],
+.admin-dashboard [role="form"],
+.admin-dashboard [role="main"],
+.admin-dashboard [role="region"],
+.admin-dashboard [role="section"] {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  pointer-events: auto;
+}
+
+/* ✅ NUEVO: Permitir interacción en elementos de navegación */
+nav,
+.navbar,
+.nav,
+.menu,
+.dropdown,
+.dropdown-menu,
+.dropdown-content,
+.select-wrapper,
+.select-container,
+.form-group,
+.form-control,
+.input-group,
+.button-group {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  pointer-events: auto;
+}
+
+/* ✅ NUEVO: Permitir interacción en elementos de tabla */
+table,
+thead,
+tbody,
+tr,
+th,
+td,
+.table,
+.table-header,
+.table-body,
+.table-row,
+.table-cell {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  pointer-events: auto;
+}
+
+/* ✅ NUEVO: Permitir interacción en elementos de modal */
+.modal,
+.modal-content,
+.modal-header,
+.modal-body,
+.modal-footer,
+.dialog,
+.dialog-content,
+.popup,
+.popup-content {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  pointer-events: auto;
+}
+
+/* ✅ NUEVO: Permitir interacción en elementos de formulario específicos */
+.form-select,
+.form-input,
+.form-textarea,
+.form-button,
+.form-checkbox,
+.form-radio,
+.form-toggle,
+.form-slider,
+.form-range {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  pointer-events: auto;
+}
+
+/* ✅ NUEVO: Permitir interacción en elementos de interfaz de usuario */
+.ui-select,
+.ui-input,
+.ui-button,
+.ui-menu,
+.ui-dropdown,
+.ui-tooltip,
+.ui-popover,
+.ui-modal,
+.ui-dialog {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  pointer-events: auto;
+}
+
 /* Permitir interacción en imágenes específicas que lo necesiten */
 img.interactive {
   pointer-events: auto;
